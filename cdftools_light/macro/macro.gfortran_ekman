@@ -1,0 +1,17 @@
+# Makefile for CDFTOOLS
+#    $Rev: 173 $
+#    $Date: 2008-03-17 11:42:21 +0100 (Mon, 17 Mar 2008) $
+# --------------------------------------------------------------
+
+NCDF_DIR=/afs/pdc.kth.se/home/b/brodeau/Public/opt/netcdf_gcc
+
+NCDF= -I$(NCDF_DIR)/include -L$(NCDF_DIR)/lib -lnetcdf
+
+F90=gfortran
+
+# -fdefault-real-8 -fbounds-check
+
+FFLAGS= -O2 -I./mod -J./mod $(NCDF)
+
+#INSTALL=../bin/
+

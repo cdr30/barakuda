@@ -1,0 +1,13 @@
+# Makefile for CDFTOOLS
+# --------------------------------------------------------------
+
+NCDF_DIR=/opt/netcdf_intel11
+
+NCDF= -I$(NCDF_DIR)/include -L$(NCDF_DIR)/lib -lnetcdf
+
+# -lnetcdff
+
+F90=ifort
+
+FFLAGS= -O3 -module ./mod $(NCDF)
+

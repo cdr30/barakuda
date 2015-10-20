@@ -1,0 +1,25 @@
+# Makefile for CDFTOOLS
+#    $Rev: 173 $
+#    $Date: 2008-03-17 11:42:21 +0100 (Mon, 17 Mar 2008) $
+# --------------------------------------------------------------
+
+#NCDF_DIR=/home/x_laubr/Public/netcdf-4.3.0_intel1214_par
+
+NCDF_DIR = /opt/cray/netcdf-hdf5parallel/4.3.2/intel/140
+
+NCDF= -I$(NCDF_DIR)/include -L$(NCDF_DIR)/lib -lnetcdf -lnetcdff
+
+F90=ifort
+
+
+# -fdefault-real-8 -fbounds-check
+
+##FFLAGS= -O3 -parallel -module ./mod $(NCDF)
+##FFLAGS= -O3 -parallel -xHost -module ./mod $(NCDF)
+
+
+FFLAGS= -O3 -module ./mod $(NCDF)
+
+#FFLAGS= -O0 -CB -traceback -module ./mod $(NCDF)
+
+
