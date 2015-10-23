@@ -25,7 +25,7 @@ export BARAKUDA_ROOT=`pwd`
 
 
 iremap=0 ; REGG="360x180"; # remap to regular lat-lon grid?
-iuv=0 ; # Do a climatology for current...
+iuv=0      ; # Do a climatology for current...
 ivt=1      ; # Do a climatology for VT
 iamoc=1    ; # Do a climatology for 2D lat-depth AMOC?
 ibpsi=0    ; # Do a climatology for barotropic stream function
