@@ -1,18 +1,5 @@
 
 
-IMPORTANT: Names of variables expected in NEMO files follow NEMO 3.6 convetion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-tos    => SST                       (grid_T)
-sos    => SSS                       (grid_T)
-zos    => SSH                       (grid_T)
-thetao => 3D potential temperarture (grid_T)
-so     => 3D salinity               (grid_T)
-uo     => 3D zonal velocity         (grid_U)
-uo     => 3D meridional velocity    (grid_V)
-
-
-
 
 What do you need on your machine to use barakuda ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -20,6 +7,8 @@ What do you need on your machine to use barakuda ?
 - A Fortan 90 compiler
 
 - netcdf library with support for the appropriate F90 compiler
+
+- NCO 
 
 - NEMO data! => A directory containing NEMO outputs to analyze
                (grid_T, grid_U, grid_V and icemod files)
@@ -31,7 +20,8 @@ What do you need on your machine to use barakuda ?
   
   A good idea is to install a shiny python distribution, something like Canopy:
   => https://www.enthought.com/products/canopy/
-  
+
+
 
 
 
@@ -58,8 +48,8 @@ I / Compiling CDFTOOLS executables
 
 
 
-II / Configure the "config.sh"
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+II / Creat and configure your own "configs/config_<MY_CONF>.sh" file
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 NEMO output files must be stored in 
 <STORE_DIR>/<ORCA_GRID>/<ORCA_GRID>-<RUN>-S

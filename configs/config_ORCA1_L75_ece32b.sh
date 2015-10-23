@@ -4,7 +4,7 @@
 #
 #         Configuration file for
 #
-# OCEAN MONITORING for NEMO v3.6 ORCA1 on 75 levels
+# OCEAN MONITORING for NEMO v3.6 of EC-Earth 3.2 beta on 75 levels
 #
 #            HPC: triolith
 #
@@ -65,7 +65,7 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / ocean-only experiment"
+export JTITLE="NEMO v3.6 ORCA1 (L${NBL}) - LIM3 / EC-Earth 3.2_beta"
 
 # Land-sea mask and basins files:
 export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask_${CONF}_20150929.nc"
@@ -92,7 +92,7 @@ export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_ORCA1.dat"
 
 
 # In what directory of the local machine to save the diagnostics:
-export DIAG_DIR="/proj/bolinc/users/x_laubr/tmp/barakuda/${CONF}_v36"
+export DIAG_DIR="/proj/bolinc/users/x_laubr/tmp/barakuda/${CONF}_ece32b"
 
 
 # Files with the list of rectangular boxes to look at more closely:
@@ -104,7 +104,7 @@ export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 ihttp=1 ; # do we export on a remote http server (1) or keep on the local machine (0)
 RHOST=misu228.misu.su.se ; # remote host to send diagnostic page to///
 RUSER=laurent ; # username associated to remote host (for file export)
-RWWWD=/data/www/barakuda/${CONF} ; # directory of the local or remote host to send the diagnostic page to
+RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host to send the diagnostic page to
 
 
 

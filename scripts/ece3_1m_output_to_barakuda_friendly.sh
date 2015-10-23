@@ -22,7 +22,7 @@ NCDIR=/software/apps/netcdf/4.3.2/i1214-hdf5-1.8.12-AVX-off
 #RUN="LB00" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='mv'
 #RUN="T001" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
 #RUN="5c13" ; ILDIR=5 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
-RUN="CPL0" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
+RUN="CPL0" ; ILDIR=20 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
 
 
 NEMO_SAVED_FILE="grid_T grid_U grid_V icemod"
@@ -43,6 +43,9 @@ if [ ! -d ${ROOT} ]; then
 fi
 
 
+NCCOPY="${NCDIR}/bin/nccopy"
+
+
 echo
 ls -l ${ROOT}
 echo
@@ -57,41 +60,48 @@ dir_job_temp=/scratch/local/${SLURM_JOBID} ; mkdir -p ${dir_job_temp}
 cd ${dir_job_temp}/
 
 while [ ${idi} -le ${ILDIR} ]; do
-    
+
     cdi=`printf "%03d" "${idi}"`
-    
+
     echo " ${cdi} , ${yyyy} "
-    
+
     for gt in ${NEMO_SAVED_FILE}; do
-        
+
         TT="${yyyy}0101_${yyyy}1231"
-        
+
         fin=${RUN}_1m_${TT}_${gt}.nc
 
-
+        
         if [ "${cimp}" = "cp" ]; then
             
             fo=ORCA1${cext}-${RUN}_1m_${TT}_${gt}.nc4
-            echo "${NCDIR}/bin/nccopy -k 4 -d 9 ${ROOT}/${cdi}/${fin}  ${DOUT}/${fo}"
-            ${NCDIR}/bin/nccopy -k 4 -d 9 ${ROOT}/${cdi}/${fin}  ${DOUT}/${fo}
-            
-        elif [ "${cimp}" = "mv" ]; then
-            
-            fo=ORCA1${cext}-${RUN}_1m_${TT}_${gt}.nc
-            echo "mv -f  ${ROOT}/${cdi}/${fin}  ${DOUT}/${fo}"
-            mv -f  ${ROOT}/${cdi}/${fin}  ${DOUT}/${fo}
+            ftarget=${DOUT}/${fo}
+            if [ ! -f ${ftarget} ]; then
+                echo "${NCCOPY} -k 4 -d 9 ${ROOT}/${cdi}/${fin}  ${ftarget}"
+                ${NCCOPY} -k 4 -d 9 ${ROOT}/${cdi}/${fin}  ${ftarget}
+            else
+                echo;  echo " ${ftarget} already there, skipping it..."
+            fi
 
+
+        elif [ "${cimp}" = "mv" ]; then
+
+            fo=ORCA1${cext}-${RUN}_1m_${TT}_${gt}.nc
+            ftarget=${DOUT}/${fo}
+            echo "mv -f  ${ROOT}/${cdi}/${fin}  ${ftarget}"
+            mv -f  ${ROOT}/${cdi}/${fin}  ${ftarget}
+            
         fi
+
         echo
-        
     done
-    
+
     echo
     echo "Done for year $yyyy !"
     echo
 
     idi=$(($idi+1))
     yyyy=$(($yyyy+1))
-    
+
 done
 
