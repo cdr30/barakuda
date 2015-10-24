@@ -7,12 +7,13 @@ from os import path
 
 
 
-def wrt_1d_series(vt, vd, cvar, cinfo,  cu_t='unknown', cu_d='unknown', cln_d='unknown', nsmooth=0):
+def wrt_1d_series(vt, vd, cvar, cinfo,                   
+                  cu_t='unknown', cu_d='unknown', cln_d='unknown', nsmooth=0,
+                  vd2=[], vd3=[], vd4=[], vd5=[],
+                  cvar2='', cvar3='', cvar4='', cvar5='',
+                  cln_d2='', cln_d3='', cln_d4='', cln_d5='',):
 
     cf_o  = cvar+'_'+cinfo+'.nc'
-    
-    #l_nc_is_new = not path.exists(cf_o)
-    #if not l_nc_is_new: print 'ERROR: wrt_1d_series.barakuda_ncio => '+cf_o+' exists!'; sys.exit(0)
     
     lsmooth = False
 
@@ -33,11 +34,24 @@ def wrt_1d_series(vt, vd, cvar, cinfo,  cu_t='unknown', cu_d='unknown', cln_d='u
     nt = len(vt)
     if len(vd) != nt:  print 'ERROR: wrt_1d_series.barakuda_ncio => data & time have different lengths!'; sys.exit(0)
 
+    l_do_v2=False ; l_do_v3=False ; l_do_v4=False ; l_do_v5=False
+    if len(vd2) == nt: l_do_v2=True
+    if len(vd3) == nt: l_do_v3=True
+    if len(vd4) == nt: l_do_v4=True
+    if len(vd5) == nt: l_do_v5=True
+
+
     f_o.createDimension('time', None)
     id_t = f_o.createVariable('time','f4',('time',)) ;  id_t.units = cu_t
 
     id_d = f_o.createVariable(cvar,'f4',('time',))
     id_d.units = cu_d ;  id_d.long_name = cln_d
+
+    if l_do_v2: id_d2 = f_o.createVariable(cvar2,'f4',('time',)); id_d2.units = cu_d; id_d2.long_name = cln_d2
+    if l_do_v3: id_d3 = f_o.createVariable(cvar3,'f4',('time',)); id_d3.units = cu_d; id_d3.long_name = cln_d3
+    if l_do_v4: id_d4 = f_o.createVariable(cvar4,'f4',('time',)); id_d4.units = cu_d; id_d4.long_name = cln_d4
+    if l_do_v5: id_d5 = f_o.createVariable(cvar5,'f4',('time',)); id_d5.units = cu_d; id_d5.long_name = cln_d5
+
 
     if lsmooth:
         id_sm = f_o.createVariable(cvar+'_'+str(nsmooth)+'yrm','f4',('time',))
@@ -47,8 +61,12 @@ def wrt_1d_series(vt, vd, cvar, cinfo,  cu_t='unknown', cu_d='unknown', cln_d='u
     for jt in range(nt):
         id_t[jt]   = vt[jt]
         id_d[jt]   = vd[jt]
-        if lsmooth: id_sm[jt]   = vd_sm[jt]
-
+        if lsmooth: id_sm[jt] = vd_sm[jt]
+        if l_do_v2: id_d2[jt] = vd2[jt]
+        if l_do_v3: id_d3[jt] = vd3[jt]
+        if l_do_v4: id_d4[jt] = vd4[jt]
+        if l_do_v5: id_d5[jt] = vd5[jt]
+        
     f_o.Author = 'L. Brodeau (barakuda_ncio.py of Barakuda)'
     f_o.close()
     print ' * wrt_1d_series => '+cf_o+' written!\n'
