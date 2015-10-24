@@ -2120,7 +2120,7 @@ def __force_min_and_max__(rm, rp, Xin):
 
 def __font_unity_big__():
     #
-    params = {'font.family':'Trebuchet MS','text.fontsize':20,'legend.fontsize': 16,'xtick.labelsize':16,'ytick.labelsize': 16,'axes.labelsize':18}
+    params = {'font.family':'Trebuchet MS','font.size':20,'legend.fontsize': 16,'xtick.labelsize':16,'ytick.labelsize': 16,'axes.labelsize':18}
     mpl.rcParams.update(params)
     title_fonts     = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':20 }
     big_fixed_fonts = { 'fontname':'monaco',       'fontweight':'normal', 'fontsize':20 }
