@@ -1571,7 +1571,7 @@ def plot_1d_multi(vt, XD, vlabels, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='
 
     if lzonal:
         fig = plt.figure(num = 1, figsize=fig_size, facecolor='w', edgecolor='k')
-        ax = plt.axes([0.0, 0.11, 0.88, 0.83])
+        ax = plt.axes([0.08, 0.11, 0.88, 0.83])
     else:
         fig = plt.figure(num = 1, figsize=fig_size, facecolor='w', edgecolor='k')
         ax = plt.axes(AXES_TS)
