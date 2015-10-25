@@ -137,7 +137,8 @@ export LD_LIBRARY_PATH=${NCDF_DIR}/lib:${LD_LIBRARY_PATH}
 
 Y1=`expr ${Y1} + 0`
 Y2=`expr ${Y2} + 0`
-
+CY1=`printf "%04d" ${Y1}`
+CY2=`printf "%04d" ${Y2}`
 
 
 # Variables to extract:
@@ -296,35 +297,31 @@ while [ ${jyear} -le ${Y2} ]; do
     i_get_file=0
 
 
-    if [ ${IFREQ_SAV_YEARS} -ge 2 ]; then
+    if [ ${IFREQ_SAV_YEARS} -gt 1 ]; then
 
         FPREF="BIG_"
         if [ $((${jyear}%${IFREQ_SAV_YEARS})) -eq 0 ]; then
             jy1=${jyear} ; jy2=$((${jyear}+${IFREQ_SAV_YEARS}-1))
             cy1=`printf "%04d" ${jy1}` ; cy2=`printf "%04d" ${jy2}`
             i_get_file=1
-            echo " ${cyear} => from ${cy1} ${cy2}"
             TTAG=${cy1}0101_${cy2}1231
         fi
 
     else
-        FPREF=""
+        
         jy1=${jyear} ; jy2=${jyear}
         cy1=`printf "%04d" ${jy1}` ; cy2=`printf "%04d" ${jy2}`
+        FPREF=""
         i_get_file=1
-        echo " ${cyear} => from ${cy1} ${cy2}"
         TTAG=${cy1}0101_${cy2}1231
-
+        
     fi
 
-
-
-
+    echo " Year ${cyear} => using files ${cy1} to ${cy2} => ${TTAG}" ; echo
+    
 
     CRTM=${CPREF}${TTAG}
     CRT1=${CPREF}${TTAG_ann}
-
-
 
 
     if [ ${i_get_file} -eq 1 ]; then
@@ -433,7 +430,7 @@ done
 
 
 if [ ${ivt} -eq 1 ]; then
-    fo=aclim_${CONFRUN}_${cy1}-${cy2}_VT.nc
+    fo=aclim_${CONFRUN}_${CY1}-${CY2}_VT.nc
     # Averaged VT file:
     ncra -O ${CPREF}*_VT.nc -o ${fo}
     rm -f ${CPREF}*_VT.nc
@@ -444,7 +441,7 @@ if [ ${ivt} -eq 1 ]; then
 fi
 
 if [ ${iamoc} -eq 1 ]; then
-    fo=aclim_${CONFRUN}_${cy1}-${cy2}_MOC.nc
+    fo=aclim_${CONFRUN}_${CY1}-${CY2}_MOC.nc
     # Averaged MOC file:
     ncra -O ${CPREF}*_MOC.nc -o ${fo}
     # Converting to netcdf4 with maximum compression level:
@@ -454,7 +451,7 @@ fi
 
 
 if [ ${ibpsi} -eq 1 ]; then
-    fo=aclim_${CONFRUN}_${cy1}-${cy2}_PSI.nc
+    fo=aclim_${CONFRUN}_${CY1}-${CY2}_PSI.nc
     # Averaged PSI file:
     ncra -O ${CPREF}*_PSI.nc -o ${fo}
     # Converting to netcdf4 with maximum compression level:
@@ -477,23 +474,13 @@ echo "Phase 2:"; ls ; echo
 
 for suff in grid_T grid_U grid_V icemod VT MOC PSI; do
 
-    #lolo:
-    #echo ; echo "lolo"
-    #ls -lt
-    #pwd
-    #echo ${CONFRUN}
-    #echo ./${CPREF}${cy1}0101_${cy1}1231_${suff}.${NCE}
-    #echo "lolo"
-    #echo ""
-    #exit
-    
-    
-    if [ -f ./${CPREF}${cy1}0101_${cy1}1231_${suff}.${NCE} ]; then
+
+    if [ -f ./${CPREF}${CY1}0101_${CY1}1231_${suff}.${NCE} ]; then
         
         echo ; echo ; echo ; echo " Treating ${suff} files!"; echo
 
-        f2c=mclim_${CONFRUN}_${cy1}-${cy2}_${suff}.nc
-        f2c_reg=mclim_${CONFRUN}_${cy1}-${cy2}_${REGG}.nc
+        f2c=mclim_${CONFRUN}_${CY1}-${CY2}_${suff}.nc
+        f2c_reg=mclim_${CONFRUN}_${CY1}-${CY2}_${REGG}.nc
 
         rm -f ${DIAG_D}/clim/${f2c}* ${DIAG_D}/clim/${f2c_reg}*
 
@@ -504,15 +491,18 @@ for suff in grid_T grid_U grid_V icemod VT MOC PSI; do
 
             jm=`expr ${jm} + 1`
 
-            if [ -f ./${CPREF}${cy1}0101_${cy1}1231_${suff}.${NCE} ]; then
+            if [ -f ./${CPREF}${CY1}0101_${CY1}1231_${suff}.${NCE} ]; then
+                echo; ls ; echo
                 echo "ncra -F -O -d time_counter,${jm},,12 ${CPREF}*0101_*1231_${suff}.${NCE} -o mean_m${cm}_${suff}.nc"
                 ncra -F -O -d time_counter,${jm},,12 ${CPREF}*0101_*1231_${suff}.${NCE} -o mean_m${cm}_${suff}.nc
+                echo
             fi
 
         done
 
         rm -f ${CPREF}*0101_*1231_${suff}.${NCE}
 
+        echo; ls ; echo
         echo "ncrcat -O  mean_m*_${suff}.nc out_${suff}.nc"
         ncrcat -O  mean_m*_${suff}.nc out_${suff}.nc
         rm mean_m*_${suff}.nc
@@ -526,8 +516,11 @@ for suff in grid_T grid_U grid_V icemod VT MOC PSI; do
             echo
         fi
 
-    # Converting to netcdf4 with maximum compression level:
+        # Converting to netcdf4 with maximum compression level:
+        echo; ls ; echo
+        echo "${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${f2c} ${f2c}4 ;  rm -f ${f2c}"
         ${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${f2c} ${f2c}4 ;  rm -f ${f2c}
+        echo
         mv -f ${f2c}4    ${DIAG_D}/clim/
 
         if [ ${iremap} -eq 1 ]; then mv -f ${f2c_reg} ${DIAG_D}/clim/ ; fi
@@ -541,7 +534,7 @@ done ; # loop along files suffixes
 
 
 echo;echo
-echo "${cy1}-${cy2}" > ${DIAG_D}/clim/last_clim
+echo "${CY1}-${CY2}" > ${DIAG_D}/clim/last_clim
 echo "Climatology saved into: ${DIAG_D}/clim/"
 echo;echo
 
