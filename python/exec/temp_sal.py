@@ -297,10 +297,10 @@ if lfig0:
     else:
         ctt = CONFRUN+': Mean Annual Zonal Anomaly of SST / '+COMP2D+', ('+cy1+'-'+cy2+')'
 
-    vzc[:] = bt.mk_zonal(SSTnemo_annual[:,:] - SSTclim_annual[:,:], imask[0,:,:], rmin=-40., rmax=40.)
+    vzc[:] = bt.mk_zonal(SSTnemo_annual[:,:] - SSTclim_annual[:,:], imask[0,:,:])
     # Only at the end of all the runs we do 2d plotting:
-    bp.plot_zonal(vlat, vzc, cfignm=path_fig+'1d_zonal_temp_anom_vs_'+COMP2D, zmin=-2., zmax=2.,
-                  xmin=-75., xmax=55., cyunit=r'$^{\circ}$C', cfig_type=fig_type,
+    bp.plot_zonal(vlat, vzc, cfignm=path_fig+'1d_zonal_temp_anom_vs_'+COMP2D, zmin=-5., zmax=5., dz=1.,
+                  xmin=-75., xmax=65., cyunit=r'$^{\circ}$C', cfig_type=fig_type,
                   ctitle=ctt)
 
     if COMP2D == 'CLIM':
@@ -308,10 +308,10 @@ if lfig0:
     else:
         ctt = CONFRUN+': Mean Annual Zonal Anomaly of SSS / '+COMP2D+', ('+cy1+'-'+cy2+')'
 
-    vzc[:] = bt.mk_zonal(Snemo_annual[0,:,:] - Sclim_annual[0,:,:], imask[0,:,:], rmin=-40., rmax=40.)
+    vzc[:] = bt.mk_zonal(Snemo_annual[0,:,:] - Sclim_annual[0,:,:], imask[0,:,:])
     # Only at the end of all the runs we do 2d plotting:
-    bp.plot_zonal(vlat, vzc, cfignm=path_fig+'1d_zonal_sali_anom_vs_'+COMP2D , zmin=-2., zmax=2.,
-                  xmin=-75., xmax=55., cyunit='PSU', cfig_type=fig_type,
+    bp.plot_zonal(vlat, vzc, cfignm=path_fig+'1d_zonal_sali_anom_vs_'+COMP2D , zmin=-2.5, zmax=2.5, dz=0.5,
+                  xmin=-75., xmax=65., cyunit='PSU', cfig_type=fig_type,
                   ctitle=ctt)
 
 

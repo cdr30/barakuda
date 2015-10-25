@@ -4,39 +4,36 @@ if [ "${1}" = "" ]; then
     echo "USAGE: ${0} CONFRUN_DATE"; exit
 fi
 
-fold_t=${1}_grid_T_old.nc
-fnew_t=${1}_grid_T.nc
-mv -f ${fnew_t} ${fold_t}
+fold_t=${1}_grid_T.nc4
+fnew_t=${1}_grid_T_NEW.nc4
 
-ncrename -O -v votemper,thetao -v vosaline,so -v sosstsst,tos -v sosaline,sos -v sossheig,zos -v sowaflup,wfo \
-    -v soshfldo,rsntds -v sohefldo,tohfls -v somxl010,mldr10_1 -v somixhgt,mldkz5 -v soicecov,ice_cover \
-    -v sowafldp,erp \
+#ncrename -O -v votemper,thetao -v vosaline,so -v sosstsst,tos -v sosaline,sos -v sossheig,zos -v sowaflup,wfo \
+#    -v soshfldo,rsntds -v sohefldo,tohfls -v somxl010,mldr10_1 -v somixhgt,mldkz5 -v soicecov,ice_cover \
+#    -v sowafldp,erp \
+#    ${fold_t} -o ${fnew_t}
+
+ncrename -O \
+    -v votemper,thetao -v vosaline,so -v sosstsst,tos -v sosaline,sos -v sossheig,zos \
     ${fold_t} -o ${fnew_t}
 
 
+fold_u=${1}_grid_U.nc4
+fnew_u=${1}_grid_U_NEW.nc4
 
-fold_u=${1}_grid_U_old.nc
-fnew_u=${1}_grid_U.nc
-mv -f ${fnew_u} ${fold_u}
-
-ncrename -O -v sozotaux,tauuo -v vozocrtx,uo  ${fold_u} -o ${fnew_u}
+ncrename -O -v vozocrtx,uo  ${fold_u} -o ${fnew_u}
 
 
-fold_v=${1}_grid_V_old.nc
-fnew_v=${1}_grid_V.nc
-mv -f ${fnew_v} ${fold_v}
+fold_v=${1}_grid_V.nc4
+fnew_v=${1}_grid_V_NEW.nc4
 
-ncrename -O -v sometauy,tauvo -v vomecrty,vo  ${fold_v} -o ${fnew_v}
+ncrename -O -v vomecrty,vo  ${fold_v} -o ${fnew_v}
 
-fold_i=${1}_icemod_old.nc
-fnew_i=${1}_icemod.nc
-mv -f ${fnew_i} ${fold_i}
-
-ncrename -O -v iicethic,sit -v iicevelu,uice_ipa -v iicevelv,vice_ipa -v iicesurt,ist_ipa \
-    ${fold_i} -o ${fnew_i}
+#fold_i=${1}_icemod.nc4
+#fnew_i=${1}_icemod_NEW.nc4
+#ncrename -O -v iicethic,sit -v iicevelu,uice_ipa -v iicevelv,vice_ipa -v iicesurt,ist_ipa \
+#    ${fold_i} -o ${fnew_i}
 
 
-rm -f ${1}_*_old.nc
 
 
 

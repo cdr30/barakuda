@@ -75,9 +75,9 @@ export BM_FILE="/proj/bolinc/users/x_laubr/${CONF}/basin_mask_${CONF}_20150929.n
 export F_T_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/thetao_1degx1deg_WOA2009_monthly_${CONF}_cut.nc
 export F_S_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/so_1degx1deg_WOA2009_monthly_${CONF}_cut.nc
 export SST_CLIM_12=${STORE_DIR}/ORCA1/ORCA1-I/sst_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc
-export NN_T_CLIM="votemper"
-export NN_S_CLIM="vosaline"
-export NN_SST_CLIM="sst"
+export NN_T_CLIM="thetao"
+export NN_S_CLIM="so"
+export NN_SST_CLIM="tos"
 
 export ICE_CLIM_12=${STORE_DIR}/${CONF}/${CONF}-I/ice_cover_180x360-ORCA1_Hurrell_monthly_mean1980-1999.nc4
 export NN_ICEF_CLIM="ice_cover"

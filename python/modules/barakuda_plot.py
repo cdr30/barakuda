@@ -614,37 +614,33 @@ def plot_zonal(VY, VZn, VZ1=[0.], VZ2=[0.],
     if len(VZ1) == ny: lp1=True
     if len(VZ2) == ny: lp2=True
 
-
     if lnarrow:
         fig = plt.figure(num = 1, figsize=(6.,5.), dpi=None)
         ax = plt.axes([0.135, 0.11, 0.83, 0.82])   #, axisbg = 'gray')
     else:
-        fig = plt.figure(num = 1, figsize=(11.,5.), dpi=None)
-        ax = plt.axes([0.075, 0.11, 0.9, 0.82])   #, axisbg = 'gray')
+        fig = plt.figure(num = 1, figsize=(12.,6.4), dpi=None)
+        ax = plt.axes([0.08, 0.11, 0.9, 0.82])   #, axisbg = 'gray')
 
     vcolo=['r','b','g', 'c', 'm', 'y', '0.75', 'r-+', 'b+']
 
-
     plt.plot(VY, VZn*0.0, 'k', linewidth=1) ; plt.hold(True)
-    #
+
     plt.plot(VY, VZn, 'k', linewidth=3., label=lab)
     if lp1: plt.plot(VY, VZ1, color='#3465a4', linewidth=2., label=lab1)
     if lp2: plt.plot(VY, VZ2, color='#cc0000', linewidth=2., label=lab2)
-    #
-    #plt.legend(loc='center', shadow=False, fancybox=True) #lili
-    plt.legend(bbox_to_anchor=(0.63, 0.75), shadow=False, fancybox=True) #lili
-    #
-    plt.axis([xmin, xmax, zmin, zmax])
-    plt.xlabel(cxunit) ; plt.ylabel(cyunit)
-    plt.xticks( nmp.arange(xmin, xmax+15., 15.) )
 
+    plt.legend(bbox_to_anchor=(0.63, 0.75), shadow=False, fancybox=True) #lili
+
+    #plt.axis([xmin, xmax, zmin-dz/2., zmax+dz/2.])
+
+    # X-axis
+    plt.xticks( nmp.arange(xmin, xmax+15., 15.) )
+    ax.set_xlim(xmin,xmax)
+    plt.xlabel(cxunit)
+
+    # Y-axis:
     iia = 1
-    if zmax <= 0. and zmin < 0.:
-        #print nmp.arange(-zmax, -zmin+dz, dz)
-        #vv = nmp.flipud(nmp.arange(-zmax, -zmin+dz, dz)); vv = -vv
-        iia = 0
-    #else:
-    #    
+    if zmax <= 0. and zmin < 0.: iia = 0
     vv = nmp.arange(zmin, zmax+dz, dz)
     plt.yticks(vv)
     if i_z_jump > 1:
@@ -658,17 +654,20 @@ def plot_zonal(VY, VZn, VZ1=[0.], VZ2=[0.],
                 new_t_labels.append(' ')
             jcpt = jcpt + 1
         plt.yticks(locs,new_t_labels)
-    #
+    ax.set_ylim(zmin-dz/2., zmax+dz/2.)
+    plt.ylabel(cyunit)
+
+
     ax.grid(color='k', linestyle='-', linewidth=0.1)
     plt.title(ctitle, **font_ttl)
-    #
+
     # Prevents from using scientific notations in axess ticks numbering:
     ax.get_xaxis().get_major_formatter().set_useOffset(False)
-    #
+
     plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
-    #
+
     plt.close(1)
-    #
+
     return
 
 
@@ -915,8 +914,8 @@ def sig_transport(cstck, ccr, cd_eps):
 
 
 def plot_amoc_lat_depth(VY, VZ, Xamoc, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet', ymin=-80., ymax=85.,
-               cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
-               cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False):
+                        cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
+                        cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False):
 
     import math
     import matplotlib.colors as colors   # palette and co.
@@ -938,16 +937,14 @@ def plot_amoc_lat_depth(VY, VZ, Xamoc, XMSK, rmin, rmax, dc, lkcont=True, cpal='
 
     font_ttl, font_ylb, font_clb = __font_unity__()
 
-    fig = plt.figure(num = 1, figsize=(11.,6.), dpi=None, facecolor='w', edgecolor='k')
-    ax  = plt.axes([0.07 ,  0.08,  0.99,      0.86], axisbg = 'gray')
+    fig = plt.figure(num = 1, figsize=(12.,6.4), dpi=None, facecolor='w', edgecolor='k')
+    ax  = plt.axes([0.1,  0.1,  0.94, 0.85], axisbg = 'gray')
 
     vc = __vcontour__(rmin, rmax, dc); #print 'plot_amoc_lat_depth: contours =>\n', vc, '\n'
 
     # Colormap:
     palette = barakuda_colmap.chose_palette(cpal)
     pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
-
-
 
     # Plot:
     cf = plt.contourf(VY, zVZ, Xamoc, vc, cmap = palette, norm = pal_norm)
@@ -958,9 +955,6 @@ def plot_amoc_lat_depth(VY, VZ, Xamoc, XMSK, rmin, rmax, dc, lkcont=True, cpal='
     clb = plt.colorbar(cf, ticks=vc); clb.set_label('('+cbunit+')', **font_clb)
     for t in clb.ax.get_yticklabels():
         t.set_fontsize(11)
-
-
-
 
     plt.axis([ ymin, ymax, zmin, zmax])
     plt.xlabel(cxunit, **font_ylb); plt.ylabel(czunit, **font_ylb)
@@ -980,11 +974,6 @@ def plot_amoc_lat_depth(VY, VZ, Xamoc, XMSK, rmin, rmax, dc, lkcont=True, cpal='
     plt.close(1)
 
     return
-
-
-
-
-
 
 
 

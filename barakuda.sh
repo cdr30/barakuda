@@ -377,7 +377,6 @@ if [ ${i_monolitic_files} -eq 0 ]; then
             
             # Number of proc domains:
             npd=`\ls -l ${NEMO_OUT_D}/${CPREF}${TTAG}_${ft}_0* | wc -l`
-            #echo " npd = ${npd} !" ; exit #lolo
 
             file_reb=${CPREF}${TTAG}_${ft}.nc
             if [ ! -f ${file_reb} ]; then
