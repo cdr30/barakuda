@@ -63,9 +63,10 @@ projection_def = [
 
 
 
-def plot_vert_section(VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet', xmin=-80., xmax=85., dx=5,
-               cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
-               cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, i_sub_samp=1, l_z_increase=False ):
+def plot_vert_section(VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
+                      xmin=-80., xmax=85., dx=5, cfignm='fig', cbunit='', cxunit=' ',
+                      zmin = 0., zmax = 5000., l_zlog=False, cfig_type='png',
+                      czunit=' ', ctitle=' ', lforce_lim=False, i_sub_samp=1, l_z_increase=False ):
 
     import math
     import barakuda_colmap
@@ -81,15 +82,13 @@ def plot_vert_section(VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
     else:
         zVZ= VZ
 
-
     if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
     # Masking where mask is zero!
     XF = nmp.ma.masked_where(XMSK == 0, XF)
 
-
     fig = plt.figure(num = 1, figsize=(WDTH_TS,5.), dpi=None, facecolor='w', edgecolor='k')
-    ax = plt.axes([0.06,  0.1,   1.02,       0.82], axisbg = 'gray')
+    ax = plt.axes([0.08, 0.12, 1., 0.82], axisbg = 'gray')
     vc = __vcontour__(rmin, rmax, dc); #print 'plot_vert_section: contours =>\n', vc, '\n'
 
     # Palette:
@@ -99,8 +98,6 @@ def plot_vert_section(VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
     cf = plt.contourf(VX, zVZ, XF, vc, cmap = palette, norm = pal_norm)
     plt.hold(True)
     if lkcont: plt.contour(VX, zVZ, XF, vc, colors='k', linewidths=0.2)
-
-
 
     # Colorbar
     clb = plt.colorbar(cf, ticks=vc); clb.set_label('('+cbunit+')', **font_clb)
@@ -117,9 +114,9 @@ def plot_vert_section(VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
 
     for t in clb.ax.get_yticklabels(): t.set_fontsize(10)
 
-
     # X-axis:
     plt.xticks( nmp.arange(xmin, xmax+dx, dx) )
+    ax.set_xlim(xmin,xmax)
     plt.xlabel(cxunit, **font_ylb);
 
     # Y-axis:
@@ -130,13 +127,10 @@ def plot_vert_section(VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
         print 'locs =', locs
         for jl in range(len(locs[:])): cny.append(str(int(10**locs[jl])))
         plt.yticks(locs,cny)
-
-
-    # Y-X limits:
     if l_z_increase:
-        plt.axis([xmin, xmax, zmin, zmax])
+        ax.set_ylim(zmin,zmax)    
     else:
-        plt.axis([xmin, xmax, zmax, zmin])
+        ax.set_ylim(zmax+(zmax-zmin)/50. , zmin)    
 
     # Prevents from using scientific notations in axess ticks numbering:
     ax.get_xaxis().get_major_formatter().set_useOffset(False)
@@ -147,9 +141,6 @@ def plot_vert_section(VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
     plt.close(1)
 
     return
-
-
-
 
 
 
@@ -630,8 +621,6 @@ def plot_zonal(VY, VZn, VZ1=[0.], VZ2=[0.],
     if lp2: plt.plot(VY, VZ2, color='#cc0000', linewidth=2., label=lab2)
 
     plt.legend(bbox_to_anchor=(0.63, 0.75), shadow=False, fancybox=True) #lili
-
-    #plt.axis([xmin, xmax, zmin-dz/2., zmax+dz/2.])
 
     # X-axis
     plt.xticks( nmp.arange(xmin, xmax+15., 15.) )

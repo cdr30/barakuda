@@ -3,9 +3,10 @@
   <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
   <title>Sea-ice extent: {CONFRUN}</title>
  </head>
- <body dir="ltr" lang="en-US" bgcolor="White">
-    
-  <div style="margin: 0px 0px 0px 0px; width: 1700px; font-family: Trebuchet MS; font-size: 20px;">
+
+
+ <?php include("../conf/conf_start.html"); ?>
+
         
    <big>      
      
@@ -13,7 +14,6 @@
 
      <br>
      <big><b> End of local winter </b></big><br><br>
-     <center>     
      <div style="width:1680px;height:852px;  border:1px solid blue; padding:0px;">
      <img alt="March NP mod." src="sea-ice_NP_march_{CONFRUN}.png" style="width:840px;float:left;" />
      <img alt="March NP ref." src="sea-ice_NP_march_{COMP2D}.png"        style="width:840px;float:left;" />
@@ -25,14 +25,12 @@
      <img alt="September SP mod." src="sea-ice_SP_sept_{CONFRUN}.png" style="width:840px;float:left;" />
      <img alt="September SP ref." src="sea-ice_SP_sept_{COMP2D}.png"        style="width:840px;float:left;" />
      </div> 
-   </center>
 
    <br><br>          
 
 
      <br>
      <big><b> End of local summer </b></big><br><br>
-     <center>     
      <div style="width:1680px;height:852px;  border:1px solid red; padding:0px;">
      <img alt="September NP mod." src="sea-ice_NP_sept_{CONFRUN}.png" style="width:840px;float:left;" />
      <img alt="September NP ref." src="sea-ice_NP_sept_{COMP2D}.png"        style="width:840px;float:left;" />
@@ -44,15 +42,11 @@
      <img alt="March SP mod." src="sea-ice_SP_march_{CONFRUN}.png" style="width:840px;float:left;" />
      <img alt="March SP ref." src="sea-ice_SP_march_{COMP2D}.png"        style="width:840px;float:left;" />
      </div> 
-   </center>
-
-
-
 
    </big>
 
-        <br><br><br><br>
-        <i>Page and diagnostics created with BARAKUDA</a></b> (Laurent Brodeau)</i>
+   <?php include("../conf/conf_end.html"); ?>
+
   </div>     
  </body>
 </html>

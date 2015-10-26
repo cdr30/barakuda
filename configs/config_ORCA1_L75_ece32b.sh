@@ -104,7 +104,8 @@ export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 ihttp=1 ; # do we export on a remote http server (1) or keep on the local machine (0)
 RHOST=misu228.misu.su.se ; # remote host to send diagnostic page to///
 RUSER=laurent ; # username associated to remote host (for file export)
-RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host to send the diagnostic page to
+#RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host to send the diagnostic page to
+RWWWD=/data/www/barakuda/TEST ; # directory of the local or remote host to send the diagnostic page to
 
 
 

@@ -451,13 +451,13 @@ if lfig2: # Temperature and salinity vertical sections:
     #  N E M O
     #  ~~~~~~~
     bp.plot_vert_section(xlat[:,jic], vdepth, Tnemo_annual[:,:,jic],
-                         imask[:,:,jic], -1., 25., 1., cpal='mld', xmin=-70., xmax=60.,
+                         imask[:,:,jic], -1., 25., 1., cpal='mld', xmin=-75., xmax=65., dx=15.,
                          cfignm=path_fig+'section_temp_'+CONFRUN, cbunit=r'$^{\circ}$C', cxunit=r'Latitude ($^{\circ}$N)',
                          czunit='Depth (m)', ctitle='Temperature, ('+cy1+'-'+cy2+'), '+CONFRUN+', lon = 30W',
                          cfig_type=fig_type, lforce_lim=True)
 
     bp.plot_vert_section(xlat[:,jic], vdepth, Snemo_annual[:,:,jic],
-                         imask[:,:,jic], 33.9, 35.9, 0.1, cpal='mld', xmin=-70., xmax=60.,
+                         imask[:,:,jic], 33.9, 35.9, 0.1, cpal='mld', xmin=-75., xmax=65., dx=15.,
                          cfignm=path_fig+'section_sali_'+CONFRUN, cbunit='PSU', cxunit=r'Latitude ($^{\circ}$N)',
                          czunit='Depth (m)', ctitle='Salinity, ('+cy1+'-'+cy2+'), '+CONFRUN+', lon = 30W',
                          cfig_type=fig_type, lforce_lim=True)
@@ -467,14 +467,14 @@ if lfig2: # Temperature and salinity vertical sections:
     #  L E V I T U S
     #  ~~~~~~~~~~~~~
     bp.plot_vert_section(xlat[:,jic], vdepth, Tclim_annual[:,:,jic],
-                         imask[:,:,jic], -1., 25., 1., cpal='mld', xmin=-70., xmax=60.,
+                         imask[:,:,jic], -1., 25., 1., cpal='mld', xmin=-75., xmax=65., dx=15.,
                          cfignm=path_fig+'section_temp_'+COMP2D, cbunit=r'$^{\circ}$C',
                          cxunit=r'Latitude ($^{\circ}$N)',
                          czunit='Depth (m)', ctitle='Temperature, '+COMP2D+', lon = 30W',
                          cfig_type=fig_type, lforce_lim=True)
     #
     bp.plot_vert_section(xlat[:,jic], vdepth, Sclim_annual[:,:,jic],
-                         imask[:,:,jic], 33.9, 35.9, 0.1, cpal='mld', xmin=-70., xmax=60.,
+                         imask[:,:,jic], 33.9, 35.9, 0.1, cpal='mld', xmin=-75., xmax=65., dx=15.,
                          cfignm=path_fig+'section_sali_'+COMP2D, cbunit='PSU',
                          cxunit=r'Latitude ($^{\circ}$N)',
                          czunit='Depth (m)', ctitle='Salinity, '+COMP2D+', lon = 30W',
