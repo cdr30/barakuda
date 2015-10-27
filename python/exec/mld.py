@@ -259,8 +259,7 @@ if l_obs_mld:
 
 
 # Figures september:
-
-brkdp.plot_nproj('spstere', 50., 500., 25., xlon, xlat, mldr10[imnth,:,:],
+brkdp.plot_nproj('spstere', 100., 2000., 100., xlon, xlat, mldr10[imnth,:,:],
                 cfignm=path_fig+'mld_ACC_september_'+CONFRUN, cpal='sst0', cbunit='m',
                 ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                 lkcont=True, cfig_type=fig_type, 

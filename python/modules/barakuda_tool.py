@@ -3,6 +3,10 @@ import sys
 
 
 
+#    #Lfinite = nmp.isfinite(XF)
+#    #Lshit   = nmp.logical_not(Lfinite)
+#    #idx_bad = nmp.where(Lshit)
+
 
 
 def chck4f(cf, script_name=''):
@@ -476,21 +480,31 @@ def extend_domain(ZZ, ext_east_deg, skp_west_deg=0):
 
 
 
-def mk_zonal(XF, XMSK, rmin=-1.E-6, rmax=1.E6):
+def mk_zonal(XF, XMSK):
     
     [ ny , nx ] = XF.shape
+    [ n2 , n1 ] = XMSK.shape
+    if n2 != ny or n1 != nx:
+        print 'ERROR: mk_zonal.barakuda_tool.py => XF and XMSK do not agree in size!'
+        sys.exit(0)
 
-    VZ = nmp.zeros(ny) ; VZ.shape = [ ny ]
+    # Finding incides of non-masked values:
+    #idx_ok = nmp.nonzero(XF)
+    #Xtmp = nmp.copy(XF) ; Xtmp[:,:] = -9999.
+    #Xtmp[idx_ok] = XF[idx_ok]
 
-    # Zonally-averaging:
+    VZ = nmp.zeros(ny)
+
     for jy in range(ny):
         cpt = 0
         for jx in range(nx):
+
             rr = XF[jy,jx]
-            if rr > rmin and rr < rmax:
-                if XMSK[jy,jx] > 0.5:
-                    cpt = cpt + 1 ;  VZ[jy] = VZ[jy] + rr
-        #
+
+            if rr > -9999.+0.1 and XMSK[jy,jx] > 0.5:
+                cpt = cpt + 1
+                VZ[jy] = VZ[jy] + rr
+
         if cpt > 0 : VZ[jy] = VZ[jy]/cpt
     return VZ
 

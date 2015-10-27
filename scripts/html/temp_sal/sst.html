@@ -1,27 +1,26 @@
 <html>
- <head>
-  <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
-  <title>SST: {CONFRUN}</title>
- </head>
- <body dir="ltr" lang="en-US" bgcolor="White">
-    
-  <div style="margin: 0px 0px 0px 0px; width: 1000px">
-        
-   <big>      
-     
-     <big><big><b> Sea Surface Temperature </b></big></big><br><br>
+  <head>
+    <meta http-equiv="CONTENT-TYPE" content="text/html; charset=iso-8859-1">
+    <title>SST: {CONFRUN}</title>
+  </head>
 
-     <center>
-     <img style="border: 0px solid" alt="" src="dsst_annual_{CONFRUN}_-_{COMP2D}.png"> <br><br>
-     <img style="border: 0px solid" alt="" src="dsst_JAS_{CONFRUN}_-_{COMP2D}.png"> <br><br>  
-     <img style="border: 0px solid" alt="" src="dsst_JFM_{CONFRUN}_-_{COMP2D}.png"> <br><br>  
-     <br><br>          
-   </center>
+  <?php include("../conf/conf_start.html"); ?>
 
-   </big>
+        <big>
 
-        <br><br><br><br>
-        <i>Page and diagnostics created with BARAKUDA</a></b> (Laurent Brodeau)</i>
-  </div>     
- </body>
+          <big><big><b> Sea Surface Temperature </b></big></big><br><br>
+
+
+          <img style="border: 0px solid" alt="" src="dsst_annual_{CONFRUN}_-_{COMP2D}.png"> <br><br>
+          <img style="border: 0px solid" alt="" src="dsst_JAS_{CONFRUN}_-_{COMP2D}.png"> <br><br>
+          <img style="border: 0px solid" alt="" src="dsst_JFM_{CONFRUN}_-_{COMP2D}.png"> <br><br>
+          <br><br>
+
+
+        </big>
+
+        <?php include("../conf/conf_end.html"); ?>
+
+    </div>
+  </body>
 </html>

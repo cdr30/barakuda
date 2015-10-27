@@ -202,26 +202,29 @@ ${PYTH} ${PYBRKD_EXEC_PATH}/compare_time_series.py ${YEAR_INI} ${YEAR_END}
 # Configuring HTML display file:
 sed -e "s|{TITLE}|Ocean, ${JTITLE}: comparing ${VRUNS[*]}|g" \
     -e "s|{NRUNS}|${NRUNS}|g" -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" \
-    ${BARAKUDA_ROOT}/scripts/html/index_comp_skel.html > index.html
+    ${BARAKUDA_ROOT}/scripts/html/index_comp_skel.html > index.php
 
 
 list_figs=`\ls *.svg`
 
 for ff in ${list_figs}; do
-    echo "<br><br><big> `echo ${ff} | sed -e s/.svg//g -e s/_comparison//g` </big><br>" >> index.html
-    echo "  <img style=\"border: 0px solid\" alt=\"\" src=\"${ff}\"> <br><br><br>" >> index.html
+    echo "<br><br><big> `echo ${ff} | sed -e s/.svg//g -e s/_comparison//g` </big><br>" >> index.php
+    echo "  <img style=\"border: 0px solid\" alt=\"\" src=\"${ff}\"> <br><br><br>" >> index.php
 
 done
 
-cat ${BARAKUDA_ROOT}/scripts/html/index_skel_footer.html >> index.html ; # Closing HTML file...
+cat ${BARAKUDA_ROOT}/scripts/html/index_skel_footer.html >> index.php ; # Closing HTML file...
 
 
 echo; echo
 
+cp -r ${BARAKUDA_ROOT}/scripts/html/conf ${BASE_NAME}/
+
+
 if [ ${ihttp} -eq 0 ]; then
     
     echo "Diagnostic page installed in `pwd`"
-    echo " => view this directory with a web browser (index.html)..."
+    echo " => view this directory with a web browser (index.php)..."
     
 else
     
