@@ -17,6 +17,9 @@ What do you need on your machine to use barakuda ?
   A good idea is to install a shiny python distribution, something like Canopy:
   => https://www.enthought.com/products/canopy/
 
+  CANOPY_PATH points to the python package directory also in case Canopy is
+  not used, e.g. to /opt/Python/2.7
+
 - NEMO output data! => A directory containing the monthly NEMO output to analyze
                (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"
 
