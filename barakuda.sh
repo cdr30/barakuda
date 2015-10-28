@@ -445,7 +445,7 @@ if [ ! -f ./mesh_mask.nc ]; then
 fi
 
 #Fix, in case old nemo (prior version 3.6) must rename some metrics param:
-ca=""; ca=`/opt/cdo/bin/ncdump -h mesh_mask.nc  | grep 'e3t('`
+ca=""; ca=`${NCDUMP} -h mesh_mask.nc  | grep 'e3t('`
 if [ ! "${ca}" = "" ]; then
     echo "Renaming some metrics into mesh_mask.nc !!!"
     ncrename -v e3t_0,e3t_1d -v e3w_0,e3w_1d -v gdept_0,gdept_1d -v gdepw_0,gdepw_1d  mesh_mask.nc
