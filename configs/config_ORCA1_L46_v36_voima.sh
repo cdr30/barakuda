@@ -38,7 +38,7 @@ export NEMO_FILE_PREFIX="<ORCA>-<RUN>_<TSTAMP>_"
 # Temporary file system (scratch) on which to perform the job you can use <JOB_ID> if scracth depends on JOB ID:
 export SCRATCH="/lustre/tmp/$USER/tmp/<JOB_ID>"
 
-export CANOPY_PATH=${HOME}/opt/Canopy_64bit/User
+export CANOPY_PATH=/opt/Python/2.7
 
 # If variables names in NEMO files are not the default...
 export NN_SST="tos"
@@ -68,8 +68,8 @@ export L_RENAME=false ; # set to true if your ORCA output has old name conventio
 export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / ocean-only experiment"
 
 # Land-sea mask and basins files:
-export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask_${CONF}_20150929.nc"
-export BM_FILE="/proj/bolinc/users/x_laubr/${CONF}/basin_mask_${CONF}_20150929.nc"
+export MM_FILE="/lustre/tmp/uotilap/ecearth3/input/nemo/ORCA1L46/mesh_mask_ORCA1L46.nc"
+export BM_FILE="/lustre/tmp/uotilap/ecearth3/input/nemo/ORCA1L46/basin_mask_ORCA1L46.nc"
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
 export F_T_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/thetao_1degx1deg_WOA2009_monthly_${CONF}_cut.nc
