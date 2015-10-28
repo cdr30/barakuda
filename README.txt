@@ -10,10 +10,6 @@ What do you need on your machine to use barakuda ?
 
 - NCO 
 
-- NEMO data! => A directory containing NEMO outputs to analyze
-               (grid_T, grid_U, grid_V and icemod files)
-               Gzipped or not! And only these files, nothing else!!!
-
 - For time-series and 2D plots, the following up-to-date packages:
   => python-netcdf4 (from netCDF4 import Dataset) and Matplotlib
   => for map projections you'll also need basemap
@@ -21,8 +17,18 @@ What do you need on your machine to use barakuda ?
   A good idea is to install a shiny python distribution, something like Canopy:
   => https://www.enthought.com/products/canopy/
 
+- NEMO output data! => A directory containing the monthly NEMO output to analyze
+               (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"
 
-
+- a NEMO mesh_mask file and the the corresponding basin_mask (ocean basins).
+  (variables MM_FILE and BM_FILE into your config/conf_<MYCONF>.sh file)
+  To create the NEMO mesh_mask.nc just launch the relevant NEMO experiment with the
+  namelist parameter nn_msh set to 1 !
+  If you use ORCA1 you can use the "orca1_create_basin_mask_from_meshmask.py" in python/exec
+  to generate the basin file!
+              tmaskatl(y, x) => "Atlantic Basin" ;
+              tmaskpac(y, x) => "Pacific Basin" ;
+              tmaskind(y, x) => "Indian Basin" ;
 
 
 
