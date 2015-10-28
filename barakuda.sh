@@ -117,7 +117,7 @@ export ORCA=${CONF}
 echo
 if [ "${CANOPY_PATH}" = "" ]; then echo "ERROR: CANOPY_PATH is not set! => add it to config file"; exit; fi
 PYTH="${CANOPY_PATH}/bin/python -W ignore" ; # which Python installation to use
-export PYTHONPATH=${CANOPY_PATH}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
+export PYTHONPATH=${CANOPY_PATH}/lib/python2.7:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
 PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
 
 echo " CANOPY_PATH => "${CANOPY_PATH} ; echo
@@ -234,7 +234,7 @@ if [ ${ISTAGE} -eq 1 ]; then
     else
         # Normal case:
         SCRATCH=`echo ${SCRATCH} | sed -e "s|<JOB_ID>|${SLURM_JOBID}|g"` 
-        export TMP_DIR=${SCRATCH}/${RUN}
+        export TMP_DIR=${SCRATCH}${RUN}
     fi
     echo " IMPORTANT the SCRATCH work directory is set to:" ; echo " ${SCRATCH}"
 else
@@ -445,7 +445,7 @@ if [ ! -f ./mesh_mask.nc ]; then
 fi
 
 #Fix, in case old nemo (prior version 3.6) must rename some metrics param:
-ca=""; ca=`${NCDF_DIR}/bin/ncdump -h mesh_mask.nc  | grep 'e3t('`
+ca=""; ca=`/opt/cdo/bin/ncdump -h mesh_mask.nc  | grep 'e3t('`
 if [ ! "${ca}" = "" ]; then
     echo "Renaming some metrics into mesh_mask.nc !!!"
     ncrename -v e3t_0,e3t_1d -v e3w_0,e3w_1d -v gdept_0,gdept_1d -v gdepw_0,gdepw_1d  mesh_mask.nc
