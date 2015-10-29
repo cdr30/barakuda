@@ -38,10 +38,8 @@ export NEMO_FILE_PREFIX="<ORCA>-<RUN>_<TSTAMP>_"
 # Temporary file system (scratch) on which to perform the job you can use <JOB_ID> if scracth depends on JOB ID:
 export SCRATCH="/lustre/tmp/$USER/tmp/<JOB_ID>"
 
-# Python installation directory
+# Python installation directory where bin lib include reside
 export CANOPY_PATH=/opt/Python/2.7
-# ncdump binary
-export NCDUMP=/opt/cdo/bin/ncdump
 
 # If variables names in NEMO files are not the default...
 export NN_SST="tos"

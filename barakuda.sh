@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #==============================================================
 #
@@ -10,9 +10,20 @@
 #
 #===============================================================
 
-#  snic2014-8-18
+### Specific headers for you batch manager:
 
-### Specific header for you batch manager:
+# voima.fmi.fi 2015-10-29
+#PBS -N BaraKuda
+#PBS -q workq
+#PBS -l mppwidth=20
+#PBS -l mppnppn=20
+#PBS -l mppdepth=1
+#PBS -l walltime=04:00:00
+
+# You may need to comment this on other clusters than voima.
+#cd $PBS_O_WORKDIR
+
+#  snic2014-8-18
 #SBATCH -A snic2014-10-3
 #SBATCH --reservation=dcs
 #SBATCH --share
@@ -25,8 +36,6 @@
 ###
 
 export BARAKUDA_ROOT=`pwd`
-
-
 
 # Supported ORCA grids:
 ORCA_LIST="ORCA1 ORCA1.L46 ORCA1.L75 ORCA2 ORCA2_L46"
@@ -445,7 +454,7 @@ if [ ! -f ./mesh_mask.nc ]; then
 fi
 
 #Fix, in case old nemo (prior version 3.6) must rename some metrics param:
-ca=""; ca=`${NCDUMP} -h mesh_mask.nc  | grep 'e3t('`
+ca=""; ca=`ncdump -h mesh_mask.nc  | grep 'e3t('`
 if [ ! "${ca}" = "" ]; then
     echo "Renaming some metrics into mesh_mask.nc !!!"
     ncrename -v e3t_0,e3t_1d -v e3w_0,e3w_1d -v gdept_0,gdept_1d -v gdepw_0,gdepw_1d  mesh_mask.nc
