@@ -23,7 +23,9 @@ NCDIR=/software/apps/netcdf/4.3.2/i1214-hdf5-1.8.12-AVX-off
 #RUN="T001" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
 #RUN="5c13" ; ILDIR=5 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
 #RUN="CPL0" ; ILDIR=20 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
-RUN="CPL0" ; ILDIR=1 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
+
+#RUN="CPL0" ; ILDIR=1 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
+RUN="CP46" ; ILDIR=10 ; cext=".L46" ; yyyy=1990 ; idi=1 ; cimp='cp'
 
 
 NEMO_SAVED_FILE="grid_T grid_U grid_V icemod"

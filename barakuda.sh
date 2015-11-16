@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #==============================================================
 #
@@ -10,12 +10,20 @@
 #
 #===============================================================
 
-#  snic2014-8-18
+### Specific headers for you batch manager:
 
-### Specific header for you batch manager:
-#SBATCH -A snic2014-10-3
-#SBATCH --reservation=dcs
-#SBATCH --share
+# voima.fmi.fi 2015-10-29
+##PBS -N BaraKuda
+##PBS -q workq
+##PBS -l mppwidth=20
+##PBS -l mppnppn=20
+##PBS -l mppdepth=1
+##PBS -l walltime=04:00:00
+
+# You may need to comment this on other clusters than voima.
+#cd $PBS_O_WORKDIR
+
+
 #SBATCH -t 05:59:00
 #SBATCH -N 1
 #SBATCH -n 1
@@ -26,10 +34,8 @@
 
 export BARAKUDA_ROOT=`pwd`
 
-
-
 # Supported ORCA grids:
-ORCA_LIST="ORCA1 ORCA1.L75 ORCA2 ORCA2_L46"
+ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA2 ORCA2_L46"
 
 # Checking available configs
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
@@ -93,11 +99,11 @@ done
 if [ "${CONFIG}" = "" -o "${RUN}" = "" ]; then usage ; exit ; fi
 
 for og in ${ORCA_LIST}; do
+    echo " ${og} / ${CONFIG}"
     ca=""; ca=`echo ${CONFIG} | grep ${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
 done
 
 if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
-
 echo
 
 # sourcing configuration file
@@ -117,7 +123,7 @@ export ORCA=${CONF}
 echo
 if [ "${CANOPY_PATH}" = "" ]; then echo "ERROR: CANOPY_PATH is not set! => add it to config file"; exit; fi
 PYTH="${CANOPY_PATH}/bin/python -W ignore" ; # which Python installation to use
-export PYTHONPATH=${CANOPY_PATH}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
+export PYTHONPATH=${CANOPY_PATH}/lib/python2.7:${CANOPY_PATH}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
 PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
 
 echo " CANOPY_PATH => "${CANOPY_PATH} ; echo
@@ -1673,7 +1679,7 @@ EOF
         ssh ${RUSER}@${RHOST} "mkdir -p ${RWWWD}"
         scp ${RUN}.tar ${RUSER}@${RHOST}:${RWWWD}/
         ssh ${RUSER}@${RHOST} "cd ${RWWWD}/; rm -rf ${RUN}; tar xf ${RUN}.tar 2>/dev/null; rm -f ${RUN}.tar; \
-            cd ${RUN}/; source-highlight -i ${fnamelist} -s fortran -o namelist.html"
+            chmod -R a+r ${RUN}; cd ${RUN}/; source-highlight -i ${fnamelist} -s fortran -o namelist.html"
         echo; echo
         echo "Diagnostic page installed on  http://${RHOST}${RWWWD}/${RUN}/ !"
         echo "( Also browsable on local host in ${DIAG_D}/${RUN} )"
