@@ -20,7 +20,7 @@ PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakud
 
 
 # Supported ORCA grids:
-ORCA_LIST="ORCA1 ORCA2 ORCA2_L46 ORCA1.L75"
+ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1 ORCA2 ORCA2_L46"
 
 # Checking available configs
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`

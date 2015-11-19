@@ -19,7 +19,6 @@
 #PBS -l mppnppn=20
 #PBS -l mppdepth=1
 #PBS -l walltime=04:00:00
-
 # You may need to comment this on other clusters than voima.
 #cd $PBS_O_WORKDIR
 #CONFIG=ORCA1_L46_v36_voima
@@ -104,11 +103,11 @@ done
 if [ "${CONFIG}" = "" -o "${RUN}" = "" ]; then usage ; exit ; fi
 
 for og in ${ORCA_LIST}; do
+    echo " ${og} / ${CONFIG}"
     ca=""; ca=`echo ${CONFIG} | grep ${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
 done
 
 if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
-
 echo
 
 # sourcing configuration file
@@ -1684,7 +1683,7 @@ EOF
         ssh ${RUSER}@${RHOST} "mkdir -p ${RWWWD}"
         scp ${RUN}.tar ${RUSER}@${RHOST}:${RWWWD}/
         ssh ${RUSER}@${RHOST} "cd ${RWWWD}/; rm -rf ${RUN}; tar xf ${RUN}.tar 2>/dev/null; rm -f ${RUN}.tar; \
-            cd ${RUN}/; source-highlight -i ${fnamelist} -s fortran -o namelist.html"
+            chmod -R a+r ${RUN}; cd ${RUN}/; source-highlight -i ${fnamelist} -s fortran -o namelist.html"
         echo; echo
         echo "Diagnostic page installed on  http://${RHOST}${RWWWD}/${RUN}/ !"
         echo "( Also browsable on local host in ${DIAG_D}/${RUN} )"
