@@ -1,0 +1,15 @@
+# Makefile for CDFTOOLS
+#    $Rev: 173 $
+#    $Date: 2008-03-17 11:42:21 +0100 (Mon, 17 Mar 2008) $
+# --------------------------------------------------------------
+
+NCDF= -I$(NETCDF_DIR)/include -L$(NETCDF_DIR)/lib -lnetcdff -lnetcdf
+
+F90=gfortran
+
+# -fdefault-real-8 -fbounds-check
+
+FFLAGS= -O2 -g -ffree-line-length-256 -Wall -I./mod -J./mod $(NCDF)
+
+INSTALL=./bin_gfortran/
+

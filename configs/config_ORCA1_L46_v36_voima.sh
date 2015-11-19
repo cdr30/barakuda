@@ -12,7 +12,7 @@
 #
 #===========================================================
 
-l_clim_diag=false ; # should we try to perform climatology-related diagnostics? (clim must be built!)
+l_clim_diag=true ; # should we try to perform climatology-related diagnostics? (clim must be built!)
 
 export CONF=ORCA1.L46 ; # horizontal global configuration
 export NBL=46     ; # number of levels
@@ -73,15 +73,16 @@ export MM_FILE="/lustre/tmp/uotilap/ecearth3/input/nemo/ORCA1L46/mesh_mask_ORCA1
 export BM_FILE="/lustre/tmp/uotilap/ecearth3/input/nemo/ORCA1L46/basin_mask_ORCA1L46.nc"
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
-export F_T_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/thetao_1degx1deg_WOA2009_monthly_${CONF}_cut.nc
-export F_S_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/so_1degx1deg_WOA2009_monthly_${CONF}_cut.nc
-export SST_CLIM_12=${STORE_DIR}/ORCA1/ORCA1-I/sst_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc
-export NN_T_CLIM="votemper"
-export NN_S_CLIM="vosaline"
+export CDATDIR=/stornext/field/users/${USER}
+export F_T_CLIM_3D_12=${CDATDIR}/tiede/PHC/PHC3.0.ORCA1.L46.nc
+export F_S_CLIM_3D_12=${CDATDIR}/tiede/PHC/PHC3.0.ORCA1.L46.nc
+export SST_CLIM_12=${CDATDIR}/tiede/PHC/PHC3.0.ORCA1.L46.nc
+export NN_T_CLIM="T"
+export NN_S_CLIM="S"
 export NN_SST_CLIM="sst"
 
-export ICE_CLIM_12=${STORE_DIR}/${CONF}/${CONF}-I/ice_cover_180x360-ORCA1_Hurrell_monthly_mean1980-1999.nc4
-export NN_ICEF_CLIM="ice_cover"
+export ICE_CLIM_12=${CDATDIR}/sidads.colorado.edu/pub/DATASETS/NOAA/G02202_v2/seaice_conc_ymonmean_1994-2013.ORCA1.nc
+export NN_ICEF_CLIM="seaice_conc_monthly_cdr"
 
 
 # A text file where the vertical hydraugraphical sections of interest are defined :

@@ -242,7 +242,8 @@ PROGRAM cdftransportiz
      
      READ(numin,'(a)') ctest
      IF (TRIM(ctest) == 'ref_temp' ) THEN
-        READ(numin,'(f)') ref_temp
+        !READ(numin,'(f)') ref_temp
+        READ(numin,*) ref_temp
         PRINT *, '  => reference temperature for heat transport is ', ref_temp
      ELSE
         BACKSPACE(numin)

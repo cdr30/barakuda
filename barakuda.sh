@@ -20,9 +20,9 @@
 #PBS -l mppdepth=1
 #PBS -l walltime=04:00:00
 # You may need to comment this on other clusters than voima.
-#cd $PBS_O_WORKDIR
-#CONFIG=ORCA1_L46_v36_voima
-#RUN=ECN-D508
+cd $PBS_O_WORKDIR
+CONFIG=ORCA1_L46_v36_LIM2_voima
+RUN=ECN-D502
 
 #  snic2014-8-18
 #SBATCH -A snic2014-10-3

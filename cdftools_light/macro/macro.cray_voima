@@ -22,7 +22,7 @@ F90=ftn
 
 #FFLAGS= -O0 -g -xHOST -module ./mod $(NCDF)
 #FFLAGS= -O0 -r8 -g -traceback -vec-report0 -xAVX -fp-model strict -check pointers -check uninit -module ./mod $(NCDF)
-FFLAGS= -O2 -module ./mod $(NCDF)
+FFLAGS= -O0 -g -module ./mod $(NCDF)
 
 #FFLAGS= -O0 -CB -traceback -module ./mod $(NCDF)
 
