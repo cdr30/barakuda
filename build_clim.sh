@@ -213,7 +213,7 @@ if [ ! "${SLURM_JOBID}" = "" ]; then
     export TMP_DIR=${SCRATCH}
 else
         # Likely to be running interactively
-    export SCRATCH=/proj/bolinc/users/x_laubr/tmp
+    #export SCRATCH=/proj/bolinc/users/x_laubr/tmp
     export TMP_DIR=${SCRATCH}/${RUN}_tmp
 fi
 
@@ -253,7 +253,7 @@ if [ ${iamoc} -eq 1 -o ${ibpsi} -eq 1 -o ${ivt} -eq 1 ]; then
     fi
 
     #Fix, in case old nemo (prior version 3.6) must rename some metrics param:
-    ca=""; ca=`${NCDF_DIR}/bin/ncdump -h mesh_mask.nc  | grep 'e3t('`
+    ca=""; ca=`${NCDF_BIN}/ncdump -h mesh_mask.nc  | grep 'e3t('`
     if [ ! "${ca}" = "" ]; then
         echo "Renaming some metrics into mesh_mask.nc !!!"
         ncrename -v e3t_0,e3t_1d -v e3w_0,e3w_1d -v gdept_0,gdept_1d -v gdepw_0,gdepw_1d  mesh_mask.nc
@@ -341,7 +341,8 @@ while [ ${jyear} -le ${Y2} ]; do
                     # Converting to netcd4 compressed:
                     echo "  + converting ${FPREF}${f2i} to compressed netcdf4..."
                     mv -f ${FPREF}${f2i} ${FPREF}${f2i}3
-                    ${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${FPREF}${f2i}3 ${FPREF}${f2i} ; rm -f ${FPREF}${f2i}3
+                    #${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${FPREF}${f2i}3 ${FPREF}${f2i} ; rm -f ${FPREF}${f2i}3
+                    ${NCDF_BIN}/nccopy -k 4 -d 9 ${FPREF}${f2i}3 ${FPREF}${f2i} ; rm -f ${FPREF}${f2i}3
                 fi
                 check_if_file ${FPREF}${f2i}
                 echo " ... done!"
@@ -436,7 +437,7 @@ if [ ${ivt} -eq 1 ]; then
     rm -f ${CPREF}*_VT.nc
 
     # Converting to netcdf4 with maximum compression level:
-    ${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${fo} ${fo}4 ;  rm -f ${fo}
+    ${NCDF_BIN}/nccopy -k 4 -d 9 ${fo} ${fo}4 ;  rm -f ${fo}
     mv -f ${fo}4 ${DIAG_D}/clim/
 fi
 
@@ -445,7 +446,7 @@ if [ ${iamoc} -eq 1 ]; then
     # Averaged MOC file:
     ncra -O ${CPREF}*_MOC.nc -o ${fo}
     # Converting to netcdf4 with maximum compression level:
-    ${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${fo} ${fo}4 ;  rm -f ${fo}
+    ${NCDF_BIN}/nccopy -k 4 -d 9 ${fo} ${fo}4 ;  rm -f ${fo}
     mv -f ${fo}4 ${DIAG_D}/clim/
 fi
 
@@ -455,7 +456,7 @@ if [ ${ibpsi} -eq 1 ]; then
     # Averaged PSI file:
     ncra -O ${CPREF}*_PSI.nc -o ${fo}
     # Converting to netcdf4 with maximum compression level:
-    ${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${fo} ${fo}4 ;  rm -f ${fo}
+    ${NCDF_BIN}/nccopy -k 4 -d 9 ${fo} ${fo}4 ;  rm -f ${fo}
     mv -f ${fo}4 ${DIAG_D}/clim/
 fi
 
@@ -518,8 +519,8 @@ for suff in grid_T grid_U grid_V icemod VT MOC PSI; do
 
         # Converting to netcdf4 with maximum compression level:
         echo; ls ; echo
-        echo "${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${f2c} ${f2c}4 ;  rm -f ${f2c}"
-        ${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${f2c} ${f2c}4 ;  rm -f ${f2c}
+        echo "${NCDF_BIN}/nccopy -k 4 -d 9 ${f2c} ${f2c}4 ;  rm -f ${f2c}"
+        ${NCDF_BIN}/nccopy -k 4 -d 9 ${f2c} ${f2c}4 ;  rm -f ${f2c}
         echo
         mv -f ${f2c}4    ${DIAG_D}/clim/
 

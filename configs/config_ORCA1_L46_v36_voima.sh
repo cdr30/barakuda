@@ -12,7 +12,7 @@
 #
 #===========================================================
 
-l_clim_diag=true ; # should we try to perform climatology-related diagnostics? (clim must be built!)
+l_clim_diag=false ; # should we try to perform climatology-related diagnostics? (clim must be built!)
 
 export CONF=ORCA1.L46 ; # horizontal global configuration
 export NBL=46     ; # number of levels
@@ -40,6 +40,9 @@ export SCRATCH="/lustre/tmp/$USER/tmp/<JOB_ID>"
 
 # Python installation directory where bin lib include reside
 export CANOPY_PATH=/opt/Python/2.7
+
+# NETCDF binaries such as nccopy
+export NCDF_BIN=/opt/cray/netcdf/4.3.0/bin
 
 # If variables names in NEMO files are not the default...
 export NN_SST="tos"
