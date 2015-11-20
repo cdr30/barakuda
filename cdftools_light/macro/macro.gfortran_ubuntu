@@ -11,7 +11,7 @@ F90=gfortran
 
 # -fdefault-real-8 -fbounds-check
 
-FFLAGS= -O2 -I./mod -J./mod $(NCDF)
+FFLAGS= -O2 -ffree-line-length-255 -I./mod -J./mod $(NCDF)
 
 #INSTALL=../bin/
 
