@@ -9,8 +9,23 @@
 #             L. Brodeau, August 2009-2015
 #
 #===============================================================
-
 ### Specific header for you batch manager:
+# voima.fmi.fi definitions
+#PBS -N build_clim 
+#PBS -q workq
+#PBS -l mppwidth=20
+#PBS -l mppnppn=20
+#PBS -l mppdepth=1
+#PBS -l walltime=05:00:00
+# You may need to comment this on other clusters than voima.
+cd $PBS_O_WORKDIR
+# -C ORCA1_L46_v36_voima -R ECN-D501 -i 1983 -e 2012
+export CONFIG=ORCA1_L46_v36_voima
+#export CONFIG=ORCA1_L46_v36_LIM2_voima
+export RUN=ECN-D506
+export Y1=2003
+export Y2=2012
+
 #SBATCH -A snic2014-10-3
 #SBATCH --reservation=dcs
 #SBATCH -N 1

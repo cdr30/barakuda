@@ -198,7 +198,7 @@ epstopng()
 ipresent_var_in_ncf()
 {
     ipv=0
-    ca=`${NCDF_DIR}/bin/ncdump -h $1 | grep "${2}(time_counter" | grep float`
+    ca=`${NCDF_BIN}/ncdump -h $1 | grep "${2}(time_counter" | grep float`
     if [ ! "${ca}" = "" ]; then
         #echo "   variable ${2} is present in file $1"
         ipv=1
