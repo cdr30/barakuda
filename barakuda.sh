@@ -18,11 +18,16 @@
 #PBS -l mppwidth=20
 #PBS -l mppnppn=20
 #PBS -l mppdepth=1
-#PBS -l walltime=05:00:00
+#PBS -l walltime=06:00:00
 # You may need to comment this on other clusters than voima.
-#cd $PBS_O_WORKDIR
-#CONFIG=ORCA1_L46_v36_voima
-#RUN=ECN-D506
+cd $PBS_O_WORKDIR
+CONFIG=ORCA1_L75_v36_voima
+CONFIG=ORCA1_L75_v36_LIM2_voima
+RUN=O1L7508
+YEAR0=1958
+YEARN=2012
+LFORCE_YEAR1=true
+LFORCE_END=true
 
 #  snic2014-8-18
 #SBATCH -A snic2014-10-3
@@ -39,7 +44,7 @@
 export BARAKUDA_ROOT=`pwd`
 
 # Supported ORCA grids:
-ORCA_LIST="ORCA1 ORCA1.L46 ORCA1.L75 ORCA2 ORCA2_L46"
+ORCA_LIST="ORCA025.L75 ORCA1 ORCA1.L46 ORCA1.L75 ORCA2 ORCA2_L46"
 
 # Checking available configs
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
@@ -128,6 +133,7 @@ echo
 if [ "${CANOPY_PATH}" = "" ]; then echo "ERROR: CANOPY_PATH is not set! => add it to config file"; exit; fi
 PYTH="${CANOPY_PATH}/bin/python -W ignore" ; # which Python installation to use
 export PYTHONPATH=${CANOPY_PATH}/lib/python2.7:${CANOPY_PATH}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
+export PYTHONPATH=${PYTHONPATH}:$HOME/lib/python2.7/site-packages
 PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
 
 echo " CANOPY_PATH => "${CANOPY_PATH} ; echo

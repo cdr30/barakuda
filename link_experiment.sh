@@ -3,8 +3,9 @@
 # Run in the directory where files are linked to
 # Specific for ec-earth jobscript output hierarchy
 
-EPATH=/lustre/tmp/${USER}/ECN-D50$1
-GRID=ORCA1.L46
+EPATH=/lustre/tmp/${USER}/$1
+#GRID=ORCA1.L46
+GRID=ORCA1.L75
 
 for GTYPE in grid_U grid_V grid_T icemod
 do
