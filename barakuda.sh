@@ -6,36 +6,14 @@
 #
 #    An OCEAN MONITORING python environment for NEMO
 #
-#             L. Brodeau, August 2009-2015
+#             L. Brodeau, 2009-2015
 #
 #===============================================================
-
-### Specific headers for you batch manager:
-
-# voima.fmi.fi 2015-10-29
-##PBS -N BaraKuda
-##PBS -q workq
-##PBS -l mppwidth=20
-##PBS -l mppnppn=20
-##PBS -l mppdepth=1
-##PBS -l walltime=04:00:00
-
-# You may need to comment this on other clusters than voima.
-#cd $PBS_O_WORKDIR
-
-
-#SBATCH -t 05:59:00
-#SBATCH -N 1
-#SBATCH -n 1
-#SBATCH -J BaraKuda
-#SBATCH -o out_barakuda_%J.out
-#SBATCH -e out_barakuda_%J.out
-###
 
 export BARAKUDA_ROOT=`pwd`
 
 # Supported ORCA grids:
-ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA2 ORCA2_L46"
+ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
 
 # Checking available configs
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
