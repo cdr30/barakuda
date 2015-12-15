@@ -89,6 +89,7 @@ PROGRAM cdfmhst
 
   INTEGER, DIMENSION(5) :: vid_heat, vid_salt
   REAL :: ryear
+  REAL :: minus_one = -1.0
 
 
   !!  Read command line and output usage message if not compliant.
@@ -393,8 +394,8 @@ PROGRAM cdfmhst
   !   END DO
   !END DO
 
-  WHERE ( vmerid_heat == 0.0 ) vmerid_heat = sqrt(-1.)
-  WHERE ( vmerid_salt == 0.0 ) vmerid_salt = sqrt(-1.)
+  WHERE ( vmerid_heat == 0.0 ) vmerid_heat = sqrt(minus_one)
+  WHERE ( vmerid_salt == 0.0 ) vmerid_salt = sqrt(minus_one)
 
 
 

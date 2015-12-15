@@ -91,7 +91,7 @@ elif cdiag == 'amoc':
     if LMOCLAT == None: print 'The LMOCLAT environement variable is no set'; sys.exit(0)
     idfig = 'amoc'
     cyu  = r'Sv'
-    ym = 3.75 ; yp = 20.25
+    ym = 3.75 ; yp = 25.25
 
 elif cdiag == 'mean_mldr10_1':
     cvar  = NN_MLD
@@ -263,8 +263,11 @@ if idfig == 'ice':
     vvolu_n  = id_in.variables['volu_ne'][:]
     varea_n  = id_in.variables['area_ne'][:]
     vvolu_s  = id_in.variables['volu_se'][:]
-    varea_s  = id_in.variables['area_se'][:]    
+    varea_s  = id_in.variables['area_se'][:]
     id_in.close()
+
+    cyua = r'10$^6$km$^2$'
+    cyuv = r'10$^3$km$^3$'
 
     if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!', sys.exit(0)
     nby = nbm/12
@@ -280,23 +283,23 @@ if idfig == 'ice':
     Xplt[0,:] = varea_n[8::12] ; # extent Arctic september
     Xplt[1,:] = varea_s[2::12] ; # extent Antarctic march
     bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_extent_summer_'+CONFRUN, dt_year=ittic,
-                     cyunit=cyu, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer', ymin=0., ymax=0.)
+                     cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer', ymin=0., ymax=0.)
 
     Xplt[0,:] = vvolu_n[8::12] ; # volume Arctic september
     Xplt[1,:] = vvolu_s[2::12] ; # volume Antarctic march
     bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_volume_summer_'+CONFRUN, dt_year=ittic,
-                     cyunit=cyu, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer', ymin=0., ymax=0.)
+                     cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer', ymin=0., ymax=0.)
 
     # End of local winter
     Xplt[0,:] = varea_n[2::12] ; # extent Arctic march
     Xplt[1,:] = varea_s[8::12] ; # extent Antarctic september
     bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_extent_winter_'+CONFRUN, dt_year=ittic,
-                     cyunit=cyu, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter', ymin=0., ymax=0.)
-    
+                     cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter', ymin=0., ymax=0.)
+
     Xplt[0,:] = vvolu_n[2::12] ; # volume Arctic march
     Xplt[1,:] = vvolu_s[8::12] ; # volume Antarctic september
     bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_volume_winter_'+CONFRUN, dt_year=ittic,
-                     cyunit=cyu, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter', ymin=0., ymax=0.)
+                     cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter', ymin=0., ymax=0.)
 
 
 

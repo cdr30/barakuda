@@ -158,21 +158,22 @@ xclim090[js_ext:nje,:] = xclim09[:,:]
 
 ratio = 1.
 
-if COMP2D == 'CLIM': ratio = 100.
-
+#if COMP2D == 'CLIM': ratio = 100.
+if xclim03.max()>90.:
+    ratio = 100.
 
 
 #DEBUG:
 if False:
     brkdp.plot_nproj('spstere', 0., 1., 0.1, xlon0, xlat0, xclim090[:,:]/ratio,
                     cfignm=path_fig+'sea-ice_SP_sept_obs', cpal='ice', cbunit='frac.',
-                    ctitle='Sea-Ice, Sept., obs. Hurrell 1980-1999',
+                    ctitle='Sea-Ice, Sept., obs.',
                     lkcont=True, cfig_type=fig_type, 
                     lforce_lim=True)
 
     brkdp.plot_nproj('npol2', 0., 1., 0.1, xlon, xlat, xclim03[:,:]/ratio,
                     cfignm=path_fig+'sea-ice_NP_march_obs', cpal='ice', cbunit='frac.',
-                    ctitle='Sea-Ice, March, obs. Hurrell 1980-1999',
+                    ctitle='Sea-Ice, March, obs.',
                     lkcont=True, cfig_type=fig_type, 
                     lforce_lim=True)
 
@@ -184,7 +185,7 @@ if False:
 # September
 # ~~~~~~~~~
 if COMP2D == 'CLIM':
-    ctit_clim = 'Sea-Ice, Sept., obs. Hurrell 1980-1999'
+    ctit_clim = 'Sea-Ice, Sept., obs.'
 else:
     ctit_clim = 'Sea-Ice, Sept., '+COMP2D
 
@@ -232,7 +233,7 @@ brkdp.plot_nproj('spstere', 0., 1., 0.1, xlon0, xlat0, xclim090[:,:]/ratio,
 # ~~~~~~
 
 if COMP2D == 'CLIM':
-    ctit_clim = 'Sea-Ice, March, obs. Hurrell 1980-1999'
+    ctit_clim = 'Sea-Ice, March, obs.'
 else:
     ctit_clim = 'Sea-Ice, March, '+COMP2D
 
