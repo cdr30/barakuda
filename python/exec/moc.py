@@ -80,7 +80,7 @@ id_mm = Dataset(cf_mesh_mask)
 xlat = id_mm.variables['gphit'][0,:,:]
 xlon = id_mm.variables['glamt'][0,:,:]
 Xmask = id_mm.variables['tmask'][0,:,:,:]
-#vlev  = id_mm.variables['gdept_0'][0,:]
+#vlev  = id_mm.variables['gdept_1d'][0,:]
 id_mm.close()
 
 

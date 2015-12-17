@@ -74,10 +74,10 @@ export BM_FILE="${STORE_DIR}/${CONF}/${CONF}-I/basin_mask_ORCA1_ecearth2_42l_NoC
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
 export F_T_CLIM_3D_12="${STORE_DIR}/${CONF}/${CONF}-I/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly.nc4"
 export F_S_CLIM_3D_12="${STORE_DIR}/${CONF}/${CONF}-I/so_1degx1deg-ORCA1.L75_WOA2009_monthly.nc4"
-export SST_CLIM_12="${STORE_DIR}/ORCA1/ORCA1-I/sst_1degx1deg-ORCA1_WOA2009_monthly.nc"
+export SST_CLIM_12="/proj/bolinc/users/x_laubr/ORCA1.L75/ORCA1.L75-I/tos_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc"
 export NN_T_CLIM="thetao"
 export NN_S_CLIM="so"
-export NN_SST_CLIM="sst"
+export NN_SST_CLIM="tos"
 
 export ICE_CLIM_12=${STORE_DIR}/ORCA1.L75/ORCA1.L75-I/ice_cover_180x360-ORCA1_Hurrell_monthly_mean1980-1999.nc4
 export NN_ICEF_CLIM="ice_cover"
