@@ -1643,7 +1643,7 @@ EOF
         echo "Preparing to export to remote host!"; echo
         mkdir ${RUN}
 
-        cp -r ${BARAKUDA_ROOT}/scripts/html/conf ${RUN}/
+        cp -r ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
         mv -f index.php ${RUN}/
         mv -f *.png      ${RUN}/ >/dev/null 2>/dev/null
         mv -f ./merid_transport/*.png ${RUN}/ >/dev/null 2>/dev/null

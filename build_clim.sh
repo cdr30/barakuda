@@ -10,19 +10,7 @@
 #
 #===============================================================
 
-### Specific header for you batch manager:
-#SBATCH -A snic2014-10-3
-#SBATCH --reservation=dcs
-#SBATCH -N 1
-#SBATCH -n 1
-#SBATCH -J CLIM
-#SBATCH -t 05:59:00
-#SBATCH -o out_clim_%J.out
-#SBATCH -e err_clim_%J.err
-###
-
 export BARAKUDA_ROOT=`pwd`
-
 
 iremap=0 ; REGG="360x180"; # remap to regular lat-lon grid?
 iuv=0      ; # Do a climatology for current...
@@ -40,7 +28,7 @@ list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'c
 
 # Important bash functions:
 . ${BARAKUDA_ROOT}/configs/bash_functions.bash
-
+for 
 
 
 usage()
