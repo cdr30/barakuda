@@ -115,8 +115,7 @@ def plot_vert_section(VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
     for t in clb.ax.get_yticklabels(): t.set_fontsize(10)
 
     # X-axis:
-    if xmax<1000:
-        plt.xticks( nmp.arange(xmin, xmax+dx, dx) )
+    plt.xticks( nmp.arange(xmin, xmax+dx, dx) )
     ax.set_xlim(xmin,xmax)
     plt.xlabel(cxunit, **font_ylb);
 
@@ -1154,8 +1153,7 @@ def plot_trsp_sig_class(VT, vsigma_bounds, XF, rmin, rmax, dc, dsig,
     # AXES:
     y1 = int(min(VT))  ; y2 = int(max(VT))+1
     plt.axis([y1, y2, vsigma_bounds[nbins], vsigma_bounds[0]])
-    if y2<1000:
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
+    plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
     plt.yticks( nmp.flipud(vsigma_bounds) )
 
     label_big = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':18 }
@@ -1330,8 +1328,7 @@ def plot_time_depth_hovm(VT, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='je
         plt.yticks(locs,cny)
     plt.axis([ tmin, tmax, zmax, zmin])
 
-    if tmax<1000:
-        plt.xticks( nmp.arange(tmin, tmax+dt, dt) )
+    plt.xticks( nmp.arange(tmin, tmax+dt, dt) )
 
     plt.title(ctitle, **font_ttl)
     plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
@@ -1422,8 +1419,7 @@ def plot_enso(VT, VSST, cfignm='fig', dt_year=5):
     plt.axis([min(VT), max(VT), -2.5, 2.5])
 
     #plt.xticks( nmp.arange(trunc(VT[0]), trunc(max(VT[:]))+dt_year, dt_year) )
-    if y2<1000:
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
+    plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
 
 
     plt.yticks( nmp.arange(-2.5,2.501,0.5) )
@@ -1494,8 +1490,7 @@ def plot_1d_mon_ann(VTm, VTy, VDm, VDy, cfignm='fig', dt_year=5, cyunit='', ctit
     y_formatter = mpl.ticker.ScalarFormatter(useOffset=False)
     ax.yaxis.set_major_formatter(y_formatter)
 
-    if y2<1000:
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
+    plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
 
     #BUG?:
     locs, labels = plt.xticks() ; jl=0; newlabels = []
@@ -1598,8 +1593,7 @@ def plot_1d_multi(vt, XD, vlabels, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='
         plt.xticks( nmp.arange(y1, y2+10, 10) )
 
     else:
-        if y2<1000:
-            plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
+        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
         if i_t_jump > 1:
             locs, labels = plt.xticks() ; new_t_labels = []
             jcpt = 1 ; # => tick priting will start at y1+dt_year on x axis rather than y1
@@ -1679,8 +1673,7 @@ def plot_1d(vt, VF, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='', ctitle='',
 
     print nmp.arange(y1, y2+dt_year, dt_year)
     
-    if y2<1000:
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
+    plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
     if i_t_jump > 1:
         locs, labels = plt.xticks() ; new_t_labels = []
         jcpt = 1 ; # => tick priting will start at y1+dt_year on x axis rather than y1

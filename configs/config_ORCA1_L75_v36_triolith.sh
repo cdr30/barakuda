@@ -163,9 +163,7 @@ i_do_dmv=1
 export MLD_CRIT="1000,725,500"
 
 
-
-
-# Some nerdy stuffs about the critical depth in prescribed boxes:
+# Some nerdy stuffs about the critical depth in prescribed boxes: 
 i_do_zcrit=0
 
 

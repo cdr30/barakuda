@@ -26,6 +26,7 @@ def iaxe_tick(ny):
     itick = int( max( 1 , min(ny/20 , max(ny/20,5)/5*5) ) )
     if itick == 4 or itick == 3: itick = 5
     if ny > 20 and itick == 1: itick = 2
+    if ny > 120 and ny < 201: itick = 10
     return itick
 
 
