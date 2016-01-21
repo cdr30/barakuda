@@ -12,6 +12,8 @@ import barakuda_plot as bp
 import barakuda_tool as bt
 
 
+DEFAULT_LEGEND_LOC = 'lower left'
+
 CONFRUN = os.getenv('CONFRUN')
 if CONFRUN == None: print 'The CONFRUN environement variable is no set'; sys.exit(0)
 

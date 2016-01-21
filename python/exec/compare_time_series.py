@@ -11,6 +11,8 @@ import barakuda_orca as bo
 import barakuda_plot as bp
 import barakuda_tool as bt
 
+DEFAULT_LEGEND_LOC = 'lower right'
+
 iamoc  = 1
 i2dfl  = 1
 i3dfl  = 1
@@ -113,7 +115,7 @@ if i2dfl == 1:
                 jrun = jrun + 1
     
             bp.plot_1d_multi(vtime[:], Xf[:,:], clist_confruns, cfig_type=FIG_FORMAT,
-                             cfignm=cdiag+'_comparison_'+cocean, dt_year=ittic, loc_legend='lower left',
+                             cfignm=cdiag+'_comparison_'+cocean, dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                              cyunit=vunit[jvar], ctitle = vname[jvar]+', '+cocean, ymin=0, ymax=0)
     
         jvar = jvar+1
@@ -155,7 +157,7 @@ if imld == 1:
     
         if lplot:
             bp.plot_1d_multi(vtime[:], Xf[:,:], clist_confruns, cfig_type=FIG_FORMAT,
-                             cfignm=cdiag+'_'+cbox+'_comparison', dt_year=ittic, loc_legend='lower left',
+                             cfignm=cdiag+'_'+cbox+'_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                              cyunit='m', ctitle = 'Mixed layer depth, '+bo.clgnm_mld_boxes[jbox], ymin=0, ymax=0)
         jbox = jbox+1
     
@@ -207,7 +209,7 @@ if i3dfl == 1:
                     jrun = jrun + 1
     
                 bp.plot_1d_multi(vtime[:], Xf[:,:], clist_confruns, cfig_type=FIG_FORMAT,
-                                 cfignm=cdiag+'_comparison_'+cocean+'_'+cdepth, dt_year=ittic, loc_legend='lower left',
+                                 cfignm=cdiag+'_comparison_'+cocean+'_'+cdepth, dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                                  cyunit=vunit[jdiag], ctitle = vname[jdiag]+', '+cocean+', depth range = '+cdepth, ymin=0, ymax=0)
     
                 idepth = idepth + 1
@@ -331,7 +333,7 @@ if itrsp == 1:
         for cstuff in vstuff:
 
             bp.plot_1d_multi(vyear[:], Xtrsp[:,jsect,jstuff,:], clist_confruns, cfig_type=FIG_FORMAT,
-                             cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic, loc_legend='lower left',
+                             cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                              cyunit=vunit[jstuff], ctitle = 'Transport of '+cstuff+' through section '+csect,
                              ymin=0, ymax=0)
             
@@ -386,7 +388,7 @@ if iamoc == 1:
     for clr in list_lat:
 
         bp.plot_1d_multi(vyear[:], Xamoc[:,jl,:], clist_confruns, cfig_type=FIG_FORMAT,
-                         cfignm='AMOC_'+clr+'_comparison', loc_legend='lower left',
+                         cfignm='AMOC_'+clr+'_comparison', loc_legend=DEFAULT_LEGEND_LOC,
                          dt_year=ittic, cyunit='Sv', ctitle = 'AMOC ('+clr+')', ymin=0, ymax=0)
     
         jl = jl + 1
