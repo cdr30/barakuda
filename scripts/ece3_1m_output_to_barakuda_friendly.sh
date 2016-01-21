@@ -10,7 +10,8 @@
 #SBATCH -o out_MKYR_%J.out
 #SBATCH -e err_MKYR_%J.err
 
-NCDIR=/software/apps/netcdf/4.3.2/i1214-hdf5-1.8.12-AVX-off
+#NCDIR=/software/apps/netcdf/4.3.2/i1214-hdf5-1.8.12-AVX-off
+NCDIR=/software/apps/netcdf/4.3.2/i1403-impi-5.0.2.044-hdf5-1.8.14
 
 
 #RUN="32-Z" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
@@ -25,7 +26,11 @@ NCDIR=/software/apps/netcdf/4.3.2/i1214-hdf5-1.8.12-AVX-off
 #RUN="CPL0" ; ILDIR=20 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
 
 #RUN="CPL0" ; ILDIR=1 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
-RUN="CP46" ; ILDIR=10 ; cext=".L46" ; yyyy=1990 ; idi=1 ; cimp='cp'
+#RUN="CP46" ; ILDIR=10 ; cext=".L46" ; yyyy=1990 ; idi=1 ; cimp='cp'
+
+#RUN="LB02" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
+RUN="LB03" ; ILDIR=6 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
+
 
 
 NEMO_SAVED_FILE="grid_T grid_U grid_V icemod"
@@ -35,10 +40,11 @@ NEMO_SAVED_FILE="grid_T grid_U grid_V icemod"
 # Uwe:
 #ROOT="/nobackup/rossby15/sm_uflad/run/${RUN}/output/nemo"
 # Klaus:
-ROOT="/nobackup/rossby15/sm_wyser/run/${RUN}/output/nemo"
+#ROOT="/nobackup/rossby15/sm_wyser/run/${RUN}/output/nemo"
 #
 #Me:
-#ROOT="/nobackup/rossby15/x_laubr/run/${RUN}/output/nemo"
+ROOT="/proj/bolinc/users/x_laubr/ecrundir/${RUN}/output/nemo"
+#/nobackup/rossby15/x_laubr/run/${RUN}/output/nemo"
 
 
 if [ ! -d ${ROOT} ]; then

@@ -65,7 +65,7 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v3.6 ORCA1 (L${NBL}) - LIM3 / EC-Earth 3.2_beta"
+export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / EC-Earth 3.2_beta"
 
 # Land-sea mask and basins files:
 export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask_${CONF}_20150929.nc"
@@ -105,7 +105,6 @@ ihttp=1 ; # do we export on a remote http server (1) or keep on the local machin
 RHOST=misu228.misu.su.se ; # remote host to send diagnostic page to///
 RUSER=laurent ; # username associated to remote host (for file export)
 RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host to send the diagnostic page to
-#RWWWD=/data/www/barakuda/TEST ; # directory of the local or remote host to send the diagnostic page to
 
 
 
@@ -164,9 +163,7 @@ i_do_dmv=1
 export MLD_CRIT="1000,725,500"
 
 
-
-
-# Some nerdy stuffs about the critical depth in prescribed boxes:
+# Some nerdy stuffs about the critical depth in prescribed boxes: 
 i_do_zcrit=0
 
 

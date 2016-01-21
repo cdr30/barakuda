@@ -12,7 +12,7 @@
 #
 #===========================================================
 
-l_clim_diag=true ; # should we try to perform climatology-related diagnostics? (clim must be built!)
+l_clim_diag=false ; # should we try to perform climatology-related diagnostics? (clim must be built!)
 
 export CONF=ORCA1.L75 ; # horizontal global configuration
 export NBL=75     ; # number of levels
