@@ -213,6 +213,7 @@ done
 
 cat ${BARAKUDA_ROOT}/scripts/html/index_skel_footer.html >> index.php ; # Closing HTML file...
 
+cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html .
 
 echo; echo
 
