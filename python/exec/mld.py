@@ -12,8 +12,9 @@ import barakuda_plot    as brkdp
 import barakuda_physics as bphys
 import barakuda_tool    as brkdt
 
-
 ldebug = False
+
+zmax_mld_atl = 1600. ; dz_mld = 100.
 
 ORCA = os.getenv('ORCA')
 if ORCA == None: print 'The ORCA environement variable is no set'; sys.exit(0)
@@ -188,7 +189,7 @@ if l_obs_mld:
             ijloc = nmp.where( Sigma0_nemo[jk+1,:,:] - 0.01 > Sigma0_nemo[jk,:,:] )
             Xmld_obs[ijloc] = zz
             mmask[ijloc] = 0. ; # these points won't be checked again only first occurence of the criterion matters!
-        brkdp.plot_nproj('nseas', 200., 2200., 100., xlon, xlat, Xmld_obs[:,:],
+        brkdp.plot_nproj('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, Xmld_obs[:,:],
                         cfignm=path_fig+'mld_NEMO_001_NSeas_march_'+CONFRUN+'_vs_'+COMP2D, cpal='sst0', cbunit='m',
                         ctitle='MLD NEMO (0.01 crit.), March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                         lkcont=True, cfig_type=fig_type, lforce_lim=True)
@@ -199,7 +200,7 @@ if l_obs_mld:
 #################
 
 
-brkdp.plot_nproj('nseas', 200., 2200., 100., xlon, xlat, mldr10[imnth,:,:],
+brkdp.plot_nproj('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, mldr10[imnth,:,:],
                 cfignm=path_fig+'mld_NSeas_march_'+CONFRUN, cpal='sst0', cbunit='m',
                 ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                 lkcont=True, cfig_type=fig_type, 
@@ -218,7 +219,7 @@ brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 6
              cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
 
 if l_obs_mld:
-    brkdp.plot_nproj('nseas', 200., 2200., 100., xlon, xlat, Xmld_obs[:,:],
+    brkdp.plot_nproj('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, Xmld_obs[:,:],
                     cfignm=path_fig+'mld_obs_001_NSeas_march_'+CONFRUN, cpal='sst0', cbunit='m',
                     ctitle='MLD (obs., 0.01 crit.), March (Levitus 1980-1999)',
                     lkcont=True, cfig_type=fig_type, lforce_lim=True)
@@ -259,7 +260,7 @@ if l_obs_mld:
 
 
 # Figures september:
-brkdp.plot_nproj('spstere', 100., 2000., 100., xlon, xlat, mldr10[imnth,:,:],
+brkdp.plot_nproj('spstere', 100., 2000., dz_mld, xlon, xlat, mldr10[imnth,:,:],
                 cfignm=path_fig+'mld_ACC_september_'+CONFRUN, cpal='sst0', cbunit='m',
                 ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                 lkcont=True, cfig_type=fig_type, 

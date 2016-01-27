@@ -388,7 +388,7 @@ if iamoc == 1:
     for clr in list_lat:
 
         bp.plot_1d_multi(vyear[:], Xamoc[:,jl,:], clist_confruns, cfig_type=FIG_FORMAT,
-                         cfignm='AMOC_'+clr+'_comparison', loc_legend=DEFAULT_LEGEND_LOC,
+                         cfignm='AMOC_'+clr+'_comparison', loc_legend='lower left',
                          dt_year=ittic, cyunit='Sv', ctitle = 'AMOC ('+clr+')', ymin=0, ymax=0)
     
         jl = jl + 1
