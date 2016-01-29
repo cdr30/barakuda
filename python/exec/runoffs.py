@@ -104,11 +104,11 @@ rnf_plot[:,:] = nmp.mean(rnf[:,:,:],axis=0)
 
 
 #lolo zmax_rnf_atl, dz_rnf,
-brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], rnf_plot[:,:], Xmask[0,:,:], 0., 0.1, 0.005,
-              corca=ORCA, lkcont=False, cpal='jet',
+brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], rnf_plot[:,:], Xmask[0,:,:], 0., 0.1, 0.001,
+              corca=ORCA, lkcont=False, cpal='mld',
               cfignm=path_fig+'rnf_mean_'+CONFRUN, cbunit='mm/day',
               ctitle='Mean RNF, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=2,
-              cfig_type=fig_type, lat_min=-82., lat_max=80., lpix=True)
+              cfig_type=fig_type, lat_min=-79., lat_max=90., lpix=True)
 
 #, vcont_spec = [ 0. ])
 
