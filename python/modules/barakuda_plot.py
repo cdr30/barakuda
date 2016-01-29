@@ -293,7 +293,7 @@ def plot_2d(VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='
 
     plt.title(ctitle, **font_ttl)
 
-    plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=True)
+    plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
 
     print cfignm+'.'+cfig_type+' created!\n'
     plt.close(1)

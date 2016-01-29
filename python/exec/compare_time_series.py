@@ -333,7 +333,7 @@ if itrsp == 1:
         for cstuff in vstuff:
 
             bp.plot_1d_multi(vyear[:], Xtrsp[:,jsect,jstuff,:], clist_confruns, cfig_type=FIG_FORMAT,
-                             cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
+                             cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic, loc_legend='upper left',
                              cyunit=vunit[jstuff], ctitle = 'Transport of '+cstuff+' through section '+csect,
                              ymin=0, ymax=0)
             

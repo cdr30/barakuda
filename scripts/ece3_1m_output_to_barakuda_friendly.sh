@@ -28,12 +28,11 @@ NCDIR=/software/apps/netcdf/4.3.2/i1403-impi-5.0.2.044-hdf5-1.8.14
 #RUN="CPL0" ; ILDIR=1 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
 #RUN="CP46" ; ILDIR=10 ; cext=".L46" ; yyyy=1990 ; idi=1 ; cimp='cp'
 
-#RUN="LB02" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
-RUN="LB03" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
+RUN="LB02" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
+#RUN="LB03" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
 
 
-
-NEMO_SAVED_FILE="grid_T grid_U grid_V icemod"
+NEMO_SAVED_FILE="grid_T grid_U grid_V icemod SBC"
 #NEMO_SAVED_FILE="grid_T icemod"
 
 

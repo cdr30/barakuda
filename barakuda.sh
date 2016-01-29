@@ -167,7 +167,7 @@ if [ "${NEMO_SAVED_FILES}" = "" ]; then
     echo "Please specify which NEMO files are saved (file suffixes, grid_T, ..., icemod) ?"
     echo " => set the variable NEMO_SAVED_FILES in your config_${CONFIG}.sh file!"; exit
 fi
-VAF=( "grid_T" "grid_U" "grid_V" "icemod" )
+VAF=( "grid_T" "grid_U" "grid_V" "icemod" "SBC" )
 js=0 ; gimp_new=""
 for sf in ${VAF[*]}; do
     echo "Checking ${sf}..."

@@ -139,7 +139,7 @@ C2EW="nav_lon,nav_lat,depthw" #,time_counter"
 
 
 
-GRID_IMP="grid_T"
+GRID_IMP="grid_T SBC"
 
 if [ ${iamoc} -eq 1 ]; then
     GRID_IMP="${GRID_IMP} grid_V"
@@ -167,7 +167,7 @@ if [ "${NEMO_SAVED_FILES}" = "" ]; then
     echo "Please specify which NEMO files are saved (file suffixes, grid_T, ..., icemod) ?"
     echo " => set the variable NEMO_SAVED_FILES in your config_${CONFIG}.sh file!"; exit
 fi
-VAF=( "grid_T" "grid_U" "grid_V" "icemod" )
+VAF=( "grid_T" "grid_U" "grid_V" "icemod" "SBC" )
 js=0 ; gimp_new=""
 for sf in ${VAF[*]}; do
     echo "Checking ${sf}..."
@@ -337,7 +337,7 @@ while [ ${jyear} -le ${Y2} ]; do
 
         # Need to create annual files if needed
         if [ ${IFREQ_SAV_YEARS} -gt 1 ]; then
-            for gt in grid_T grid_U grid_V ${FILE_ICE_SUFFIX}; do
+            for gt in grid_T grid_U grid_V ${FILE_ICE_SUFFIX} SBC; do
                 ftd=./${FPREF}${CRTM}_${gt}.${NCE} ; # file to divide!
                 if [ -f ${ftd} ]; then
                     jy=0
@@ -458,7 +458,7 @@ echo "Phase 2:"; ls ; echo
 
 # Mean monthly climatology
 
-for suff in grid_T grid_U grid_V icemod VT MOC PSI; do
+for suff in grid_T grid_U grid_V icemod SBC VT MOC PSI; do
 
 
     if [ -f ./${CPREF}${CY1}0101_${CY1}1231_${suff}.${NCE} ]; then

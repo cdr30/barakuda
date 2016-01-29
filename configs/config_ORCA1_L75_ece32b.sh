@@ -21,7 +21,7 @@ export NBL=75     ; # number of levels
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
 # List of suffixed of files that have been saved by NEMO:
-export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod"
+export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
 
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
@@ -47,6 +47,7 @@ export NN_SSH="zos"
 export NN_T="thetao"
 export NN_S="so"
 export NN_MLD="mldr10_1"
+export NN_RNF="runoffs"
 export NN_U="uo"
 export NN_V="vo"
 #export NN_U_EIV="vozoeivu"

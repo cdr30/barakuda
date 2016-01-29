@@ -19,6 +19,7 @@ What do you need on your machine to use barakuda ?
 
 - NEMO output data! => A directory containing the monthly NEMO output to analyze
                (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"
+     => alternatively it's a good idea to save the SBC files too...
 
 - a NEMO mesh_mask file and the the corresponding basin_mask (ocean basins).
   (variables MM_FILE and BM_FILE into your config/conf_<MYCONF>.sh file)
