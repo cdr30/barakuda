@@ -14,7 +14,8 @@ import barakuda_tool    as brkdt
 
 ldebug = False
 
-zmax_rnf_atl = 1.E-4 ; dz_rnf = 1.E-3
+rmult = 1.E3
+zmax_rnf_atl = 0.1 ; dz_rnf = 0.005
 
 ORCA = os.getenv('ORCA')
 if ORCA == None: print 'The ORCA environement variable is no set'; sys.exit(0)
@@ -36,7 +37,8 @@ print ' DIAG_D = '+DIAG_D
 if 'ORCA2' in ORCA:
     ji_lat0 = 132
 elif 'ORCA1' in ORCA:
-    ji_lat0 = 265
+    #ji_lat0 = 265
+    ji_lat0 = 100
 else:
     print 'FIX ME!!! '+sys.argv[0]+' => dont know ji_lat0 for conf '+ORCA+' !!!'; sys.exit(0)
 
@@ -88,10 +90,10 @@ cf_nemo_mnmc = DIAG_D+'/clim/mclim_'+CONFRUN+'_'+cy1+'-'+cy2+'_SBC.nc4'
 
 brkdt.chck4f(cf_nemo_mnmc)
 id_nemo = Dataset(cf_nemo_mnmc)
-rnf   = 1.E3*id_nemo.variables[NN_RNF][:,:,:]
+rnf   = rmult*id_nemo.variables[NN_RNF][:,:,:]
 id_nemo.close()
 
-[ nt, nj, ni ] = rnf.shape ; print ' Shape of RNF :', nt, nj, ni, '\n'
+[ nt, nj, ni ] = rnf.shape ; print ' Shape of Runoffs :', nt, nj, ni, '\n'
 
 
 
@@ -101,114 +103,21 @@ rnf_plot = nmp.zeros(nj*ni) ; rnf_plot.shape = [ nj , ni ]
 
 
 rnf_plot[:,:] = nmp.mean(rnf[:,:,:],axis=0)
+#rnf_plot[:,:] = nmp.log(rnf_plot[:,:]+1.0)
 
+# With lat-lon axis:
+#brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], rnf_plot[:,:], Xmask[0,:,:], 0., zmax_rnf_atl, dz_rnf,
+#              corca=ORCA, lkcont=False, cpal='sst',
+#              cfignm=path_fig+'runoffs_mean_'+CONFRUN, cbunit=r'10$^{-3}$mm/day',
+#              ctitle='Mean Runoffs, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=2,
+#              cfig_type=fig_type, lat_min=-79., lat_max=85., lpix=True)
 
-#lolo zmax_rnf_atl, dz_rnf,
-brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], rnf_plot[:,:], Xmask[0,:,:], 0., 0.1, 0.001,
-              corca=ORCA, lkcont=False, cpal='mld',
-              cfignm=path_fig+'rnf_mean_'+CONFRUN, cbunit='mm/day',
-              ctitle='Mean RNF, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=2,
-              cfig_type=fig_type, lat_min=-79., lat_max=90., lpix=True)
-
-#, vcont_spec = [ 0. ])
-
-sys.exit(0)
-
-
-
-
-
-# FIGURES MARCH #
-#################
-
-
-brkdp.plot_nproj('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, mldr10[imnth,:,:],
-                cfignm=path_fig+'mld_NSeas_march_'+CONFRUN, cpal='sst0', cbunit='m',
-                ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
-                lkcont=True, cfig_type=fig_type,
-                lforce_lim=True)
-
-brkdp.plot_nproj('spstere', 50., 200., 10., xlon, xlat, mldr10[imnth,:,:],
-                cfignm=path_fig+'mld_ACC_march_'+CONFRUN, cpal='sst0', cbunit='m',
-                ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
-                lkcont=True, cfig_type=fig_type,
-                lforce_lim=True)
-
-brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 600., 20.,
-             corca=ORCA, lkcont=True, cpal='sst0',
-             cfignm=path_fig+'mld_Global_march_'+CONFRUN, cbunit='m',
-             ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=1,
-             cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
-
-if l_obs_mld:
-    brkdp.plot_nproj('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, Xmld_obs[:,:],
-                    cfignm=path_fig+'mld_obs_001_NSeas_march_'+CONFRUN, cpal='sst0', cbunit='m',
-                    ctitle='MLD (obs., 0.01 crit.), March (Levitus 1980-1999)',
-                    lkcont=True, cfig_type=fig_type, lforce_lim=True)
-
-    brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], Xmld_obs[:,:], Xmask[0,:,:], 0., 600., 20.,
-                 corca=ORCA, lkcont=True, cpal='sst0',
-                 cfignm=path_fig+'mld_obs_001_Global_march_'+CONFRUN, cbunit='m',
-                 ctitle='MLD (obs., 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_sub_samp=1,
-                 cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
-
-
-
-
-
-
-
-
-#####################
-# S E P T E M B E R #
-#####################
-
-imnth = 8 ; # september
-
-
-if l_obs_mld:
-    # Computing sigma0 3D field:
-    Sigma0 = bphys.sigma0(Tclim[imnth,:,:,:], Sclim[imnth,:,:,:])*Xmask[:,:,:]
-
-    mmask[:,:] = 1.
-    for jk in range(nk-1):
-        zz = vlev[jk]
-        Sigma0[jk,:,:]   = Sigma0[jk,:,:]*mmask[:,:]
-        Sigma0[jk+1,:,:] = Sigma0[jk+1,:,:]*mmask[:,:]
-        ijloc = nmp.where( Sigma0[jk+1,:,:] - 0.01 > Sigma0[jk,:,:] )
-        #lolo:Xmld_obs[ijloc] = zz ;# Problem lolo!!!
-        mmask[ijloc] = 0. ; # these points won't be checked again only first occurence of the criterion matters!
-
-
-
-# Figures september:
-brkdp.plot_nproj('spstere', 100., 2000., dz_mld, xlon, xlat, mldr10[imnth,:,:],
-                cfignm=path_fig+'mld_ACC_september_'+CONFRUN, cpal='sst0', cbunit='m',
-                ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')',
-                lkcont=True, cfig_type=fig_type,
-                lforce_lim=True)
-
-brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 600., 20.,
-             corca=ORCA, lkcont=True, cpal='sst0',
-             cfignm=path_fig+'mld_Global_september_'+CONFRUN, cbunit='m',
-             ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=1,
-             cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
-
-
-if l_obs_mld:
-    brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], Xmld_obs[:,:], Xmask[0,:,:], 0., 600., 20.,
-                 corca=ORCA, lkcont=True, cpal='sst0',
-                 cfignm=path_fig+'mld_obs_001_Global_september_'+CONFRUN, cbunit='m',
-                 ctitle='MLD (obs, 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_sub_samp=1,
-                 cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
-
-
-
-
-
-
-
-
+# Without:
+brkdp.plot_2d([0], [0], rnf_plot[:,:], Xmask[0,:,:], 0., zmax_rnf_atl, dz_rnf,
+              corca=ORCA, lkcont=False, cpal='sst',
+              cfignm=path_fig+'runoffs_mean_'+CONFRUN, cbunit=r'10$^{-3}$mm/day',
+              ctitle='Mean Runoffs, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=2,
+              cfig_type=fig_type, lpix=True)
 
 
 print '\n Bye!'

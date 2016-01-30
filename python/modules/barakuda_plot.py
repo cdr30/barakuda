@@ -183,6 +183,8 @@ def plot_2d(VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='
     #
     # Plot nicely a field given on ORCA coordinates on 2D world map without using any projection
     #
+    # if VX = [0] and VY = [0] => ignoring lon and lat...
+
 
     import barakuda_tool  as brkdt
     import barakuda_colmap as brkdcm
@@ -190,23 +192,26 @@ def plot_2d(VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='
 
     font_ttl, font_ylb, font_clb = __font_unity__()
 
+    i_lat_lon = 1
+    if len(VX) == 1 or len(VY) == 1: i_lat_lon = 0 ; # no long. and lat. provided !
+
+
     # Don't want to modify XF array, working with XFtmp:
     [ny, nx] = nmp.shape(XF)
     XFtmp = nmp.zeros(ny*nx) ; XFtmp.shape = [ny, nx]
     XFtmp[:,:] = XF[:,:]
 
-
     # First drowning the field:
     brkdt.drown(XFtmp, XMSK, k_ew=2, nb_max_inc=20, nb_smooth=10)
-
-
 
     rlon_ext = 32.
 
     if lforce_lim: __force_min_and_max__(rmin, rmax, XFtmp)
 
-    VX0   = brkdo.lon_reorg_orca(VX,  corca, rlon_ext)
-    iwa   = nmp.where(VX0 < 0.) ; VX0[iwa] = VX0[iwa] + 360.
+    if i_lat_lon == 1:
+        VX0 = brkdo.lon_reorg_orca(VX,  corca, rlon_ext)
+        iwa   = nmp.where(VX0 < 0.) ; VX0[iwa] = VX0[iwa] + 360.
+        
     XMSK0 = brkdo.lon_reorg_orca(XMSK,corca, rlon_ext)
     XF0   = brkdo.lon_reorg_orca(XFtmp,  corca, rlon_ext)
 
@@ -214,13 +219,16 @@ def plot_2d(VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='
     # Masking continents: => done later a cleaner way...
     #XF0 = nmp.ma.masked_where(XMSK0[:,:] < 0.5, XF0)
 
-
-    vert_rat = (lat_max - lat_min)/(75. + 75.)
+    if i_lat_lon == 1:
+        vert_rat = (lat_max - lat_min)/(75. + 75.)
+        fig_size = (12.4,5.6*vert_rat)
+    else:
+        fig_size = (float(nx)/25. , float(ny)/29.)
 
 
     # FIGURE
     # ~~~~~~
-    fig = plt.figure(num = 1, figsize=(12.4,5.6*vert_rat), dpi=None, facecolor='w', edgecolor='k')
+    fig = plt.figure(num = 1, figsize=fig_size, dpi=None, facecolor='w', edgecolor='k')
     ax = plt.axes([0.05, 0.06, 1., 0.86], axisbg = 'white')
 
     vc = __vcontour__(rmin, rmax, dc); #print vc, '\n'
@@ -232,20 +240,35 @@ def plot_2d(VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='
 
     if lpix:
         # Pixelized plot:
-        cf = plt.pcolor(VX0, VY, XF0, cmap = palette, norm = pal_norm)
+        if i_lat_lon == 1:
+            cf = plt.pcolor(VX0, VY, XF0, cmap = palette, norm = pal_norm)
+        else:
+            cf = plt.pcolor(         XF0, cmap = palette, norm = pal_norm)
 
     else:
         # Contour fill plot:
-        cf = plt.contourf(VX0, VY, XF0, vc, cmap = palette, norm = pal_norm)
+        if i_lat_lon == 1:
+            cf = plt.contourf(VX0, VY, XF0, vc, cmap = palette, norm = pal_norm)
+        else:
+            cf = plt.contourf(XF0, vc, cmap = palette, norm = pal_norm)
+            
         for c in cf.collections: c.set_zorder(0.15)
 
         if lkcont:
-            cfk = plt.contour(VX0, VY, XF0, vc, colors='k', linewidths = 0.2)
+            if i_lat_lon == 1:
+                cfk = plt.contour(VX0, VY, XF0, vc, colors='k', linewidths = 0.2)
+            else:
+                cfk = plt.contour(XF0, vc, colors='k', linewidths = 0.2)
+                
             for c in cfk.collections: c.set_zorder(0.25)
 
         # contour for specific values on the ploted field:
         if len(vcont_spec) >= 1:
-            cfs = plt.contour(VX0, VY, XF0, vcont_spec, colors='white', linewidths = 1.2)
+            if i_lat_lon == 1:
+                cfs = plt.contour(VX0, VY, XF0, vcont_spec, colors='white', linewidths = 1.2)
+            else:
+                cfs = plt.contour(XF0, vcont_spec, colors='white', linewidths = 1.2)
+                
             plt.clabel(cfs, inline=1, fmt='%4.1f', fontsize=10)
             for c in cfs.collections: c.set_zorder(0.35)
 
@@ -261,8 +284,10 @@ def plot_2d(VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='
     idx_land = nmp.where(XMSK0[:,:] < 0.5)
     XF0 = nmp.ma.masked_where(XMSK0[:,:] > 0.5, XF0)
     XF0[idx_land] = 1000.
-    cf0 = plt.pcolor(VX0, VY, XF0, cmap = brkdcm.chose_palette('mask'))
-
+    if i_lat_lon == 1:
+        cf0 = plt.pcolor(VX0, VY, XF0, cmap = brkdcm.chose_palette('mask'))
+    else:
+        cf0 = plt.pcolor(XF0, cmap = brkdcm.chose_palette('mask'))
 
     # Colorbar:
     # ~~~~~~~~
@@ -280,16 +305,20 @@ def plot_2d(VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='
             clb.ax.set_yticklabels(cb_labels)
 
     # Decreasing font size
-    ifsize = int(10*vert_rat); ifsize=max(ifsize,6)
+    ifsize = 14
+    if i_lat_lon == 1: ifsize = int(10*vert_rat); ifsize=max(ifsize,6)
     for t in clb.ax.get_yticklabels(): t.set_fontsize(ifsize)
 
 
     # X and Y nice ticks:
     # ~~~~~~~~~~~~~~~~~~~
-    [vvx, vvy, clon, clat] = __name_coor_ticks__(lon_ext=rlon_ext);
-    plt.yticks(vvy,clat) ; plt.xticks(vvx,clon)
-
-    plt.axis([ 0., 360.+rlon_ext-2., lat_min, lat_max])
+    if i_lat_lon == 1:
+        [vvx, vvy, clon, clat] = __name_coor_ticks__(lon_ext=rlon_ext);
+        plt.yticks(vvy,clat) ; plt.xticks(vvx,clon)
+        plt.axis([ 0., 360.+rlon_ext-2., lat_min, lat_max])
+    else:
+        #ax.set_xlim(0., 360.+rlon_ext-2.)
+        plt.axis([ 0., float(nx)+rlon_ext-2., 0, float(ny)])
 
     plt.title(ctitle, **font_ttl)
 
