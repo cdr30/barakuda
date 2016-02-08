@@ -94,7 +94,7 @@ function lb_leap_day()
     # We were at a DTBR=
     # a regular year would make a 19900225_19900229 file
     #  (should be 19900225_19900301 actually but NEMO seems to keep the same month for a file name!)
-    # so when we restart a run for a leap year and the last dtg was "19900220_19900224", we force 
+    # so when we restart a run for a leap year and the last dtg was "19900220_19900224", we force
     # DTBR=6 !
     #
     export i_leap_day=0
@@ -133,7 +133,7 @@ check_if_file()
         # Silent!
         lspeak=false
         cmesg="$3"
-    fi    
+    fi
     if [ ! -f $1 ]; then
         echo; echo "PROBLEM: file $1 is missing!!!"; echo "${cmesg}"
         exit
@@ -192,7 +192,7 @@ epstopng()
     done
     #
 }
-    
+
 
 
 ipresent_var_in_ncf()
@@ -208,6 +208,24 @@ ipresent_var_in_ncf()
     echo "${ipv}"
 }
 
+
+
+function contains_string()
+{
+    # Tells if string "s" (argument 1) belongs to a list (argument 2)
+
+    nbarg="$#" ; length_list=`expr ${nbarg} - 1`
+    list_all=($*)
+
+    s=${list_all[0]}  ; # the string
+    list=${list_all[@]:1:${length_list}}  ; # the list
+
+    #echo "the string = ${s}"
+    #echo "the list   = ${list_all[@]:1:${length_list}}"
+
+    [[ ${list} =~ ${s} ]] && echo "1" || echo "0"
+
+}
 
 
 #lgzipped_file()

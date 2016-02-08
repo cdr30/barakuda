@@ -12,12 +12,11 @@
 
 export BARAKUDA_ROOT=`pwd`
 
-iremap=0 ; REGG="360x180"; # remap to regular lat-lon grid?
+#iremap=0 ; REGG="360x180"; # remap to regular lat-lon grid?
 iuv=0      ; # Do a climatology for current...
 ivt=1      ; # Do a climatology for VT
 iamoc=1    ; # Do a climatology for 2D lat-depth AMOC?
 ibpsi=0    ; # Do a climatology for barotropic stream function
-iice=0     ; # do sea-ice clim...
 
 
 # Supported ORCA grids:
@@ -139,27 +138,26 @@ C2EW="nav_lon,nav_lat,depthw" #,time_counter"
 
 
 
-GRID_IMP="grid_T SBC"
+GRID_IMP="grid_T"
 
-if [ ${iamoc} -eq 1 ]; then
+if [ ${ivt} -eq 1 -o ${ibpsi} -eq 1 -o ${iuv} -eq 1 ]; then
+    GRID_IMP="${GRID_IMP} grid_U"
+fi
+
+if [ ${iamoc} -eq 1 -o ${ivt} -eq 1 -o ${ibpsi} -eq 1 -o ${iuv} -eq 1 ]; then
     GRID_IMP="${GRID_IMP} grid_V"
 fi
 
-if [ ${ibpsi} -eq 1 ]; then
-    GRID_IMP="${GRID_IMP} grid_U grid_V"
-fi
-
-if [ ${ivt} -eq 1 ]; then
-    GRID_IMP="${GRID_IMP} grid_U grid_V"
-fi
-
-if [ ${iuv} -eq 1 ]; then
-    GRID_IMP="${GRID_IMP} grid_U grid_V"
-fi
-
-if [ ${iice} -eq 1 ]; then
+if [ `contains_string ${FILE_ICE_SUFFIX} ${NEMO_SAVED_FILES}` -eq 1 ]; then
     GRID_IMP="${GRID_IMP} ${FILE_ICE_SUFFIX}"
 fi
+
+if [ `contains_string SBC ${NEMO_SAVED_FILES}` -eq 1 ]; then
+    GRID_IMP="${GRID_IMP} SBC"
+fi
+
+echo; echo " GRID_IMP = ${GRID_IMP}"; echo
+
 
 
 # Checking what files we have / plan to use:

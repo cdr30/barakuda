@@ -85,7 +85,6 @@ export NN_ICEF_CLIM="ice_cover"
 
 
 # A text file where the vertical hydraugraphical sections of interest are defined :
-#export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_${CONF}_light.dat"
 export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1.dat"
 
 # For transport by sigma-class:
