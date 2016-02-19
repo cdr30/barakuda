@@ -27,11 +27,11 @@ if len(sys.argv) < 3:
 cf_in = sys.argv[1]
 cv_in = sys.argv[2]
 
-if cv_in == 'siconc':
+if cv_in == 'siconc' or 'ileadfra':
     rmax = 1. ; rmin = 0. ; dr = 0.1
     colmap = 'ice' ; cunit = 'frac.'
 
-elif cv_in == 'sithic':
+elif cv_in == 'sithic' or 'iicethic':
     rmax = 6. ; rmin = 0. ; dr = 0.25
     colmap = 'jet' ; cunit = 'm'
 
