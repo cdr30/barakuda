@@ -144,10 +144,14 @@ for rMLD_crit in vMLD_crit:
         ny_b = j2 - j1
         
         print '\n *** Treating box '+cbox+' => ', i1, j1, i2-1, j2-1
+
+
+        
         
         # NH
         icold  = 2 ; # march
         ccold  = 'march'
+        ccold_ln = 'March'
         vinter = [0, 1, 2]
         cvinter = 'JFM'
     
@@ -155,6 +159,7 @@ for rMLD_crit in vMLD_crit:
             # SH
             icold  = 8 ; # september
             ccold  = 'sept'
+            ccold_ln = 'September'
             vinter = [6, 7, 8]
             cvinter = 'JAS'
     
@@ -162,17 +167,12 @@ for rMLD_crit in vMLD_crit:
         # Filling Convection regions arrays:
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     
-        xmld     = nmp.zeros(nt*ny_b*nx_b) ;  xmld.shape = [ nt, ny_b, nx_b ]
-        
-        msk_deep = nmp.zeros(nt*ny_b*nx_b) ;  msk_deep.shape = [ nt, ny_b, nx_b ]
-        
-        xe1t     = nmp.zeros(ny_b*nx_b) ;     xe1t.shape = [ ny_b, nx_b ]
-        
-        xe2t     = nmp.zeros(ny_b*nx_b) ;     xe2t.shape = [ ny_b, nx_b ]
-    
-        xtmp     = nmp.zeros(ny_b*nx_b) ;     xtmp.shape = [ ny_b, nx_b ]
-    
-        VDMV     = nmp.zeros(nt)
+        xmld     = nmp.zeros((nt, ny_b, nx_b))
+        msk_deep = nmp.zeros((nt, ny_b, nx_b))
+        xe1t     = nmp.zeros((ny_b, nx_b))
+        xe2t     = nmp.zeros((ny_b, nx_b))
+        xtmp     = nmp.zeros((ny_b, nx_b))
+        VDMV     = nmp.zeros(3)
         
         # MLD:
         xmld[:,:,:] = Xmld_orca[:,j1:j2,i1:i2]
@@ -214,12 +214,15 @@ for rMLD_crit in vMLD_crit:
     
         # DMV
         #####
+
+        jc=-1
+        for jm in vinter:
+            jc=jc+1
+            VDMV[jc] = nmp.sum((xmld[jm,:,:]-rMLD_crit)*xtmp[:,:]*msk_deep[jm,:,:])/(rdiv*rdiv)
+            
         
-        for jm in [ 0, 1, 2 ]:
-            VDMV[jm] = nmp.sum((xmld[jm,:,:]-rMLD_crit)*xtmp[:,:]*msk_deep[jm,:,:])/(rdiv*rdiv)
+        rc_WINT = nmp.mean(VDMV)
         
-        rc_JFM = ( VDMV[0] + VDMV[1] + VDMV[2] ) / 3.
-    
         
         if l_plot_debug: print "VDMV[2] = ", VDMV[2]
     
@@ -252,19 +255,19 @@ for rMLD_crit in vMLD_crit:
             id_t = f_out.createVariable('time','f4',('time',)) ;      id_t.units = 'year'
     
             id_v01 = f_out.createVariable(cv_dmv_m,  'f4',('time',))
-            id_v01.unit = '10^3 km^3'; id_v01.long_name = 'Deep Mixed Volume (crit = '+czcrit+'m) for march on box '+cbox
+            id_v01.unit = '10^3 km^3'; id_v01.long_name = 'Deep Mixed Volume (crit = '+czcrit+'m) for '+ccold_ln+' on box '+cbox
             id_v02 = f_out.createVariable(cv_dmv_jfm,  'f4',('time',))
-            id_v02.unit = '10^3 km^3'; id_v02.long_name = 'Deep Mixed Volume (crit = '+czcrit+'m) for JFM on box '+cbox
+            id_v02.unit = '10^3 km^3'; id_v02.long_name = 'Deep Mixed Volume (crit = '+czcrit+'m) for '+cvinter+' on box '+cbox
     
             id_v03 = f_out.createVariable('ML_max',  'f4',('time',))
-            id_v03.unit = '10^3 km^3'; id_v03.long_name = 'Deepest ML point in march on box '+cbox
+            id_v03.unit = '10^3 km^3'; id_v03.long_name = 'Deepest ML point in '+ccold_ln+' on box '+cbox
     
             id_v04 = f_out.createVariable('ML_deep_mean',  'f4',('time',))
-            id_v04.unit = '10^3 km^3'; id_v04.long_name = 'Mean MLD in march where MLD > '+czcrit+'m on box '+cbox
+            id_v04.unit = '10^3 km^3'; id_v04.long_name = 'Mean MLD in '+ccold_ln+' where MLD > '+czcrit+'m on box '+cbox
     
             id_t[jrec2write]   = float(jy)
             id_v01[jrec2write] = VDMV[2]
-            id_v02[jrec2write] = rc_JFM        
+            id_v02[jrec2write] = rc_WINT        
             id_v03[jrec2write] = rML_max
             id_v04[jrec2write] = rML_deep_mean
             
@@ -282,7 +285,7 @@ for rMLD_crit in vMLD_crit:
             
             vt [jrec2write] = float(jy)
             v01[jrec2write] = VDMV[2]
-            v02[jrec2write] = rc_JFM
+            v02[jrec2write] = rc_WINT
             v03[jrec2write] = rML_max
             v04[jrec2write] = rML_deep_mean
                 
