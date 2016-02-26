@@ -12,7 +12,7 @@
 
 export BARAKUDA_ROOT=`pwd`
 
-#iremap=0 ; REGG="360x180"; # remap to regular lat-lon grid?
+iremap=0 ; REGG="360x180"; # remap to regular lat-lon grid?
 iuv=0      ; # Do a climatology for current...
 ivt=1      ; # Do a climatology for VT
 iamoc=1    ; # Do a climatology for 2D lat-depth AMOC?
@@ -174,7 +174,7 @@ for sf in ${VAF[*]}; do
     if [ "${ca}" = "" ]; then
         if [ "${cb}" != "" ]; then
             echo "PROBLEM! The diags you specified say you need ${sf} files"
-            echo "     => but you have not specified ${sf} in NEMO_SAVED_FILES !"; exit
+1            echo "     => but you have not specified ${sf} in NEMO_SAVED_FILES !"; exit
         fi
     else
         gimp_new="${sf} ${gimp_new}"
@@ -266,6 +266,10 @@ fi
 
 
 
+if [ ${ece_run} -eq 1 ]; then
+    if [ ! -d ${NEMO_OUT_D}/001 ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory 001 in:"; echo " ${NEMO_OUT_D}"; fi
+fi
+
 
 export jyear=${Y1}
 
@@ -275,6 +279,20 @@ while [ ${jyear} -le ${Y2} ]; do
     cyear=`printf "%04d" ${jyear}`
     echo; echo "Year = ${cyear}:"
 
+
+    cpf=""
+    if [ ${ece_run} -eq 1 ]; then
+        # Need initial year in 001:
+        fin=`\ls ${NEMO_OUT_D}/001/${CPREF}*_grid_T.${NCE}` ; fin=`basename ${fin}`
+        YEAR_INI=`echo ${fin} | sed -e "s|${CPREF}||g" | cut -c1-4`
+        echo " *** YEAR_INI = ${YEAR_INI}"
+        iy=`expr ${jyear} - ${YEAR_INI} + 1` ; dir_ece=`printf "%03d" ${iy}`
+        echo " *** ${cyear} => dir_ece = ${dir_ece}"
+        cpf="${dir_ece}/"
+        echo
+    fi
+    
+    #exit ; #lolo
 
     TTAG_ann=${cyear}0101_${cyear}1231
 
@@ -313,12 +331,12 @@ while [ ${jyear} -le ${Y2} ]; do
         # Importing required files to tmp dir and gunzipping:
         for gt in ${GRID_IMP}; do
             f2i=${CRTM}_${gt}.${NCE} ; sgz=""
-            if [ -f ${NEMO_OUT_D}/${f2i}.gz ]; then sgz=".gz"; fi
+            if [ -f ${NEMO_OUT_D}/${cpf}${f2i}.gz ]; then sgz=".gz"; fi
 
-            check_if_file ${NEMO_OUT_D}/${f2i}${sgz}
+            check_if_file ${NEMO_OUT_D}/${cpf}${f2i}${sgz}
             if [ ! -f ./${FPREF}${f2i} ]; then
                 echo "Importing ${f2i}${sgz} ..."
-                cp -L ${NEMO_OUT_D}/${f2i}${sgz} ./${FPREF}${f2i}${sgz}
+                cp -L ${NEMO_OUT_D}/${cpf}${f2i}${sgz} ./${FPREF}${f2i}${sgz}
                 if [ "${sgz}" = ".gz" ]; then gunzip -f ./${FPREF}${f2i}.gz ; fi
                 #
                 if [ ! "${NCE}" = "nc4" ]; then

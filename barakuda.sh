@@ -394,6 +394,7 @@ while ${lcontinue}; do
 
     cyear=`printf "%04d" ${jyear}`
 
+    #lolo
     cpf=""
     if [ ${ece_run} -eq 1 ]; then
         iy=`expr ${jyear} - ${YEAR_INI} + 1` ; dir_ece=`printf "%03d" ${iy}`
