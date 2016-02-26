@@ -20,19 +20,25 @@ export NBL=75     ; # number of levels
 # Root directory where NEMO output files are stored:
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
+
+# Is it an ec-earth run?
+export ece_run=1 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
+#                  # where YYY starts from '001' to
+
 # List of suffixed of files that have been saved by NEMO:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
 
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
-export NEMO_OUT_STRCT="${STORE_DIR}/<ORCA>/<ORCA>-<RUN>-S"
+#export NEMO_OUT_STRCT="${STORE_DIR}/<ORCA>/<ORCA>-<RUN>-S"
+export NEMO_OUT_STRCT="/proj/bolinc/users/x_laubr/ecrundir/<RUN>/output/nemo"
 
 export TSTAMP="1m"   ; # output time-frequency stamp as in NEMO output files...
 
 # How does the nemo files prefix looks like
 # Everything before "<year_related_info>_grid_<X>" or "<year_related_info>_icemod"
 # use <ORCA>, <RUN> and <TSTAMP>=>  Ex: export NEMO_FILE_PREFIX="<ORCA>-<RUN>_<TSTAMP>_"
-export NEMO_FILE_PREFIX="<ORCA>-<RUN>_<TSTAMP>_"
+export NEMO_FILE_PREFIX="<RUN>_<TSTAMP>_"
 # => should get rid of TSTAMP actually...
 
 # Temporary file system (scratch) on which to perform the job you can use <JOB_ID> if scracth depends on JOB ID:
@@ -163,7 +169,7 @@ i_do_dmv=1
 export MLD_CRIT="1000,725,500"
 
 
-# Some nerdy stuffs about the critical depth in prescribed boxes: 
+# Some nerdy stuffs about the critical depth in prescribed boxes:
 i_do_zcrit=0
 
 

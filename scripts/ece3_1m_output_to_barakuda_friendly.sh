@@ -35,10 +35,10 @@ NCDIR=/software/apps/netcdf/4.3.2/i1403-impi-5.0.2.044-hdf5-1.8.14
 #RUN="LB05" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
 #RUN="LB05" ; ILDIR=10 ; cext=".L75" ; yyyy=1990 ; idi=1 ; cimp='cp'
 
-RUN="LCM0" ; ILDIR=50 ; cext=".L46" ; yyyy=1000 ; idi=1 ; cimp='cp' ; fext="nc4"
+RUN="LCM0" ; ILDIR=60 ; cext=".L46" ; yyyy=1000 ; idi=1 ; cimp='cp' ; fext="nc4"
 
 
-NEMO_SAVED_FILE="grid_T grid_U grid_V icemod SBC"
+NEMO_SAVED_FILE="grid_T grid_U grid_V icemod icemoa SBC"
 #NEMO_SAVED_FILE="grid_T icemod"
 
 
@@ -62,8 +62,8 @@ NCCOPY="${NCDIR}/bin/nccopy"
 
 
 #COPY_CMD="${NCCOPY} -k 4 -d 9"
-#COPY_CMD="rsync -avP"
-COPY_CMD="ln -sf "
+COPY_CMD="rsync -avP"
+#COPY_CMD="ln -sf "
 
 echo
 ls -l ${ROOT}
