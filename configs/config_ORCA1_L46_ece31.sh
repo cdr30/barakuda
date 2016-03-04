@@ -31,7 +31,8 @@ export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod icemoa"
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
 #export NEMO_OUT_STRCT="${STORE_DIR}/<ORCA>/<ORCA>-<RUN>-S"
-export NEMO_OUT_STRCT="/proj/climod/users/x_laubr/run/<RUN>/output/nemo"
+#export NEMO_OUT_STRCT="/proj/climod/users/x_laubr/run/<RUN>/output/nemo"
+export NEMO_OUT_STRCT="/proj/bolinc/users/x_laubr/ecrundir/<RUN>/output/nemo"
 
 export TSTAMP="1m"   ; # output time-frequency stamp as in NEMO output files...
 
