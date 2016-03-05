@@ -19,10 +19,10 @@ import barakuda_orca as brkdo
 
 
 # Time-series:
-#WDTH_TS     = 13.2
-#FIG_SIZE_TS = (WDTH_TS,4.2)
-#DPI_TS      = 120
-#AXES_TS     = [0.1, 0.082, 0.87, 0.84]
+WDTH_TS     = 13.2
+FIG_SIZE_TS = (WDTH_TS,4.2)
+DPI_TS      = 120
+AXES_TS     = [0.1, 0.082, 0.87, 0.84]
 
 
 
@@ -63,38 +63,54 @@ projection_def = [
 
 
 class plot :
+    ''' This class encapsulates all the plot routines
+    In order to use it you need to type as follows:
 
-    __counter = 0
+    plot(function name without the prefix __) (all the arguments of the function)
+    for example for __vert_section we do as follows:
 
+    plot("vert_section")(VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
+                          xmin=-80., xmax=85., dx=5, cfignm='fig', cbunit='', cxunit=' ',
+                          zmin = 0., zmax = 5000., l_zlog=False, cfig_type='png',
+                          czunit=' ', ctitle=' ', lforce_lim=False, i_sub_samp=1, l_z_increase=False )
+
+    The reason to prefix all the function with double underscore __ is that all these function become private members of 
+    the plot class and they can not be accessed directly outside of the class. That is, you need to call these functios through the call wrapper 
+    as seen below in the function __call__. 
+    '''
+    
     def __init__(self,splot) :
 
         self.splot = splot
-        plot.__counter +=  1
+            
+    def __call__(self,*args) :
         
-    def __call__(self) :
+        if self.splot == "vert_section"            :  self.__vert_section(*args) 
+        if self.splot == "2d"                      :  self.__2d(*args)
+        if self.splot == "2d_reg"                  :  self.__2d_reg(*args)
+        if self.splot == "2d_box"                  :  self.__2d_box(*args)
+        if self.splot == "zonal"                   :  self.__zonal(*args)
+        if self.splot == "nproj"                   :  self.__nproj(*args)
+        if self.splot == "amoc_lat_depth"          :  self.___amoc_lat_depth(*args)
+        if self.splot == "2d_box_2f"               :  self.__2d_box_2f(*args) 
+        if self.splot == "sig_transport"           :  self.__sig_transport(*args)
+        if self.splot == "trsp_sig_class"          :  self.__trsp_sig_class(*args)
+        if self.splot == "vert_section_extra"      :  self.__vert_section_extra(*args)
+        if self.splot == "time_depth_hovm"         :  self.__time_depth_hovm(*args)
+        if self.splot == "enso"                    :  self.__enso(*args)
+        if self.splot == "1d_mon_ann"              :  self.__1d_mon_ann(*args)
+        if self.splot == "1d_multi"                :  self.__1d_multi(*args)
+        if self.splot == "1d"                      :  self.__1d(*args)
         
-        if self.splot == "vert_section "           :  self.plot_vert_section() 
-        if self.splot == "2d"                      :  self.plot_2d()
-        if self.splot == "2d_reg"                  :  self.plot_2d_reg()
-        if self.splot == "2d_box"                  :  self.plot_2d_box()
-        if self.splot == "zonal"                   :  self.plot_zonal()
-        if self.splot == "nproj"                   :  self.plot_nproj()
-        if self.splot == "amoc_lat_depth"          :  self.plot_amoc_lat_depth()
-        if self.splot == "2d_box_2f"               :  self.plot_2d_box_2f() 
-        if self.splot == "sig_transport"           :  self.plot_sig_transport()
-        if self.splot == "trsp_sig_class"          :  self.plot_trsp_sig_class()
-        if self.splot == "vert_section_extra"      :  self.plot_vert_section_extra()
-        if self.splot == "time_depth_hovm"         :  self.plot_time_depth_hovm()
-        if self.splot == "enso"                    :  self.plot_enso()
-        if self.splot == "1d_mon_ann"              :  self.plot_1d_mon_ann()
-        if self.splot == "1d_multi"                :  self.plot_1d_multi()
-        if self.splot == "1d"                      :  self.plot_1d()
-        
-  
-    def plot_vert_section(self) :
+   
+    def __vert_section(self,VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
+                          xmin=-80., xmax=85., dx=5, cfignm='fig', cbunit='', cxunit=' ',
+                          zmin = 0., zmax = 5000., l_zlog=False, cfig_type='png',
+                          czunit=' ', ctitle=' ', lforce_lim=False, i_sub_samp=1, l_z_increase=False ):
         import math
         import barakuda_colmap
-    
+   
+        
         font_ttl, font_ylb, font_clb = __font_unity__()
     
         zVZ = nmp.zeros(len(VZ)) ; zVZ.shape = [ len(VZ) ]
@@ -167,7 +183,7 @@ class plot :
         return
     
 
-    def plot_2d(self,VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='jet',
+    def __2d(self,VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='jet',
                 cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False, i_sub_samp=1,
                 cfig_type='pdf', lat_min=-75., lat_max=75., lpix=False, vcont_spec = []):
     
@@ -323,7 +339,7 @@ class plot :
         return
     
 
-    def plot_2d_reg(self,VX, VY, XF, XMSK, rmin, rmax, dc, lkcont=False, cpal='jet',
+    def __2d_reg(self,VX, VY, XF, XMSK, rmin, rmax, dc, lkcont=False, cpal='jet',
                     cfignm='fig', cfig_type='pdf', cbunit=' ', ctitle='',
                     cb_orient='vertical', lat_min=-77., lat_max=77., i_colorbar_jump=1,
                     lpix=False, l_continent_pixel=True, colorbar_fs=14):
@@ -464,7 +480,7 @@ class plot :
         return
     
         
-    def plot_2d_box(self,XF, XMSK, rmin, rmax, dc, lkcont=True,
+    def __2d_box(self,XF, XMSK, rmin, rmax, dc, lkcont=True,
                     cpal='jet', cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False,
                     i_sub_samp=1, cfig_type='pdf', lcontours=True,
                     x_offset=0., y_offset=0., vcont_spec = [], lcont_mask=False):
@@ -577,7 +593,7 @@ class plot :
         return
     
         
-    def plot_zonal(self,VY, VZn, VZ1=[0.], VZ2=[0.],
+    def __zonal(self,VY, VZn, VZ1=[0.], VZ2=[0.],
                    cfignm='fig_zonal', zmin=-100., zmax=100., dz=25., i_z_jump=1,
                    xmin=-90., xmax=90., cfig_type='png', cxunit=r'Latitude ($^{\circ}$N)',
                    cyunit='', ctitle='', lab='', lab1='', lab2='', lnarrow=False):
@@ -651,7 +667,7 @@ class plot :
     
     
     
-    def plot_nproj(self,czone, rmin, rmax, dc, xlon, xlat, XF,
+    def __nproj(self,czone, rmin, rmax, dc, xlon, xlat, XF,
                    cfignm='fig', lkcont=False, cpal='jet', cbunit=' ',
                    cfig_type='pdf', ctitle=' ', lforce_lim=False,
                    cb_orient='vertical', i_colorbar_jump=1, dpi_fig=140, lpcont=True):
@@ -833,7 +849,7 @@ class plot :
     
     
     
-    def plot_sig_transport(self,cstck, ccr, cd_eps):
+    def __sig_transport(self,cstck, ccr, cd_eps):
     
         #_____________________________________________________________
         #
@@ -886,7 +902,7 @@ class plot :
 
 
 
-    def plot_amoc_lat_depth(self,VY, VZ, Xamoc, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet', ymin=-80., ymax=85.,
+    def __amoc_lat_depth(self,VY, VZ, Xamoc, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet', ymin=-80., ymax=85.,
                             cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
                             cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False):
     
@@ -954,7 +970,7 @@ class plot :
     
     
     
-    def plot_2d_box_2f(self,XF1, XF2, XMSK, rmin, rmax, dc, vcont_spec2, corca='ORCA1', lkcont=True,
+    def __2d_box_2f(self,XF1, XF2, XMSK, rmin, rmax, dc, vcont_spec2, corca='ORCA1', lkcont=True,
                     cpal='jet', cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False,
                     i_sub_samp=1, cfig_type='pdf', lcontours=True,
                     x_offset=0., y_offset=0., vcont_spec1 = []):
@@ -1081,7 +1097,7 @@ class plot :
     
     
     
-    def plot_trsp_sig_class(self,VT, vsigma_bounds, XF, rmin, rmax, dc, dsig,
+    def __trsp_sig_class(self,VT, vsigma_bounds, XF, rmin, rmax, dc, dsig,
                             lkcont=True, cpal='sigtr', dt_year=5., cfignm='fig',
                             cfig_type='pdf', ctitle='', lforce_lim=False, vcont_spec1 = [],
                             i_colorbar_jump=2):
@@ -1161,7 +1177,7 @@ class plot :
     
     
     
-    def plot_vert_section_extra(self,VX, VZ, XF, XMSK, Vcurve, rmin, rmax, dc, lkcont=True, cpal='jet', xmin=-80., xmax=85.,
+    def __vert_section_extra(self,VX, VZ, XF, XMSK, Vcurve, rmin, rmax, dc, lkcont=True, cpal='jet', xmin=-80., xmax=85.,
                                 cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
                                 cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, fig_size=(8.,8.) ):
     
@@ -1235,7 +1251,7 @@ class plot :
     
     
     
-    def plot_time_depth_hovm(self,VT, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
+    def __time_depth_hovm(self,VT, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
                              tmin=0., tmax=100., dt=5.,
                              cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
                              cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, i_colorbar_jump=1,
@@ -1329,7 +1345,7 @@ class plot :
     
     
     
-    def plot_enso(self,VT, VSST, cfignm='fig', dt_year=5):
+    def __enso(self,VT, VSST, cfignm='fig', dt_year=5):
     
         font_ttl, font_ylb, font_clb = __font_unity__()
     
@@ -1429,7 +1445,7 @@ class plot :
     
     
     
-    def plot_1d_mon_ann(self,VTm, VTy, VDm, VDy, cfignm='fig', dt_year=5, cyunit='', ctitle='',
+    def __1d_mon_ann(self,VTm, VTy, VDm, VDy, cfignm='fig', dt_year=5, cyunit='', ctitle='',
                         ymin=0, ymax=0, dy=0, mnth_col='b', plt_m03=False, plt_m09=False,
                         cfig_type='png', l_tranparent_bg=True, fig_size=FIG_SIZE_TS):
     
@@ -1503,7 +1519,7 @@ class plot :
     
     
     
-    def plot_1d_multi(self,vt, XD, vlabels, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='', ctitle='',
+    def __1d_multi(self,vt, XD, vlabels, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='', ctitle='',
                       cfig_type='png', ymin=0, ymax=0, lzonal=False, xmin=0, xmax=0,
                       loc_legend='lower center', line_styles=[], fig_size=FIG_SIZE_TS,
                       l_tranparent_bg=True, cxunit='', lmask=True):
@@ -1615,7 +1631,7 @@ class plot :
     
     
     
-    def plot_1d(self,vt, VF, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='', ctitle='',
+    def __1d(self,vt, VF, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='', ctitle='',
                 cfig_type='png', ymin=0, ymax=0, xmin=0, xmax=0,
                 loc_legend='lower center', line_styles='-', fig_size=FIG_SIZE_TS,
                 l_tranparent_bg=False, cxunit='', lmask=True):
@@ -1694,7 +1710,7 @@ class plot :
     
     
         
-    def plot_spectrum(self,vfrq, Vspec, cfignm='fig', cyunit='', log_x=True, log_y=False,
+    def __spectrum(self,vfrq, Vspec, cfignm='fig', cyunit='', log_x=True, log_y=False,
                       year_min=3., year_max = 50., rmax_amp = 10., rmin_amp = 0.,
                       cfig_type='png', vnoise=[ 0 ], vrci95=[ 0 ], lab95_xpos=0.5, lplot_1onF=False,
                       cnoise='White noise', lplot_freq_ax=True):
@@ -1708,7 +1724,7 @@ class plot :
     
         if nnoise != 1 and nl95 != 1:
             if nl95 != len(Vspec) or nl95 != nnoise:
-            print "ERROR: plot_spectrum.barakuda_plot.py => length of 95 CI array and/or noise array doesnt match spectrum length!"
+                print "ERROR: plot_spectrum.barakuda_plot.py => length of 95 CI array and/or noise array doesnt match spectrum length!"
                 sys.exit(0)
             l_do_ci95 = True
             l_do_ci95m = True
@@ -2034,15 +2050,3 @@ def __font_unity_big__():
 
 
 
-
-    
-
-def main() :
-    
-    #plot("amoc")()
-    #plot("zonal")()
-    
-    plot("vert_section")()
-
-
-if __name__ == "__main__" : main()
