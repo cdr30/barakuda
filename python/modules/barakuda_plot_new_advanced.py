@@ -84,11 +84,11 @@ class plot :
         self.splot = splot
 
 
-    def __call__(self,**kw) :
+    def __call__(self,*args, **kw) :
 
         if "_"+self.__class__.__name__+ "__" + self.splot in self.__class__.__dict__.keys() :
 
-            self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.splot](self,**kw)
+            self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.splot](self,*args, **kw)
             
         else :
             print "function " + "__" + self.splot + " does not exist"
