@@ -84,11 +84,11 @@ class plot :
         self.splot = splot
 
 
-    def __call__(self,*args) :
+    def __call__(self,**kw) :
 
         if "_"+self.__class__.__name__+ "__" + self.splot in self.__class__.__dict__.keys() :
 
-            self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.splot](self,*args)
+            self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.splot](self,**kw)
             
         else :
             print "function " + "__" + self.splot + " does not exist"
@@ -177,8 +177,8 @@ class plot :
 
 
     def __2d(self,VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='jet',
-                cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False, i_sub_samp=1,
-                cfig_type='pdf', lat_min=-75., lat_max=75., lpix=False, vcont_spec = []):
+             cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False, i_sub_samp=1,
+             cfig_type='pdf', lat_min=-75., lat_max=75., lpix=False, vcont_spec = []):
 
         #
         # Plot nicely a field given on ORCA coordinates on 2D world map without using any projection
