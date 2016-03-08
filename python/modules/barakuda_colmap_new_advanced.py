@@ -19,7 +19,7 @@ ctrl = 0.2 ; # for logarythmic scale in 'pal_eke'
 
 
 class pal :
-    ''' This class encapsulates all the pal routines                                                                                                                                                              
+    '''This class encapsulates all the pal routines                                                                                                                                                              
     
     In order to use it you need to type as follows:                                                                                                                                                  
     
@@ -544,58 +544,7 @@ class pal :
         return cm.jet
 
 
-#=======================================================================
-
-
-
-def chose_palette(cname):
-
-    if cname == 'jet'   : palette = cm.jet
-    if cname == 'mld'   : palette = pal_mld()
-    if cname == 'mld_r' : palette = pal_mld_r()
-    if cname == 'rms'   : palette = pal_rms()
-    if cname == 'bbr'   : palette = pal_bbr()
-    if cname == 'bbr_r' : palette = pal_bbr_r()
-    if cname == 'bbr2'  : palette = pal_bbr2()
-    if cname == 'bbr2_r': palette = pal_bbr2_r()
-    if cname == 'bbr0'  : palette = pal_bbr0()
-    if cname == 'bbr0_r': palette = pal_bbr0_r()
-    if cname == 'bbr_warm'  : palette = pal_bbr_warm()
-    if cname == 'bbr_cold'  : palette = pal_bbr_cold()
-    if cname == 'cold0'  : palette = pal_cold0()
-    if cname == 'warm0'  : palette = pal_warm0()
-    if cname == 'ice'   : palette = pal_ice()
-    if cname == 'blanc'   : palette = pal_blanc()
-    if cname == 'sst'   : palette = pal_sst()
-    if cname == 'sst_r' : palette = pal_sst_r()
-    if cname == 'sst0'  : palette = pal_sst0()
-    if cname == 'sst0_r': palette = pal_sst0_r()
-    if cname == 'eke'   : palette = pal_eke()
-    if cname == 'cb1'   : palette = pal_cb1()    
-    if cname == 'bathy' : palette = pal_bathy()
-    if cname == 'jetblanc' : palette = pal_jetblanc()
-    if cname == 'jetblanc_r' : palette = pal_jetblanc_r()
-    if cname == 'std'  : palette = pal_std()
-    if cname == 'sigtr'  : palette = pal_sigtr()
-    if cname == 'sigtr_r': palette = pal_sigtr_r()
-    if cname == 'amoc': palette = pal_amoc()
-    if cname == 'sigma': palette = pal_sigma()
-    if cname == 'sigma0': palette = pal_sigma0()
-    if cname == 'graylb': palette = pal_graylb()
-    if cname == 'graylb_r': palette = pal_graylb_r()
-    if cname == 'graylb2': palette = pal_graylb2()
-    if cname == 'mask': palette = pal_mask()
-    return palette
-
-
-
-
-
-
-
 # ===== local functions ======
-
-
 def __build_colormap__(MC, log_ctrl=0):
 
     [ nc, n3 ] = nmp.shape(MC)
