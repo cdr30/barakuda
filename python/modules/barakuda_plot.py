@@ -399,21 +399,7 @@ class plot :
             clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont, orientation='horizontal', pad=0.07, shrink=1., aspect=40)
         else:
             clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont, pad=0.03)
-        if i_colorbar_jump > 1:
-            cn_clb = [] ; jcpt = 0
-            for rtck in vc:
-                if jcpt % i_colorbar_jump == 0:
-                    if float(int(rtck)) == round(rtck,0):
-                        cn_clb.append(str(int(rtck))) ; # we can drop the ".0"
-                    else:
-                        cn_clb.append(str(rtck)) ; # keeping the decimals...
-                else:
-                    cn_clb.append(' ')
-                jcpt = jcpt + 1
-            if cb_orient == 'horizontal':
-                clb.ax.set_xticklabels(cn_clb)
-            else:
-                clb.ax.set_yticklabels(cn_clb)
+        if i_colorbar_jump > 1: __subsample_colorbar__(i_colorbar_jump, vc, clb, cb_or=cb_orient)
         if cb_orient == 'horizontal':
             for t in clb.ax.get_xticklabels(): t.set_fontsize(colorbar_fs) # Font size for colorbar ticks!
         else:
@@ -576,17 +562,7 @@ class plot :
         if zmax <= 0. and zmin < 0.: iia = 0
         vv = nmp.arange(zmin, zmax+dz, dz)
         plt.yticks(vv)
-        if i_z_jump > 1:
-            locs, labels = plt.yticks() ; new_t_labels = []
-            if iia==1: jcpt = 1 ; # => tick priting will start at y1+dt_year on y axis rather than y1
-            if iia==0: jcpt = 0 ; # => tick priting will start at y1+dt_year on y axis rather than y1
-            for yy in locs:
-                if jcpt % i_z_jump == 0:
-                    new_t_labels.append(str(int(yy))) ; # keeping the decimals...
-                else:
-                    new_t_labels.append(' ')
-                jcpt = jcpt + 1
-            plt.yticks(locs,new_t_labels)
+        if i_z_jump > 1: __subsample_axis__('y', i_z_jump, plt)
         ax.set_ylim(zmin-dz/2., zmax+dz/2.)
         plt.ylabel(cyunit)
 
@@ -752,9 +728,7 @@ class plot :
         plt.title(ctitle, **font_ttl)
 
 
-        # ADDING COLORBAR
-        # ===============
-
+        # Colorbar:
         if cb_orient == 'horizontal':
             clbax = fig.add_axes(vcbar) # axes for colorbar
             clb   = plt.colorbar(cf, cax=clbax, ticks=vc, drawedges=(lkcont and lpcont), orientation='horizontal')
@@ -762,21 +736,7 @@ class plot :
         else:
             clb = plt.colorbar(cf, ticks=vc, drawedges=(lkcont and lpcont))
             for t in clb.ax.get_yticklabels(): t.set_fontsize(12)
-
-
-        if i_colorbar_jump > 1:
-            cn_clb = [] ; jcpt = 0
-            for rtck in vc:
-                if jcpt % i_colorbar_jump == 0:
-                    if float(int(rtck)) == round(rtck,0):
-                        cn_clb.append(str(int(rtck))) ; # we can drop the ".0"
-                    else:
-                        cn_clb.append(str(rtck)) ; # keeping the decimals...
-                else:
-                    cn_clb.append(' ')
-                jcpt = jcpt + 1
-            clb.ax.set_xticklabels(cn_clb)
-
+        if i_colorbar_jump > 1: __subsample_colorbar__(i_colorbar_jump, vc, clb, cb_or=cb_orient)
         clb.set_label('('+cbunit+')', **font_clb)
 
         plt.savefig(cfignm+'.'+cfig_type, dpi=dpi_fig, orientation='portrait', transparent=False) ; #, transparent=True, acecolor='w', edgecolor='w',trans
@@ -1056,13 +1016,7 @@ class plot :
 
         # COLOR BAR
         clb = plt.colorbar(cf, ticks=vc, drawedges=True, orientation='horizontal', pad=0.09, shrink=1., aspect=40)
-        if i_colorbar_jump > 1:
-            cn_clb = [] ; jcpt = 0
-            for rtck in vc:
-                if jcpt % i_colorbar_jump == 0: cn_clb.append('%.1f' % rtck)
-                else: cn_clb.append(' ')
-                jcpt = jcpt + 1
-            clb.ax.set_xticklabels(cn_clb)
+        if i_colorbar_jump > 1: __subsample_colorbar__(i_colorbar_jump, vc, clb)
         for t in clb.ax.get_xticklabels(): t.set_fontsize(12)
         font = { 'fontsize':12 }
         clb.set_label('(Sv)', **font)
@@ -1223,18 +1177,9 @@ class plot :
 
         # Colorbar:
         clb = plt.colorbar(cf, ticks=vc)
-        if i_colorbar_jump > 1:
-            cn_clb = [] ; jcpt = 0
-            for rtck in vc:
-                if jcpt % i_colorbar_jump == 0:
-                    cn_clb.append(str(rtck))
-                else:
-                    cn_clb.append(' ')
-                jcpt = jcpt + 1
-            clb.ax.set_yticklabels(cn_clb)
+        if i_colorbar_jump > 1: __subsample_colorbar__(i_colorbar_jump, vc, clb, cb_or=cb_orient)
         for t in clb.ax.get_yticklabels(): t.set_fontsize(13)
         if cbunit != '': clb.set_label('('+cbunit+')', **font_clb)
-
 
         plt.axis([ tmin, tmax, zmax, zmin]) ;  #plt.xlabel(cxunit);
         plt.ylabel(czunit, **font_ylb)
@@ -1410,18 +1355,8 @@ class plot :
 
             if dy != 0:
                 plt.yticks( nmp.arange(trunc(ymin+0.5), trunc(ymax)+dy, dy) )
-                locs, labels = plt.yticks()
-                if i_y_jump > 1:
-                    new_y_labels = []
-                    jcpt = 0 ; # => tick priting will start at y1+dt_year on y axis rather than y1
-                    for tt in locs:
-                        if jcpt % i_y_jump == 0:
-                            new_y_labels.append(str(int(tt))) ; # keeping the decimals...
-                        else:
-                            new_y_labels.append(' ')
-                        jcpt = jcpt + 1
-                    plt.yticks(locs,new_y_labels)
-                    #ax.set_ylim(ymin, ymax)
+                locs, labels = plt.yticks() #lolo?
+                if i_y_jump > 1: __subsample_axis__('y', i_y_jump, plt)
 
         #BUG?:
         plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
@@ -1526,16 +1461,7 @@ class plot :
 
         else:
             plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-            if i_t_jump > 1:
-                locs, labels = plt.xticks() ; new_t_labels = []
-                jcpt = 1 ; # => tick priting will start at y1+dt_year on x axis rather than y1
-                for tt in locs:
-                    if jcpt % i_t_jump == 0:
-                        new_t_labels.append(str(int(tt))) ; # keeping the decimals...
-                    else:
-                        new_t_labels.append(' ')
-                    jcpt = jcpt + 1
-                plt.xticks(locs,new_t_labels)
+            if i_t_jump > 1: __subsample_axis__('x', i_t_jump, plt)
             ax.set_xlim(y1, y2)
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
@@ -1606,16 +1532,7 @@ class plot :
         print nmp.arange(y1, y2+dt_year, dt_year)
 
         plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-        if i_t_jump > 1:
-            locs, labels = plt.xticks() ; new_t_labels = []
-            jcpt = 1 ; # => tick priting will start at y1+dt_year on x axis rather than y1
-            for tt in locs:
-                if jcpt % i_t_jump == 0:
-                    new_t_labels.append(str(int(tt))) ; # keeping the decimals...
-                else:
-                    new_t_labels.append(' ')
-                jcpt = jcpt + 1
-            plt.xticks(locs,new_t_labels)
+        if i_t_jump > 1: __subsample_axis__('x', i_t_jump, plt)
         ax.set_xlim(y1, y2)
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
@@ -1649,10 +1566,7 @@ class plot :
 
         l_do_ci95 = False ; l_do_ci95m = False
 
-        #lulu
-
         nnoise = len(vnoise); nl95 = len(vrci95)
-        # vector
 
         if nnoise != 1 and nl95 != 1:
             if nl95 != len(Vspec) or nl95 != nnoise:
@@ -1967,15 +1881,26 @@ def __font_unity_big__():
 
 
 
-def __subsample_colorbar__(iss, vcc, clb_hndl):
-    cb_labels = [] ; cpt = iss
+def __subsample_colorbar__(iss, vcc, clb_hndl, cb_or='vertical'):
+    cb_lab = [] ; cpt = 0
     for cr in vcc:
-        rr = round(float(cr),6) ; cnr = str(rr)
-        if cpt == iss:
-            cpt = 1 ; cb_labels.append(cnr)
+        if cpt % iss == 0:
+            rr = round(float(cr),6)
+            cb_lab.append(str(rr))
         else:
-            cpt = cpt + 1 ; cb_labels.append(' ')
-        clb_hndl.ax.set_yticklabels(cb_labels)
+            cb_lab.append(' ')
+        cpt = cpt + 1
+    if cb_or == 'horizontal':
+        clb_hndl.ax.set_xticklabels(cb_lab)
+    else:
+        clb_hndl.ax.set_yticklabels(cb_lab)
+
+#        if float(int(rtck)) == round(rtck,0):
+#            cn_clb.append(str(int(rtck))) ; # we can drop the ".0"
+#        else:
+#            cn_clb.append(str(rtck)) ; # keeping the decimals...
+
+
 
 def _add_xy_offset__(ixo, iyo, plt_hndl):
     if ( ixo != 0. ):
@@ -1992,6 +1917,26 @@ def _add_xy_offset__(ixo, iyo, plt_hndl):
         plt_hndl.yticks(locs,newlabels)
 
 
+def __subsample_axis__(cax, iss, plt_hndl):
+    ax_lab = []
+    if   cax == 'x':
+        locs, labels = plt_hndl.xticks()
+    elif cax == 'y':
+        locs, labels = plt_hndl.yticks()
+    else:
+        print ' Error: __subsample_axis__.barakuda_plot => only "x" or "y" please'; sys.exit(0)        
+    cpt = 1 ; # => tick priting will start at y1+dt_year on x axis rather than y1
+    for rr in locs:
+        if cpt % iss == 0:
+            ax_lab.append(str(rr))
+        else:
+            ax_lab.append(' ')
+        cpt = cpt + 1
+    if cax == 'x': plt_hndl.xticks(locs,ax_lab)
+    if cax == 'y': plt_hndl.yticks(locs,ax_lab)
+    
+
+
 
 #    params = { 'font.family': 'Ubuntu Mono',
 #               'legend.fontsize': 14,
@@ -2003,3 +1948,5 @@ def _add_xy_offset__(ixo, iyo, plt_hndl):
 #
 #    font_ttl = { 'fontname':'Bitstream Vera Sans Mono', 'fontweight':'normal', 'fontsize':14 }
 #    font_ylb = { 'fontname':'Tahoma', 'fontweight':'normal', 'fontsize':12 }
+
+#lolo: replace 'i_sub_samp' 'i_colorbar_jump' by 'i_colobar_tick_subsample' or something like this...
