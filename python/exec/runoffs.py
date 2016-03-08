@@ -17,19 +17,22 @@ rmult = 1.E3
 zmax_rnf_atl = 0.1 ; dz_rnf = 0.005
 
 ORCA = os.getenv('ORCA')
-if ORCA == None: print 'The ORCA environement variable is no set'; sys.exit(0)
+if ORCA is None:
+    print 'The ORCA environement variable is no set'; sys.exit(0)
 RUN = os.getenv('RUN')
-if RUN == None: print 'The RUN environement variable is no set'; sys.exit(0)
+if RUN is None:
+    print 'The RUN environement variable is no set'; sys.exit(0)
 DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
+if DIAG_D is None:
+    print 'The DIAG_D environement variable is no set'; sys.exit(0)
 
 NN_RNF = os.getenv('NN_RNF')
 if NN_RNF == None: print 'The NN_RNF environement variable is no set'; sys.exit(0)
 
 
-print ' ORCA = '+ORCA
-print ' RUN = '+RUN
-print ' DIAG_D = '+DIAG_D
+print ' ORCA = {}'.format(ORCA)
+print ' RUN = {}'.format(RUN)
+print ' DIAG_D = {}'.format(DIAG_D)
 
 
 
@@ -52,13 +55,15 @@ fig_type='png'
 
 # Mesh-mask file:
 cf_mesh_mask = os.getenv('MM_FILE')
-if cf_mesh_mask == None: print 'The MM_FILE environement variable (mesh_mask) is no set'; sys.exit(0)
+if cf_mesh_mask is None: 
+    print 'The MM_FILE environement variable (mesh_mask) is no set'; sys.exit(0)
 print '\n Mesh-Mask file is:\n', cf_mesh_mask, '\n'
 
 
 
 narg = len(sys.argv)
-if narg < 3: print 'Usage: '+sys.argv[0]+' <year1> <year2>'; sys.exit(0)
+if narg < 3: 
+    print 'Usage: '+sys.argv[0]+' <year1> <year2>'; sys.exit(0)
 cy1 = sys.argv[1] ; cy2=sys.argv[2]; jy1=int(cy1); jy2=int(cy2)
 
 
