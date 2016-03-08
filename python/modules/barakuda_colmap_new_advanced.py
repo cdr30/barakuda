@@ -1,36 +1,40 @@
-# My own colormaps...
 
-# Check http://matplotlib.org/examples/color/colormaps_reference.html !!!
-
-
-# Colors:  http://www.pitt.edu/~nisg/cis/web/cgi/rgb.html
-
-# Last Updated: L. Brodeau, January 2013
+########################################################################
+#
+#   B a r a K u d a
+#
+#   Colormaps for plots
+#
+## Authors:
+#  --------
+# 2010-2015: Laurent Brodeau (original primitive code)
+#      2016: Saeed Falahat   (update to fancy grown-up coding!) :D
+#
+#######################################################################
 
 import sys
 import numpy as nmp
 import matplotlib
-matplotlib.use('Agg') ; # important so no DISPLAY is needed!!!
+matplotlib.use('Agg')
 from matplotlib.pylab import cm
-
 
 ctrl = 0.2 ; # for logarythmic scale in 'pal_eke'
 
 
 
 class pal :
-    '''This class encapsulates all the pal routines                                                                                                                                                              
-    
-    In order to use it you need to type as follows:                                                                                                                                                  
-    
+    '''This class encapsulates all the pal routines
+
+    In order to use it you need to type as follows:
+
     pal(pal name without the prefix __) (all the arguments of the function)
-    
+
     for example for __eke we do as follows:
-    
+
     pal("eke")()
-        
-    Functions of the pal class and they can not be accessed directly outside of the class. That is, you need to call these functios through the call wrapper                                                                  
-    as seen below in the function __call__.                                                                                                                                                                        
+
+    Functions of the pal class and they can not be accessed directly outside of the class. That is, you need to call these functios through the call wrapper
+    as seen below in the function __call__.
     '''
 
     def __init__(self,spal) :
@@ -53,7 +57,7 @@ class pal :
         M = nmp.array( [
             [ 0. , 0., 0. ], # black
             [ 0. , 0., 0. ]  # black
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -62,7 +66,7 @@ class pal :
 
     # ['rgb(255,255,204)','rgb(161,218,180)','rgb(65,182,196)','rgb(44,127,184)','rgb(37,52,148)']
 
-    
+
     # http://colorbrewer2.org/?type=sequential&scheme=YlGnBu&n=5
     def __cb1(self):
         M = nmp.array( [
@@ -71,13 +75,13 @@ class pal :
             [ 65,182,196  ],
             [ 44,127,184  ],
             [ 37,52,148  ]
-        ] ) / 255.
+            ] ) / 255.
         my_cmap = __build_colormap__(M, log_ctrl=ctrl)
         return my_cmap
 
 
 
-        
+
     def __eke(self):
         M = nmp.array( [
             [ 0.  , 0.0 , 0.2  ], # black
@@ -86,7 +90,7 @@ class pal :
             [ 1.  , 1.0 , 0.0  ], # yellow
             [ 1.  , 0.0 , 0.0  ], # red
             [0.2  , 0.27, 0.07 ] # brown
-        ] )
+            ] )
         my_cmap = __build_colormap__(M, log_ctrl=ctrl)
         return my_cmap
 
@@ -99,7 +103,7 @@ class pal :
             [ 1.  , 1.0 , 0.0  ], # yellow
             [ 1.  , 0.0 , 0.0  ], # red
             [0.2  , 0.27, 0.07 ] # brown
-        ] )
+            ] )
         my_cmap = __build_colormap__(M, log_ctrl=ctrl)
         return my_cmap
 
@@ -114,7 +118,7 @@ class pal :
             [ 1.0 , 1.0 , 0.0 ], # yellow
             [ 1.0 , 0.0 , 0.0 ], # red
             [ 0.2 , 0.3 , 0.1 ] # dark redish brown
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -128,7 +132,7 @@ class pal :
             [ 1.0 , 1.0 , 0.0 ], # yellow
             [ 1.0 , 0.0 , 0.0 ], # red
             [ 0.2 , 0.3 , 0.1 ] # dark redish brown
-        ] )
+            ] )
         my_cmap = __build_colormap__(M[::-1,:])
         return my_cmap
 
@@ -143,7 +147,7 @@ class pal :
             [ 1.0 , 1.0 , 0.0 ], # yellow
             [ 1.0 , 0.0 , 0.0 ], # red
             [ 0.2 , 0.3 , 0.1 ]  # dark redish brown
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -157,7 +161,7 @@ class pal :
             [ 1.0 , 1.0 , 0.0 ], # yellow
             [ 1.0 , 0.0 , 0.0 ], # red
             [ 0.2 , 0.3 , 0.1 ] # dark redish brown
-        ] )
+            ] )
         my_cmap = __build_colormap__(M[::-1,:])
         return my_cmap
 
@@ -174,7 +178,7 @@ class pal :
             [ 1.0 , 1.0 , 0.0 ], # yellow
             [ 1.0 , 0.0 , 0.0 ], # red
             [ 0.2 , 0.3 , 0.1 ] # dark read
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -191,7 +195,7 @@ class pal :
             [ 1.0 , 1.0 , 0.0 ], # yellow
             [ 1.0 , 0.0 , 0.0 ], # red
             [ 0.2 , 0.3 , 0.1 ] # dark read
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -206,22 +210,22 @@ class pal :
             [ 1.0 , 1.0 , 0.0 ], # yellow
             [ 1.0 , 0.0 , 0.0 ], # red
             [ 0.2 , 0.3 , 0.1 ] # dark read
-        ] )
+            ] )
         my_cmap = __build_colormap__(M[::-1,:])
         return my_cmap
 
 
     def __sst0(self):
         M = nmp.array( [
-        [ 1.0 , 1.0 , 1.0 ], # white
-        [ 0.4 , 0.0 , 0.6 ], # violet
-        [ 0.0 , 0.0 , 0.95], # dark blue
-        [0.68 , 0.98, 0.98], # light blue
-        [46./255., 203./255., 35./255.], # green
-        [ 1.0 , 1.0 , 0.0 ], # yellow
-        [ 1.0 , 0.0 , 0.0 ], # red
-        [ 0.2 , 0.3 , 0.1 ] # dark read
-        ] )
+            [ 1.0 , 1.0 , 1.0 ], # white
+            [ 0.4 , 0.0 , 0.6 ], # violet
+            [ 0.0 , 0.0 , 0.95], # dark blue
+            [0.68 , 0.98, 0.98], # light blue
+            [46./255., 203./255., 35./255.], # green
+            [ 1.0 , 1.0 , 0.0 ], # yellow
+            [ 1.0 , 0.0 , 0.0 ], # red
+            [ 0.2 , 0.3 , 0.1 ] # dark read
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -230,15 +234,15 @@ class pal :
 
     def __sst0_r(self):
         M = nmp.array( [
-        [ 1.0 , 1.0 , 1.0 ], # white
-        [ 0.4 , 0.0 , 0.6 ], # violet
-        [ 0.0 , 0.0 , 0.95], # dark blue
-        [0.68 , 0.98, 0.98], # light blue
-        [46./255., 203./255., 35./255.], # green
-        [ 1.0 , 1.0 , 0.0 ], # yellow
-        [ 1.0 , 0.0 , 0.0 ], # red
-        [ 0.2 , 0.3 , 0.1 ] # dark read
-        ] )
+            [ 1.0 , 1.0 , 1.0 ], # white
+            [ 0.4 , 0.0 , 0.6 ], # violet
+            [ 0.0 , 0.0 , 0.95], # dark blue
+            [0.68 , 0.98, 0.98], # light blue
+            [46./255., 203./255., 35./255.], # green
+            [ 1.0 , 1.0 , 0.0 ], # yellow
+            [ 1.0 , 0.0 , 0.0 ], # red
+            [ 0.2 , 0.3 , 0.1 ] # dark read
+            ] )
         my_cmap = __build_colormap__(M[::-1,:])
         return my_cmap
 
@@ -258,7 +262,7 @@ class pal :
             [ 1.0 , 1.0 , 0.0 ], # yellow
             [ 1.0 , 0.0 , 0.0 ], # red
             [ 0.2 , 0.3 , 0.1 ] # dark read
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -269,7 +273,7 @@ class pal :
             [ 0.6 , 0.6 , 0.8 ], # light grey
             [ 0.95 , 0.95 , 0.95 ],  # white
             [ 1.0 , 1.0 , 1.0 ]  # white
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -277,9 +281,11 @@ class pal :
         M = nmp.array( [
             [ 1.0 , 1.0 , 1.0 ],  # white
             [ 1.0 , 1.0 , 1.0 ]  # white
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
+
+
 
 
     def __rms(self):
@@ -290,7 +296,7 @@ class pal :
             [ 1.0 , 1.0 , 0.0 ],
             [ 1.0 , 0.0 , 0.0 ],
             [ 0.2 , 0.3 , 0.1 ]
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -312,7 +318,7 @@ class pal :
             [ 1.0 , 0.0 , 0.0 ], # red
             [ 0.6 , 0.0 , 0.0 ], # red
             [ 0.2 , 0.3 , 0.1 ]  # dark red
-        ] )
+            ] )
         my_cmap = __build_colormap__(M[::-1,:])
         return my_cmap
 
@@ -333,7 +339,7 @@ class pal :
             [ 1.0 , 0.0 , 0.0 ], # red
             [ 0.6 , 0.0 , 0.0 ], # red
             [ 0.2 , 0.3 , 0.1 ]  # dark red
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -346,7 +352,7 @@ class pal :
             [ 1.  , 1. , 1.  ],
             [ 1.  , 0. , 0.  ],
             [ 0.6 , 0. , 0.  ]
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -358,7 +364,7 @@ class pal :
             [ 1.  , 1. , 1.  ],
             [ 1.  , 0. , 0.  ],
             [ 0.6 , 0. , 0.  ]
-        ] )
+            ] )
         my_cmap = __build_colormap__(M[::-1,:])
         return my_cmap
 
@@ -373,7 +379,7 @@ class pal :
             [ 1.  , 1. , 1.  ],
             [ 1.  , 0. , 0.  ],
             [ 1.  , 1. , 0.  ]  # jaune
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -385,9 +391,11 @@ class pal :
             [ 1.  , 1. , 1.  ],
             [ 1.  , 0. , 0.  ],
             [ 1.  , 1. , 0.  ]  # jaune
-        ] )
+            ] )
         my_cmap = __build_colormap__(M[::-1,:])
         return my_cmap
+
+
 
 
     def __bbr0(self):
@@ -397,7 +405,7 @@ class pal :
             [ 1.  , 1. , 1.  ],
             [ 1.  , 0. , 0.  ],
             [ 1.  , 1. , 0.  ]  # jaune
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -411,8 +419,8 @@ class pal :
             [ .1  , .1 , .9  ],
             [ 1.  , 1. , 1.  ],
             [ 1.  , 1. , 1.  ],
-            [ 0.7  , 0. , 0.  ] # Dark red        
-        ] )
+            [ 0.7  , 0. , 0.  ] # Dark red
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -430,7 +438,7 @@ class pal :
             [ 0.7  , 0. , 0.  ], # Dark red
             #[ 1.  , 0.2 , 0.  ],
             [ 1.  , 1. , 0.  ],  # jaune
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -446,7 +454,7 @@ class pal :
             [ 1.  , 1. , 1.  ],
             [ 1.  , 0. , 0.  ],
             [ 1.  , 1. , 0.  ]  # jaune
-        ] )
+            ] )
         my_cmap = __build_colormap__(M[::-1,:])
         return my_cmap
 
@@ -458,7 +466,7 @@ class pal :
             [ 0.  , 0. , 1.  ], # true blue
             [ 177./255.  , 189./255. , 250./255. ], # light blue
             [ 1.  , 1. , 1.  ],
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
     # #        [ 177./255.  , 250./255. , 122./255. ],   # greenish
@@ -473,16 +481,21 @@ class pal :
             [ 244./255.  , 78./255. , 255./255.  ], # pink
             [ 1.  , 0. , 0.  ], # true red
             [ 139./255.  , 5./255. , 5./255.  ] # dark red
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
     #        [ 247./255.  , 150./255. , 176./255.  ], # light red
+
+
+
+
+
 
     def __graylb(self):
         M = nmp.array( [
             [ 1.  , 1. , 1. ],
             [ 0.1  , 0.1 , 0.1 ]
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -490,7 +503,7 @@ class pal :
         M = nmp.array( [
             [ 0.  , 0. , 0. ],
             [ 1.  , 1. , 1. ]
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -498,7 +511,7 @@ class pal :
         M = nmp.array( [
             [ 0.6  , 0.6 , 0.6 ],
             [ 1.  , 1. , 1. ]
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -513,7 +526,7 @@ class pal :
             [ 0.1 , 0.5 , 1.0 ], # light blue
             [ 0.0 , 0.0 , 0.4 ], # dark blue
             [ 0.6 , 0.0 , 0.8 ]  # violet
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -527,7 +540,7 @@ class pal :
             [ 0.0 , 0.0 , 0.4 ], # dark blue
             [ 0.6 , 0.0 , 0.8 ], # violet
             [ 1.0 , 1.0 , 1.0 ]  # white
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
@@ -535,12 +548,12 @@ class pal :
         M = nmp.array( [
             [ 0.5 , 0.5 , 0.5 ], # gray
             [ 0.5 , 0.5 , 0.5 ]  # gray
-        ] )
+            ] )
         my_cmap = __build_colormap__(M)
         return my_cmap
 
     def __jet(self):
-        
+
         return cm.jet
 
 

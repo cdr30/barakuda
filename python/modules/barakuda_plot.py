@@ -93,9 +93,9 @@ class plot :
 
 
     def __vert_section(self,VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
-                          xmin=-80., xmax=85., dx=5, cfignm='fig', cbunit='', cxunit=' ',
-                          zmin = 0., zmax = 5000., l_zlog=False, cfig_type='png',
-                          czunit=' ', ctitle=' ', lforce_lim=False, i_sub_samp=1, l_z_increase=False ):
+                       xmin=-80., xmax=85., dx=5, cfignm='fig', cbunit='', cxunit=' ',
+                       zmin = 0., zmax = 5000., l_zlog=False, cfig_type='png',
+                       czunit=' ', ctitle=' ', lforce_lim=False, i_sub_samp=1, l_z_increase=False ):
         import math
         import barakuda_colmap
 
@@ -130,17 +130,7 @@ class plot :
 
         # Colorbar
         clb = plt.colorbar(cf, ticks=vc); clb.set_label('('+cbunit+')', **font_clb)
-        # Sub-sampling if needed:
-        if i_sub_samp != 1:
-            cb_labels = [] ; cpt = i_sub_samp
-            for cr in vc:
-                rr = round(float(cr),6) ; cnr = str(rr)
-                if cpt == i_sub_samp:
-                    cpt = 1 ; cb_labels.append(cnr)
-                else:
-                    cpt = cpt + 1 ; cb_labels.append(' ')
-            clb.ax.set_yticklabels(cb_labels)
-
+        if i_sub_samp > 1: __subsample_colorbar__(i_sub_samp, vc, clb)
         for t in clb.ax.get_yticklabels(): t.set_fontsize(10)
 
         # X-axis:
@@ -286,21 +276,8 @@ class plot :
             cf0 = plt.pcolor(XF0, cmap = brkdcm.chose_palette('mask'))
 
         # Colorbar:
-        # ~~~~~~~~
         clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont); clb.set_label('('+cbunit+')', **font_clb)
-
-        # Sub-sampling if needed:
-        if i_sub_samp != 1:
-            cb_labels = [] ; cpt = i_sub_samp
-            for cr in vc:
-                rr = round(float(cr),6) ; cnr = str(rr)
-                if cpt == i_sub_samp:
-                    cpt = 1 ; cb_labels.append(cnr)
-                else:
-                    cpt = cpt + 1 ; cb_labels.append(' ')
-                clb.ax.set_yticklabels(cb_labels)
-
-        # Decreasing font size
+        if i_sub_samp > 1: __subsample_colorbar__(i_sub_samp, vc, clb)
         ifsize = 14
         if i_lat_lon == 1: ifsize = int(10*vert_rat); ifsize=max(ifsize,6)
         for t in clb.ax.get_yticklabels(): t.set_fontsize(ifsize)
@@ -470,9 +447,9 @@ class plot :
 
 
     def __2d_box(self,XF, XMSK, rmin, rmax, dc, lkcont=True,
-                    cpal='jet', cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False,
-                    i_sub_samp=1, cfig_type='pdf', lcontours=True,
-                    x_offset=0., y_offset=0., vcont_spec = [], lcont_mask=False):
+                 cpal='jet', cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False,
+                 i_sub_samp=1, cfig_type='pdf', lcontours=True,
+                 x_offset=0., y_offset=0., vcont_spec = [], lcont_mask=False):
 
         import numpy as nmp
         import barakuda_colmap
@@ -537,35 +514,11 @@ class plot :
             cfm = plt.contour(XMSK, [ 0.7 ], colors='k', linewidths = 1.)
             for c in cfm.collections: c.set_zorder(1.)
 
-
-
         # Colorbar:
-        # ~~~~~~~~
         clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont); clb.set_label('('+cbunit+')', **font_clb)
-        # Sub-sampling if needed:
-        if i_sub_samp != 1:
-            cb_labels = [] ; cpt = i_sub_samp
-            for cr in vc:
-                rr = round(float(cr),6) ; cnr = str(rr)
-                if cpt == i_sub_samp:
-                    cpt = 1 ; cb_labels.append(cnr)
-                else:
-                    cpt = cpt + 1 ; cb_labels.append(' ')
-                clb.ax.set_yticklabels(cb_labels)
+        if i_sub_samp > 1: __subsample_colorbar__(i_sub_samp, vc, clb)
 
-        if ( x_offset != 0. ):
-            locs, labels = plt.xticks() ; jl=0; newlabels = []
-            for ll in locs:
-                clab = str(int(locs[jl])+int(x_offset))
-                newlabels.append(clab); jl=jl+1
-            plt.xticks(locs,newlabels)
-
-        if ( y_offset != 0. ):
-            locs, labels = plt.yticks() ; jl=0; newlabels = []
-            for ll in locs:
-                clab = str(int(locs[jl])+int(y_offset))
-                newlabels.append(clab); jl=jl+1
-            plt.yticks(locs,newlabels)
+        if x_offset > 0 or y_offset > 0 :  __add_xy_offset__(x_offset, y_offset, plt)
 
         plt.axis([ 0., nx-1, 0, ny-1])
 
@@ -1038,35 +991,11 @@ class plot :
             cfm = plt.contour(XMSK, [ 0.7 ], colors='k', linewidths = 0.4)
             for c in cfm.collections: c.set_zorder(1.)
 
-
-
         # Colorbar:
-        # ~~~~~~~~
         clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont); clb.set_label('('+cbunit+')', **font_clb)
-        # Sub-sampling if needed:
-        if i_sub_samp != 1:
-            cb_labels = [] ; cpt = i_sub_samp
-            for cr in vc:
-                rr = round(float(cr),6) ; cnr = str(rr)
-                if cpt == i_sub_samp:
-                    cpt = 1 ; cb_labels.append(cnr)
-                else:
-                    cpt = cpt + 1 ; cb_labels.append(' ')
-                clb.ax.set_yticklabels(cb_labels)
+        if i_sub_samp > 1: __subsample_colorbar__(i_sub_samp, vc, clb)
 
-        if ( x_offset != 0. ):
-            locs, labels = plt.xticks() ; jl=0; newlabels = []
-            for ll in locs:
-                clab = str(int(locs[jl])+int(x_offset))
-                newlabels.append(clab); jl=jl+1
-            plt.xticks(locs,newlabels)
-
-        if ( y_offset != 0. ):
-            locs, labels = plt.yticks() ; jl=0; newlabels = []
-            for ll in locs:
-                clab = str(int(locs[jl])+int(y_offset))
-                newlabels.append(clab); jl=jl+1
-            plt.yticks(locs,newlabels)
+        if x_offset > 0 or y_offset > 0 :  __add_xy_offset__(x_offset, y_offset, plt)
 
         plt.axis([ 0., nx-1, 0, ny-1])
 
@@ -2028,7 +1957,6 @@ def __force_min_and_max__(rm, rp, Xin):
 
 
 def __font_unity_big__():
-    #
     params = {'font.family':'Trebuchet MS','font.size':20,'legend.fontsize': 16,'xtick.labelsize':16,'ytick.labelsize': 16,'axes.labelsize':18}
     mpl.rcParams.update(params)
     title_fonts     = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':20 }
@@ -2037,6 +1965,31 @@ def __font_unity_big__():
     colorbar_fonts  = { 'fontname':'Tahoma',       'fontweight':'normal', 'fontsize':14 }
     return title_fonts, big_fixed_fonts, label_fonts, colorbar_fonts
 
+
+
+def __subsample_colorbar__(iss, vcc, clb_hndl):
+    cb_labels = [] ; cpt = iss
+    for cr in vcc:
+        rr = round(float(cr),6) ; cnr = str(rr)
+        if cpt == iss:
+            cpt = 1 ; cb_labels.append(cnr)
+        else:
+            cpt = cpt + 1 ; cb_labels.append(' ')
+        clb_hndl.ax.set_yticklabels(cb_labels)
+
+def _add_xy_offset__(ixo, iyo, plt_hndl):
+    if ( ixo != 0. ):
+        locs, labels = plt_hndl.xticks() ; jl=0; newlabels = []
+        for ll in locs:
+            clab = str(int(locs[jl])+int(ixo))
+            newlabels.append(clab); jl=jl+1
+        plt_hndl.xticks(locs,newlabels)
+    if ( y_offset != 0. ):
+        locs, labels = plt_hndl.yticks() ; jl=0; newlabels = []
+        for ll in locs:
+            clab = str(int(locs[jl])+int(iyo))
+            newlabels.append(clab); jl=jl+1
+        plt_hndl.yticks(locs,newlabels)
 
 
 
