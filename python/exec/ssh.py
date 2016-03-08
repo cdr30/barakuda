@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 
-# L. Brodeau, november 2009
+# L. Brodeau, 2016
+
+# Nicely plot the sea-surface height of NEMO.
+
 
 import sys
 import os
@@ -15,19 +18,19 @@ import barakuda_physics as bphys
 ldebug = False
 
 ORCA = os.getenv('ORCA')
-if ORCA == None: print 'The ORCA environement variable is no set'; sys.exit(0)
+if ORCA is None: print 'The ORCA environement variable is no set'; sys.exit(0)
 RUN = os.getenv('RUN')
-if RUN == None: print 'The RUN environement variable is no set'; sys.exit(0)
+if RUN is None: print 'The RUN environement variable is no set'; sys.exit(0)
 DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
+if DIAG_D is None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
 NN_SSH = os.getenv('NN_SSH')
-if NN_SSH == None: print 'The NN_SSH environement variable is no set'; sys.exit(0)
-
-print ' ORCA = '+ORCA
-print ' RUN = '+RUN
-print ' DIAG_D = '+DIAG_D
+if NN_SSH is None: print 'The NN_SSH environement variable is no set'; sys.exit(0)
 
 
+
+print ' ORCA = {}'.format(ORCA)
+print ' RUN = {}'.format(RUN)
+print ' DIAG_D = {}'.format(DIAG_D)
 
 
 
@@ -53,7 +56,7 @@ else:
 
 # Mesh-mask file:
 cf_mesh_mask = os.getenv('MM_FILE')
-if cf_mesh_mask == None: print 'The MM_FILE environement variable (mesh_mask) is no set'; sys.exit(0)
+if cf_mesh_mask is None: print 'The MM_FILE environement variable (mesh_mask) is no set'; sys.exit(0)
 print '\n Mesh-Mask file is:\n', cf_mesh_mask, '\n'
 
 
@@ -91,18 +94,12 @@ id_nemo.close()
 
 [ nt, nj, ni ] = ssh.shape ; print ' Shape of SSH :', nt, nj, ni, '\n'
 
-
-
-ssh_plot = nmp.zeros(nj*ni) ; ssh_plot.shape = [ nj , ni ]
-
+ssh_plot = nmp.zeros((nj,ni))
 
 ssh_plot[:,:] = nmp.mean(ssh[:,:,:],axis=0)
-
-
 
 bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], ssh_plot[:,:], Xmask[0,:,:], -2.6, 1.6, 0.1,
               corca=ORCA, lkcont=True, cpal='jet',
               cfignm=path_fig+'ssh_mean_'+CONFRUN, cbunit='m',
               ctitle='Mean SSH, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=2,
               cfig_type=fig_type, lat_min=-77., lat_max=75., lpix=False, vcont_spec = [ 0. ])
-
