@@ -17,7 +17,7 @@ l_clim_diag=true ; # should we try to perform climatology-related diagnostics? (
 export CONF=ORCA1.L46 ; # horizontal global configuration
 export NBL=46     ; # number of levels
 
-# Root directory where NEMO output files are stored:
+# File system where NEMO config and output files are stored:
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
 
@@ -91,8 +91,7 @@ export NN_ICEF_CLIM="ice_cover"
 
 
 # A text file where the vertical hydraugraphical sections of interest are defined :
-#export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_${CONF}_light.dat"
-export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1.dat"
+export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1_old.dat"
 
 # For transport by sigma-class:
 export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_ORCA1.dat"

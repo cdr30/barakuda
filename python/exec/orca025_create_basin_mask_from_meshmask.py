@@ -1,6 +1,6 @@
-#!/home/x_laubr/bin/python
+#!/usr/bin/env python
 
-# L. Brodeau, april 2010
+# Petteri Uotila, 2015
 
 import sys
 import numpy as nmp

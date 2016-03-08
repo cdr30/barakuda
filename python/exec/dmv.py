@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # L. Brodeau 2015
 
@@ -9,15 +9,9 @@ import numpy as nmp
 from netCDF4 import Dataset
 from os.path import basename
 
-# Laurent's:
-import barakuda_plot as bp
 import barakuda_tool as bt
 
 #####################################
-
-
-#l_plot_debug = True
-l_plot_debug = False
 
 rdiv = 1000. ; # => result in 10^3 km^3   (DMV divided 4 times by rdiv)
 
@@ -193,11 +187,6 @@ for rMLD_crit in vMLD_crit:
             xtmp[idx1] = 0
             msk_deep[jm,:,:] = xtmp[:,:]
         
-        if l_plot_debug:
-            bp.check_with_fig_2(xmld[icold,:,:], zmask_orca[j1:j2,i1:i2], cbox+'_xmld')
-            bp.check_with_fig_2(xmld[icold,:,:], msk_deep[icold,:,:], cbox+'_xmld_m')
-        
-    
         xtmp[:,:] = xe1t[:,:]*xe2t[:,:]
     
     
@@ -224,8 +213,6 @@ for rMLD_crit in vMLD_crit:
         rc_WINT = nmp.mean(VDMV)
         
         
-        if l_plot_debug: print "VDMV[2] = ", VDMV[2]
-    
     
     
         ########################

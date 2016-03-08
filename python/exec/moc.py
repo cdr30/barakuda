@@ -1,4 +1,4 @@
-#!/home/x_laubr/bin/python
+#!/usr/bin/env python
 
 # L. Brodeau, november 2009
 
@@ -7,8 +7,8 @@ import os
 import numpy as nmp
 from netCDF4 import Dataset
 
-import barakuda_plot as brkdp
-import barakuda_tool as brkdt
+import barakuda_plot as bp
+import barakuda_tool as bt
 
 
 ldebug = False
@@ -20,25 +20,9 @@ if RUN == None: print 'The RUN environement variable is no set'; sys.exit(0)
 DIAG_D = os.getenv('DIAG_D')
 if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
 
-#COMP2D = os.getenv('COMP2D')
-#if COMP2D == None: print 'The COMP2D environement variable is no set'; sys.exit(0)
-
-
-#ICE_CLIM_12 = os.getenv('ICE_CLIM_12')
-#if ICE_CLIM_12 == None: print 'The ICE_CLIM_12 environement variable is no set'; sys.exit(0)
-
-#F_T_CLIM_3D_12 = os.getenv('F_T_CLIM_3D_12')
-#if F_T_CLIM_3D_12 == None: print 'The F_T_CLIM_3D_12 environement variable is no set\n'
-#F_S_CLIM_3D_12 = os.getenv('F_S_CLIM_3D_12')
-#if F_S_CLIM_3D_12 == None: print 'The F_S_CLIM_3D_12 environement variable is no set\n'
-
-
 print ' ORCA = '+ORCA
 print ' RUN = '+RUN
 print ' DIAG_D = '+DIAG_D
-#print ' COMP2D = '+COMP2D
-#print ' ICE_CLIM_12 = '+ICE_CLIM_12
-
 
 CONFRUN = ORCA+'-'+RUN
 
@@ -75,7 +59,7 @@ if store_dir == '': print 'The DIAG_D environement variable is no set'; sys.exit
 
 
 # Getting coordinates:
-brkdt.chck4f(cf_mesh_mask)
+bt.chck4f(cf_mesh_mask)
 id_mm = Dataset(cf_mesh_mask)
 xlat = id_mm.variables['gphit'][0,:,:]
 xlon = id_mm.variables['glamt'][0,:,:]
@@ -88,7 +72,7 @@ id_mm.close()
 
 
 # Getting basin mask:
-brkdt.chck4f(cf_basin_mask)
+bt.chck4f(cf_basin_mask)
 id_bm = Dataset(cf_basin_mask)
 Xmask_atl = id_bm.variables['tmaskatl'][:,:]
 id_bm.close()
@@ -100,7 +84,7 @@ for jk in range(nk): Xmask[jk,:,:] = Xmask[jk,:,:] * Xmask_atl[:,:]
 cf_nemo_moc  = DIAG_D+'/clim/aclim_'+CONFRUN+'_'+cy1+'-'+cy2+'_MOC.nc4'
 
 
-brkdt.chck4f(cf_nemo_moc)
+bt.chck4f(cf_nemo_moc)
 id_nemo = Dataset(cf_nemo_moc)
 vz = id_nemo.variables['depthw'][:]
 amoc   = id_nemo.variables[cv_moc][0,:,:]
@@ -111,7 +95,7 @@ id_nemo.close()
 
 # Building a latitude vector:
 vlat = nmp.zeros(nj)
-ji_lat_mid_atlantic = brkdt.find_index_from_value( -28., xlon[0,:] )
+ji_lat_mid_atlantic = bt.find_index_from_value( -28., xlon[0,:] )
 vlat[:] = xlat[:,ji_lat_mid_atlantic]
 
 
@@ -122,11 +106,11 @@ idxm = nmp.where(msk_vert[:,:] > 0.);
 msk_vert[idxm] = 1.
 
 
-brkdp.plot_amoc_lat_depth(vlat[:], -vz[:], amoc[:,:], msk_vert[:,:], -3., 25., 1., \
-                         cfig_type=fig_type, lkcont=True, cpal='amoc', ymin=0., ymax=70.,
-                         cfignm='AMOC_annual_'+CONFRUN, cbunit='Sv',
-                         cxunit=r'Latitude ($^{\circ}$N)', zmin = 5000., zmax = 0., l_zlog=False,
-                         czunit='Depth (m)', ctitle='AMOC, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True)
+bp.plot("amoc_lat_depth")(vlat[:], -vz[:], amoc[:,:], msk_vert[:,:], -3., 25., 1., \
+                          cfig_type=fig_type, lkcont=True, cpal='amoc', ymin=0., ymax=70.,
+                          cfignm='AMOC_annual_'+CONFRUN, cbunit='Sv',
+                          cxunit=r'Latitude ($^{\circ}$N)', zmin = 5000., zmax = 0., l_zlog=False,
+                          czunit='Depth (m)', ctitle='AMOC, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True)
 
 
 

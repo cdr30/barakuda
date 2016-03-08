@@ -1,4 +1,4 @@
-#!/home/x_laubr/bin/python
+#!/usr/bin/env python
 
 # L. Brodeau, november 2009
 
@@ -7,10 +7,10 @@ import os
 import numpy as nmp
 from netCDF4 import Dataset
 
-import barakuda_orca    as brkdo
-import barakuda_plot    as brkdp
+import barakuda_tool as bt
+import barakuda_orca as bo
+import barakuda_plot as bp
 import barakuda_physics as bphys
-import barakuda_tool    as brkdt
 
 ldebug = False
 
@@ -99,7 +99,7 @@ if store_dir == '': print 'The DIAG_D environement variable is no set'; sys.exit
 
 
 # Getting coordinates:
-brkdt.chck4f(cf_mesh_mask)
+bt.chck4f(cf_mesh_mask)
 id_mm = Dataset(cf_mesh_mask)
 xlon   = id_mm.variables['glamt'][0,:,:] ; xlat = id_mm.variables['gphit'][0,:,:]
 Xmask = id_mm.variables['tmask'][0,:,:,:]
@@ -113,7 +113,7 @@ nk = len(vlev)
 #  Getting NEMO mean monthly climatology of MLD coverage:
 cf_nemo_mnmc = DIAG_D+'/clim/mclim_'+CONFRUN+'_'+cy1+'-'+cy2+'_grid_T.nc4'
 
-brkdt.chck4f(cf_nemo_mnmc)
+bt.chck4f(cf_nemo_mnmc)
 id_nemo = Dataset(cf_nemo_mnmc)
 mldr10   = id_nemo.variables[NN_MLD][:,:,:]
 id_nemo.close()
@@ -129,12 +129,12 @@ if l_obs_mld:
     # --------------------------------------------
 
     # Temperature
-    brkdt.chck4f(F_T_CLIM_3D_12) ; id_clim = Dataset(F_T_CLIM_3D_12)
+    bt.chck4f(F_T_CLIM_3D_12) ; id_clim = Dataset(F_T_CLIM_3D_12)
     Tclim  = id_clim.variables[NN_T_CLIM][:,:,:,:]; print '(has ',Tclim.shape[0],' time snapshots)\n'
     id_clim.close()
 
     # Salinity
-    brkdt.chck4f(F_S_CLIM_3D_12) ; id_clim = Dataset(F_S_CLIM_3D_12)
+    bt.chck4f(F_S_CLIM_3D_12) ; id_clim = Dataset(F_S_CLIM_3D_12)
     Sclim  = id_clim.variables[NN_S_CLIM][:,:,:,:]; print '(has ',Sclim.shape[0],' time snapshots)\n'
     id_clim.close()
 
@@ -165,7 +165,7 @@ if l_obs_mld:
 
     Xmld_obs = nmp.zeros(nj*ni) ; Xmld_obs.shape = [nj,ni]
     mmask = nmp.zeros(nj*ni)    ; mmask.shape = [nj,ni]
-    
+
 
 
     mmask[:,:] = 1.
@@ -189,10 +189,10 @@ if l_obs_mld:
             ijloc = nmp.where( Sigma0_nemo[jk+1,:,:] - 0.01 > Sigma0_nemo[jk,:,:] )
             Xmld_obs[ijloc] = zz
             mmask[ijloc] = 0. ; # these points won't be checked again only first occurence of the criterion matters!
-        brkdp.plot_nproj('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, Xmld_obs[:,:],
-                        cfignm=path_fig+'mld_NEMO_001_NSeas_march_'+CONFRUN+'_vs_'+COMP2D, cpal='sst0', cbunit='m',
-                        ctitle='MLD NEMO (0.01 crit.), March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
-                        lkcont=True, cfig_type=fig_type, lforce_lim=True)
+        bp.plot("nproj")('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, Xmld_obs[:,:],
+                         cfignm=path_fig+'mld_NEMO_001_NSeas_march_'+CONFRUN+'_vs_'+COMP2D, cpal='sst0', cbunit='m',
+                         ctitle='MLD NEMO (0.01 crit.), March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
+                         lkcont=True, cfig_type=fig_type, lforce_lim=True)
 
 
 
@@ -200,35 +200,35 @@ if l_obs_mld:
 #################
 
 
-brkdp.plot_nproj('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, mldr10[imnth,:,:],
-                cfignm=path_fig+'mld_NSeas_march_'+CONFRUN, cpal='sst0', cbunit='m',
-                ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
-                lkcont=True, cfig_type=fig_type, 
-                lforce_lim=True)
+bp.plot("nproj")('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, mldr10[imnth,:,:],
+                 cfignm=path_fig+'mld_NSeas_march_'+CONFRUN, cpal='sst0', cbunit='m',
+                 ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
+                 lkcont=True, cfig_type=fig_type,
+                 lforce_lim=True)
 
-brkdp.plot_nproj('spstere', 50., 200., 10., xlon, xlat, mldr10[imnth,:,:],
-                cfignm=path_fig+'mld_ACC_march_'+CONFRUN, cpal='sst0', cbunit='m',
-                ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
-                lkcont=True, cfig_type=fig_type, 
-                lforce_lim=True)
+bp.plot("nproj")('spstere', 50., 200., 10., xlon, xlat, mldr10[imnth,:,:],
+                 cfignm=path_fig+'mld_ACC_march_'+CONFRUN, cpal='sst0', cbunit='m',
+                 ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
+                 lkcont=True, cfig_type=fig_type,
+                 lforce_lim=True)
 
-brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 600., 20.,
-             corca=ORCA, lkcont=True, cpal='sst0',
-             cfignm=path_fig+'mld_Global_march_'+CONFRUN, cbunit='m',
-             ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=1,
-             cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
+bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 600., 20.,
+              corca=ORCA, lkcont=True, cpal='sst0',
+              cfignm=path_fig+'mld_Global_march_'+CONFRUN, cbunit='m',
+              ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=1,
+              cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
 
 if l_obs_mld:
-    brkdp.plot_nproj('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, Xmld_obs[:,:],
-                    cfignm=path_fig+'mld_obs_001_NSeas_march_'+CONFRUN, cpal='sst0', cbunit='m',
-                    ctitle='MLD (obs., 0.01 crit.), March (Levitus 1980-1999)',
-                    lkcont=True, cfig_type=fig_type, lforce_lim=True)
+    bp.plot("nproj")('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, Xmld_obs[:,:],
+                     cfignm=path_fig+'mld_obs_001_NSeas_march_'+CONFRUN, cpal='sst0', cbunit='m',
+                     ctitle='MLD (obs., 0.01 crit.), March (Levitus 1980-1999)',
+                     lkcont=True, cfig_type=fig_type, lforce_lim=True)
 
-    brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], Xmld_obs[:,:], Xmask[0,:,:], 0., 600., 20.,
-                 corca=ORCA, lkcont=True, cpal='sst0',
-                 cfignm=path_fig+'mld_obs_001_Global_march_'+CONFRUN, cbunit='m',
-                 ctitle='MLD (obs., 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_sub_samp=1,
-                 cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
+    bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], Xmld_obs[:,:], Xmask[0,:,:], 0., 600., 20.,
+                  corca=ORCA, lkcont=True, cpal='sst0',
+                  cfignm=path_fig+'mld_obs_001_Global_march_'+CONFRUN, cbunit='m',
+                  ctitle='MLD (obs., 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_sub_samp=1,
+                  cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
 
 
 
@@ -260,25 +260,25 @@ if l_obs_mld:
 
 
 # Figures september:
-brkdp.plot_nproj('spstere', 100., 2000., dz_mld, xlon, xlat, mldr10[imnth,:,:],
-                cfignm=path_fig+'mld_ACC_september_'+CONFRUN, cpal='sst0', cbunit='m',
-                ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')',
-                lkcont=True, cfig_type=fig_type, 
-                lforce_lim=True)
+bp.plot("nproj")('spstere', 100., 2000., dz_mld, xlon, xlat, mldr10[imnth,:,:],
+                 cfignm=path_fig+'mld_ACC_september_'+CONFRUN, cpal='sst0', cbunit='m',
+                 ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')',
+                 lkcont=True, cfig_type=fig_type,
+                 lforce_lim=True)
 
-brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 600., 20.,
-             corca=ORCA, lkcont=True, cpal='sst0',
-             cfignm=path_fig+'mld_Global_september_'+CONFRUN, cbunit='m',
-             ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=1,
-             cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
+bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 600., 20.,
+              corca=ORCA, lkcont=True, cpal='sst0',
+              cfignm=path_fig+'mld_Global_september_'+CONFRUN, cbunit='m',
+              ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=1,
+              cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
 
 
 if l_obs_mld:
-    brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], Xmld_obs[:,:], Xmask[0,:,:], 0., 600., 20.,
-                 corca=ORCA, lkcont=True, cpal='sst0',
-                 cfignm=path_fig+'mld_obs_001_Global_september_'+CONFRUN, cbunit='m',
-                 ctitle='MLD (obs, 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_sub_samp=1,
-                 cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
+    bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], Xmld_obs[:,:], Xmask[0,:,:], 0., 600., 20.,
+                  corca=ORCA, lkcont=True, cpal='sst0',
+                  cfignm=path_fig+'mld_obs_001_Global_september_'+CONFRUN, cbunit='m',
+                  ctitle='MLD (obs, 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_sub_samp=1,
+                  cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
 
 
 

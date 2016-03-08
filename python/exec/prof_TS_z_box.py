@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # L. Brodeau, June 2014
 
@@ -8,14 +8,8 @@ import numpy as nmp
 from netCDF4 import Dataset
 from os.path import basename
 
-# Laurent's:
-import barakuda_physics as bphy
-import barakuda_plot as brkdp
 import barakuda_tool as bt
-
-
-#l_plot_debug = True
-l_plot_debug = False
+import barakuda_physics as bphy
 
 
 FILE_DEF_BOXES = os.getenv('FILE_DEF_BOXES')
@@ -133,8 +127,6 @@ for jb in range(nbb):
 
     nx_b = i2 - i1
     ny_b = j2 - j1
-
-    if l_plot_debug: print "nx_b , ny_b => ", nx_b , ny_b
 
     shape_array = [ Nt, nk, ny_b, nx_b ]
 

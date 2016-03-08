@@ -20,6 +20,11 @@ export NBL=75     ; # number of levels
 # Root directory where NEMO output files are stored:
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
+
+# Is it an ec-earth run?
+export ece_run=0 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
+#                  # where YYY starts from '001' to
+
 # List of suffixed of files that have been saved by NEMO:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
 
@@ -47,6 +52,7 @@ export NN_SSH="zos"
 export NN_T="thetao"
 export NN_S="so"
 export NN_MLD="mldr10_1"
+export NN_RNF="runoffs"
 export NN_U="uo"
 export NN_V="vo"
 #export NN_U_EIV="vozoeivu"
@@ -68,8 +74,8 @@ export L_RENAME=false ; # set to true if your ORCA output has old name conventio
 export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / ocean-only experiment"
 
 # Land-sea mask and basins files:
-export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask_${CONF}_20150929.nc"
-export BM_FILE="/proj/bolinc/users/x_laubr/${CONF}/basin_mask_${CONF}_20150929.nc"
+export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask.nc"
+export BM_FILE="/proj/bolinc/users/x_laubr/${CONF}/new_maskglo.nc"
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
 export F_T_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/thetao_1degx1deg_WOA2009_monthly_${CONF}_cut.nc
@@ -84,7 +90,6 @@ export NN_ICEF_CLIM="ice_cover"
 
 
 # A text file where the vertical hydraugraphical sections of interest are defined :
-#export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_${CONF}_light.dat"
 export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1.dat"
 
 # For transport by sigma-class:
@@ -163,7 +168,7 @@ i_do_dmv=1
 export MLD_CRIT="1000,725,500"
 
 
-# Some nerdy stuffs about the critical depth in prescribed boxes: 
+# Some nerdy stuffs about the critical depth in prescribed boxes:
 i_do_zcrit=0
 
 

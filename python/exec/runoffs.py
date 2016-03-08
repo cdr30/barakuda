@@ -1,4 +1,4 @@
-#!/home/x_laubr/bin/python
+#!/usr/bin/env python
 
 # L. Brodeau, 2016
 
@@ -7,10 +7,9 @@ import os
 import numpy as nmp
 from netCDF4 import Dataset
 
-import barakuda_orca    as brkdo
-import barakuda_plot    as brkdp
-import barakuda_physics as bphys
-import barakuda_tool    as brkdt
+import barakuda_tool as bt
+import barakuda_plot as bp
+
 
 ldebug = False
 
@@ -74,7 +73,7 @@ if store_dir == '': print 'The DIAG_D environement variable is no set'; sys.exit
 
 
 # Getting coordinates:
-brkdt.chck4f(cf_mesh_mask)
+bt.chck4f(cf_mesh_mask)
 id_mm = Dataset(cf_mesh_mask)
 xlon   = id_mm.variables['glamt'][0,:,:] ; xlat = id_mm.variables['gphit'][0,:,:]
 Xmask = id_mm.variables['tmask'][0,:,:,:]
@@ -88,7 +87,7 @@ nk = len(vlev)
 #  Getting NEMO mean monthly climatology of RNF coverage:
 cf_nemo_mnmc = DIAG_D+'/clim/mclim_'+CONFRUN+'_'+cy1+'-'+cy2+'_SBC.nc4'
 
-brkdt.chck4f(cf_nemo_mnmc)
+bt.chck4f(cf_nemo_mnmc)
 id_nemo = Dataset(cf_nemo_mnmc)
 rnf   = rmult*id_nemo.variables[NN_RNF][:,:,:]
 id_nemo.close()
@@ -106,18 +105,18 @@ rnf_plot[:,:] = nmp.mean(rnf[:,:,:],axis=0)
 #rnf_plot[:,:] = nmp.log(rnf_plot[:,:]+1.0)
 
 # With lat-lon axis:
-#brkdp.plot_2d(xlon[0,:], xlat[:,ji_lat0], rnf_plot[:,:], Xmask[0,:,:], 0., zmax_rnf_atl, dz_rnf,
+#bp.plot_2d(xlon[0,:], xlat[:,ji_lat0], rnf_plot[:,:], Xmask[0,:,:], 0., zmax_rnf_atl, dz_rnf,
 #              corca=ORCA, lkcont=False, cpal='sst',
 #              cfignm=path_fig+'runoffs_mean_'+CONFRUN, cbunit=r'10$^{-3}$mm/day',
 #              ctitle='Mean Runoffs, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=2,
 #              cfig_type=fig_type, lat_min=-79., lat_max=85., lpix=True)
 
 # Without:
-brkdp.plot_2d([0], [0], rnf_plot[:,:], Xmask[0,:,:], 0., zmax_rnf_atl, dz_rnf,
-              corca=ORCA, lkcont=False, cpal='sst',
-              cfignm=path_fig+'runoffs_mean_'+CONFRUN, cbunit=r'10$^{-3}$mm/day',
-              ctitle='Mean Runoffs, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=2,
-              cfig_type=fig_type, lpix=True)
+bp.plot("2d")([0], [0], rnf_plot[:,:], Xmask[0,:,:], 0., zmax_rnf_atl, dz_rnf,
+           corca=ORCA, lkcont=False, cpal='sst',
+           cfignm=path_fig+'runoffs_mean_'+CONFRUN, cbunit=r'10$^{-3}$mm/day',
+           ctitle='Mean Runoffs, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=2,
+           cfig_type=fig_type, lpix=True)
 
 
 print '\n Bye!'

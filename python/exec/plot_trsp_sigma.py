@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # L. Brodeau, January 2013
 #
@@ -101,11 +102,11 @@ for csec in list_sections:
     r1   = round(rmax+0.05,1)*100; rmax = (r1 + r1%20)/100. ; rmin = -rmax
     dc = (int(round(100*(rmax+0.6)/20.,2))/5*5)/100.
     
-    bp.plot_trsp_sig_class(vtime_ann, vsigma_bounds, Xst_ann, rmin, rmax, dc, dsigma,
-                           lkcont=True, cpal='bbr2_r', dt_year=ittic,
-                           cfignm='transport_sigma_class_'+csec+'_'+CONFRUN,
-                           cfig_type='png', ctitle=r'Transport by $\sigma_0$ class, '+csec+', '+CONFRUN,
-                           lforce_lim=False, vcont_spec1 = [], i_colorbar_jump=2)
+    bp.plot("trsp_sig_class")(vtime_ann, vsigma_bounds, Xst_ann, rmin, rmax, dc, dsigma,
+                              lkcont=True, cpal='bbr2_r', dt_year=ittic,
+                              cfignm='transport_sigma_class_'+csec+'_'+CONFRUN,
+                              cfig_type='png', ctitle=r'Transport by $\sigma_0$ class, '+csec+', '+CONFRUN,
+                              lforce_lim=False, vcont_spec1 = [], i_colorbar_jump=2)
     
 
 
@@ -131,10 +132,10 @@ id_in.close()
 
 ittic = bt.iaxe_tick(nbm/12)
 
-bp.plot_1d_multi(vtime_ann, v278, list_sections, cfignm='tr_sigma_gt278_'+CONFRUN,
-                 dt_year=ittic, cyunit='Sv',
-                 ctitle=r'Transport of volume for $\sigma_0$ > '+str(rsigdense0)+', '+CONFRUN,
-                 ymin=0., ymax=0.)
+bp.plot("1d_multi")(vtime_ann, v278, list_sections, cfignm='tr_sigma_gt278_'+CONFRUN,
+                    dt_year=ittic, cyunit='Sv',
+                    ctitle=r'Transport of volume for $\sigma_0$ > '+str(rsigdense0)+', '+CONFRUN,
+                    ymin=0., ymax=0.)
 
 
 

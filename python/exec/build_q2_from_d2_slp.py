@@ -1,4 +1,4 @@
-#!/home/x_laubr/bin/python
+#!/usr/bin/env python
 #
 # L. Brodeau, Feb.2001
 

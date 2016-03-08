@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 # Misc :
 import os
@@ -7,12 +8,6 @@ from netCDF4 import Dataset
 
 import barakuda_orca as bo
 import barakuda_tool as bt
-
-
-#ldebug = True
-ldebug = False
-
-if ldebug: import barakuda_plot as bp
 
 print ''
 
@@ -221,14 +216,9 @@ if l_mld:
             if ry1 > -900.: j1 = bt.find_index_from_value( ry1, rlat[:,i1] )
             if ry2 > -900.: j2 = bt.find_index_from_value( ry2, rlat[:,i2] )
             
-        #print ' rx1, rx2, ry1, ry2 =>', rx1, rx2, ry1, ry2
-        #print ' i1, i2, j1, j2  (nb iter) =>', i1, i2, j1, j2, '('+str(itt)+')'
-
     
         mask2d[:,:] = 0.
         mask2d[j1:j2,i1:i2] = mask[0,0,j1:j2,i1:i2]
-
-        if ldebug: bp.check_with_fig_2(mask2d, mask2d*0.+1., cbox)
 
         Vts = bo.mean_2d(MLD_m, mask2d[:,:], Xe1t[0,:,:], Xe2t[0,:,:])
         

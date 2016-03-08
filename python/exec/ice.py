@@ -1,4 +1,4 @@
-#!/home/x_laubr/bin/python
+#!/usr/bin/env python
 
 # L. Brodeau, november 2009
 
@@ -7,8 +7,8 @@ import os
 import numpy as nmp
 from netCDF4 import Dataset
 
-import barakuda_plot as brkdp
-import barakuda_tool as brkdt
+import barakuda_plot as bp
+import barakuda_tool as bt
 
 
 
@@ -71,13 +71,13 @@ if store_dir == '': print 'The DIAG_D environement variable is no set'; sys.exit
 
 
 # Getting coordinates:
-brkdt.chck4f(cf_mesh_mask) ; id_coor = Dataset(cf_mesh_mask)
+bt.chck4f(cf_mesh_mask) ; id_coor = Dataset(cf_mesh_mask)
 xlon   = id_coor.variables['nav_lon'][:,:] ; xlat   = id_coor.variables['nav_lat'][:,:]
 id_coor.close()
 
 
 # Getting obs:
-brkdt.chck4f(ICE_CLIM_12) ; id_clim = Dataset(ICE_CLIM_12)
+bt.chck4f(ICE_CLIM_12) ; id_clim = Dataset(ICE_CLIM_12)
 xclim03 = id_clim.variables[NN_ICEF_CLIM][2,:,:]
 xclim09 = id_clim.variables[NN_ICEF_CLIM][8,:,:]
 id_clim.close()
@@ -97,7 +97,7 @@ id_mask.close()
 #  Getting NEMO mean monthly climatology of sea-ice coverage:
 cf_nemo_mnmc = DIAG_D+'/clim/mclim_'+CONFRUN+'_'+cy1+'-'+cy2+'_'+FILE_ICE_SUFFIX+'.nc4'
 
-brkdt.chck4f(cf_nemo_mnmc)
+bt.chck4f(cf_nemo_mnmc)
 id_ice = Dataset(cf_nemo_mnmc)
 xnemo03   = id_ice.variables[NN_ICEF][2,:,:]
 xnemo09   = id_ice.variables[NN_ICEF][8,:,:]
@@ -107,20 +107,10 @@ id_ice.close()
 
 
 # Extraoplating sea values on continents:
-brkdt.drown(xnemo03, xmask, k_ew=2, nb_max_inc=10, nb_smooth=10)
-brkdt.drown(xnemo09, xmask, k_ew=2, nb_max_inc=10, nb_smooth=10)
-brkdt.drown(xclim03, xmask, k_ew=2, nb_max_inc=10, nb_smooth=10)
-brkdt.drown(xclim09, xmask, k_ew=2, nb_max_inc=10, nb_smooth=10)
-
-
-
-
-
-
-
-
-
-
+bt.drown(xnemo03, xmask, k_ew=2, nb_max_inc=10, nb_smooth=10)
+bt.drown(xnemo09, xmask, k_ew=2, nb_max_inc=10, nb_smooth=10)
+bt.drown(xclim03, xmask, k_ew=2, nb_max_inc=10, nb_smooth=10)
+bt.drown(xclim09, xmask, k_ew=2, nb_max_inc=10, nb_smooth=10)
 
 
 
@@ -165,17 +155,17 @@ if xclim03.max()>90.:
 
 #DEBUG:
 if False:
-    brkdp.plot_nproj('spstere', 0., 1., 0.1, xlon0, xlat0, xclim090[:,:]/ratio,
-                    cfignm=path_fig+'sea-ice_SP_sept_obs', cpal='ice', cbunit='frac.',
-                    ctitle='Sea-Ice, Sept., obs.',
-                    lkcont=True, cfig_type=fig_type, 
-                    lforce_lim=True)
-
-    brkdp.plot_nproj('npol2', 0., 1., 0.1, xlon, xlat, xclim03[:,:]/ratio,
-                    cfignm=path_fig+'sea-ice_NP_march_obs', cpal='ice', cbunit='frac.',
-                    ctitle='Sea-Ice, March, obs.',
-                    lkcont=True, cfig_type=fig_type, 
-                    lforce_lim=True)
+    bp.plot("nproj")('spstere', 0., 1., 0.1, xlon0, xlat0, xclim090[:,:]/ratio,
+                     cfignm=path_fig+'sea-ice_SP_sept_obs', cpal='ice', cbunit='frac.',
+                     ctitle='Sea-Ice, Sept., obs.',
+                     lkcont=True, cfig_type=fig_type, 
+                     lforce_lim=True)
+    
+    bp.plot("nproj")('npol2', 0., 1., 0.1, xlon, xlat, xclim03[:,:]/ratio,
+                     cfignm=path_fig+'sea-ice_NP_march_obs', cpal='ice', cbunit='frac.',
+                     ctitle='Sea-Ice, March, obs.',
+                     lkcont=True, cfig_type=fig_type, 
+                     lforce_lim=True)
 
     sys.exit(0)
 #DEBUG.
@@ -192,32 +182,32 @@ else:
 
 
 # Nordic Seas:
-brkdp.plot_nproj('npol2', 0., 1., 0.1, xlon, xlat, xnemo09[:,:],
-              cfignm=path_fig+'sea-ice_NP_sept_'+CONFRUN, cpal='ice', cbunit='frac.',
-              ctitle='Sea-Ice, Sept., '+CONFRUN+' ('+cy1+'-'+cy2+')',
-              lkcont=True, cfig_type=fig_type, 
-              lforce_lim=True)
+bp.plot("nproj")('npol2', 0., 1., 0.1, xlon, xlat, xnemo09[:,:],
+                 cfignm=path_fig+'sea-ice_NP_sept_'+CONFRUN, cpal='ice', cbunit='frac.',
+                 ctitle='Sea-Ice, Sept., '+CONFRUN+' ('+cy1+'-'+cy2+')',
+                 lkcont=True, cfig_type=fig_type, 
+                 lforce_lim=True)
 
-brkdp.plot_nproj('npol2', 0., 1., 0.1, xlon, xlat, xclim09[:,:]/ratio,
-                cfignm=path_fig+'sea-ice_NP_sept_'+COMP2D, cpal='ice', cbunit='frac.',
-                ctitle=ctit_clim,
-                lkcont=True, cfig_type=fig_type,
-                lforce_lim=True)
+bp.plot("nproj")('npol2', 0., 1., 0.1, xlon, xlat, xclim09[:,:]/ratio,
+                 cfignm=path_fig+'sea-ice_NP_sept_'+COMP2D, cpal='ice', cbunit='frac.',
+                 ctitle=ctit_clim,
+                 lkcont=True, cfig_type=fig_type,
+                 lforce_lim=True)
     
     
 # September, big South:
-brkdp.plot_nproj('spstere', 0., 1., 0.1, xlon0, xlat0, xnemo090[:,:],
-              cfignm=path_fig+'sea-ice_SP_sept_'+CONFRUN, cpal='ice', cbunit='frac.',
-              ctitle='Sea-Ice, Sept., '+CONFRUN+' ('+cy1+'-'+cy2+')',
-              lkcont=True, cfig_type=fig_type, 
-              lforce_lim=True)
+bp.plot("nproj")('spstere', 0., 1., 0.1, xlon0, xlat0, xnemo090[:,:],
+                 cfignm=path_fig+'sea-ice_SP_sept_'+CONFRUN, cpal='ice', cbunit='frac.',
+                 ctitle='Sea-Ice, Sept., '+CONFRUN+' ('+cy1+'-'+cy2+')',
+                 lkcont=True, cfig_type=fig_type, 
+                 lforce_lim=True)
 
 
-brkdp.plot_nproj('spstere', 0., 1., 0.1, xlon0, xlat0, xclim090[:,:]/ratio,
-                cfignm=path_fig+'sea-ice_SP_sept_'+COMP2D, cpal='ice', cbunit='frac.',
-                ctitle=ctit_clim,
-                lkcont=True, cfig_type=fig_type, 
-                lforce_lim=True)
+bp.plot("nproj")('spstere', 0., 1., 0.1, xlon0, xlat0, xclim090[:,:]/ratio,
+                 cfignm=path_fig+'sea-ice_SP_sept_'+COMP2D, cpal='ice', cbunit='frac.',
+                 ctitle=ctit_clim,
+                 lkcont=True, cfig_type=fig_type, 
+                 lforce_lim=True)
 
 
 
@@ -241,13 +231,13 @@ else:
 
 # Nordic Seas:
 #
-brkdp.plot_nproj('npol2', 0., 1., 0.1, xlon, xlat, xnemo03[:,:],
+bp.plot("nproj")('npol2', 0., 1., 0.1, xlon, xlat, xnemo03[:,:],
               cfignm=path_fig+'sea-ice_NP_march_'+CONFRUN, cpal='ice', cbunit='frac.',
               ctitle='Sea-Ice, March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
               lkcont=True, cfig_type=fig_type, 
               lforce_lim=True)
 
-brkdp.plot_nproj('npol2', 0., 1., 0.1, xlon, xlat, xclim03[:,:]/ratio,
+bp.plot("nproj")('npol2', 0., 1., 0.1, xlon, xlat, xclim03[:,:]/ratio,
                 cfignm=path_fig+'sea-ice_NP_march_'+COMP2D, cpal='ice', cbunit='frac.',
                 ctitle=ctit_clim,
                 lkcont=True, cfig_type=fig_type, 
@@ -256,14 +246,14 @@ brkdp.plot_nproj('npol2', 0., 1., 0.1, xlon, xlat, xclim03[:,:]/ratio,
 #
 #
 # Big south:
-#
-brkdp.plot_nproj('spstere', 0., 1., 0.1, xlon0, xlat0, xnemo030[:,:],
+
+bp.plot("nproj")('spstere', 0., 1., 0.1, xlon0, xlat0, xnemo030[:,:],
               cfignm=path_fig+'sea-ice_SP_march_'+CONFRUN, cpal='ice', cbunit='frac.',
               ctitle='Sea-Ice, March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
               lkcont=True, cfig_type=fig_type, 
               lforce_lim=True)
-#
-brkdp.plot_nproj('spstere', 0., 1., 0.1, xlon0, xlat0, xclim030[:,:]/ratio,
+
+bp.plot("nproj")('spstere', 0., 1., 0.1, xlon0, xlat0, xclim030[:,:]/ratio,
                 cfignm=path_fig+'sea-ice_SP_march_'+COMP2D, cpal='ice', cbunit='frac.',
                 ctitle=ctit_clim,
                 lkcont=True, cfig_type=fig_type, 

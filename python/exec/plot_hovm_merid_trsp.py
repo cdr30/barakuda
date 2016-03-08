@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 #
 # L. Brodeau, July 2011
 #
@@ -8,9 +9,9 @@ import os
 import numpy as nmp
 from netCDF4 import Dataset
 
-import barakuda_orca as brkdo
-import barakuda_plot as brkdp
-import barakuda_tool as brkdt
+import barakuda_orca as bo
+import barakuda_plot as bp
+import barakuda_tool as bt
 
 
 
@@ -58,17 +59,17 @@ if not os.path.exists(cf_in):
 
 
 
-nbasins = len(brkdo.voce2treat)
+nbasins = len(bo.voce2treat)
 
 id_in = Dataset(cf_in)
 
-vyear = id_in.variables['time'][:]   ; Nby = len(vyear) ; ittic = brkdt.iaxe_tick(Nby)
+vyear = id_in.variables['time'][:]   ; Nby = len(vyear) ; ittic = bt.iaxe_tick(Nby)
 vyear = vyear - 0.5
 vlat  = id_in.variables['lat'][:]    ; Nlat = len(vlat)
 
 for jb in range(nbasins):
 
-    cbasin = brkdo.voce2treat[jb] ; # long name of basin
+    cbasin = bo.voce2treat[jb] ; # long name of basin
     cbas   = cbasin[:3] ;           # name as in cf_in ...
     
     if jb == 0:
@@ -90,16 +91,16 @@ imask  = nmp.zeros(Nlat*Nby); imask.shape = [ Nby, Nlat ]
 
 for jb in range(nbasins):
 
-    cbasin = brkdo.voce2treat[jb]; print '\n *** Basin: '+cbasin
+    cbasin = bo.voce2treat[jb]; print '\n *** Basin: '+cbasin
 
     imask[:,:] = 0
     Lfinite = nmp.isfinite(Xheat[jb,:,:]) ; idx_good = nmp.where(Lfinite)
     imask[idx_good] = 1
             
-    [ rmin, rmax, rdf ] = brkdt.get_min_max_df(Xheat[jb,5:,:],40)
+    [ rmin, rmax, rdf ] = bt.get_min_max_df(Xheat[jb,5:,:],40)
     #print ' After get_min_max_df => rmin, rmax, rdf = ', rmin, rmax, rdf
 
-    brkdp.plot_vert_section(vyear[:], vlat[:], nmp.flipud(nmp.rot90(Xheat[jb,:,:])), nmp.flipud(nmp.rot90(imask[:,:])),
+    bp.plot("vert_section")(vyear[:], vlat[:], nmp.flipud(nmp.rot90(Xheat[jb,:,:])), nmp.flipud(nmp.rot90(imask[:,:])),
                             rmin, rmax, rdf,
                             cpal='jet', xmin=vyear[0], xmax=vyear[Nby-1], dx=ittic, lkcont=False,
                             zmin = vlat[0], zmax = vlat[Nlat-1], l_zlog=False, 
@@ -115,10 +116,10 @@ for jb in range(nbasins):
     #Lfinite = nmp.isfinite(Xsalt[jb,:,:]) ; idx_good = nmp.where(Lfinite)
     #imask[idx_good] = 1
 
-    [ rmin, rmax, rdf ] = brkdt.get_min_max_df(Xsalt[jb,5:,:],40)
+    [ rmin, rmax, rdf ] = bt.get_min_max_df(Xsalt[jb,5:,:],40)
     #print ' After get_min_max_df => rmin, rmax, rdf = ', rmin, rmax, rdf
 
-    brkdp.plot_vert_section(vyear[:], vlat[:], nmp.flipud(nmp.rot90(Xsalt[jb,:,:])), nmp.flipud(nmp.rot90(imask[:,:])),
+    bp.plot("vert_section")(vyear[:], vlat[:], nmp.flipud(nmp.rot90(Xsalt[jb,:,:])), nmp.flipud(nmp.rot90(imask[:,:])),
                             rmin, rmax, rdf,
                             cpal='jet', xmin=vyear[0], xmax=vyear[Nby-1], dx=ittic, lkcont=False,
                             zmin = vlat[0], zmax = vlat[Nlat-1], l_zlog=False, 
