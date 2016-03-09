@@ -47,7 +47,7 @@ class pal :
         if "_"+self.__class__.__name__+ "__" + self.spal in self.__class__.__dict__.keys() :
 
             #self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.spal](self,*args, **kw)
-            return self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.spal]
+            self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.spal](self)
         else :
             print "pal " + "__" + self.spal + " does not exist"
             sys.exit()
@@ -283,6 +283,8 @@ class pal :
             [ 1.0 , 1.0 , 1.0 ]  # white
             ] )
         my_cmap = __build_colormap__(M)
+        print "I am a blanc map"
+
         return my_cmap
 
 
