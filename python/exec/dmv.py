@@ -1,8 +1,22 @@
 #!/usr/bin/env python
 
+# Computes the DMV (Deep Mixed Volume) in deep-convective mixing regions of your
+# choice with the method of Brodeau et al. 2015.
+
+# The rectangular boxes (1 per region of deep convection in your model) must be
+# defined as global environment variable "FILE_DEF_BOXES"
+# => ex: data/def_boxes_convection_ORCA1.txt
+
+## Reference:
+# L. Brodeau and T. Koenigk. Extinction of the northern oceanic deep convection in
+# an ensemble of climate model simulations of the 20th and 21st centuries. Climate
+# Dynamics, Online, 2015.
+# DOI: 10.1007/s00382-015-2736-5
+
+
 # L. Brodeau 2015
 
-#####################################
+
 import sys
 import os
 import numpy as nmp
@@ -11,7 +25,7 @@ from os.path import basename
 
 import barakuda_tool as bt
 
-#####################################
+
 
 rdiv = 1000. ; # => result in 10^3 km^3   (DMV divided 4 times by rdiv)
 

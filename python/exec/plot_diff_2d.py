@@ -173,19 +173,19 @@ bp.plot("vert_section")(xlat[:,ji30W], vdepth, nmp.mean(Tnemo1[:,:,:,ji30W],axis
                         mask[:,:,ji30W], -1., 15., 0.5, cpal='mld', xmin=-70., xmax=lat_max_north,
                         cfignm='section_temp_'+ORCA+'-'+crun1, cbunit=r'$^{\circ}$C', cxunit=r'Latitude ($^{\circ}$N)',
                         czunit='Depth (m)', ctitle='Temperature, ('+cy1_1+'-'+cy2_1+'), '+ORCA+'-'+crun1+', lon = 30W',
-                        cfig_type=fig_type, lforce_lim=True, i_sub_samp=2)
+                        cfig_type=fig_type, lforce_lim=True, i_cb_subsamp=2)
 
 bp.plot("vert_section")(xlat[:,ji30W], vdepth, nmp.mean(Tnemo2[:,:,:,ji30W],axis=0),
                         mask[:,:,ji30W], -1., 15., 0.5, cpal='mld', xmin=-70., xmax=lat_max_north,
                         cfignm='section_temp_'+ORCA+'-'+crun2, cbunit=r'$^{\circ}$C', cxunit=r'Latitude ($^{\circ}$N)',
                         czunit='Depth (m)', ctitle='Temperature, ('+cy1_1+'-'+cy2_1+'), '+ORCA+'-'+crun2+', lon = 30W',
-                        cfig_type=fig_type, lforce_lim=True, i_sub_samp=2)
+                        cfig_type=fig_type, lforce_lim=True, i_cb_subsamp=2)
 
 bp.plot("vert_section")(xlat[:,ji30W], vdepth, nmp.mean(Tnemo2[:,:,:,ji30W],axis=0) - nmp.mean(Tnemo1[:,:,:,ji30W],axis=0),
                         mask[:,:,ji30W], -0.1, 0.1, 0.005, cpal='bbr2', xmin=-70., xmax=lat_max_north,
                         cfignm='section_temp_'+ORCA+'_'+crun2+'-'+crun1, cbunit=r'$^{\circ}$C', cxunit=r'Latitude ($^{\circ}$N)',
                         czunit='Depth (m)', ctitle='Temperature, ('+cy1_1+'-'+cy2_1+'), '+ORCA+' '+crun2+'-'+crun1+', lon = 30W',
-                        cfig_type=fig_type, lforce_lim=True, i_sub_samp=2)
+                        cfig_type=fig_type, lforce_lim=True, i_cb_subsamp=2)
 
 
 
@@ -197,5 +197,5 @@ bp.plot("vert_section")(xlat[:,ji30W], vdepth, nmp.mean(Snemo2[:,:,:,ji30W],axis
                         mask[:,:,ji30W], -0.02, 0.02, 0.002, cpal='bbr2', xmin=-70., xmax=lat_max_north,
                         cfignm='section_sali_'+ORCA+'_'+crun2+'-'+crun1, cbunit=r'PSU', cxunit=r'Latitude ($^{\circ}$N)',
                         czunit='Depth (m)', ctitle='Salinity, ('+cy1_1+'-'+cy2_1+'), '+ORCA+' '+crun2+'-'+crun1+', lon = 30W',
-                        cfig_type=fig_type, lforce_lim=True, i_sub_samp=1)
+                        cfig_type=fig_type, lforce_lim=True, i_cb_subsamp=1)
 

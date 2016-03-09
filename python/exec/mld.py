@@ -215,7 +215,7 @@ bp.plot("nproj")('spstere', 50., 200., 10., xlon, xlat, mldr10[imnth,:,:],
 bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 600., 20.,
               corca=ORCA, lkcont=True, cpal='sst0',
               cfignm=path_fig+'mld_Global_march_'+CONFRUN, cbunit='m',
-              ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=1,
+              ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_cb_subsamp=1,
               cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
 
 if l_obs_mld:
@@ -227,7 +227,7 @@ if l_obs_mld:
     bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], Xmld_obs[:,:], Xmask[0,:,:], 0., 600., 20.,
                   corca=ORCA, lkcont=True, cpal='sst0',
                   cfignm=path_fig+'mld_obs_001_Global_march_'+CONFRUN, cbunit='m',
-                  ctitle='MLD (obs., 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_sub_samp=1,
+                  ctitle='MLD (obs., 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_cb_subsamp=1,
                   cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
 
 
@@ -269,7 +269,7 @@ bp.plot("nproj")('spstere', 100., 2000., dz_mld, xlon, xlat, mldr10[imnth,:,:],
 bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 600., 20.,
               corca=ORCA, lkcont=True, cpal='sst0',
               cfignm=path_fig+'mld_Global_september_'+CONFRUN, cbunit='m',
-              ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=1,
+              ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_cb_subsamp=1,
               cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
 
 
@@ -277,7 +277,7 @@ if l_obs_mld:
     bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], Xmld_obs[:,:], Xmask[0,:,:], 0., 600., 20.,
                   corca=ORCA, lkcont=True, cpal='sst0',
                   cfignm=path_fig+'mld_obs_001_Global_september_'+CONFRUN, cbunit='m',
-                  ctitle='MLD (obs, 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_sub_samp=1,
+                  ctitle='MLD (obs, 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_cb_subsamp=1,
                   cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
 
 

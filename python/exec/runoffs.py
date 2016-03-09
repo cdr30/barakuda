@@ -113,14 +113,14 @@ rnf_plot[:,:] = nmp.mean(rnf[:,:,:],axis=0)
 #bp.plot_2d(xlon[0,:], xlat[:,ji_lat0], rnf_plot[:,:], Xmask[0,:,:], 0., zmax_rnf_atl, dz_rnf,
 #              corca=ORCA, lkcont=False, cpal='sst',
 #              cfignm=path_fig+'runoffs_mean_'+CONFRUN, cbunit=r'10$^{-3}$mm/day',
-#              ctitle='Mean Runoffs, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=2,
+#              ctitle='Mean Runoffs, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_cb_subsamp=2,
 #              cfig_type=fig_type, lat_min=-79., lat_max=85., lpix=True)
 
 # Without:
 bp.plot("2d")([0], [0], rnf_plot[:,:], Xmask[0,:,:], 0., zmax_rnf_atl, dz_rnf,
            corca=ORCA, lkcont=False, cpal='sst',
            cfignm=path_fig+'runoffs_mean_'+CONFRUN, cbunit=r'10$^{-3}$mm/day',
-           ctitle='Mean Runoffs, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_sub_samp=2,
+           ctitle='Mean Runoffs, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_cb_subsamp=2,
            cfig_type=fig_type, lpix=True)
 
 

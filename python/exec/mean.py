@@ -1,5 +1,10 @@
 #!/usr/bin/env python
 
+#       B a r a K u d a
+#
+#     Generate misc. time-series out of NEMO output files...
+#
+
 # Misc :
 import os
 import sys
@@ -17,7 +22,6 @@ if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(
 
 CONFRUN = os.getenv('CONFRUN')
 if CONFRUN == None: print 'The CONFRUN environement variable is no set'; sys.exit(0)
-
 
 NN_SST = os.getenv('NN_SST')
 if NN_SST == None: print 'The NN_SST environement variable is no set'; sys.exit(0)
@@ -38,10 +42,6 @@ NN_MLD = os.getenv('NN_MLD')
 if NN_MLD == None: print 'The NN_MLD environement variable is no set'; sys.exit(0)
 
 
-
-
-
-
 # Box nino 3.4:
 lon1_nino = 360. - 170.  ; # east
 lat1_nino = -5.
@@ -49,50 +49,26 @@ lon2_nino = 360. - 120.  ; # east
 lat2_nino = 5.
 
 
-
 cf_mm  = 'mesh_mask.nc'
 cv_lsm = 'tmask'
-
-
-cf_bm = 'new_maskglo.nc'
-
-
+cf_bm  = 'new_maskglo.nc'
 
 if len(sys.argv) != 3:
     print 'Usage : sys.argv[1] <ORCA1_RUN_grid_T.nc> <year>'
     sys.exit(0)
 
 cnexec = sys.argv[0]
-cf_in = sys.argv[1]
-cyear = sys.argv[2] ; jyear = int(cyear); cyear = '%4.4i'%jyear
-
-
+cf_in  = sys.argv[1]
+cyear  = sys.argv[2] ; jyear = int(cyear); cyear = '%4.4i'%jyear
 
 print 'Current year is '+cyear+' !\n'
 
-
-
-
-
-
 # Checking if the land-sea mask file is here:
-if not os.path.exists(cf_mm): print 'Mask file '+cf_mm+' not found'; sys.exit(0)
+for cf in [cf_mm, cf_bm]:
+    if not os.path.exists(cf):
+        print 'Mask file '+cf+' not found'; sys.exit(0)
 
-
-
-
-
-
-
-if not os.path.exists(cf_bm): print 'ERROR: Basin Mask file '+cf_bm+' not found!!!'; sys.exit(0)
-
-
-
-
-
-
-
-
+# Reading the grid metrics:
 id_mm = Dataset(cf_mm)
 list_variables = id_mm.variables.keys()
 rmask  = id_mm.variables['tmask'][0,:,:,:]
@@ -111,21 +87,14 @@ id_mm.close()
 
 [ nk, nj, ni ] = rmask.shape
 
-Xe1t = nmp.zeros(nk*nj*ni) ; Xe1t.shape = [ nk, nj, ni ]
-Xe2t = nmp.zeros(nk*nj*ni) ; Xe2t.shape = [ nk, nj, ni ]
+Xe1t = nmp.zeros((nk, nj, ni))
+Xe2t = nmp.zeros((nk, nj, ni))
 
 for jk in range(nk):
     Xe1t[jk,:,:] = re1t[:,:]
     Xe2t[jk,:,:] = re2t[:,:]
 
 del re1t, re2t
-
-#print 'Shape of mask is ', rmask.shape
-#print 'Shape of e1t is  ', Xe1t.shape
-#print 'Shape of e2t is  ', Xe2t.shape
-#print 'Shape of e3t is  ', Xe3t.shape, '\n'
-
-
     
 print 'Opening different basin masks in file '+cf_bm
 id_bm = Dataset(cf_bm)
@@ -134,7 +103,7 @@ mask_pac = id_bm.variables['tmaskpac'][:,:]
 mask_ind = id_bm.variables['tmaskind'][:,:]    
 id_bm.close()
 
-mask = nmp.zeros(4*nk*nj*ni) ; mask.shape = [4,nk,nj,ni]
+mask = nmp.zeros((4,nk,nj,ni))
 
 mask[0,:,:,:] = rmask[:,:,:] ; # global
 for jk in range(nk):
@@ -142,19 +111,6 @@ for jk in range(nk):
     mask[2,jk,:,:] = mask_pac[:,:]*rmask[jk,:,:]
     mask[3,jk,:,:] = mask_ind[:,:]*rmask[jk,:,:]
 del rmask, mask_atl, mask_pac, mask_ind
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -190,7 +146,7 @@ if l_mld:
     for jt in range(nt): vtime[jt] = float(jyear) + (float(jt)+0.5)*1./12.
     print ' * Montly calendar: ', vtime[:], '\n'
 
-    mask2d = nmp.zeros(nj*ni) ; mask2d.shape = [nj,ni]
+    mask2d = nmp.zeros((nj,ni))
     
 
     # Reading boxes definitions into barakuda_orca.py:
@@ -210,7 +166,6 @@ if l_mld:
         while [ i1, i2, j1, j2 ] != vold and itt < 10 :
             itt = itt+1
             vold = [ i1, i2, j1, j2 ]
-            #print '  => itt # ', itt
             if rx1 > -900.: i1 = bt.find_index_from_value( rx1, rlon[j1,:] )
             if rx2 > -900.: i2 = bt.find_index_from_value( rx2, rlon[j2,:] )
             if ry1 > -900.: j1 = bt.find_index_from_value( ry1, rlat[:,i1] )
@@ -253,16 +208,6 @@ if l_mld:
                 v01[jrw] = Vts[jt]
         f_out.close()
         print cf_out+' written!'
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -449,7 +394,6 @@ for cvar in [ NN_T , NN_S ]:
 
 
     if jvar == 0:
-        # print 'vdepth = ', vdepth[:]
         j100m  = bt.find_index_from_value(100.  , vdepth) ; print 'j100m  = ', j100m,  '=> ', vdepth[j100m]
         j1000m = bt.find_index_from_value(1000. , vdepth) ; print 'j1000m = ', j1000m, '=> ', vdepth[j1000m]
 
@@ -467,7 +411,7 @@ for cvar in [ NN_T , NN_S ]:
 
 
     # Annual mean array for current year:
-    Xd_y = nmp.zeros(nk*nj*ni) ; Xd_y.shape = [ 1, nk, nj, ni ]
+    Xd_y = nmp.zeros((1, nk, nj, ni))
     
     Xd_y[0,:,:,:] = nmp.mean(Xd_m, axis=0)
 
@@ -489,22 +433,7 @@ for cvar in [ NN_T , NN_S ]:
         Vts_0_100 = bo.mean_3d(Xd_m[:,:j100m,:,:], mask[joce,:j100m,:,:], Xe1t[:j100m,:,:], Xe2t[:j100m,:,:], Xe3t[:j100m,:,:])
         Vts_100_1000 = bo.mean_3d(Xd_m[:,j100m:j1000m,:,:], mask[joce,j100m:j1000m,:,:], Xe1t[j100m:j1000m,:,:], Xe2t[j100m:j1000m,:,:], Xe3t[j100m:j1000m,:,:])
         Vts_1000_bot = bo.mean_3d(Xd_m[:,j1000m:,:,:], mask[joce,j1000m:,:,:], Xe1t[j1000m:,:,:], Xe2t[j1000m:,:,:], Xe3t[j1000m:,:,:])
-
-        # Writing in ascii files:
-
-        #f.write('#      Year       All depth        0-100m        100-1000m     1000m-bootom\n')
-        #for jt in range(nt):
-        #    f.write('%13.6f'%vtime[jt])
-        #    f.write('  '+'%13.6f'%round(Vts_tot[jt],6))
-        #    f.write('  '+'%13.6f'%round(Vts_0_100[jt],6))
-        #    f.write('  '+'%13.6f'%round(Vts_100_1000[jt],6))
-        #    f.write('  '+'%13.6f'%round(Vts_1000_bot[jt],6))
-        #    f.write('\n')
-        #    #
-        #f.close()
-        #print cf_out+' written!'
         
-        # NETCDF:
         cf_out = DIAG_D+'/3d_'+cvar+'_'+CONFRUN+'_'+cocean+'.nc'
         cv1 = cvar+'_0-bottom'
         cv2 = cvar+'_0-100'
@@ -629,14 +558,6 @@ for cvar in [ NN_T , NN_S ]:
 
     jvar = jvar + 1
     print '\n'
-
-
-
-
-
-
-
-
 
 
 

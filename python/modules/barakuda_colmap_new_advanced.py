@@ -283,8 +283,6 @@ class pal :
             [ 1.0 , 1.0 , 1.0 ]  # white
             ] )
         my_cmap = __build_colormap__(M)
-        print "I am a blanc map"
-
         return my_cmap
 
 

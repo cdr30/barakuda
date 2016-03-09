@@ -22,7 +22,7 @@ import matplotlib.colors as colors
 
 from math import trunc
 
-import barakuda_orca as brkdo
+import barakuda_orca as bo
 
 
 # For time-series:
@@ -64,7 +64,7 @@ class plot :
     plot("vert_section")(VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
         xmin=-80., xmax=85., dx=5, cfignm='fig', cbunit='', cxunit=' ',
         zmin = 0., zmax = 5000., l_zlog=False, cfig_type='png',
-        czunit=' ', ctitle=' ', lforce_lim=False, i_sub_samp=1, l_z_increase=False )
+        czunit=' ', ctitle=' ', lforce_lim=False, i_cb_subsamp=1, l_z_increase=False )
 
     The reason to prefix all the function with double underscore __ is that all these function become private members of
     the plot class and they can not be accessed directly outside of the class. That is, you need to call these functios through the call wrapper
@@ -95,10 +95,9 @@ class plot :
     def __vert_section(self,VX, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
                        xmin=-80., xmax=85., dx=5, cfignm='fig', cbunit='', cxunit=' ',
                        zmin = 0., zmax = 5000., l_zlog=False, cfig_type='png',
-                       czunit=' ', ctitle=' ', lforce_lim=False, i_sub_samp=1, l_z_increase=False ):
+                       czunit=' ', ctitle=' ', lforce_lim=False, i_cb_subsamp=1, l_z_increase=False ):
         import math
-        import barakuda_colmap
-
+        import barakuda_colmap as bcm
 
         font_ttl, font_ylb, font_clb = __font_unity__()
 
@@ -117,11 +116,12 @@ class plot :
         XF = nmp.ma.masked_where(XMSK == 0, XF)
 
         fig = plt.figure(num = 1, figsize=(WDTH_TS,5.), dpi=None, facecolor='w', edgecolor='k')
-        ax = plt.axes([0.08, 0.12, 1., 0.82], axisbg = 'gray')
-        vc = __vcontour__(rmin, rmax, dc); #print 'plot_vert_section: contours =>\n', vc, '\n'
+        ax = plt.axes([0.08, 0.12, 0.98, 0.82], axisbg = 'gray')
+        #AXES_TS     = [0.1, 0.082, 0.87, 0.84] #lolo
+        vc = __vcontour__(rmin, rmax, dc)
 
-        # Palette:
-        palette = barakuda_colmap.chose_palette(cpal)
+        # Palette: chose_palette
+        palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
 
         cf = plt.contourf(VX, zVZ, XF, vc, cmap = palette, norm = pal_norm)
@@ -130,13 +130,11 @@ class plot :
 
         # Colorbar
         clb = plt.colorbar(cf, ticks=vc); clb.set_label('('+cbunit+')', **font_clb)
-        if i_sub_samp > 1: __subsample_colorbar__(i_sub_samp, vc, clb)
+        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
         for t in clb.ax.get_yticklabels(): t.set_fontsize(10)
 
         # X-axis:
-        plt.xticks( nmp.arange(xmin, xmax+dx, dx) )
-        ax.set_xlim(xmin,xmax)
-        plt.xlabel(cxunit, **font_ylb);
+        __nice_x_axis__(xmin, xmax, dx, ax, plt, cunit=cxunit, cfont=font_ylb)
 
         # Y-axis:
         plt.ylabel(czunit, **font_ylb)
@@ -151,9 +149,6 @@ class plot :
         else:
             ax.set_ylim(zmax+(zmax-zmin)/50. , zmin)
 
-        # Prevents from using scientific notations in axess ticks numbering:
-        ax.get_xaxis().get_major_formatter().set_useOffset(False)
-
         plt.title(ctitle, **font_ttl)
         plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_TS, orientation='portrait', transparent=False)
         print cfignm+'.'+cfig_type+' created!\n'
@@ -163,7 +158,7 @@ class plot :
 
 
     def __2d(self,VX, VY, XF, XMSK, rmin, rmax, dc, corca='ORCA1', lkcont=True, cpal='jet',
-             cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False, i_sub_samp=1,
+             cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False, i_cb_subsamp=1,
              cfig_type='pdf', lat_min=-75., lat_max=75., lpix=False, vcont_spec = []):
 
         #
@@ -172,8 +167,8 @@ class plot :
         # if VX = [0] and VY = [0] => ignoring lon and lat...
 
 
-        import barakuda_tool  as brkdt
-        import barakuda_colmap as brkdcm
+        import barakuda_tool   as bt
+        import barakuda_colmap as bcm
 
 
         font_ttl, font_ylb, font_clb = __font_unity__()
@@ -188,18 +183,18 @@ class plot :
         XFtmp[:,:] = XF[:,:]
 
         # First drowning the field:
-        brkdt.drown(XFtmp, XMSK, k_ew=2, nb_max_inc=20, nb_smooth=10)
+        bt.drown(XFtmp, XMSK, k_ew=2, nb_max_inc=20, nb_smooth=10)
 
         rlon_ext = 32.
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XFtmp)
 
         if i_lat_lon == 1:
-            VX0 = brkdo.lon_reorg_orca(VX,  corca, rlon_ext)
+            VX0 = bo.lon_reorg_orca(VX,  corca, rlon_ext)
             iwa   = nmp.where(VX0 < 0.) ; VX0[iwa] = VX0[iwa] + 360.
 
-        XMSK0 = brkdo.lon_reorg_orca(XMSK,corca, rlon_ext)
-        XF0   = brkdo.lon_reorg_orca(XFtmp,  corca, rlon_ext)
+        XMSK0 = bo.lon_reorg_orca(XMSK,corca, rlon_ext)
+        XF0   = bo.lon_reorg_orca(XFtmp,  corca, rlon_ext)
 
 
         # Masking continents: => done later a cleaner way...
@@ -220,7 +215,7 @@ class plot :
         vc = __vcontour__(rmin, rmax, dc); #print vc, '\n'
 
         # Palette:
-        palette = brkdcm.chose_palette(cpal)
+        palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
 
 
@@ -271,13 +266,13 @@ class plot :
         XF0 = nmp.ma.masked_where(XMSK0[:,:] > 0.5, XF0)
         XF0[idx_land] = 1000.
         if i_lat_lon == 1:
-            cf0 = plt.pcolor(VX0, VY, XF0, cmap = brkdcm.chose_palette('mask'))
+            cf0 = plt.pcolor(VX0, VY, XF0, cmap = bcm.chose_palette("mask"))
         else:
-            cf0 = plt.pcolor(XF0, cmap = brkdcm.chose_palette('mask'))
+            cf0 = plt.pcolor(XF0, cmap = bcm.chose_palette("mask"))
 
         # Colorbar:
         clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont); clb.set_label('('+cbunit+')', **font_clb)
-        if i_sub_samp > 1: __subsample_colorbar__(i_sub_samp, vc, clb)
+        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
         ifsize = 14
         if i_lat_lon == 1: ifsize = int(10*vert_rat); ifsize=max(ifsize,6)
         for t in clb.ax.get_yticklabels(): t.set_fontsize(ifsize)
@@ -307,12 +302,12 @@ class plot :
 
     def __2d_reg(self,VX, VY, XF, XMSK, rmin, rmax, dc, lkcont=False, cpal='jet',
                     cfignm='fig', cfig_type='pdf', cbunit=' ', ctitle='',
-                    cb_orient='vertical', lat_min=-77., lat_max=77., i_colorbar_jump=1,
+                    cb_orient='vertical', lat_min=-77., lat_max=77., i_cb_subsamp=1,
                     lpix=False, l_continent_pixel=True, colorbar_fs=14):
 
 
-        import barakuda_tool   as brkdt
-        import barakuda_colmap as brkdcm
+        import barakuda_tool   as bt
+        import barakuda_colmap as bcm
 
         font_ttl, font_ylb, font_clb = __font_unity__()
 
@@ -323,15 +318,15 @@ class plot :
         XFtmp[:,:] = XF[:,:]
 
         # First drowning the field:
-        brkdt.drown(XFtmp, XMSK, k_ew=0, nb_max_inc=20, nb_smooth=10)
+        bt.drown(XFtmp, XMSK, k_ew=0, nb_max_inc=20, nb_smooth=10)
 
 
         iskp = 28 ; iext = 32
 
         # Extending / longitude:
-        VXe   = brkdt.extend_domain(VX,    iext, skp_west_deg=iskp) ; nxe = len(VXe)
-        XFe   = brkdt.extend_domain(XFtmp, iext, skp_west_deg=iskp)
-        XMSKe = brkdt.extend_domain(XMSK,  iext, skp_west_deg=iskp)
+        VXe   = bt.extend_domain(VX,    iext, skp_west_deg=iskp) ; nxe = len(VXe)
+        XFe   = bt.extend_domain(XFtmp, iext, skp_west_deg=iskp)
+        XMSKe = bt.extend_domain(XMSK,  iext, skp_west_deg=iskp)
 
 
 
@@ -356,7 +351,7 @@ class plot :
         vc = __vcontour__(rmin, rmax, dc)
 
         # Palette:
-        #palette = brkdcm.chose_palette(cpal)
+        #palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
         mpl.rcParams['contour.negative_linestyle'] = 'solid'
         plt.contour.negative_linestyle='solid'
@@ -384,12 +379,12 @@ class plot :
             idx_land = nmp.where(XMSKe[:,:] < 0.5)
             XFe = nmp.ma.masked_where(XMSKe[:,:] > 0.5, XFe)
             XFe[idx_land] = 1000.
-            cf0 = plt.pcolor(VXe, VY, XFe, cmap = brkdcm.chose_palette('mask'))
+            cf0 = plt.pcolor(VXe, VY, XFe, cmap = bcm.chose_palette("mask"))
             #plt.contour(VXe, VY, XMSKe, [ 0.5 ], colors='k', linewidths = 1.)
         else:
             #print 'poo'
             # Masking with contour rather than pixel:
-            cf0 = plt.contourf(VXe, VY, XMSKe, [ 0., 0.1 ], cmap = brkdcm.chose_palette('mask'))
+            cf0 = plt.contourf(VXe, VY, XMSKe, [ 0., 0.1 ], cmap = bcm.chose_palette("mask"))
             # for c in cf0.collections: c.set_zorder(0.95)
             plt.contour(VXe, VY, XMSKe, [ 0.25 ], colors='k', linewidths = 1.)
 
@@ -399,7 +394,7 @@ class plot :
             clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont, orientation='horizontal', pad=0.07, shrink=1., aspect=40)
         else:
             clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont, pad=0.03)
-        if i_colorbar_jump > 1: __subsample_colorbar__(i_colorbar_jump, vc, clb, cb_or=cb_orient)
+        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb, cb_or=cb_orient)
         if cb_orient == 'horizontal':
             for t in clb.ax.get_xticklabels(): t.set_fontsize(colorbar_fs) # Font size for colorbar ticks!
         else:
@@ -434,11 +429,10 @@ class plot :
 
     def __2d_box(self,XF, XMSK, rmin, rmax, dc, lkcont=True,
                  cpal='jet', cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False,
-                 i_sub_samp=1, cfig_type='pdf', lcontours=True,
+                 i_cb_subsamp=1, cfig_type='pdf', lcontours=True,
                  x_offset=0., y_offset=0., vcont_spec = [], lcont_mask=False):
 
-        import numpy as nmp
-        import barakuda_colmap
+        import barakuda_colmap as bcm
 
 
 
@@ -467,7 +461,7 @@ class plot :
         vc = __vcontour__(rmin, rmax, dc); #print vc, '\n'
 
         # Palette:
-        palette = barakuda_colmap.chose_palette(cpal)
+        palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
 
         plt.hold(True)
@@ -502,7 +496,7 @@ class plot :
 
         # Colorbar:
         clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont); clb.set_label('('+cbunit+')', **font_clb)
-        if i_sub_samp > 1: __subsample_colorbar__(i_sub_samp, vc, clb)
+        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
 
         if x_offset > 0 or y_offset > 0 :  __add_xy_offset__(x_offset, y_offset, plt)
 
@@ -553,9 +547,7 @@ class plot :
         plt.legend(bbox_to_anchor=(0.63, 0.75), shadow=False, fancybox=True)
 
         # X-axis
-        plt.xticks( nmp.arange(xmin, xmax+15., 15.) )
-        ax.set_xlim(xmin,xmax)
-        plt.xlabel(cxunit)
+        __nice_x_axis__(xmin, xmax, 15., ax, plt, cunit=cxunit)
 
         # Y-axis:
         iia = 1
@@ -571,7 +563,7 @@ class plot :
         plt.title(ctitle, **font_ttl)
 
         # Prevents from using scientific notations in axess ticks numbering:
-        ax.get_xaxis().get_major_formatter().set_useOffset(False)
+        #lolo: ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
         plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
 
@@ -588,7 +580,7 @@ class plot :
     def __nproj(self,czone, rmin, rmax, dc, xlon, xlat, XF,
                    cfignm='fig', lkcont=False, cpal='jet', cbunit=' ',
                    cfig_type='pdf', ctitle=' ', lforce_lim=False,
-                   cb_orient='vertical', i_colorbar_jump=1, dpi_fig=140, lpcont=True):
+                   cb_orient='vertical', i_cb_subsamp=1, dpi_fig=140, lpcont=True):
 
         # Plot projection with basemap...
 
@@ -605,7 +597,7 @@ class plot :
 
         from mpl_toolkits.basemap import Basemap
         from mpl_toolkits.basemap import shiftgrid
-        import barakuda_colmap
+        import barakuda_colmap as bcm
 
         font_ttl, font_ylb, font_clb = __font_unity__()
 
@@ -664,7 +656,7 @@ class plot :
 
 
         ## Palette:
-        palette = barakuda_colmap.chose_palette(cpal)
+        palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
         mpl.rcParams['contour.negative_linestyle'] = 'solid'; plt.contour.negative_linestyle='solid'
 
@@ -736,7 +728,7 @@ class plot :
         else:
             clb = plt.colorbar(cf, ticks=vc, drawedges=(lkcont and lpcont))
             for t in clb.ax.get_yticklabels(): t.set_fontsize(12)
-        if i_colorbar_jump > 1: __subsample_colorbar__(i_colorbar_jump, vc, clb, cb_or=cb_orient)
+        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb, cb_or=cb_orient)
         clb.set_label('('+cbunit+')', **font_clb)
 
         plt.savefig(cfignm+'.'+cfig_type, dpi=dpi_fig, orientation='portrait', transparent=False) ; #, transparent=True, acecolor='w', edgecolor='w',trans
@@ -810,7 +802,7 @@ class plot :
 
         import math
         import matplotlib.colors as colors   # palette and co.
-        import barakuda_colmap
+        import barakuda_colmap as bcm
 
 
         zVZ = nmp.zeros(len(VZ)) ; zVZ.shape = [ len(VZ) ]
@@ -834,7 +826,7 @@ class plot :
         vc = __vcontour__(rmin, rmax, dc); #print 'plot_amoc_lat_depth: contours =>\n', vc, '\n'
 
         # Colormap:
-        palette = barakuda_colmap.chose_palette(cpal)
+        palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
 
         # Plot:
@@ -874,14 +866,13 @@ class plot :
 
     def __2d_box_2f(self,XF1, XF2, XMSK, rmin, rmax, dc, vcont_spec2, corca='ORCA1', lkcont=True,
                     cpal='jet', cfignm='fig', cbunit='', ctitle=' ', lforce_lim=False,
-                    i_sub_samp=1, cfig_type='pdf', lcontours=True,
+                    i_cb_subsamp=1, cfig_type='pdf', lcontours=True,
                     x_offset=0., y_offset=0., vcont_spec1 = []):
 
         # Take 2 fields as imput and shows contours of second field (vcont_spec2) on top of field 1
 
-        import numpy as nmp
         import matplotlib.colors as colors   # palette and co.
-        import barakuda_colmap
+        import barakuda_colmap as bcm
 
 
         if nmp.shape(XF1) != nmp.shape(XF2):
@@ -916,7 +907,7 @@ class plot :
         vc = __vcontour__(rmin, rmax, dc); #print vc, '\n'
 
         # Palette:
-        palette = barakuda_colmap.chose_palette(cpal)
+        palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
 
         plt.hold(True)
@@ -953,7 +944,7 @@ class plot :
 
         # Colorbar:
         clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont); clb.set_label('('+cbunit+')', **font_clb)
-        if i_sub_samp > 1: __subsample_colorbar__(i_sub_samp, vc, clb)
+        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
 
         if x_offset > 0 or y_offset > 0 :  __add_xy_offset__(x_offset, y_offset, plt)
 
@@ -976,21 +967,21 @@ class plot :
 
 
     def __trsp_sig_class(self,VT, vsigma_bounds, XF, rmin, rmax, dc, dsig,
-                            lkcont=True, cpal='sigtr', dt_year=5., cfignm='fig',
-                            cfig_type='pdf', ctitle='', lforce_lim=False, vcont_spec1 = [],
-                            i_colorbar_jump=2):
+                         lkcont=True, cpal='sigtr', dt_year=5., cfignm='fig',
+                         cfig_type='pdf', ctitle='', lforce_lim=False, vcont_spec1 = [],
+                         i_cb_subsamp=2):
 
         # Plot transport by sigma class...
 
         import matplotlib.colors as colors   # palette and co.
-        import barakuda_colmap
+        import barakuda_colmap as bcm
 
         font_ttl, font_ylb, font_clb = __font_unity__()
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
         fig = plt.figure(num = 1, figsize=(WDTH_TS,7.2), dpi=None, facecolor='w', edgecolor='k')
-        ax = plt.axes([0.055,  -0.025, 0.93, 0.98], axisbg = 'white')
+        ax = plt.axes([0.055,  -0.025, 0.92, 0.98], axisbg = 'white')
 
 
         vc = __vcontour__(rmin, rmax, dc); #print 'plot_time_depth_hovm: contours =>\n', vc, '\n'
@@ -998,7 +989,7 @@ class plot :
         nbins = len(vsigma_bounds) - 1
 
         # Palette:
-        palette = barakuda_colmap.chose_palette(cpal)
+        palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
         mpl.rcParams['contour.negative_linestyle'] = 'solid'
         plt.contour.negative_linestyle='solid'
@@ -1016,7 +1007,7 @@ class plot :
 
         # COLOR BAR
         clb = plt.colorbar(cf, ticks=vc, drawedges=True, orientation='horizontal', pad=0.09, shrink=1., aspect=40)
-        if i_colorbar_jump > 1: __subsample_colorbar__(i_colorbar_jump, vc, clb)
+        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
         for t in clb.ax.get_xticklabels(): t.set_fontsize(12)
         font = { 'fontsize':12 }
         clb.set_label('(Sv)', **font)
@@ -1025,7 +1016,10 @@ class plot :
         # AXES:
         y1 = int(min(VT))  ; y2 = int(max(VT))+1
         plt.axis([y1, y2, vsigma_bounds[nbins], vsigma_bounds[0]])
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
+
+        __nice_x_axis__(y1, y2, dt_year, ax, plt)
+
+        # lulu
         plt.yticks( nmp.flipud(vsigma_bounds) )
 
         label_big = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':18 }
@@ -1055,7 +1049,7 @@ class plot :
 
         import math
         import matplotlib.colors as colors   # palette and co.
-        import barakuda_colmap
+        import barakuda_colmap as bcm
 
 
         zVZ = nmp.zeros(len(VZ)) ; zVZ.shape = [ len(VZ) ]
@@ -1080,7 +1074,7 @@ class plot :
         vc = __vcontour__(rmin, rmax, dc)
 
         # Palette:
-        palette = barakuda_colmap.chose_palette(cpal)
+        palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
 
         cf = plt.contourf(VX, zVZ, XF, vc, cmap = palette, norm = pal_norm)
@@ -1126,13 +1120,13 @@ class plot :
     def __time_depth_hovm(self,VT, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
                              tmin=0., tmax=100., dt=5.,
                              cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
-                             cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, i_colorbar_jump=1,
+                             cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, i_cb_subsamp=1,
                              vcont_spec1 = [], col_cont_spec1='w'):
         #************************************************************************
 
         import math
         import matplotlib.colors as colors   # palette and co.
-        import barakuda_colmap
+        import barakuda_colmap as bcm
 
 
         font_ttl, font_ylb, font_clb = __font_unity__()
@@ -1161,7 +1155,7 @@ class plot :
         vc = __vcontour__(rmin, rmax, dc); #print 'plot_time_depth_hovm: contours =>\n', vc, '\n'
 
         # Palette:
-        palette = barakuda_colmap.chose_palette(cpal)
+        palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
 
         cf = plt.contourf(VT, zVZ, XF, vc, cmap = palette, norm = pal_norm)
@@ -1177,7 +1171,7 @@ class plot :
 
         # Colorbar:
         clb = plt.colorbar(cf, ticks=vc)
-        if i_colorbar_jump > 1: __subsample_colorbar__(i_colorbar_jump, vc, clb, cb_or=cb_orient)
+        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb, cb_or=cb_orient)
         for t in clb.ax.get_yticklabels(): t.set_fontsize(13)
         if cbunit != '': clb.set_label('('+cbunit+')', **font_clb)
 
@@ -1191,7 +1185,7 @@ class plot :
             plt.yticks(locs,cny)
         plt.axis([ tmin, tmax, zmax, zmin])
 
-        plt.xticks( nmp.arange(tmin, tmax+dt, dt) )
+        __nice_x_axis__(tmin, tmax, dt, ax, plt)
 
         plt.title(ctitle, **font_ttl)
         plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
@@ -1281,8 +1275,7 @@ class plot :
         plt.plot(VT, xnino[:,3], 'k', linewidth=0.7)
         plt.axis([min(VT), max(VT), -2.5, 2.5])
 
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-
+        __nice_x_axis__(y1, y2, dt_year, ax, plt)
 
         plt.yticks( nmp.arange(-2.5,2.501,0.5) )
 
@@ -1311,7 +1304,6 @@ class plot :
                         ymin=0, ymax=0, dy=0, i_y_jump=1, mnth_col='b', plt_m03=False, plt_m09=False,
                         cfig_type='png', l_tranparent_bg=True, fig_size=FIG_SIZE_TS):
 
-        # lili
         # if you specify ymin and ymax you can also specify y increment (for y grid) as dy
         #
         # plt_m03 => plot march values on top in green
@@ -1358,14 +1350,7 @@ class plot :
                 locs, labels = plt.yticks() #lolo?
                 if i_y_jump > 1: __subsample_axis__('y', i_y_jump, plt)
 
-        #BUG?:
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-        locs, labels = plt.xticks() ; jl=0; newlabels = []
-        for ll in locs: newlabels.append(str(int(locs[jl]))); jl=jl+1
-        plt.xticks(locs,newlabels)
-        #BUG?.
-
-        #plt.xlim((y1, y2))
+        __nice_x_axis__(y1, y2, dt_year, ax, plt)
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
 
@@ -1457,12 +1442,10 @@ class plot :
         #print 'y1, y2 =', y1, y2
 
         if lzonal:
-            plt.xticks( nmp.arange(y1, y2+10, 10) )
-
+            __nice_x_axis__(y1, y2, 10., ax, plt)
         else:
-            plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-            if i_t_jump > 1: __subsample_axis__('x', i_t_jump, plt)
-            ax.set_xlim(y1, y2)
+            __nice_x_axis__(y1, y2, dt_year, ax, plt, iss=i_t_jump)
+
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
 
@@ -1531,9 +1514,7 @@ class plot :
 
         print nmp.arange(y1, y2+dt_year, dt_year)
 
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-        if i_t_jump > 1: __subsample_axis__('x', i_t_jump, plt)
-        ax.set_xlim(y1, y2)
+        __nice_x_axis__(y1, y2, dt_year, ax, plt, iss=i_t_jump)
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
 
@@ -1882,18 +1863,20 @@ def __font_unity_big__():
 
 
 def __subsample_colorbar__(iss, vcc, clb_hndl, cb_or='vertical'):
-    cb_lab = [] ; cpt = 0
+    cb_labs = []
+    cpt = 0
     for cr in vcc:
         if cpt % iss == 0:
             rr = round(float(cr),6)
-            cb_lab.append(str(rr))
+            cb_labs.append(str(rr))
         else:
-            cb_lab.append(' ')
+            cb_labs.append(' ')
         cpt = cpt + 1
     if cb_or == 'horizontal':
-        clb_hndl.ax.set_xticklabels(cb_lab)
+        clb_hndl.ax.set_xticklabels(cb_labs)
     else:
-        clb_hndl.ax.set_yticklabels(cb_lab)
+        clb_hndl.ax.set_yticklabels(cb_labs)
+    del cb_labs
 
 #        if float(int(rtck)) == round(rtck,0):
 #            cn_clb.append(str(int(rtck))) ; # we can drop the ".0"
@@ -1904,18 +1887,19 @@ def __subsample_colorbar__(iss, vcc, clb_hndl, cb_or='vertical'):
 
 def _add_xy_offset__(ixo, iyo, plt_hndl):
     if ( ixo != 0. ):
-        locs, labels = plt_hndl.xticks() ; jl=0; newlabels = []
+        locs, labels = plt_hndl.xticks() ; jl=0
+        vlabs = []
         for ll in locs:
             clab = str(int(locs[jl])+int(ixo))
-            newlabels.append(clab); jl=jl+1
-        plt_hndl.xticks(locs,newlabels)
+            vlabs.append(clab); jl=jl+1
+        plt_hndl.xticks(locs,vlabs)
     if ( y_offset != 0. ):
-        locs, labels = plt_hndl.yticks() ; jl=0; newlabels = []
+        locs, labels = plt_hndl.yticks() ; jl=0; vlabs = []
         for ll in locs:
             clab = str(int(locs[jl])+int(iyo))
-            newlabels.append(clab); jl=jl+1
-        plt_hndl.yticks(locs,newlabels)
-
+            vlabs.append(clab); jl=jl+1
+        plt_hndl.yticks(locs,vlabs)
+    del vlabs
 
 def __subsample_axis__(cax, iss, plt_hndl):
     ax_lab = []
@@ -1934,7 +1918,44 @@ def __subsample_axis__(cax, iss, plt_hndl):
         cpt = cpt + 1
     if cax == 'x': plt_hndl.xticks(locs,ax_lab)
     if cax == 'y': plt_hndl.yticks(locs,ax_lab)
-    
+    del ax_lab
+
+
+def __nice_x_axis__(x_0, x_L, dx, ax_hndl, plt_hndl, iss=1, cunit=None, cfont=None):
+    plt_hndl.xticks( nmp.arange(x_0, x_L+dx, dx) )
+    locs, labels = plt_hndl.xticks()
+    jl=0
+    xlabs = []
+    for ll in locs:
+        xlabs.append(str(int(locs[jl])))
+        jl=jl+1
+    plt_hndl.xticks(locs,xlabs)
+
+    if iss > 1: __subsample_axis__('x', iss, plt)
+
+    ax_hndl.set_xlim(x_0,x_L)
+
+    if not cunit is None:
+        if cfont is None:
+            plt_hndl.xlabel(cunit)
+        else:
+            plt_hndl.xlabel(cunit, **cfont)
+
+    # Prevents from using scientific notations in axess ticks numbering:
+    #ax_hndl.get_xaxis().get_major_formatter().set_useOffset(False)
+
+    del xlabs
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1948,5 +1969,6 @@ def __subsample_axis__(cax, iss, plt_hndl):
 #
 #    font_ttl = { 'fontname':'Bitstream Vera Sans Mono', 'fontweight':'normal', 'fontsize':14 }
 #    font_ylb = { 'fontname':'Tahoma', 'fontweight':'normal', 'fontsize':12 }
+
 
 #lolo: replace 'i_sub_samp' 'i_colorbar_jump' by 'i_colobar_tick_subsample' or something like this...
