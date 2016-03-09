@@ -42,12 +42,12 @@ class pal :
         self.spal = spal
 
 
-    def __call__(self,*args, **kw) :
+    def __call__(self) :
 
         if "_"+self.__class__.__name__+ "__" + self.spal in self.__class__.__dict__.keys() :
 
-            self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.spal](self,*args, **kw)
-
+            #self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.spal](self,*args, **kw)
+            return self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.spal]
         else :
             print "pal " + "__" + self.spal + " does not exist"
             sys.exit()
