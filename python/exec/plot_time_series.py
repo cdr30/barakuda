@@ -16,58 +16,43 @@ import barakuda_tool as bt
 
 DEFAULT_LEGEND_LOC = 'lower left'
 
-CONFRUN = os.getenv('CONFRUN')
-if CONFRUN == None: print 'The CONFRUN environement variable is no set'; sys.exit(0)
-
-DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
-
-NN_SST = os.getenv('NN_SST')
-if NN_SST == None: print 'The NN_SST environement variable is no set'; sys.exit(0)
-NN_SSS = os.getenv('NN_SSS')
-if NN_SSS == None: print 'The NN_SSS environement variable is no set'; sys.exit(0)
-NN_SSH = os.getenv('NN_SSH')
-if NN_SSH == None: print 'The NN_SSH environement variable is no set'; sys.exit(0)
-NN_T = os.getenv('NN_T')
-if NN_T == None: print 'The NN_T environement variable is no set'; sys.exit(0)
-NN_S = os.getenv('NN_S')
-if NN_S == None: print 'The NN_S environement variable is no set'; sys.exit(0)
-NN_MLD = os.getenv('NN_MLD')
-if NN_MLD == None: print 'The NN_MLD environement variable is no set'; sys.exit(0)
-
-
-
-
-
-
-
+env_var_list = {
+    'CONFRUN', 'DIAG_D', 'NN_SST', 'NN_SSS', 
+    'NN_SSH', 'NN_T', 'NN_S', 'NN_MLD'
+}
+for env_var in env_var_list:
+    if env_var is None:
+        print ('The {} environement variable is not set')
+        sys.exit(0)
 
 narg = len(sys.argv)
-if narg != 2: print 'Usage: '+sys.argv[0]+' <diag>'; sys.exit(0)
+if narg != 2:
+    print 'Usage: {} <diag>'.format(sys.argv[0]) 
+    sys.exit(0)
 cdiag = sys.argv[1]
 
-
 print '\n plot_time_series.py: diag => "'+cdiag+'"'
-
-
 
 if cdiag == 'mean_tos':
     cvar  = NN_SST
     idfig = 'simple'
     clnm  = 'Globally-averaged sea surface temperature'
-    cyu   = r'$^{\circ}$C' ; ym    = 0. ; yp = 0.
+    cyu   = r'$^{\circ}$C' 
+    ym    = yp = 0.
 
 elif cdiag == 'mean_sos':
     cvar  = NN_SSS
     idfig = 'simple'
     clnm  = 'Globally-averaged sea surface salinity'
-    cyu   = r'PSU' ;  ym = 0. ; yp = 0.
+    cyu   = r'PSU' 
+    ym = yp = 0.
 
 elif cdiag == 'mean_zos':
     cvar  = NN_SSH
     idfig = 'simple'
     clnm  = 'Globally-averaged sea surface height'
-    cyu   = r'm'    ;  ym = 0. ; yp = 0.
+    cyu   = r'm'    
+    ym = yp = 0.
 
 
 elif  cdiag == '3d_thetao':
@@ -78,7 +63,7 @@ elif  cdiag == '3d_thetao':
     #ym = 3.6 ; yp = 4.
     ym = 0. ; yp = 0.
     #ym0  = 1.5 ; yp0 = 20.
-    ym0  = 0. ; yp0 = 0.
+    ym0  = yp0 = 0.
 
 elif cdiag == '3d_so':
     cvar  = NN_S
@@ -87,27 +72,33 @@ elif cdiag == '3d_so':
     cyu  = r'PSU'
     #ym  = 34.6 ; yp  = 35.
     #ym0 = 34.6 ; yp0 = 35.
-    ym  = 0. ; yp  = 0.
-    ym0 = 0. ; yp0 = 0.
+    ym  = yp  = 0.
+    ym0 = yp0 = 0.
 
 elif cdiag == 'amoc':
     LMOCLAT = os.getenv('LMOCLAT')
-    if LMOCLAT == None: print 'The LMOCLAT environement variable is no set'; sys.exit(0)
+    if LMOCLAT is None: 
+        print 'The LMOCLAT environement variable is no set' 
+        sys.exit(0)
     idfig = 'amoc'
     cyu  = r'Sv'
-    ym = 3.5 ; yp = 24.5
+    ym = 3.5 
+    yp = 24.5
 
 elif cdiag == 'mean_mldr10_1':
     cvar  = NN_MLD
     idfig = 'mld'
     clnm   = 'Mean mixed-layer depth, '
-    cyu    = r'm' ;  ym = 0. ; yp = 0.
+    cyu    = r'm'  y
+    m = yp = 0.
 
 
 elif cdiag == 'transport_sections':
     idfig = 'transport'
     TRANSPORT_SECTION_FILE = os.getenv('TRANSPORT_SECTION_FILE')
-    if TRANSPORT_SECTION_FILE == None: print 'The TRANSPORT_SECTION_FILE environement variable is no set'; sys.exit(0)
+    if TRANSPORT_SECTION_FILE is None: 
+        print 'The TRANSPORT_SECTION_FILE environement variable is no set' 
+        sys.exit(0)
     print '  Using TRANSPORT_SECTION_FILE = '+TRANSPORT_SECTION_FILE
     list_sections = bo.get_sections_names_from_file(TRANSPORT_SECTION_FILE)
     print 'List of sections to treat: ', list_sections
@@ -143,7 +134,9 @@ if idfig == 'simple':
     vvar  = id_in.variables[cvar][:]
     id_in.close()
 
-    if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cvar+', numberof records not a multiple of 12!', sys.exit(0)
+    if nbm%12 != 0: 
+        print 'ERROR: plot_time_series.py => '+cvar+', numberof records not a multiple of 12!'
+        sys.exit(0)
 
     # Annual data
     VY, FY = bt.monthly_2_annual(vtime[:], vvar[:])
@@ -172,14 +165,16 @@ if idfig == 'ts3d':
         vtime = id_in.variables['time'][:] ; nbm = len(vtime)
         jz = 0
         for czr in vzrange:
-            if joce == 0 and jz == 0: FM = nmp.zeros(nbm*nbzrange*nb_oce); FM.shape = [ nb_oce, nbzrange, nbm ]
+            if not joce and not jz: 
+                FM = nmp.zeros(nbm*nbzrange*nb_oce)
+                FM.shape = [ nb_oce, nbzrange, nbm ]
             print '   * reading '+cvar+'_'+czr+' in '+cf_in
             FM[joce,jz,:]  = id_in.variables[cvar+'_'+czr][:]
             jz = jz + 1
         id_in.close()
 
         # Annual data:
-        if joce == 0:
+        if not joce:
             nby = nbm/12
             FY = nmp.zeros(nby*4*nb_oce) ; FY.shape = [ nb_oce, 4, nby ]
         VY, FY[joce,:,:] = bt.monthly_2_annual(vtime[:], FM[joce,:,:])
@@ -224,7 +219,7 @@ if idfig == 'amoc':
         [ c1, c2 ] = clr.split('-') ; clat_info = '+'+c1+'N+'+c2+'N'
         cf_in = 'max_moc_atl_'+clat_info+'.nc' ; bt.chck4f(cf_in, script_name='plot_time_series.py')
         id_in = Dataset(cf_in)
-        if jl == 0:
+        if not jl:
             vtime = id_in.variables['time'][:] ; nbm = len(vtime)
             vlabels = nmp.zeros(nblat, dtype = nmp.dtype('a8'))
             Xamoc   = nmp.zeros(nbm*(nblat)) ; Xamoc.shape = [ nblat , nbm ]
@@ -234,7 +229,9 @@ if idfig == 'amoc':
 
         jl = jl + 1
 
-    if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!', sys.exit(0)
+    if nbm%12 != 0: 
+        print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!' 
+        sys.exit(0)
     VY, FY = bt.monthly_2_annual(vtime, Xamoc[i45,:])
 
     ittic = bt.iaxe_tick(nbm/12)
@@ -273,7 +270,9 @@ if idfig == 'ice':
     cyua = r'10$^6$km$^2$'
     cyuv = r'10$^3$km$^3$'
 
-    if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!', sys.exit(0)
+    if nbm%12 != 0: 
+        print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!'
+        sys.exit(0)
     nby = nbm/12
 
     ittic = bt.iaxe_tick(nby)
@@ -317,7 +316,9 @@ if idfig == 'transport':
 
         cf_in = 'transport_sect_'+csec+'.nc' ;   bt.chck4f(cf_in, script_name='plot_time_series.py')
         id_in = Dataset(cf_in)
-        if js == 0: vtime = id_in.variables['time'][:] ; nbm = len(vtime)
+        if js == 0: 
+            vtime = id_in.variables['time'][:] 
+            nbm = len(vtime)
         Xtrsp   = nmp.zeros(nbm*3) ; Xtrsp.shape = [ 3 , nbm ] ; # time + 3 types of transport
         Xtrsp[0,:] = id_in.variables['trsp_volu'][:]
         Xtrsp[1,:] = id_in.variables['trsp_heat'][:]
@@ -354,7 +355,9 @@ if idfig == 'mld':
             print ' Opening '+cf_in_m
             vt0, vd0 = bn.read_1d_series(cf_in_m, cvar, cv_t='time', l_return_time=True)
             nbm = len(vt0)
-            if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cvar+', number of records not a multiple of 12!', sys.exit(0)
+            if nbm%12 != 0: 
+                print 'ERROR: plot_time_series.py => '+cvar+', number of records not a multiple of 12!'
+                sys.exit(0)
             VY, FY = bt.monthly_2_annual(vt0, vd0)
             ittic = bt.iaxe_tick(nbm/12)
             bp.plot("1d_mon_ann")(vt0, VY, vd0, FY, cfignm=cdiag+'_'+CONFRUN+'_'+cbox, dt_year=ittic, cyunit=cyu,
