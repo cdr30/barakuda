@@ -8,45 +8,18 @@ import numpy as nmp
 
 from netCDF4 import Dataset
 
+import barakuda_tool as bt
 import barakuda_ncio as bn
 import barakuda_orca as bo
 import barakuda_plot as bp
-import barakuda_tool as bt
-
 
 DEFAULT_LEGEND_LOC = 'lower left'
 
-#env_var_list = {
-#    'CONFRUN', 'DIAG_D', 'NN_SST', 'NN_SSS',
-#    'NN_SSH', 'NN_T', 'NN_S', 'NN_MLD'
-#    }
-#for cev in env_var_list:
-#    env_var = os.getenv('+cev+')
-#    if env_var is None:
-#        print ('The {} environement variable is not set')
-#        sys.exit(0)
+venv_needed = {'ORCA','RUN','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD','LMOCLAT','TRANSPORT_SECTION_FILE'}
 
-CONFRUN = os.getenv('CONFRUN')
-if CONFRUN == None: print 'The CONFRUN environement variable is no set'; sys.exit(0)
+vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
-DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
-
-NN_SST = os.getenv('NN_SST')
-if NN_SST == None: print 'The NN_SST environement variable is no set'; sys.exit(0)
-NN_SSS = os.getenv('NN_SSS')
-if NN_SSS == None: print 'The NN_SSS environement variable is no set'; sys.exit(0)
-NN_SSH = os.getenv('NN_SSH')
-if NN_SSH == None: print 'The NN_SSH environement variable is no set'; sys.exit(0)
-NN_T = os.getenv('NN_T')
-if NN_T == None: print 'The NN_T environement variable is no set'; sys.exit(0)
-NN_S = os.getenv('NN_S')
-if NN_S == None: print 'The NN_S environement variable is no set'; sys.exit(0)
-NN_MLD = os.getenv('NN_MLD')
-if NN_MLD == None: print 'The NN_MLD environement variable is no set'; sys.exit(0)
-
-
-
+CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 
 narg = len(sys.argv)
 if narg != 2:
@@ -57,21 +30,21 @@ cdiag = sys.argv[1]
 print '\n plot_time_series.py: diag => "'+cdiag+'"'
 
 if cdiag == 'mean_tos':
-    cvar  = NN_SST
+    cvar  = vdic['NN_SST']
     idfig = 'simple'
     clnm  = 'Globally-averaged sea surface temperature'
     cyu   = r'$^{\circ}$C'
     ym    = yp = 0.
 
 elif cdiag == 'mean_sos':
-    cvar  = NN_SSS
+    cvar  = vdic['NN_SSS']
     idfig = 'simple'
     clnm  = 'Globally-averaged sea surface salinity'
     cyu   = r'PSU'
     ym = yp = 0.
 
 elif cdiag == 'mean_zos':
-    cvar  = NN_SSH
+    cvar  = vdic['NN_SSH']
     idfig = 'simple'
     clnm  = 'Globally-averaged sea surface height'
     cyu   = r'm'
@@ -79,7 +52,7 @@ elif cdiag == 'mean_zos':
 
 
 elif  cdiag == '3d_thetao':
-    cvar  = NN_T
+    cvar  = vdic['NN_T']
     idfig = 'ts3d'
     clnm = 'Globally-averaged temperature'
     cyu  = r'$^{\circ}$C'
@@ -89,7 +62,7 @@ elif  cdiag == '3d_thetao':
     ym0  = yp0 = 0.
 
 elif cdiag == '3d_so':
-    cvar  = NN_S
+    cvar  = vdic['NN_S']
     idfig = 'ts3d'
     clnm = 'Globally-averaged salinity'
     cyu  = r'PSU'
@@ -99,17 +72,13 @@ elif cdiag == '3d_so':
     ym0 = yp0 = 0.
 
 elif cdiag == 'amoc':
-    LMOCLAT = os.getenv('LMOCLAT')
-    if LMOCLAT is None:
-        print 'The LMOCLAT environement variable is no set'
-        sys.exit(0)
     idfig = 'amoc'
     cyu  = r'Sv'
     ym = 3.5
     yp = 24.5
 
 elif cdiag == 'mean_mldr10_1':
-    cvar  = NN_MLD
+    cvar  = vdic['NN_MLD']
     idfig = 'mld'
     clnm  = 'Mean mixed-layer depth, '
     cyu   = r'm'
@@ -118,12 +87,8 @@ elif cdiag == 'mean_mldr10_1':
 
 elif cdiag == 'transport_sections':
     idfig = 'transport'
-    TRANSPORT_SECTION_FILE = os.getenv('TRANSPORT_SECTION_FILE')
-    if TRANSPORT_SECTION_FILE is None:
-        print 'The TRANSPORT_SECTION_FILE environement variable is no set'
-        sys.exit(0)
-    print '  Using TRANSPORT_SECTION_FILE = '+TRANSPORT_SECTION_FILE
-    list_sections = bo.get_sections_names_from_file(TRANSPORT_SECTION_FILE)
+    print '  Using TRANSPORT_SECTION_FILE = '+vdic['TRANSPORT_SECTION_FILE']
+    list_sections = bo.get_sections_names_from_file(vdic['TRANSPORT_SECTION_FILE'])
     print 'List of sections to treat: ', list_sections
 
 
@@ -231,8 +196,8 @@ if idfig == 'ts3d':
 ##########################################
 
 if idfig == 'amoc':
-
-    list_lat = LMOCLAT.split() ; nblat = len(list_lat)
+    clmoc = vdic['LMOCLAT']
+    list_lat = clmoc.split() ; nblat = len(list_lat)
     print '\n AMOC: '+str(nblat)+' latitude bands!'
 
     i45 = 3 ; # position of AMOC at 45!
