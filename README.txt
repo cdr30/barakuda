@@ -1,8 +1,10 @@
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   Quick getting-started guide to BaraKuda
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-
-What do you need on your machine to use barakuda ?
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+I / What do you need to be able to use BaraKuda ?
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - A Fortan 90 compiler
 
@@ -12,14 +14,14 @@ What do you need on your machine to use barakuda ?
 
 - For time-series and 2D plots, the following up-to-date packages:
   => python-netcdf4 (from netCDF4 import Dataset) and Matplotlib
-  => for map projections you'll also need basemap
+  => for map projections you'll also need the Basemap package
   
   A good idea is to install a shiny python distribution, something like Canopy:
   => https://www.enthought.com/products/canopy/
 
 - NEMO output data! => A directory containing the monthly NEMO output to analyze
                (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"
-     => alternatively it's a good idea to save the SBC files too...
+               (it might also be a good idea to save the SBC files too...)
 
 - a NEMO mesh_mask file and the the corresponding basin_mask (ocean basins).
   (variables MM_FILE and BM_FILE into your config/conf_<MYCONF>.sh file)
@@ -33,30 +35,30 @@ What do you need on your machine to use barakuda ?
 
 
 
-I / Compiling CDFTOOLS executables 
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+II / Compile CDFTOOLS executables 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- * CDFTOOLS is a set of fortran executables intended to perform a multitude of diagnostics on NEMO output file
-   and is developed by Jean-Marc Molines at LEGI in Grenoble.
-   However, this is a slightly modified light version here...
+ * CDFTOOLS is a set of fortran executables intended to perform a multitude of
+   diagnostics on NEMO output file and is developed by Jean-Marc Molines at LEGI
+   in Grenoble.  However, this is a slightly modified light version here...
 
 - move to the 'barakuda/cdftools_light' directory
 
-- configure your own 'make.macro' for your system (some templates for gfortran and intel are provided...)
+- configure your own 'make.macro' for your system (some templates for gfortran and Intel are provided...)
     => just copy or link your own "macro.your_arch" to "make.macro" !
     => F90 compiler and related netcdf library to use
 
 - compile with 'gmake'
 
-- if that was succesful the 'barakuda/bin' directory should contain the following executables
+- if that was successful the 'barakuda/bin' directory should contain the following executables
     => cdfcurl.x cdfmaxmoc.x cdfmhst.x cdfmoc.x cdfpsi.x  cdftransportiz.x  cdfzonalmean.x
        cdfhflx.x cdfmeanvar.x cdfmocatl.x cdfmoy.x cdfrmsssh.x cdfvT.x cdficediags.x  cdfmean.x
        cdfmocsig.x cdfmxl.x cdfsigtrp.x cdfw.x
 
 
 
-II / Creat and configure your own "configs/config_<MY_CONF>.sh" file
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+III / Create and configure your own "configs/config_<MY_CONF>.sh" from an existing one
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 NEMO output files must be stored in 
 <STORE_DIR>/<ORCA_GRID>/<ORCA_GRID>-<RUN>-S
@@ -75,35 +77,35 @@ F_T_CLIM_3D_12, F_S_CLIM_3D_12, SST_CLIM_12
 
 
 
-III) Create diagnostics
-~~~~~~~~~~~~~~~~~~~~~~~
+IV) Create diagnostics
+~~~~~~~~~~~~~~~~~~~~~~
 
 Launch "barakuda.sh" 
-./barakuda.sh -C <my_config> -R <RUN>
+./barakuda.sh -C <MY_CONF> -R <RUN>
 (ex: ./barakuda.sh -C ORCA1_L75_v36_triolith -R SL36C00)
 
 Use the -h switch to see available options
 
 
 
-IV) Create figures and browsable HTML page
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+V) Create figures and browsable HTML page
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A/ Once the previous job has finished to run, launch:
 
-   ./barakuda.sh -C <my_config> -R <RUN> -e
+   ./barakuda.sh -C <MY_CONF> -R <RUN> -e
    (ex: ./barakuda.sh -C ORCA1_L75_v36_triolith -R SL36C00 -e)
 
 B/ If you want to perform the "climatology" plots (maps, sections, etc, based on a
-   montly climatology of a few years) you will have to:
+   monthly climatology of a few years) you will have to:
 
    i) create the climatology with the "build_clim.sh"
       => EX: $ ./build_clim.sh -C ORCA1_L75_v36_triolith -R SL36C00 -f 10 -i 0090 -e 0099 -k 4
          (check ./build_clim.sh -h to see the options)
 
-   ii) set "l_clim_diag=true" in your config file
+   ii) set "l_clim_diag=true" in your config file "configs/config_<MY_CONF>.sh"
 
 C/ If you want to create time-series comparing 2 runs (each already diagnosed, at least stage III):
    
-   ./compare_time-series.sh -C <my_config> -R <RUN1>,<RUN2>,...,<RUNn>
+   ./compare_time-series.sh -C <MY_CONF> -R <RUN1>,<RUN2>,...,<RUNn>
    (ex: ./compare_time-series.sh -C ORCA1_L75_v36_triolith -R SL36C00,SL36EIE )
