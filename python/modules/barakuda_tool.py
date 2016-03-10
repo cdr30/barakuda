@@ -11,14 +11,39 @@ import sys
 
 def chck4f(cf, script_name=''):
     import os
-    
+
     cmesg = 'ERROR: File '+cf+' does not exist !!!'
     if script_name != '': cmesg = 'ERROR in script '+script_name+': File '+cf+' does not exist !!!'
-    
+
     if not os.path.exists(cf):
         print cmesg ; sys.exit(0)
     else:
         print '\n   *** will open file '+cf
+
+
+
+def check_env_var(cnm, list):
+
+    # * cnm  : string for the name of the script calling this function
+    # * list : a list of string supposed to be environement variables
+    #
+    # Returns a dictionary containing the variable names and their respective content
+
+    print "\n In "+cnm+" :"
+
+    env_var_dic = {}  ; # empty dictionary
+
+    for cv in list:
+        cenv = os.getenv(cv)
+        if cenv is None:
+            print " ERROR in "+cnm+":"
+            print("  => the {} environement is not set".format(cv))
+            sys.exit(0)
+        env_var_dic[cv] = cenv
+        print " *** "+cv+" => "+cenv
+
+    print ""
+    return env_var_dic
 
 
 def iaxe_tick(ny):
@@ -42,7 +67,7 @@ def monthly_2_annual(vtm, XDm):
     else:
         # XDm is an array
         [ nbcol, nt ] = nmp.shape(XDm)
-        
+
     #print nt
 
 
@@ -57,10 +82,10 @@ def monthly_2_annual(vtm, XDm):
         #if nbcol == 1:
         XDm = nmp.delete(XDm, nmp.arange(nbm,nt))
         print '      => new shape of data =', nmp.shape(XDm),'\n'
-            
+
 
     if nbm%12 != 0: print 'ERROR: vmonthly_2_vannual.barakuda_tool.py => not a multiple of 12!'; sys.exit(0)
-    
+
     nby = nbm/12
     vty = nmp.zeros(nby)
     XDy = nmp.zeros(nbcol*nby) ; XDy.shape = [nbcol,nby]
@@ -68,7 +93,7 @@ def monthly_2_annual(vtm, XDm):
     #print 'DEBUG: monthly_2_annual.barakuda_tool.py => nbm, nby, nbcol:', nbm, nby, nbcol
 
     for jy in range(nby):
-        jt_jan = jy*12        
+        jt_jan = jy*12
         vty[jy] = nmp.trunc(vtm[jt_jan]) + 0.5 ; #  1992.5, not 1992
 
         if nbcol == 1:
@@ -81,7 +106,7 @@ def monthly_2_annual(vtm, XDm):
     else:
         #print 'DEBUG: monthly_2_annual.barakuda_tool.py => shape(vty):', nmp.shape(vty)
         return vty, XDy
-         
+
 
 
 def find_ij_region_box(vbox4, VX, VY):
@@ -109,7 +134,7 @@ def find_ij_region_box(vbox4, VX, VY):
     if VY[1] < VY[0]: jy_inc = -1
 
     #print jy_inc
-    
+
     #VYtmp = nmp.zeros(len(VY)) ; VYtmp[:] = VY[:]
 
     j_y_min = find_index_from_value( y_min, VY )
@@ -120,7 +145,7 @@ def find_ij_region_box(vbox4, VX, VY):
     if i_x_min == -1 or i_x_max == -1 or j_y_min == -1 or j_y_max == -1:
         print 'ERROR: barakuda_tool.find_ij_region_box, indiex not found'
         sys.exit(0)
-            
+
     if jy_inc == -1: jdum = j_y_min; j_y_min = j_y_max; j_y_max = jdum
 
     #print '  * i_x_min = ', i_x_min, ' => ', VX[i_x_min]
@@ -181,7 +206,7 @@ def read_ascii_column(cfile, ivcol2read):
 def get_min_max_df(ZZ, ndf):
 
     import math
-    
+
     # RETURNS rounded Min and Max of array ZZ as well as the contour interval for "ndf" contours...
 
     # Testing where the array has finite values (non nan, non infinite)
@@ -271,7 +296,7 @@ def drown(X, mask, k_ew=-1, nb_max_inc=5, nb_smooth=5):
     #  k_ew :  east-west periodicity on the input file/grid
     #          k_ew = -1  --> no periodicity
     #          k_ew >= 0  --> periodicity with overlap of k_ew points
-    # 
+    #
     #  X    :  treated array                             (2D array)
     #  mask :  land-sea mask    INTEGER !!!!             (2D array)
     #
@@ -286,7 +311,7 @@ def drown(X, mask, k_ew=-1, nb_max_inc=5, nb_smooth=5):
     ##############################################################################
 
     cmesg = 'ERROR, barakuda_tool.py => drown :'
-    
+
     rr = 0.707
 
     nbdim = len(nmp.shape(X))
@@ -296,9 +321,9 @@ def drown(X, mask, k_ew=-1, nb_max_inc=5, nb_smooth=5):
 
 
     nt = 1
-    l_record = False    
+    l_record = False
     if nbdim == 3: l_record = True
-    
+
 
     if l_record:
         if nmp.shape(X[0,:,:]) != nmp.shape(mask):
@@ -326,46 +351,46 @@ def drown(X, mask, k_ew=-1, nb_max_inc=5, nb_smooth=5):
         else:
             Xtemp[:,:] = X[:,:]
 
-        maskv = nmp.zeros(nj*ni, dtype=nmp.int) ; maskv.shape = [nj,ni] 
+        maskv = nmp.zeros(nj*ni, dtype=nmp.int) ; maskv.shape = [nj,ni]
         dold = nmp.zeros(nj*ni) ; dold.shape = [nj,ni]
         xtmp = nmp.zeros(nj*ni) ; xtmp.shape = [nj,ni]
         mask_coast = nmp.zeros(nj*ni) ; mask_coast.shape = [nj,ni]
-    
+
         jinc = 0
-        
+
         maskv[:,:] = mask[:,:]
-    
+
         for jinc in range(1,nb_max_inc+1):
-    
+
             dold[:,:] = Xtemp[:,:]
-    
+
             # Building mask of the coast-line (belonging to land points)
             mask_coast[:,:] = 0
-            
+
             mask_coast[1:-1,1:-1] = (maskv[1:-1,2:] + maskv[2:,1:-1] + maskv[1:-1,:-2] + maskv[:-2,1:-1])*(-(maskv[1:-1,1:-1]-1))
-    
+
             if k_ew >= 0:
                 # Left LBC:
                 mask_coast[1:-1,0]    = (maskv[1:-1,1]    + maskv[2:,0]    + maskv[1:-1,ni-1-k_ew] + maskv[:-2,0]   )*(-(maskv[1:-1,0]   -1))
                 # Right LBC:
                 mask_coast[1:-1,ni-1] = (maskv[1:-1,k_ew] + maskv[2:,ni-1] + maskv[1:-1,ni-2]      + maskv[:-2,ni-1])*(-(maskv[1:-1,ni-1]-1))
-    
+
             idx_coast = nmp.where(mask_coast[:,:] > 0)
             #mask_coast[:,:] = 0
             #mask_coast[idx_coast] = 1
-    
-    
-    
-    
-    
+
+
+
+
+
             # Extrapolating sea values on that coast line:
-    
+
             (idx_j_land,idx_i_land) = idx_coast
-    
+
             ic = 0
             for jj in idx_j_land:
                 ji = idx_i_land[ic]
-    
+
                 if ji == 0 and k_ew >= 0:
                     Xtemp[jj,0] = 1./(maskv[jj,1]+maskv[jj+1,0]+maskv[jj,ni-1-k_ew]+maskv[jj-1,0]+
                                    rr*maskv[jj+1,1]+rr*maskv[jj+1,ni-1-k_ew]+rr*maskv[jj-1,ni-1-k_ew]+rr*maskv[jj-1,1])*(
@@ -373,7 +398,7 @@ def drown(X, mask, k_ew=-1, nb_max_inc=5, nb_smooth=5):
                         maskv[jj,ni-1-k_ew]*dold[jj,ni-1-k_ew] + maskv[jj-1,0]*dold[jj-1,0] +
                         rr*maskv[jj+1,1]*dold[jj+1,1] + rr*maskv[jj+1,ni-1-k_ew]*dold[jj+1,ni-1-k_ew] +
                         rr*maskv[jj-1,ni-1-k_ew]*dold[jj-1,ni-1-k_ew] + rr*maskv[jj-1,1]*dold[jj-1,1]  )
-                    
+
                 elif ji == ni-1 and k_ew >= 0:
                     Xtemp[jj,ni-1] = 1./(maskv[jj,k_ew]+maskv[jj+1,ni-1]+maskv[jj,ni-2]+maskv[jj-1,ni-1]+
                                    rr*maskv[jj+1,k_ew]+rr*maskv[jj+1,ni-2]+rr*maskv[jj-1,ni-2]+rr*maskv[jj-1,k_ew])*(
@@ -381,7 +406,7 @@ def drown(X, mask, k_ew=-1, nb_max_inc=5, nb_smooth=5):
                         maskv[jj,ni-2]*dold[jj,ni-2] + maskv[jj-1,ni-1]*dold[jj-1,ni-1] +
                         rr*maskv[jj+1,k_ew]*dold[jj+1,k_ew] + rr*maskv[jj+1,ni-2]*dold[jj+1,ni-2] +
                         rr*maskv[jj-1,ni-2]*dold[jj-1,ni-2] + rr*maskv[jj-1,k_ew]*dold[jj-1,k_ew]  )
-                
+
                 else:
                     Xtemp[jj,ji] = 1./(maskv[jj,ji+1]+maskv[jj+1,ji]+maskv[jj,ji-1]+maskv[jj-1,ji]+
                                    rr*maskv[jj+1,ji+1]+rr*maskv[jj+1,ji-1]+rr*maskv[jj-1,ji-1]+rr*maskv[jj-1,ji+1])*(
@@ -389,35 +414,35 @@ def drown(X, mask, k_ew=-1, nb_max_inc=5, nb_smooth=5):
                         maskv[jj,ji-1]*dold[jj,ji-1] + maskv[jj-1,ji]*dold[jj-1,ji] +
                         rr*maskv[jj+1,ji+1]*dold[jj+1,ji+1] + rr*maskv[jj+1,ji-1]*dold[jj+1,ji-1] +
                         rr*maskv[jj-1,ji-1]*dold[jj-1,ji-1] + rr*maskv[jj-1,ji+1]*dold[jj-1,ji+1]  )
-                
+
                 ic = ic+1
-    
+
             # Loosing land for next iteration:
             maskv[idx_coast] = 1
-    
-    
+
+
         # Smoothing the what's been done on land:
         if nb_smooth >= 1:
-            
+
             dold[:,:] = Xtemp[:,:]
-            
+
             for kk in range(nb_smooth):
-    
+
                 xtmp[:,:] = Xtemp[:,:]
-            
+
                 Xtemp[1:-1,1:-1] = 0.35*xtmp[1:-1,1:-1] + 0.65*0.25*( xtmp[1:-1,2:] + xtmp[2:,1:-1] + xtmp[1:-1,:-2] + xtmp[:-2,1:-1] )
-                
+
                 if k_ew != -1:   # we can use east-west periodicity
                     Xtemp[1:-1,0] = 0.35*xtmp[1:-1,0] + 0.65*0.25*( xtmp[1:-1,1] + xtmp[2:,1] + xtmp[1:-1,ni-1-k_ew] + xtmp[:-2,1] )
-                    
+
                     Xtemp[1:-1,ni-1] = 0.35*xtmp[1:-1,ni-1] + 0.65*0.25*( xtmp[1:-1,k_ew] + xtmp[2:,ni-1] + xtmp[1:-1,ni-2] + xtmp[:-2,ni-1] )
-        
-        
+
+
             Xtemp[1:-1,:] = mask[1:-1,:]*dold[1:-1,:] - (mask[1:-1,:]-1)*Xtemp[1:-1,:]
-    
-    
+
+
         del maskv, dold, mask_coast, xtmp
-    
+
         if l_record:
             X[jt,:,:] = Xtemp[:,:]
         else:
@@ -441,7 +466,7 @@ def extend_domain(ZZ, ext_east_deg, skp_west_deg=0):
     # ===
     # ZZ      : array to extend in longitude, 2D field or 1D longitude vector
     # ext_east_deg : eastward extension in degrees...
-    # skp_west_deg : what to skip at the west in degrees...    
+    # skp_west_deg : what to skip at the west in degrees...
     #
     # OUT:
     # ====
@@ -482,7 +507,7 @@ def extend_domain(ZZ, ext_east_deg, skp_west_deg=0):
 
 
 def mk_zonal(XF, XMSK):
-    
+
     [ ny , nx ] = XF.shape
     [ n2 , n1 ] = XMSK.shape
     if n2 != ny or n1 != nx:
@@ -524,7 +549,7 @@ def read_box_coordinates_in_ascii(cf):
     vboxes = [] ; vi1    = [] ; vj1    = [] ; vi2    = [] ; vj2    = []
     leof = False
     jl   = -1
-    
+
     while not leof:
         jl = jl + 1
         ll = cread_lines[jl]
@@ -538,7 +563,7 @@ def read_box_coordinates_in_ascii(cf):
             vj1.append(int(ls[2]))
             vi2.append(int(ls[3]))
             vj2.append(int(ls[4]))
-            
+
         if ls[0] == 'EOF': leof = True
 
 
