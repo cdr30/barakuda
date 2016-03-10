@@ -1,5 +1,6 @@
 import numpy as nmp
 import sys
+import os
 
 
 
@@ -10,7 +11,6 @@ import sys
 
 
 def chck4f(cf, script_name=''):
-    import os
 
     cmesg = 'ERROR: File '+cf+' does not exist !!!'
     if script_name != '': cmesg = 'ERROR in script '+script_name+': File '+cf+' does not exist !!!'
