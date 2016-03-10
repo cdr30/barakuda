@@ -3,7 +3,6 @@
 # L. Brodeau, 2016
 
 import sys
-import os
 import numpy as nmp
 from netCDF4 import Dataset
 
@@ -16,12 +15,9 @@ ldebug = False
 rmult = 1.E3
 zmax_rnf_atl = 0.1 ; dz_rnf = 0.005
 
-venv_needed = {'ORCA', 'RUN', 'DIAG_D', 'NN_RNF'}
+venv_needed = {'ORCA','RUN','DIAG_D','NN_RNF','MM_FILE'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
-
-
-
 
 
 if 'ORCA2' in vdic['ORCA']:
@@ -41,12 +37,6 @@ CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 path_fig='./'
 fig_type='png'
 
-# Mesh-mask file:
-cf_mesh_mask = os.getenv('MM_FILE')
-if cf_mesh_mask is None: 
-    print 'The MM_FILE environement variable (mesh_mask) is no set'; sys.exit(0)
-print '\n Mesh-Mask file is:\n', cf_mesh_mask, '\n'
-
 
 
 narg = len(sys.argv)
@@ -63,8 +53,8 @@ print ' => mean on the clim : ', jy1_clim, jy2_clim, '\n'
 
 
 # Getting coordinates:
-bt.chck4f(cf_mesh_mask)
-id_mm = Dataset(cf_mesh_mask)
+bt.chck4f(vdic['MM_FILE'])
+id_mm = Dataset(vdic['MM_FILE'])
 xlon   = id_mm.variables['glamt'][0,:,:] ; xlat = id_mm.variables['gphit'][0,:,:]
 Xmask = id_mm.variables['tmask'][0,:,:,:]
 vlev  = id_mm.variables['gdept_1d'][0,:]
