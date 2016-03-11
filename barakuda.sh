@@ -36,12 +36,15 @@ usage()
     echo
     echo "      -z <YYYY> => force BaraKuda to stop at year YYYY"
     echo
-    echo "      -c <run>  => 2D comparison diagnostics are performed against run <run>"
-    echo "                   instead of a climatology"
-    echo
     echo "      -f        => forces creation of diagnostic page eventhough treatment of output files is not finished"
     echo
     echo "      -e        => create the HTML diagnostics page on local or remote server"
+    echo
+    echo "      -E        => same as '-e' but also create the 2D plots / observations"
+    echo "                   you need to have built a climatology of your run with 'build_clim.sh' first!"
+    echo
+    echo "      -c <run>  => when '-E' specified, 2D comparison diagnostics are performed "
+    echo "                   against the climatology of another run <run> rather than observations"
     echo
     echo "      -h        => print this message"
     echo
@@ -57,9 +60,9 @@ export RUNREF=""
 ISTAGE=1 ; # 1 => generation of data diagnostic files
 #          # 2 => creation of figures and diagnostic HTML page
 LFORCEDIAG=false
+l_clim_diag=false
 
-
-while getopts C:R:y:z:c:feh option ; do
+while getopts C:R:y:z:c:feEh option ; do
     case $option in
         C) CONFIG=${OPTARG};;
         R) RUN=${OPTARG};;
@@ -68,6 +71,7 @@ while getopts C:R:y:z:c:feh option ; do
         c) export RUNREF=${OPTARG} ;;
         f) LFORCEDIAG=true;;
         e) ISTAGE=2;;
+        E) ISTAGE=2 ; l_clim_diag=true ;;
         h)  usage;;
         \?) usage ;;
     esac
@@ -75,6 +79,11 @@ done
 
 
 if [ "${CONFIG}" = "" -o "${RUN}" = "" ]; then usage ; exit ; fi
+
+if [ "${RUNREF}" != "" -a ${ISTAGE} -eq 1 ]; then    
+    echo; echo " WARNING: option '-c' only makes sense when '-e' or '-E' are specified !"
+    sleep 2; echo
+fi
 
 for og in ${ORCA_LIST}; do
     echo " ${og} / ${CONFIG}"
