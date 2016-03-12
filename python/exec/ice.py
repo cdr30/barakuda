@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-# L. Brodeau, november 2009
+#       B a r a K u d a
+#
+#     Generate stereographic plot of sea-ice extent at both poles
+#
+#       L. Brodeau, 2009
 
 import sys
 import numpy as nmp

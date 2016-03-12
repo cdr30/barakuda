@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-# L. Brodeau, november 2013
+#       B a r a K u d a
+#
+#     Generate misc. time-series out of NEMO output files...
+#
+#       L. Brodeau, november 2013
 
 import sys
 import os

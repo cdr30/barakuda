@@ -2,45 +2,18 @@
 
 #       B a r a K u d a
 #
-#     Generate misc. time-series out of NEMO output files...
+#     Generate misc. spatial averaging out of NEMO output files...
 #
+#       L. Brodeau, november 2013
 
-# Misc :
-import os
 import sys
+import os
 import numpy as nmp
+
 from netCDF4 import Dataset
 
-import barakuda_orca as bo
 import barakuda_tool as bt
-
-print ''
-
-
-DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
-
-CONFRUN = os.getenv('CONFRUN')
-if CONFRUN == None: print 'The CONFRUN environement variable is no set'; sys.exit(0)
-
-NN_SST = os.getenv('NN_SST')
-if NN_SST == None: print 'The NN_SST environement variable is no set'; sys.exit(0)
-
-NN_SSS = os.getenv('NN_SSS')
-if NN_SSS == None: print 'The NN_SSS environement variable is no set'; sys.exit(0)
-
-NN_SSH = os.getenv('NN_SSH')
-if NN_SSH == None: print 'The NN_SSH environement variable is no set'; sys.exit(0)
-
-NN_T = os.getenv('NN_T')
-if NN_T == None: print 'The NN_T environement variable is no set'; sys.exit(0)
-
-NN_S = os.getenv('NN_S')
-if NN_S == None: print 'The NN_S environement variable is no set'; sys.exit(0)
-
-NN_MLD = os.getenv('NN_MLD')
-if NN_MLD == None: print 'The NN_MLD environement variable is no set'; sys.exit(0)
-
+import barakuda_orca as bo
 
 # Box nino 3.4:
 lon1_nino = 360. - 170.  ; # east
@@ -48,10 +21,11 @@ lat1_nino = -5.
 lon2_nino = 360. - 120.  ; # east
 lat2_nino = 5.
 
+venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
 
-cf_mm  = 'mesh_mask.nc'
-cv_lsm = 'tmask'
-cf_bm  = 'new_maskglo.nc'
+vdic = bt.check_env_var(sys.argv[0], venv_needed)
+
+CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 
 if len(sys.argv) != 3:
     print 'Usage : sys.argv[1] <ORCA1_RUN_grid_T.nc> <year>'
@@ -64,12 +38,12 @@ cyear  = sys.argv[2] ; jyear = int(cyear); cyear = '%4.4i'%jyear
 print 'Current year is '+cyear+' !\n'
 
 # Checking if the land-sea mask file is here:
-for cf in [cf_mm, cf_bm]:
+for cf in [vdic['MM_FILE'], vdic['BM_FILE']]:
     if not os.path.exists(cf):
         print 'Mask file '+cf+' not found'; sys.exit(0)
 
 # Reading the grid metrics:
-id_mm = Dataset(cf_mm)
+id_mm = Dataset(vdic['MM_FILE'])
 list_variables = id_mm.variables.keys()
 rmask  = id_mm.variables['tmask'][0,:,:,:]
 rlon   = id_mm.variables['glamt'][0,:,:]
@@ -96,8 +70,8 @@ for jk in range(nk):
 
 del re1t, re2t
     
-print 'Opening different basin masks in file '+cf_bm
-id_bm = Dataset(cf_bm)
+print 'Opening different basin masks in file '+vdic['BM_FILE']
+id_bm = Dataset(vdic['BM_FILE'])
 mask_atl = id_bm.variables['tmaskatl'][:,:]
 mask_pac = id_bm.variables['tmaskpac'][:,:]
 mask_ind = id_bm.variables['tmaskind'][:,:]    
@@ -122,7 +96,7 @@ del rmask, mask_atl, mask_pac, mask_ind
 l_mld = False
 print '\nSpatially-averaged MLD in different boxes'
 
-cvar = NN_MLD
+cvar = vdic['NN_MLD']
 
 id_in = Dataset(cf_in)
 list_variables = id_in.variables.keys()
@@ -178,7 +152,7 @@ if l_mld:
         Vts = bo.mean_2d(MLD_m, mask2d[:,:], Xe1t[0,:,:], Xe2t[0,:,:])
         
         # NETCDF:
-        cf_out   = DIAG_D+'/mean_'+cvar+'_'+CONFRUN+'_'+cbox+'.nc' ;  cv1 = cvar        
+        cf_out   = vdic['DIAG_D']+'/mean_'+cvar+'_'+CONFRUN+'_'+cbox+'.nc' ;  cv1 = cvar        
         l_nc_is_new = not os.path.exists(cf_out)
         if l_nc_is_new:
             f_out = Dataset(cf_out, 'w', format='NETCDF3_CLASSIC')
@@ -222,7 +196,7 @@ if l_mld:
 
 jvar = 0
 
-for cvar in [ NN_SST, NN_SSS, NN_SSH ]:
+for cvar in [ vdic['NN_SST'], vdic['NN_SSS'], vdic['NN_SSH'] ]:
 
     # DATA:
     print '  *** reading '+cvar+' into '+cf_in
@@ -268,7 +242,7 @@ for cvar in [ NN_SST, NN_SSS, NN_SSH ]:
 
 
         # NETCDF:
-        cf_out   = DIAG_D+'/mean_'+cvar+'_'+CONFRUN+'_'+cocean+'.nc' ;  cv1 = cvar
+        cf_out   = vdic['DIAG_D']+'/mean_'+cvar+'_'+CONFRUN+'_'+cocean+'.nc' ;  cv1 = cvar
         l_nc_is_new = not os.path.exists(cf_out)
         if l_nc_is_new:
             f_out = Dataset(cf_out, 'w', format='NETCDF3_CLASSIC')
@@ -318,10 +292,10 @@ print '\n'
 print ' Nino box 3.4, longitude: '+str(rlon[10,i1])+' => '+str(rlon[10,i2])+' \ latitude: '+str(rlat[j1,50])+' => '+str(rlat[j2,50])
 
 id_in = Dataset(cf_in)
-if NN_SST == 'thetao':
-    Xs_m = id_in.variables[NN_SST][:,0,:,:]
+if vdic['NN_SST'] == 'thetao':
+    Xs_m = id_in.variables[vdic['NN_SST']][:,0,:,:]
 else:
-    Xs_m = id_in.variables[NN_SST][:,:,:]
+    Xs_m = id_in.variables[vdic['NN_SST']][:,:,:]
 id_in.close()
 
 Vts = bo.mean_2d(Xs_m[:,j1:j2+1,i1:i2+1], mask[0,0,j1:j2+1,i1:i2+1], Xe1t[0,j1:j2+1,i1:i2+1], Xe2t[0,j1:j2+1,i1:i2+1])
@@ -338,7 +312,7 @@ if 'cf_out' in locals() or 'cf_out' in globals():
     print cf_out+' written!'
 
 # NETCDF:
-cf_out   = DIAG_D+'/Nino34_'+CONFRUN+'.nc' ;  cv1 = NN_SST
+cf_out   = vdic['DIAG_D']+'/Nino34_'+CONFRUN+'.nc' ;  cv1 = vdic['NN_SST']
 l_nc_is_new = not os.path.exists(cf_out)
 if l_nc_is_new:
     f_out = Dataset(cf_out, 'w', format='NETCDF3_CLASSIC')
@@ -382,7 +356,7 @@ print cf_out+' written!'
 
 jvar = 0
 
-for cvar in [ NN_T , NN_S ]:
+for cvar in [ vdic['NN_T'] , vdic['NN_S'] ]:
 
 
 
@@ -434,7 +408,7 @@ for cvar in [ NN_T , NN_S ]:
         Vts_100_1000 = bo.mean_3d(Xd_m[:,j100m:j1000m,:,:], mask[joce,j100m:j1000m,:,:], Xe1t[j100m:j1000m,:,:], Xe2t[j100m:j1000m,:,:], Xe3t[j100m:j1000m,:,:])
         Vts_1000_bot = bo.mean_3d(Xd_m[:,j1000m:,:,:], mask[joce,j1000m:,:,:], Xe1t[j1000m:,:,:], Xe2t[j1000m:,:,:], Xe3t[j1000m:,:,:])
         
-        cf_out = DIAG_D+'/3d_'+cvar+'_'+CONFRUN+'_'+cocean+'.nc'
+        cf_out = vdic['DIAG_D']+'/3d_'+cvar+'_'+CONFRUN+'_'+cocean+'.nc'
         cv1 = cvar+'_0-bottom'
         cv2 = cvar+'_0-100'
         cv3 = cvar+'_100-1000'
@@ -510,7 +484,7 @@ for cvar in [ NN_T , NN_S ]:
 
 
         # NETCDF:
-        cf_out = DIAG_D+'/'+cvar+'_mean_Vprofile_'+CONFRUN+'_'+cocean+'.nc'
+        cf_out = vdic['DIAG_D']+'/'+cvar+'_mean_Vprofile_'+CONFRUN+'_'+cocean+'.nc'
         l_nc_is_new = not os.path.exists(cf_out)
         #
         # Creating/Opening output Netcdf file:
