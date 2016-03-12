@@ -20,8 +20,6 @@ import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.colors as colors
 
-from math import trunc
-
 import barakuda_orca as bo
 
 
@@ -1309,6 +1307,8 @@ class plot :
         # plt_m03 => plot march values on top in green
         # plt_m09 => plot september values on top in green
 
+        #lulu
+
         font_ttl, font_ylb, font_clb = __font_unity__()
 
         Nt1 = len(VTm) ; Nt2 = len(VTy)
@@ -1346,7 +1346,7 @@ class plot :
             plt.axis([y1, y2, ymin, ymax])
 
             if dy != 0:
-                plt.yticks( nmp.arange(trunc(ymin+0.5), trunc(ymax)+dy, dy) )
+                plt.yticks( nmp.arange(float(int(ymin+0.5)), float(int(ymax))+dy, dy) )
                 locs, labels = plt.yticks() #lolo?
                 if i_y_jump > 1: __subsample_axis__('y', i_y_jump, plt)
 
