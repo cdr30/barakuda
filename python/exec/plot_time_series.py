@@ -4,7 +4,8 @@
 #
 #     Generate misc. time-series out of NEMO output files...
 #
-#       L. Brodeau, november 2013
+#       L. Brodeau, 2013
+#
 
 import sys
 import os

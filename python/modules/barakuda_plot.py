@@ -127,9 +127,10 @@ class plot :
         if lkcont: plt.contour(VX, zVZ, XF, vc, colors='k', linewidths=0.2)
 
         # Colorbar
-        clb = plt.colorbar(cf, ticks=vc); clb.set_label('('+cbunit+')', **font_clb)
-        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
-        for t in clb.ax.get_yticklabels(): t.set_fontsize(10)
+        __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, cunit=cbunit, cfont=font_clb, fontsize=10)
+        #clb = plt.colorbar(cf, ticks=vc); clb.set_label('('+cbunit+')', **font_clb)
+        #if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
+        #for t in clb.ax.get_yticklabels(): t.set_fontsize(10) #lulu
 
         # X-axis:
         __nice_x_axis__(xmin, xmax, dx, ax, plt, cunit=cxunit, cfont=font_xylb)
@@ -269,12 +270,9 @@ class plot :
             cf0 = plt.pcolor(XF0, cmap = bcm.chose_palette("mask"))
 
         # Colorbar:
-        clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont); clb.set_label('('+cbunit+')', **font_clb)
-        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
         ifsize = 14
         if i_lat_lon == 1: ifsize = int(10*vert_rat); ifsize=max(ifsize,6)
-        for t in clb.ax.get_yticklabels(): t.set_fontsize(ifsize)
-
+        __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cb_or=cb_orient, cunit=cbunit, cfont=font_clb, fontsize=ifsize)
 
         # X and Y nice ticks:
         # ~~~~~~~~~~~~~~~~~~~
@@ -387,18 +385,17 @@ class plot :
             plt.contour(VXe, VY, XMSKe, [ 0.25 ], colors='k', linewidths = 1.)
 
 
-        # COLOR BAR
-        if cb_orient == 'horizontal':
-            clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont, orientation='horizontal', pad=0.07, shrink=1., aspect=40)
-        else:
-            clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont, pad=0.03)
-        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb, cb_or=cb_orient)
-        if cb_orient == 'horizontal':
-            for t in clb.ax.get_xticklabels(): t.set_fontsize(colorbar_fs) # Font size for colorbar ticks!
-        else:
-            for t in clb.ax.get_yticklabels(): t.set_fontsize(colorbar_fs) # Font size for colorbar ticks!
-        clb.set_label(cbunit, **font_clb)
-
+        # COLOR BAR #lulu
+        __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cb_or=cb_orient, cunit=cbunit, cfont=font_clb, fontsize=colorbar_fs)
+        #clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont, orientation='horizontal', pad=0.07, shrink=1., aspect=40)
+        #else:
+        #    clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont, pad=0.03)
+        #if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb, cb_or=cb_orient)
+        #if cb_orient == 'horizontal':
+        #    for t in clb.ax.get_xticklabels(): t.set_fontsize(colorbar_fs) # Font size for colorbar ticks!
+        #else:
+        #    for t in clb.ax.get_yticklabels(): t.set_fontsize(colorbar_fs) # Font size for colorbar ticks!
+        #clb.set_label(cbunit, **font_clb)
 
 
         # X and Y nice ticks:
@@ -493,8 +490,7 @@ class plot :
             for c in cfm.collections: c.set_zorder(1.)
 
         # Colorbar:
-        clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont); clb.set_label('('+cbunit+')', **font_clb)
-        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
+        __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cunit=cbunit, cfont=font_clb)
 
         if x_offset > 0 or y_offset > 0 :  __add_xy_offset__(x_offset, y_offset, plt)
 
@@ -718,16 +714,17 @@ class plot :
         plt.title(ctitle, **font_ttl)
 
 
-        # Colorbar:
-        if cb_orient == 'horizontal':
-            clbax = fig.add_axes(vcbar) # axes for colorbar
-            clb   = plt.colorbar(cf, cax=clbax, ticks=vc, drawedges=(lkcont and lpcont), orientation='horizontal')
-            for t in clb.ax.get_xticklabels(): t.set_font.size(10)
-        else:
-            clb = plt.colorbar(cf, ticks=vc, drawedges=(lkcont and lpcont))
-            for t in clb.ax.get_yticklabels(): t.set_fontsize(12)
-        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb, cb_or=cb_orient)
-        clb.set_label('('+cbunit+')', **font_clb)
+        # Colorbar: #lulu
+        __nice_colorbar__(cf, plt, cax_other=clbax, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cunit=cbunit, cfont=font_clb, fontsize=12)
+        #if cb_orient == 'horizontal':
+        #    clbax = fig.add_axes(vcbar) # axes for colorbar
+        #    clb   = plt.colorbar(cf, cax=clbax, ticks=vc, drawedges=(lkcont and lpcont), orientation='horizontal')
+        #    for t in clb.ax.get_xticklabels(): t.set_font.size(10)
+        #else:
+        #    clb = plt.colorbar(cf, ticks=vc, drawedges=(lkcont and lpcont))
+        #    for t in clb.ax.get_yticklabels(): t.set_fontsize(12)
+        #if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb, cb_or=cb_orient)
+        #clb.set_label('('+cbunit+')', **font_clb)
 
         plt.savefig(cfignm+'.'+cfig_type, dpi=dpi_fig, orientation='portrait', transparent=False) ; #, transparent=True, acecolor='w', edgecolor='w',trans
 
@@ -833,9 +830,7 @@ class plot :
         if lkcont: plt.contour(VY, zVZ, Xamoc, vc, colors='k', linewidths=0.2)
 
         # Colorbar:
-        clb = plt.colorbar(cf, ticks=vc); clb.set_label('('+cbunit+')', **font_clb)
-        for t in clb.ax.get_yticklabels():
-            t.set_fontsize(11)
+        __nice_colorbar__(cf, plt, vc, cunit=cbunit, cfont=font_clb, fontsize=11)
 
         plt.axis([ ymin, ymax, zmin, zmax])
         plt.xlabel(cxunit, **font_xylb); plt.ylabel(czunit, **font_xylb)
@@ -941,8 +936,7 @@ class plot :
             for c in cfm.collections: c.set_zorder(1.)
 
         # Colorbar:
-        clb = plt.colorbar(cf, ticks=vc, drawedges=lkcont); clb.set_label('('+cbunit+')', **font_clb)
-        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
+        __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cunit=cbunit, cfont=font_clb)
 
         if x_offset > 0 or y_offset > 0 :  __add_xy_offset__(x_offset, y_offset, plt)
 
@@ -1003,13 +997,8 @@ class plot :
             plt.clabel(cfs1, inline=1, fmt='%4.1f', fontsize=11, manual=[(2080,2.)] )
 
 
-        # COLOR BAR
-        clb = plt.colorbar(cf, ticks=vc, drawedges=True, orientation='horizontal', pad=0.09, shrink=1., aspect=40)
-        if i_cb_subsamp > 1: __subsample_colorbar__(i_cb_subsamp, vc, clb)
-        for t in clb.ax.get_xticklabels(): t.set_fontsize(12)
-        font = { 'fontsize':12 }
-        clb.set_label('(Sv)', **font)
-
+        # COLOR BAR:
+        __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=True, cb_or='horizontal', cunit='Sv', cfont=font_clb, fontsize=12)
 
         # AXES:
         y1 = int(min(VT))  ; y2 = int(max(VT))+1
@@ -1017,7 +1006,6 @@ class plot :
 
         __nice_x_axis__(y1, y2, dt_year, ax, plt, cfont=font_xylb)
 
-        # lulu
         plt.yticks( nmp.flipud(vsigma_bounds) )
 
         label_big = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':18 }
@@ -1307,8 +1295,6 @@ class plot :
         # plt_m03 => plot march values on top in green
         # plt_m09 => plot september values on top in green
 
-        #lulu
-
         font_ttl, font_xylb, font_clb = __font_unity__()
 
         Nt1 = len(VTm) ; Nt2 = len(VTy)
@@ -1444,7 +1430,7 @@ class plot :
         if lzonal:
             __nice_x_axis__(y1, y2, 10., ax, plt, cfont=font_xylb)
         else:
-            __nice_x_axis__(y1, y2, dt_year, ax, plt, iss=i_t_jump, cfont=font_xylb)
+            __nice_x_axis__(y1, y2, dt_year, ax, plt, i_sbsmp=i_t_jump, cfont=font_xylb)
 
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
@@ -1514,7 +1500,7 @@ class plot :
 
         print nmp.arange(y1, y2+dt_year, dt_year)
 
-        __nice_x_axis__(y1, y2, dt_year, ax, plt, iss=i_t_jump, cfont=font_xylb)
+        __nice_x_axis__(y1, y2, dt_year, ax, plt, i_sbsmp=i_t_jump, cfont=font_xylb)
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
 
@@ -1844,11 +1830,11 @@ def __force_min_and_max__(rm, rp, Xin):
     Xin[idx_bad] = nmp.nan
 
 
-def __subsample_colorbar__(iss, vcc, clb_hndl, cb_or='vertical'):
+def __subsample_colorbar__(i_sbsmp, vcc, clb_hndl, cb_or='vertical'):
     cb_labs = []
     cpt = 0
     for cr in vcc:
-        if cpt % iss == 0:
+        if cpt % i_sbsmp == 0:
             rr = round(float(cr),6)
             cb_labs.append(str(rr))
         else:
@@ -1864,6 +1850,45 @@ def __subsample_colorbar__(iss, vcc, clb_hndl, cb_or='vertical'):
 #            cn_clb.append(str(int(rtck))) ; # we can drop the ".0"
 #        else:
 #            cn_clb.append(str(rtck)) ; # keeping the decimals...
+
+
+
+
+def __nice_colorbar__(fig_hndl, plt_hndl, vcc, cax_other=None,
+                      i_sbsmp=1, lkc=False, cb_or='vertical', cunit=None, cfont=None, fontsize=0):
+
+    if cb_or not in {'horizontal','vertical'}:
+        print "ERROR: only 'vertical' or 'horizontal' can be specified for the colorbar orientation!"
+        cb_or = 'vertical'
+    
+
+    if cb_or == 'horizontal':
+        if cax_other is not None:
+            clb = plt_hndl.colorbar(fig_hndl, cax=cax_other, ticks=vcc, drawedges=lkc, orientation='horizontal', pad=0.07, shrink=1., aspect=40)
+        else:
+            clb = plt_hndl.colorbar(fig_hndl,                ticks=vcc, drawedges=lkc, orientation='horizontal', pad=0.07, shrink=1., aspect=40)
+    else:
+        if cax_other is not None:
+            clb = plt_hndl.colorbar(fig_hndl, cax=cax_other, ticks=vcc, drawedges=lkc, pad=0.03)
+        else:
+            clb = plt_hndl.colorbar(fig_hndl,                ticks=vcc, drawedges=lkc, pad=0.03)
+
+    if i_sbsmp > 1: __subsample_colorbar__(i_sbsmp, vc, clb, cb_or=cb_orient)
+
+    if fontsize > 0:
+        if cb_orient == 'horizontal':
+            for t in clb.ax.get_xticklabels(): t.set_fontsize(fontsize) # Font size for colorbar ticks!
+        else:
+            for t in clb.ax.get_yticklabels(): t.set_fontsize(fontsize) # Font size for colorbar ticks!
+
+    if not cfont is None:
+        clb.set_label(cbunit, **font_clb)
+
+    if not cunit is None:
+        if cfont is None:
+            plt_hndl.xlabel(cunit)
+        else:
+            plt_hndl.xlabel(cunit, **cfont)
 
 
 
@@ -1883,7 +1908,7 @@ def _add_xy_offset__(ixo, iyo, plt_hndl):
         plt_hndl.yticks(locs,vlabs)
     del vlabs
 
-def __subsample_axis__(cax, iss, plt_hndl):
+def __subsample_axis__(cax, i_sbsmp, plt_hndl):
     ax_lab = []
     if   cax == 'x':
         locs, labels = plt_hndl.xticks()
@@ -1893,7 +1918,7 @@ def __subsample_axis__(cax, iss, plt_hndl):
         print ' Error: __subsample_axis__.barakuda_plot => only "x" or "y" please'; sys.exit(0)        
     cpt = 1 ; # => tick priting will start at y1+dt_year on x axis rather than y1
     for rr in locs:
-        if cpt % iss == 0:
+        if cpt % i_sbsmp == 0:
             ax_lab.append(str(rr))
         else:
             ax_lab.append(' ')
@@ -1903,7 +1928,8 @@ def __subsample_axis__(cax, iss, plt_hndl):
     del ax_lab
 
 
-def __nice_x_axis__(x_0, x_L, dx, ax_hndl, plt_hndl, iss=1, cunit=None, cfont=None):
+
+def __nice_x_axis__(x_0, x_L, dx, ax_hndl, plt_hndl, i_sbsmp=1, cunit=None, cfont=None):
     plt_hndl.xticks( nmp.arange(x_0, x_L+dx, dx) )
     locs, labels = plt_hndl.xticks()
     jl=0
@@ -1913,7 +1939,7 @@ def __nice_x_axis__(x_0, x_L, dx, ax_hndl, plt_hndl, iss=1, cunit=None, cfont=No
         jl=jl+1
     plt_hndl.xticks(locs,xlabs)
 
-    if iss > 1: __subsample_axis__('x', iss, plt)
+    if i_sbsmp > 1: __subsample_axis__('x', i_sbsmp, plt)
 
     ax_hndl.set_xlim(x_0,x_L)
 
