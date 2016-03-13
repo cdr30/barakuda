@@ -97,7 +97,7 @@ class plot :
         import math
         import barakuda_colmap as bcm
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
         zVZ = nmp.zeros(len(VZ)) ; zVZ.shape = [ len(VZ) ]
 
@@ -132,10 +132,10 @@ class plot :
         for t in clb.ax.get_yticklabels(): t.set_fontsize(10)
 
         # X-axis:
-        __nice_x_axis__(xmin, xmax, dx, ax, plt, cunit=cxunit, cfont=font_ylb)
+        __nice_x_axis__(xmin, xmax, dx, ax, plt, cunit=cxunit, cfont=font_xylb)
 
         # Y-axis:
-        plt.ylabel(czunit, **font_ylb)
+        plt.ylabel(czunit, **font_xylb)
         # Correcting ticks for log
         if l_zlog:
             locs, labels = plt.yticks(); cny = []
@@ -169,7 +169,7 @@ class plot :
         import barakuda_colmap as bcm
 
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
         i_lat_lon = 1
         if len(VX) == 1 or len(VY) == 1: i_lat_lon = 0 ; # no long. and lat. provided !
@@ -307,7 +307,7 @@ class plot :
         import barakuda_tool   as bt
         import barakuda_colmap as bcm
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
 
         # Don't want to modify XF array, working with XFtmp:
@@ -447,7 +447,7 @@ class plot :
             XF = nmp.ma.masked_where(XMSK == 0, XF)
 
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
 
         # FIGURE
@@ -518,7 +518,7 @@ class plot :
                    xmin=-90., xmax=90., cfig_type='png', cxunit=r'Latitude ($^{\circ}$N)',
                    cyunit='', ctitle='', lab='', lab1='', lab2='', lnarrow=False):
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
         ny = len(VY)
         if len(VZn) != ny: print 'ERROR: plot_zonal.barakuda_plot => VY and VZn do not agree in size'; sys.exit(0)
@@ -545,7 +545,7 @@ class plot :
         plt.legend(bbox_to_anchor=(0.63, 0.75), shadow=False, fancybox=True)
 
         # X-axis
-        __nice_x_axis__(xmin, xmax, 15., ax, plt, cunit=cxunit)
+        __nice_x_axis__(xmin, xmax, 15., ax, plt, cunit=cxunit, cfont=font_xylb)
 
         # Y-axis:
         iia = 1
@@ -554,7 +554,7 @@ class plot :
         plt.yticks(vv)
         if i_z_jump > 1: __subsample_axis__('y', i_z_jump, plt)
         ax.set_ylim(zmin-dz/2., zmax+dz/2.)
-        plt.ylabel(cyunit)
+        plt.ylabel(cyunit, **font_xylb)
 
 
         ax.grid(color='k', linestyle='-', linewidth=0.1)
@@ -597,7 +597,7 @@ class plot :
         from mpl_toolkits.basemap import shiftgrid
         import barakuda_colmap as bcm
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
         # For projections :
         vp = __give_proj__(czone) ; # projection information
@@ -816,7 +816,7 @@ class plot :
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, Xamoc)
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
         fig = plt.figure(num = 1, figsize=(12.,6.4), dpi=None, facecolor='w', edgecolor='k')
         ax  = plt.axes([0.1,  0.1,  0.94, 0.85], axisbg = 'gray')
@@ -838,7 +838,7 @@ class plot :
             t.set_fontsize(11)
 
         plt.axis([ ymin, ymax, zmin, zmax])
-        plt.xlabel(cxunit, **font_ylb); plt.ylabel(czunit, **font_ylb)
+        plt.xlabel(cxunit, **font_xylb); plt.ylabel(czunit, **font_xylb)
 
         # Correcting ticks for log
         if l_zlog:
@@ -879,7 +879,7 @@ class plot :
 
 
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF1)
@@ -974,7 +974,7 @@ class plot :
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
@@ -1015,7 +1015,7 @@ class plot :
         y1 = int(min(VT))  ; y2 = int(max(VT))+1
         plt.axis([y1, y2, vsigma_bounds[nbins], vsigma_bounds[0]])
 
-        __nice_x_axis__(y1, y2, dt_year, ax, plt)
+        __nice_x_axis__(y1, y2, dt_year, ax, plt, cfont=font_xylb)
 
         # lulu
         plt.yticks( nmp.flipud(vsigma_bounds) )
@@ -1064,7 +1064,7 @@ class plot :
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
 
         fig = plt.figure(num = 1, figsize=fig_size, dpi=None, facecolor='w', edgecolor='k')
@@ -1084,7 +1084,7 @@ class plot :
             t.set_fontsize(10)
 
         plt.axis([ xmin, xmax, zmax, zmin])
-        plt.xlabel(cxunit, **font_ylb); plt.ylabel(czunit, **font_ylb)
+        plt.xlabel(cxunit, **font_xylb); plt.ylabel(czunit, **font_xylb)
 
         plt.plot(VX,Vcurve, 'w', linewidth=2)
 
@@ -1127,7 +1127,7 @@ class plot :
         import barakuda_colmap as bcm
 
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
 
         zVZ = nmp.zeros(len(VZ)) ; zVZ.shape = [ len(VZ) ]
@@ -1173,8 +1173,8 @@ class plot :
         for t in clb.ax.get_yticklabels(): t.set_fontsize(13)
         if cbunit != '': clb.set_label('('+cbunit+')', **font_clb)
 
-        plt.axis([ tmin, tmax, zmax, zmin]) ;  #plt.xlabel(cxunit);
-        plt.ylabel(czunit, **font_ylb)
+        plt.axis([ tmin, tmax, zmax, zmin])
+        plt.ylabel(czunit, **font_xylb)
 
         #Correcting ticks for log
         if l_zlog:
@@ -1183,7 +1183,7 @@ class plot :
             plt.yticks(locs,cny)
         plt.axis([ tmin, tmax, zmax, zmin])
 
-        __nice_x_axis__(tmin, tmax, dt, ax, plt)
+        __nice_x_axis__(tmin, tmax, dt, ax, plt, cfont=font_xylb)
 
         plt.title(ctitle, **font_ttl)
         plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
@@ -1202,7 +1202,7 @@ class plot :
 
     def __enso(self,VT, VSST, cfignm='fig', dt_year=5):
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
         Nt = len(VT)
 
@@ -1273,13 +1273,13 @@ class plot :
         plt.plot(VT, xnino[:,3], 'k', linewidth=0.7)
         plt.axis([min(VT), max(VT), -2.5, 2.5])
 
-        __nice_x_axis__(y1, y2, dt_year, ax, plt)
+        __nice_x_axis__(y1, y2, dt_year, ax, plt, cfont=font_xylb)
 
         plt.yticks( nmp.arange(-2.5,2.501,0.5) )
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
-        plt.ylabel(r'SST anomaly ($^{\circ}$C)')
-        plt.title('SST anomaly on Nino region 3.4')
+        plt.ylabel(r'SST anomaly ($^{\circ}$C)', **font_xylb)
+        plt.title('SST anomaly on Nino region 3.4', **font_ttl)
         cf_fig = cfignm+'.png'
         plt.savefig(cf_fig, dpi=DPI_TS, orientation='portrait', transparent=True)
 
@@ -1309,7 +1309,7 @@ class plot :
 
         #lulu
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
         Nt1 = len(VTm) ; Nt2 = len(VTy)
 
@@ -1350,13 +1350,13 @@ class plot :
                 locs, labels = plt.yticks() #lolo?
                 if i_y_jump > 1: __subsample_axis__('y', i_y_jump, plt)
 
-        __nice_x_axis__(y1, y2, dt_year, ax, plt)
+        __nice_x_axis__(y1, y2, dt_year, ax, plt, cfont=font_xylb)
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
 
-        plt.ylabel('('+cyunit+')', **font_ylb)
+        plt.ylabel('('+cyunit+')', **font_xylb)
 
-        plt.title(ctitle)
+        plt.title(ctitle, **font_ttl)
 
         cf_fig = cfignm+'.'+cfig_type
 
@@ -1372,16 +1372,16 @@ class plot :
 
 
     def __1d_multi(self,vt, XD, vlabels, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='', ctitle='',
-                      cfig_type='png', ymin=0, ymax=0, lzonal=False, xmin=0, xmax=0,
-                      loc_legend='lower center', line_styles=[], fig_size=FIG_SIZE_TS,
-                      l_tranparent_bg=True, cxunit='', lmask=True):
+                   cfig_type='png', ymin=0, ymax=0, lzonal=False, xmin=0, xmax=0,
+                   loc_legend='lower center', line_styles=[], fig_size=FIG_SIZE_TS,
+                   l_tranparent_bg=True, cxunit='', lmask=True):
 
         # lzonal => zonally averaged curves...
 
         if lzonal:
-            font_ttl, font_big_fixed, font_ylb, font_clb = __font_unity_big__()
+            font_ttl, font_big_fixed, font_xylb, font_clb = __font_unity__(size='big')
         else:
-            font_ttl, font_ylb, font_clb = __font_unity__()
+            font_ttl, font_xylb, font_clb = __font_unity__()
 
         # Number of lines to plot:
         [ nb_plt, nbt ] = XD.shape
@@ -1442,17 +1442,17 @@ class plot :
         #print 'y1, y2 =', y1, y2
 
         if lzonal:
-            __nice_x_axis__(y1, y2, 10., ax, plt)
+            __nice_x_axis__(y1, y2, 10., ax, plt, cfont=font_xylb)
         else:
-            __nice_x_axis__(y1, y2, dt_year, ax, plt, iss=i_t_jump)
+            __nice_x_axis__(y1, y2, dt_year, ax, plt, iss=i_t_jump, cfont=font_xylb)
 
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
 
-        if lzonal: plt.xlabel(r'Latitude ($^{\circ}$N)', **font_ylb)
+        if lzonal: plt.xlabel(r'Latitude ($^{\circ}$N)', **font_xylb)
 
-        if cyunit != '': plt.ylabel('('+cyunit+')', **font_ylb)
-        if cxunit != '': plt.xlabel('('+cxunit+')', **font_ylb)
+        if cyunit != '': plt.ylabel('('+cyunit+')', **font_xylb)
+        if cxunit != '': plt.xlabel('('+cxunit+')', **font_xylb)
 
         plt.title(ctitle, **font_ttl)
 
@@ -1477,7 +1477,7 @@ class plot :
                 loc_legend='lower center', line_styles='-', fig_size=FIG_SIZE_TS,
                 l_tranparent_bg=False, cxunit='', lmask=True):
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
         # Number of lines to plot:
         nbt = len(VF)
@@ -1514,12 +1514,12 @@ class plot :
 
         print nmp.arange(y1, y2+dt_year, dt_year)
 
-        __nice_x_axis__(y1, y2, dt_year, ax, plt, iss=i_t_jump)
+        __nice_x_axis__(y1, y2, dt_year, ax, plt, iss=i_t_jump, cfont=font_xylb)
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
 
-        if cyunit != '': plt.ylabel('('+cyunit+')', **font_ylb)
-        if cxunit != '': plt.xlabel('('+cxunit+')', **font_ylb)
+        if cyunit != '': plt.ylabel('('+cyunit+')', **font_xylb)
+        if cxunit != '': plt.xlabel('('+cxunit+')', **font_xylb)
 
         plt.title(ctitle, **font_ttl)
 
@@ -1556,7 +1556,7 @@ class plot :
             l_do_ci95 = True
             l_do_ci95m = True
 
-        font_ttl, font_ylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__()
 
 
         print "avant:", rmin_amp, rmax_amp
@@ -1633,11 +1633,9 @@ class plot :
                     plt.plot(vfrq, 20.*nmp.log10(vnoise-vrci95), '0.4', linewidth=1.8)
                 plt.plot(vfrq, 20.*nmp.log10(Vspec),   '*-k', linewidth=2)
 
+        plt.ylabel('Amplitude Spectrum ('+cyunit+')', color='k', **font_xylb)
 
-        #plt.ylabel(r'Amplitude Spectrum ('+cyunit+'$\,$cpy$^{-1}$)', color='k', **font_ylb)
-        plt.ylabel('Amplitude Spectrum ('+cyunit+')', color='k', **font_ylb)
-
-        plt.xlabel('Period (years)', color='k', **font_ylb)
+        plt.xlabel('Period (years)', color='k', **font_xylb)
 
         if log_x:
             x1=nmp.log10(x_max) ; x2=nmp.log10(x_min)
@@ -1649,7 +1647,6 @@ class plot :
                 vee_n = nmp.arange(vee[0], vee[len(vee)-1]-1, -1.)
                 print vee_n[:]
                 cvee_n = []
-                #jr=0
                 for rr in vee_n:
                     cr = str(int(rr))
                     if cr in cvee:
@@ -1657,29 +1654,20 @@ class plot :
                     else:
                         cvee_n.append('')
                 print 'cvee =>', cvee[:]
-                print 'cvee_n =>', cvee_n[:] ; #sys.exit(0)
+                print 'cvee_n =>', cvee_n[:]
                 plt.xticks(nmp.log10(1./vee_n[:]),cvee_n[:])
         else:
             x1=x_max; x2=x_min
             plt.axis([x1, x2, rmin_amp, rmax_amp])
             plt.xticks(1./vee[:],cvee[:], color='k')
 
-        #lplot_freq_ax
-
         ax.grid(color='0.4', linestyle='-', linewidth=0.3)
-
-    #    ax.annotate('white noise', xy=(lab95_xpos*x2+(1.-lab95_xpos)*x1, rnoise+0.01*(rmax_amp-rmin_amp)),
-    #                xycoords='data', color='k') #, **font_lab)
-    #
-    #    ax.annotate('95% CI', xy=(lab95_xpos*x2+(1.-lab95_xpos)*x1, rrci95+rnoise+0.01*(rmax_amp-rmin_amp)),
-    #                xycoords='data', color='0.4') #, **font_lab)
 
         plt.legend(loc='upper left', shadow=False, fancybox=True)
 
-
         if lplot_freq_ax:
             ax2 = ax.twiny()
-            ax2.set_xlabel('Frequency (cpy)', color='k', **font_ylb)
+            ax2.set_xlabel('Frequency (cpy)', color='k', **font_xylb)
             if log_x:
                 plt.axis([x1, x2, rmin_amp, rmax_amp])
                 for jp in range(1,18,2): civee[jp] = ''
@@ -1824,20 +1812,25 @@ def __give_proj__(cname):
 
 
 
-def __font_unity__():
-    #
-    params = {'font.family':'Trebuchet MS',
-              'font.size':16,
-              'legend.fontsize': 14,
-              'xtick.labelsize': 16,
-              'ytick.labelsize': 16,
-              'axes.labelsize':  16}
+def __font_unity__(size='normal'):
+
+    
+    rat = 1.
+    if size == 'big': rat = 1.25
+
+    params = { 'font.family':'Trebuchet MS',
+               'font.size':       int(16.*rat),
+               'legend.fontsize': int(14.*rat),
+               'xtick.labelsize': int(16.*rat),
+               'ytick.labelsize': int(16.*rat),
+               'axes.labelsize':  int(16.*rat) }
+    
     mpl.rcParams.update(params)
-    #
-    title_fonts    = { 'fontname':'Arial', 'fontweight':'normal', 'fontsize':18 }
-    label_fonts    = { 'fontname':'Arial', 'fontweight':'normal', 'fontsize':17 }
-    colorbar_fonts = { 'fontname':'Arial', 'fontweight':'normal', 'fontsize':16 }
-    #
+
+    title_fonts    = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':int(18.*rat) }
+    label_fonts    = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(17.*rat) }
+    colorbar_fonts = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(16.*rat) }
+
     return title_fonts, label_fonts, colorbar_fonts
 
 
@@ -1849,17 +1842,6 @@ def __force_min_and_max__(rm, rp, Xin):
     idx1 = nmp.where(Xin <= rm); Xin[idx1] = rm + abs(rp-rm)*1.E-4
     idx2 = nmp.where(Xin >= rp); Xin[idx2] = rp - abs(rp-rm)*1.E-4
     Xin[idx_bad] = nmp.nan
-
-
-def __font_unity_big__():
-    params = {'font.family':'Trebuchet MS','font.size':20,'legend.fontsize': 16,'xtick.labelsize':16,'ytick.labelsize': 16,'axes.labelsize':18}
-    mpl.rcParams.update(params)
-    title_fonts     = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':20 }
-    big_fixed_fonts = { 'fontname':'monaco',       'fontweight':'normal', 'fontsize':20 }
-    label_fonts     = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':16 }
-    colorbar_fonts  = { 'fontname':'Tahoma',       'fontweight':'normal', 'fontsize':14 }
-    return title_fonts, big_fixed_fonts, label_fonts, colorbar_fonts
-
 
 
 def __subsample_colorbar__(iss, vcc, clb_hndl, cb_or='vertical'):
@@ -1946,29 +1928,3 @@ def __nice_x_axis__(x_0, x_L, dx, ax_hndl, plt_hndl, iss=1, cunit=None, cfont=No
 
     del xlabs
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-#    params = { 'font.family': 'Ubuntu Mono',
-#               'legend.fontsize': 14,
-#               'text.fontsize':   14,
-#               'xtick.labelsize': 12,
-#               'ytick.labelsize': 12,
-#               'axes.labelsize':  14}
-#    mpl.rcParams.update(params)
-#
-#    font_ttl = { 'fontname':'Bitstream Vera Sans Mono', 'fontweight':'normal', 'fontsize':14 }
-#    font_ylb = { 'fontname':'Tahoma', 'fontweight':'normal', 'fontsize':12 }
-
-
-#lolo: replace 'i_sub_samp' 'i_colorbar_jump' by 'i_colobar_tick_subsample' or something like this...
