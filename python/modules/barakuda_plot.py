@@ -559,9 +559,9 @@ class plot :
 
 
     def __nproj(self,czone, rmin, rmax, dc, xlon, xlat, XF,
-                   cfignm='fig', lkcont=False, cpal='jet', cbunit=' ',
-                   cfig_type='pdf', ctitle=' ', lforce_lim=False,
-                   cb_orient='vertical', i_cb_subsamp=1, dpi_fig=140, lpcont=True):
+                cfignm='fig', lkcont=False, cpal='jet', cbunit=' ',
+                cfig_type='pdf', ctitle=' ', lforce_lim=False,
+                cb_orient='vertical', i_cb_subsamp=1, dpi_fig=140, lpcont=True):
 
         # Plot projection with basemap...
 
@@ -696,10 +696,7 @@ class plot :
             carte.drawmeridians(nmp.arange(-180,180,20), labels=[0,0,0,1])
             carte.drawparallels(nmp.arange( -90, 90,10), labels=[1,0,0,0])
 
-
-        font_ttl = { 'fontname':'Monaco', 'fontweight':'normal', 'fontsize':16 } ; # lolo !
         plt.title(ctitle, **font_ttl)
-
 
         # Colorbar: #lulu
         if cb_orient == 'horizontal':
@@ -707,7 +704,6 @@ class plot :
             __nice_colorbar__(cf, plt, vc, cax_other=clbax, i_sbsmp=i_cb_subsamp, lkc=(lkcont and lpcont), cb_or='horizontal', cunit=cbunit, cfont=font_clb, fontsize=10)
         else:
             __nice_colorbar__(cf, plt, vc,                  i_sbsmp=i_cb_subsamp, lkc=(lkcont and lpcont),                     cunit=cbunit, cfont=font_clb, fontsize=12)
-
 
         plt.savefig(cfignm+'.'+cfig_type, dpi=dpi_fig, orientation='portrait', transparent=False) ; #, transparent=True, acecolor='w', edgecolor='w',trans
 
@@ -799,9 +795,9 @@ class plot :
         font_ttl, font_xylb, font_clb = __font_unity__()
 
         fig = plt.figure(num = 1, figsize=(12.,6.4), dpi=None, facecolor='w', edgecolor='k')
-        ax  = plt.axes([0.1,  0.1,  0.94, 0.85], axisbg = 'gray')
+        ax  = plt.axes([0.1,  0.1,  0.94, 0.85], axisbg = 'gray')   #lolo why isn't gray taken into account in plot?
 
-        vc = __vcontour__(rmin, rmax, dc); #print 'plot_amoc_lat_depth: contours =>\n', vc, '\n'
+        vc = __vcontour__(rmin, rmax, dc)
 
         # Colormap:
         palette = bcm.chose_palette(cpal)
@@ -1859,9 +1855,9 @@ def __nice_colorbar__(fig_hndl, plt_hndl, vcc,
 
     if not cunit is None:
         if cfont is None:
-            plt_hndl.xlabel('['+cunit+']')
+            clb.set_label('['+cunit+']')
         else:
-            plt_hndl.xlabel('['+cunit+']', **cfont)
+            clb.set_label('['+cunit+']', **cfont)
 
     if fontsize > 0:
         if cb_or == 'horizontal':
