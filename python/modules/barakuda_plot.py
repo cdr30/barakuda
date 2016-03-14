@@ -698,7 +698,7 @@ class plot :
 
         plt.title(ctitle, **font_ttl)
 
-        # Colorbar: #lulu
+        # Colorbar:
         if cb_orient == 'horizontal':
             clbax = fig.add_axes(vcbar) # new axes for colorbar!
             __nice_colorbar__(cf, plt, vc, cax_other=clbax, i_sbsmp=i_cb_subsamp, lkc=(lkcont and lpcont), cb_or='horizontal', cunit=cbunit, cfont=font_clb, fontsize=10)
@@ -768,11 +768,9 @@ class plot :
 
 
 
-
-
     def __amoc_lat_depth(self,VY, VZ, Xamoc, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet', ymin=-80., ymax=85.,
                             cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
-                            cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False):
+                            cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, i_cb_subsamp=1):
 
         import math
         import matplotlib.colors as colors   # palette and co.
@@ -794,8 +792,8 @@ class plot :
 
         font_ttl, font_xylb, font_clb = __font_unity__()
 
-        fig = plt.figure(num = 1, figsize=(12.,6.4), dpi=None, facecolor='w', edgecolor='k')
-        ax  = plt.axes([0.1,  0.1,  0.94, 0.85], axisbg = 'gray')   #lolo why isn't gray taken into account in plot?
+        fig = plt.figure(num = 1, figsize=(12,7.2), facecolor='w', edgecolor='k')
+        ax  = plt.axes([0.1,  0.1,  0.94, 0.85], axisbg = 'gray')
 
         vc = __vcontour__(rmin, rmax, dc)
 
@@ -809,7 +807,7 @@ class plot :
         if lkcont: plt.contour(VY, zVZ, Xamoc, vc, colors='k', linewidths=0.2)
 
         # Colorbar:
-        __nice_colorbar__(cf, plt, vc, cunit=cbunit, cfont=font_clb, fontsize=11)
+        __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, cunit=cbunit, cfont=font_clb)  #, fontsize=14)
 
         plt.axis([ ymin, ymax, zmin, zmax])
         plt.xlabel(cxunit, **font_xylb); plt.ylabel(czunit, **font_xylb)
@@ -823,7 +821,7 @@ class plot :
 
         plt.title(ctitle, **font_ttl)
 
-        plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=True)
+        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_TS, orientation='portrait', transparent=False)
         print cfignm+'.'+cfig_type+' created!\n'
 
         plt.close(1)
@@ -1811,7 +1809,10 @@ def __force_min_and_max__(rm, rp, Xin):
 
 def __subsample_colorbar__(i_sbsmp, vcc, clb_hndl, cb_or='vertical'):
     cb_labs = []
+
     cpt = 0
+    if int(vcc[0]) % 2 != 0: cpt = 1   # not an even number !
+    
     for cr in vcc:
         if cpt % i_sbsmp == 0:
             rr = round(float(cr),6)

@@ -1,7 +1,7 @@
-import numpy as nmp
+
 import sys
 import os
-
+import numpy as nmp
 
 
 #    #Lfinite = nmp.isfinite(XF)
@@ -51,8 +51,8 @@ def iaxe_tick(ny):
     itick = int( max( 1 , min(ny/20 , max(ny/20,5)/5*5) ) )
     if itick == 4 or itick == 3: itick = 5
     if ny > 20 and itick == 1: itick = 2
-    if ny >=  50 and ny < 120: itick = 5
-    if ny >= 120 and ny < 200: itick = 10
+    if ny >=  50 and ny < 100: itick = 5
+    if ny >= 100 and ny < 200: itick = 10
     return itick
 
 
