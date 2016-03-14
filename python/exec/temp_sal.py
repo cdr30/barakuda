@@ -2,9 +2,11 @@
 
 #       B a r a K u d a
 #
-#  Generate misc. spatial plots of potential tempearture and salinity out of NEMO output files...
+#  Generate misc. spatial plots of potential temperature and salinity out of
+#  NEMO output and climatology (from initial condition and surface restoring
+#  NEMO files)
 #
-#       L. Brodeau, november 2013
+#    L. Brodeau, november 2013
 
 import sys
 import os
