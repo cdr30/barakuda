@@ -94,19 +94,12 @@ class plot :
                        xmin=-80., xmax=85., dx=5, cfignm='fig', cbunit='', cxunit=' ',
                        zmin = 0., zmax = 5000., l_zlog=False, cfig_type='png',
                        czunit=' ', ctitle=' ', lforce_lim=False, i_cb_subsamp=1, l_z_increase=False ):
-        import math
+
         import barakuda_colmap as bcm
 
         font_ttl, font_xylb, font_clb = __font_unity__()
 
-        zVZ = nmp.zeros(len(VZ)) ; zVZ.shape = [ len(VZ) ]
-
-        # If log / z:
-        if l_zlog:
-            zmin = math.log10(zmin); zmax = math.log10(zmax);
-            for jk in range(len(VZ)): zVZ[jk] = math.log10(VZ[jk])
-        else:
-            zVZ= VZ
+        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
@@ -115,10 +108,9 @@ class plot :
 
         fig = plt.figure(num = 1, figsize=(WDTH_TS,5.), dpi=None, facecolor='w', edgecolor='k')
         ax = plt.axes([0.08, 0.12, 0.98, 0.82], axisbg = 'gray')
-        #AXES_TS     = [0.1, 0.082, 0.87, 0.84] #lolo
         vc = __vcontour__(rmin, rmax, dc)
 
-        # Palette: chose_palette
+        # Colormap:
         palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
 
@@ -126,24 +118,17 @@ class plot :
         plt.hold(True)
         if lkcont: plt.contour(VX, zVZ, XF, vc, colors='k', linewidths=0.2)
 
-        # Colorbar
+        # Colorbar:
         __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, cunit=cbunit, cfont=font_clb, fontsize=10)
 
         # X-axis:
-        __nice_x_axis__(xmin, xmax, dx, ax, plt, cunit=cxunit, cfont=font_xylb)
+        __nice_x_axis__(ax, plt, xmin, xmax, dx, cunit=cxunit, cfont=font_xylb)
 
         # Y-axis:
         plt.ylabel(czunit, **font_xylb)
-        # Correcting ticks for log
-        if l_zlog:
-            locs, labels = plt.yticks(); cny = []
-            print 'locs =', locs
-            for jl in range(len(locs[:])): cny.append(str(int(10**locs[jl])))
-            plt.yticks(locs,cny)
-        if l_z_increase:
-            ax.set_ylim(zmin,zmax)
-        else:
-            ax.set_ylim(zmax+(zmax-zmin)/50. , zmin)
+        
+        # Fixing z ticks:
+        __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog, l_z_inc=l_z_increase)
 
         plt.title(ctitle, **font_ttl)
         plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_TS, orientation='portrait', transparent=False)
@@ -479,7 +464,7 @@ class plot :
         # Colorbar:
         __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cunit=cbunit, cfont=font_clb)
 
-        if x_offset > 0 or y_offset > 0 :  __add_xy_offset__(x_offset, y_offset, plt)
+        if x_offset > 0 or y_offset > 0 :  __add_xy_offset__(plt, x_offset, y_offset)
 
         plt.axis([ 0., nx-1, 0, ny-1])
 
@@ -528,14 +513,14 @@ class plot :
         plt.legend(bbox_to_anchor=(0.63, 0.75), shadow=False, fancybox=True)
 
         # X-axis
-        __nice_x_axis__(xmin, xmax, 15., ax, plt, cunit=cxunit, cfont=font_xylb)
+        __nice_x_axis__(ax, plt, xmin, xmax, 15., cunit=cxunit, cfont=font_xylb)
 
         # Y-axis:
         iia = 1
         if zmax <= 0. and zmin < 0.: iia = 0
         vv = nmp.arange(zmin, zmax+dz, dz)
         plt.yticks(vv)
-        if i_z_jump > 1: __subsample_axis__('y', i_z_jump, plt)
+        if i_z_jump > 1: __subsample_axis__(plt, 'y', i_z_jump)
         ax.set_ylim(zmin-dz/2., zmax+dz/2.)
         plt.ylabel(cyunit, **font_xylb)
 
@@ -772,19 +757,10 @@ class plot :
                             cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
                             cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, i_cb_subsamp=1):
 
-        import math
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-
-        zVZ = nmp.zeros(len(VZ)) ; zVZ.shape = [ len(VZ) ]
-
-        # If log / z:
-        if l_zlog:
-            zmin = math.log10(zmin); zmax = math.log10(zmax);
-            for jk in range(len(VZ)): zVZ[jk] = math.log10(VZ[jk])
-        else:
-            zVZ= VZ
+        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
 
         Xamoc = nmp.ma.masked_where(XMSK == 0, Xamoc)
 
@@ -812,12 +788,8 @@ class plot :
         plt.axis([ ymin, ymax, zmin, zmax])
         plt.xlabel(cxunit, **font_xylb); plt.ylabel(czunit, **font_xylb)
 
-        # Correcting ticks for log
-        if l_zlog:
-            locs, labels = plt.yticks(); cny = []
-            print 'locs =', locs
-            for jl in range(len(locs[:])): cny.append(str(int(10**locs[jl])))
-            plt.yticks(locs,cny)
+       # Fixing z ticks:
+       __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog)
 
         plt.title(ctitle, **font_ttl)
 
@@ -915,7 +887,7 @@ class plot :
         # Colorbar:
         __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cunit=cbunit, cfont=font_clb)
 
-        if x_offset > 0 or y_offset > 0 :  __add_xy_offset__(x_offset, y_offset, plt)
+        if x_offset > 0 or y_offset > 0 :  __add_xy_offset__(plt, x_offset, y_offset)
 
         plt.axis([ 0., nx-1, 0, ny-1])
 
@@ -981,7 +953,7 @@ class plot :
         y1 = int(min(VT))  ; y2 = int(max(VT))+1
         plt.axis([y1, y2, vsigma_bounds[nbins], vsigma_bounds[0]])
 
-        __nice_x_axis__(y1, y2, dt_year, ax, plt, cfont=font_xylb)
+        __nice_x_axis__(ax, plt, y1, y2, dt_year, cfont=font_xylb)
 
         plt.yticks( nmp.flipud(vsigma_bounds) )
 
@@ -1007,23 +979,13 @@ class plot :
 
 
     def __vert_section_extra(self,VX, VZ, XF, XMSK, Vcurve, rmin, rmax, dc, lkcont=True, cpal='jet', xmin=-80., xmax=85.,
-                                cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
-                                cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, fig_size=(8.,8.) ):
+                             cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
+                             cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, fig_size=(8.,8.) ):
 
-        import math
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-
-        zVZ = nmp.zeros(len(VZ)) ; zVZ.shape = [ len(VZ) ]
-
-        # If log / z:
-        if l_zlog:
-            zmin = math.log10(zmin); zmax = math.log10(zmax);
-            for jk in range(len(VZ)): zVZ[jk] = math.log10(VZ[jk])
-        else:
-            zVZ= VZ
-
+        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
 
         XF = nmp.ma.masked_where(XMSK == 0, XF)
 
@@ -1044,26 +1006,21 @@ class plot :
         plt.hold(True)
         if lkcont: plt.contour(VX, zVZ, XF, vc, colors='k', linewidths=0.2)
 
-        clb = plt.colorbar(cf, ticks=vc)
-        for t in clb.ax.get_yticklabels():
-            t.set_fontsize(10)
+        # Colorbar:
+        __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, cunit=cbunit, cfont=font_clb, fontsize=10)
 
-        plt.axis([ xmin, xmax, zmax, zmin])
-        plt.xlabel(cxunit, **font_xylb); plt.ylabel(czunit, **font_xylb)
+        # X-axis:
+        __nice_x_axis__(ax, plt, xmin, xmax, dx, cunit=cxunit, cfont=font_xylb)
+
+        plt.ylabel(czunit, **font_xylb)
 
         plt.plot(VX,Vcurve, 'w', linewidth=2)
 
         for zz in zVZ[:]:
             plt.plot(VX,VX*0.+zz, 'k', linewidth=0.3)
 
-
-        # Correcting ticks for log
-        if l_zlog:
-            locs, labels = plt.yticks(); cny = []
-            print 'locs =', locs
-            for jl in range(len(locs[:])): cny.append(str(int(10**locs[jl])))
-            plt.yticks(locs,cny)
-        plt.axis([ xmin, xmax, zmax, zmin])
+       # Fixing z ticks:
+       __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog, l_z_inc=False)
 
         plt.title(ctitle, **font_ttl)
         plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=True)
@@ -1076,40 +1033,23 @@ class plot :
 
 
 
-
-
-
-
     def __time_depth_hovm(self,VT, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
                              tmin=0., tmax=100., dt=5.,
                              cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
                              cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, i_cb_subsamp=1,
                              vcont_spec1 = [], col_cont_spec1='w'):
-        #************************************************************************
 
-        import math
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-
         font_ttl, font_xylb, font_clb = __font_unity__()
 
-
-        zVZ = nmp.zeros(len(VZ)) ; zVZ.shape = [ len(VZ) ]
-
-        # If log / z:
-        if l_zlog:
-            zmin = math.log10(zmin); zmax = math.log10(zmax);
-            for jk in range(len(VZ)): zVZ[jk] = math.log10(VZ[jk])
-        else:
-            zVZ[:] = VZ[:]
-
+        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
 
         XF = nmp.ma.masked_where(XMSK == 0, XF)
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
-    #---------------------------------------------------------
 
         fig = plt.figure(num = 1, figsize=(12.,7.), dpi=None, facecolor='w', edgecolor='k')
         ax = plt.axes([0.07,  0.08,   1., 0.82], axisbg = 'gray')
@@ -1141,14 +1081,11 @@ class plot :
         plt.axis([ tmin, tmax, zmax, zmin])
         plt.ylabel(czunit, **font_xylb)
 
-        #Correcting ticks for log
-        if l_zlog:
-            locs, labels = plt.yticks(); cny = []
-            for jl in range(len(locs[:])): cny.append(str(int(10.**locs[jl])))
-            plt.yticks(locs,cny)
-        plt.axis([ tmin, tmax, zmax, zmin])
+        # X-axis:
+       __nice_x_axis__(ax, plt, tmin, tmax, dt, cfont=font_xylb)
 
-        __nice_x_axis__(tmin, tmax, dt, ax, plt, cfont=font_xylb)
+        # Fixing z ticks:
+       __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog, l_z_inc=False)
 
         plt.title(ctitle, **font_ttl)
         plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
@@ -1238,7 +1175,7 @@ class plot :
         plt.plot(VT, xnino[:,3], 'k', linewidth=0.7)
         plt.axis([min(VT), max(VT), -2.5, 2.5])
 
-        __nice_x_axis__(y1, y2, dt_year, ax, plt, cfont=font_xylb)
+        __nice_x_axis__(ax, plt, y1, y2, dt_year, cfont=font_xylb)
 
         plt.yticks( nmp.arange(-2.5,2.501,0.5) )
 
@@ -1311,9 +1248,9 @@ class plot :
             if dy != 0:
                 plt.yticks( nmp.arange(float(int(ymin+0.5)), float(int(ymax))+dy, dy) )
                 locs, labels = plt.yticks() #lolo?
-                if i_y_jump > 1: __subsample_axis__('y', i_y_jump, plt)
+                if i_y_jump > 1: __subsample_axis__(plt, 'y', i_y_jump)
 
-        __nice_x_axis__(y1, y2, dt_year, ax, plt, cfont=font_xylb)
+        __nice_x_axis__(ax, plt, y1, y2, dt_year, cfont=font_xylb)
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
 
@@ -1405,9 +1342,9 @@ class plot :
         #print 'y1, y2 =', y1, y2
 
         if lzonal:
-            __nice_x_axis__(y1, y2, 10., ax, plt, cfont=font_xylb)
+            __nice_x_axis__(ax, plt, y1, y2, 10., cfont=font_xylb)
         else:
-            __nice_x_axis__(y1, y2, dt_year, ax, plt, i_sbsmp=i_t_jump, cfont=font_xylb)
+            __nice_x_axis__(ax, plt, y1, y2, dt_year, i_sbsmp=i_t_jump, cfont=font_xylb)
 
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
@@ -1477,7 +1414,7 @@ class plot :
 
         print nmp.arange(y1, y2+dt_year, dt_year)
 
-        __nice_x_axis__(y1, y2, dt_year, ax, plt, i_sbsmp=i_t_jump, cfont=font_xylb)
+        __nice_x_axis__(ax, plt, y1, y2, dt_year, i_sbsmp=i_t_jump, cfont=font_xylb)
 
         ax.grid(color='k', linestyle='-', linewidth=0.2)
 
@@ -1868,7 +1805,7 @@ def __nice_colorbar__(fig_hndl, plt_hndl, vcc,
 
 
 
-def _add_xy_offset__(ixo, iyo, plt_hndl):
+def _add_xy_offset__(plt_hndl, ixo, iyo):
     if ( ixo != 0. ):
         locs, labels = plt_hndl.xticks() ; jl=0
         vlabs = []
@@ -1884,7 +1821,7 @@ def _add_xy_offset__(ixo, iyo, plt_hndl):
         plt_hndl.yticks(locs,vlabs)
     del vlabs
 
-def __subsample_axis__(cax, i_sbsmp, plt_hndl):
+def __subsample_axis__(plt_hndl, cax, i_sbsmp):
     ax_lab = []
     if   cax == 'x':
         locs, labels = plt_hndl.xticks()
@@ -1905,7 +1842,7 @@ def __subsample_axis__(cax, i_sbsmp, plt_hndl):
 
 
 
-def __nice_x_axis__(x_0, x_L, dx, ax_hndl, plt_hndl, i_sbsmp=1, cunit=None, cfont=None):
+def __nice_x_axis__(ax_hndl, plt_hndl, x_0, x_L, dx, i_sbsmp=1, cunit=None, cfont=None):
     plt_hndl.xticks( nmp.arange(x_0, x_L+dx, dx) )
     locs, labels = plt_hndl.xticks()
     jl=0
@@ -1915,7 +1852,7 @@ def __nice_x_axis__(x_0, x_L, dx, ax_hndl, plt_hndl, i_sbsmp=1, cunit=None, cfon
         jl=jl+1
     plt_hndl.xticks(locs,xlabs)
 
-    if i_sbsmp > 1: __subsample_axis__('x', i_sbsmp, plt)
+    if i_sbsmp > 1: __subsample_axis__( plt, 'x', i_sbsmp)
 
     ax_hndl.set_xlim(x_0,x_L)
 
@@ -1930,3 +1867,36 @@ def __nice_x_axis__(x_0, x_L, dx, ax_hndl, plt_hndl, i_sbsmp=1, cunit=None, cfon
 
     del xlabs
 
+
+def __prepare_z_log_axis__(l_log, z0, zK, vz):
+
+    import math
+
+    nk  = len(vz)
+    zvz = nmp.zeros(nk)
+
+    if l_log:
+        z0 = math.log10(z0)
+        zK = math.log10(zK)
+        for jk in range(nk):
+            zvz[jk] = math.log10(vz[jk])
+    else:
+        zvz= vz
+        
+    return z0, zK, zvz
+
+    
+def __fix_z_axis__(ax_hndl, plt_hndl, z0, zK, l_log=False, l_z_inc=True):
+    
+    if l_log:
+        # Correcting ticks for log
+        locs, labels = plt_hndl.yticks() ; # print 'locs =', locs
+        cny = []
+        for jl in range(len(locs[:])):
+            cny.append(str(int(10.**locs[jl])))
+        plt_hndl.yticks(locs,cny)
+        
+    if l_z_inc:
+        ax_hndl.set_ylim(z0,zK)
+    else:
+        ax_hndl.set_ylim(zK+(zK-z0)/50. , z0)
