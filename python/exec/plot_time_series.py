@@ -91,7 +91,7 @@ elif cdiag == 'amoc':
     if LMOCLAT == None: print 'The LMOCLAT environement variable is no set'; sys.exit(0)
     idfig = 'amoc'
     cyu  = r'Sv'
-    ym = 3.75 ; yp = 30.25
+    ym = 3.75 ; yp = 20.25
 
 elif cdiag == 'mean_mldr10_1':
     cvar  = NN_MLD

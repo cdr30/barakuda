@@ -18,12 +18,14 @@
 #PBS -l mppwidth=20
 #PBS -l mppnppn=20
 #PBS -l mppdepth=1
-#PBS -l walltime=06:00:00
+#PBS -l walltime=12:00:00
 # You may need to comment this on other clusters than voima.
 cd $PBS_O_WORKDIR
 CONFIG=ORCA1_L75_v36_voima
-CONFIG=ORCA1_L75_v36_LIM2_voima
-RUN=O1L7508
+#CONFIG=ORCA1_L46_v36_voima
+#CONFIG=ORCA1_L75_v36_LIM2_voima
+RUN=O1L7516
+#RUN=O1L4602
 YEAR0=1958
 YEARN=2012
 LFORCE_YEAR1=true

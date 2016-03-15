@@ -21,8 +21,9 @@
 cd $PBS_O_WORKDIR
 # -C ORCA1_L46_v36_voima -R ECN-D501 -i 1983 -e 2012
 export CONFIG=ORCA1_L75_v36_voima
-export CONFIG=ORCA1_L75_v36_LIM2_voima
-export RUN=O1L7506
+#export CONFIG=ORCA1_L46_v36_voima
+#export CONFIG=ORCA1_L75_v36_LIM2_voima
+export RUN=O1L7516
 export Y1=2003
 export Y2=2012
 
