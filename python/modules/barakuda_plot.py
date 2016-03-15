@@ -788,8 +788,8 @@ class plot :
         plt.axis([ ymin, ymax, zmin, zmax])
         plt.xlabel(cxunit, **font_xylb); plt.ylabel(czunit, **font_xylb)
 
-       # Fixing z ticks:
-       __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog)
+        # Fixing z ticks:
+        __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog)
 
         plt.title(ctitle, **font_ttl)
 
@@ -1019,8 +1019,8 @@ class plot :
         for zz in zVZ[:]:
             plt.plot(VX,VX*0.+zz, 'k', linewidth=0.3)
 
-       # Fixing z ticks:
-       __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog, l_z_inc=False)
+        # Fixing z ticks:
+        __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog, l_z_inc=False)
 
         plt.title(ctitle, **font_ttl)
         plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=True)
@@ -1082,10 +1082,10 @@ class plot :
         plt.ylabel(czunit, **font_xylb)
 
         # X-axis:
-       __nice_x_axis__(ax, plt, tmin, tmax, dt, cfont=font_xylb)
+        __nice_x_axis__(ax, plt, tmin, tmax, dt, cfont=font_xylb)
 
         # Fixing z ticks:
-       __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog, l_z_inc=False)
+        __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog, l_z_inc=False)
 
         plt.title(ctitle, **font_ttl)
         plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
