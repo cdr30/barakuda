@@ -583,6 +583,7 @@ while ${lcontinue}; do
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Creating VT file if needed
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~
+        #lolo okay for multi year files!
         if [ ${i_do_trsp} -gt 0 -o ${i_do_mht} -eq 1 ]; then
             if [ ! -f ${fvt} ]; then
                 echo; echo; echo " *** doing: ./cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV}"
@@ -590,7 +591,7 @@ while ${lcontinue}; do
                 echo "Done!"; echo; echo
             fi
         fi
-        
+
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Computing time-series of spatially-averaged variables

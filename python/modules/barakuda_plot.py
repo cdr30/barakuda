@@ -481,23 +481,25 @@ class plot :
         return
 
 
-    def __zonal(self,VY, VZn, VZ1=[0.], VZ2=[0.],
-                   cfignm='fig_zonal', zmin=-100., zmax=100., dz=25., i_z_jump=1,
-                   xmin=-90., xmax=90., cfig_type='png', cxunit=r'Latitude ($^{\circ}$N)',
-                   cyunit='', ctitle='', lab='', lab1='', lab2='', lnarrow=False):
+    def __zonal(self,VY, VZn, VZ1=[0.], VZ2=[0.], VZ3=[0.],
+                cfignm='fig_zonal', zmin=-100., zmax=100., dz=25., i_z_jump=1,
+                xmin=-90., xmax=90., cfig_type='png', cxunit=r'Latitude ($^{\circ}$N)',
+                czunit='', ctitle='', lab='', lab1='', lab2='', lab3='', box_legend=(0.6, 0.75),
+                lnarrow=False):
 
         font_ttl, font_xylb, font_clb = __font_unity__()
 
         ny = len(VY)
         if len(VZn) != ny: print 'ERROR: plot_zonal.barakuda_plot => VY and VZn do not agree in size'; sys.exit(0)
 
-        lp1=False ; lp2=False
+        lp1=False ; lp2=False ; lp3=False
         if len(VZ1) == ny: lp1=True
         if len(VZ2) == ny: lp2=True
+        if len(VZ3) == ny: lp3=True
 
         if lnarrow:
             fig = plt.figure(num = 1, figsize=(6.,5.), dpi=None)
-            ax = plt.axes([0.135, 0.11, 0.83, 0.82])   #, axisbg = 'gray')
+            ax = plt.axes([0.173 , 0.12, 0.81, 0.82])   #, axisbg = 'gray')
         else:
             fig = plt.figure(num = 1, figsize=(12.,6.4), dpi=None)
             ax = plt.axes([0.08, 0.11, 0.9, 0.82])   #, axisbg = 'gray')
@@ -509,21 +511,15 @@ class plot :
         plt.plot(VY, VZn, 'k', linewidth=3., label=lab)
         if lp1: plt.plot(VY, VZ1, color='#3465a4', linewidth=2., label=lab1)
         if lp2: plt.plot(VY, VZ2, color='#cc0000', linewidth=2., label=lab2)
+        if lp3: plt.plot(VY, VZ3, color='#58FAAC', linewidth=2., label=lab3)
 
-        plt.legend(bbox_to_anchor=(0.63, 0.75), shadow=False, fancybox=True)
+        plt.legend(bbox_to_anchor=box_legend, shadow=False, fancybox=True)
 
         # X-axis
         __nice_x_axis__(ax, plt, xmin, xmax, 15., cunit=cxunit, cfont=font_xylb)
 
-        # Y-axis:
-        iia = 1
-        if zmax <= 0. and zmin < 0.: iia = 0
-        vv = nmp.arange(zmin, zmax+dz, dz)
-        plt.yticks(vv)
-        if i_z_jump > 1: __subsample_axis__(plt, 'y', i_z_jump)
-        ax.set_ylim(zmin-dz/2., zmax+dz/2.)
-        plt.ylabel(cyunit, **font_xylb)
-
+        # Z-axis:
+        __nice_z_axis__(ax, plt, zmin, zmax, dz, i_sbsmp=i_z_jump, cunit=czunit, cfont=font_xylb)
 
         ax.grid(color='k', linestyle='-', linewidth=0.1)
         plt.title(ctitle, **font_ttl)
@@ -1820,7 +1816,7 @@ def _add_xy_offset__(plt_hndl, ixo, iyo):
         plt_hndl.yticks(locs,vlabs)
     del vlabs
 
-def __subsample_axis__(plt_hndl, cax, i_sbsmp):
+def __subsample_axis__(plt_hndl, cax, i_sbsmp, icpt=1):
     ax_lab = []
     if   cax == 'x':
         locs, labels = plt_hndl.xticks()
@@ -1828,7 +1824,7 @@ def __subsample_axis__(plt_hndl, cax, i_sbsmp):
         locs, labels = plt_hndl.yticks()
     else:
         print ' Error: __subsample_axis__.barakuda_plot => only "x" or "y" please'; sys.exit(0)        
-    cpt = 1 ; # => tick priting will start at y1+dt_year on x axis rather than y1
+    cpt = icpt # with ipct = 1: tick priting will start at y1+dt_year on x axis rather than y1
     for rr in locs:
         if cpt % i_sbsmp == 0:
             ax_lab.append(str(rr))
@@ -1865,6 +1861,27 @@ def __nice_x_axis__(ax_hndl, plt_hndl, x_0, x_L, dx, i_sbsmp=1, cunit=None, cfon
     #ax_hndl.get_xaxis().get_major_formatter().set_useOffset(False)
 
     del xlabs
+
+
+def __nice_z_axis__(ax_hndl, plt_hndl, z0, zK, dz, i_sbsmp=1, cunit=None, cfont=None):
+    iia = 1
+    if zK <= 0. and z0 < 0.:
+        iia = 0
+    vv = nmp.arange(z0, zK+dz, dz)
+    plt_hndl.yticks(vv)
+    if i_sbsmp > 1: __subsample_axis__(plt, 'y', i_sbsmp, icpt=0)
+    ax_hndl.set_ylim(z0-dz/2., zK+dz/2.)
+    if not cunit is None:
+        if cfont is None:
+            plt_hndl.ylabel(cunit)
+        else:
+            plt_hndl.ylabel(cunit, **cfont)
+
+
+
+
+
+
 
 
 def __prepare_z_log_axis__(l_log, z0, zK, vz):
