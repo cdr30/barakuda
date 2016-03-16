@@ -279,9 +279,9 @@ class plot :
 
 
     def __2d_reg(self,VX, VY, XF, XMSK, rmin, rmax, dc, lkcont=False, cpal='jet',
-                    cfignm='fig', cfig_type='pdf', cbunit=' ', ctitle='',
-                    cb_orient='vertical', lat_min=-77., lat_max=77., i_cb_subsamp=1,
-                    lpix=False, l_continent_pixel=True, colorbar_fs=14):
+                 cfignm='fig', cfig_type='pdf', cbunit=' ', ctitle='',
+                 cb_orient='vertical', lat_min=-77., lat_max=77., i_cb_subsamp=1,
+                 lpix=False, l_continent_pixel=True, colorbar_fs=14):
 
 
         import barakuda_tool   as bt
@@ -314,7 +314,7 @@ class plot :
 
 
         if cb_orient == 'horizontal':
-            # VHorizontal colorbar!
+            # Horizontal colorbar!
             if ctitle == '':
                 fig = plt.figure(num = 1, figsize=(12.4,7.*rat_vert), dpi=None, facecolor='w', edgecolor='k')
                 ax = plt.axes([0.05, -0.01, 0.93, 1.], axisbg = 'white')
@@ -324,7 +324,7 @@ class plot :
         else:
             # Vertical colorbar!
             fig = plt.figure(num = 1, figsize=(12.4,6.*rat_vert), dpi=None, facecolor='w', edgecolor='k')
-            ax = plt.axes([0.05, 0.06, 1.02, 0.88], axisbg = 'white')
+            ax = plt.axes([0.046, 0.06, 1.02, 0.88], axisbg = 'white')
 
         vc = __vcontour__(rmin, rmax, dc)
 
@@ -1742,13 +1742,21 @@ def __force_min_and_max__(rm, rp, Xin):
 def __subsample_colorbar__(i_sbsmp, vcc, clb_hndl, cb_or='vertical'):
     cb_labs = []
 
+    # First checking if vcc countains integers or not...
+    lcint = False
+    vc = vcc.astype(nmp.int64)  ; # integer version of vcc
+    if [ nmp.sum(vcc-vc) == 0. ]: lcint=True
+
     cpt = 0
     if int(vcc[0]) % 2 != 0: cpt = 1   # not an even number !
     
-    for cr in vcc:
+    for rr in vcc:
         if cpt % i_sbsmp == 0:
-            rr = round(float(cr),6)
-            cb_labs.append(str(rr))
+            if lcint:
+                cr = str(int(rr))
+            else:
+                cr = str(round(float(rr),6))
+            cb_labs.append(cr)
         else:
             cb_labs.append(' ')
         cpt = cpt + 1
@@ -1756,13 +1764,7 @@ def __subsample_colorbar__(i_sbsmp, vcc, clb_hndl, cb_or='vertical'):
         clb_hndl.ax.set_xticklabels(cb_labs)
     else:
         clb_hndl.ax.set_yticklabels(cb_labs)
-    del cb_labs
-
-#        if float(int(rtck)) == round(rtck,0):
-#            cn_clb.append(str(int(rtck))) ; # we can drop the ".0"
-#        else:
-#            cn_clb.append(str(rtck)) ; # keeping the decimals...
-
+    del cb_labs, vc
 
 
 
@@ -1788,9 +1790,9 @@ def __nice_colorbar__(fig_hndl, plt_hndl, vcc,
 
     if not cunit is None:
         if cfont is None:
-            clb.set_label('['+cunit+']')
+            clb.set_label(cunit)
         else:
-            clb.set_label('['+cunit+']', **cfont)
+            clb.set_label(cunit, **cfont)
 
     if fontsize > 0:
         if cb_or == 'horizontal':
