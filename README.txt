@@ -91,19 +91,34 @@ Use the -h switch to see available options
 V) Create figures and browsable HTML page
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A/ Once the previous job has finished to run, launch:
+A/ Once the previous job has finished to run, launch
+
+   * To only generate time-series plots use the "-e" switch:
 
    ./barakuda.sh -C <MY_CONF> -R <RUN> -e
    (ex: ./barakuda.sh -C ORCA1_L75_v36_triolith -R SL36C00 -e)
 
-B/ If you want to perform the "climatology" plots (maps, sections, etc, based on a
-   monthly climatology of a few years) you will have to:
+   * To generate time-series + 2D climatological plots use the "-E" switch,
+     provided you have built a climatology out of your run with the
+     "build_clim.sh" script (see point V/B):
 
-   i) create the climatology with the "build_clim.sh"
-      => EX: $ ./build_clim.sh -C ORCA1_L75_v36_triolith -R SL36C00 -f 10 -i 0090 -e 0099 -k 4
-         (check ./build_clim.sh -h to see the options)
+   ./barakuda.sh -C <MY_CONF> -R <RUN> -E
 
-   ii) set "l_clim_diag=true" in your config file "configs/config_<MY_CONF>.sh"
+
+B/ To be able to create the "climatology" plots (maps, sections, etc, based on a
+   monthly climatology of a few years) you will have to
+
+  i) create the climatology with the "build_clim.sh" script:
+   
+   ./build_clim.sh -C <MY_CONF> -R <RUN> -i <first_year> -e <last_year>
+         (check ./build_clim.sh -h to see the other important options...)
+
+    (ex: ./build_clim.sh -C ORCA1_L75_v36_triolith -R SL36C00 -f 10 -i 0090 -e 0099 -k 4)
+      
+
+  ii) the you can tell "barakuda.sh" to create climatology-related plots by
+       using the "-E" switch instead of "-e" (see point V/A)
+
 
 C/ If you want to create time-series comparing 2 runs (each already diagnosed, at least stage III):
    
