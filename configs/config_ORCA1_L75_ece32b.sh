@@ -15,7 +15,7 @@
 export CONF=ORCA1.L75 ; # horizontal global configuration
 export NBL=75     ; # number of levels
 
-# Root directory where NEMO output files are stored:
+# File system where NEMO config and output files are stored:
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
 

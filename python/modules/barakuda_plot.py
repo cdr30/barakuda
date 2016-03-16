@@ -779,7 +779,6 @@ class plot :
 
         # Plot:
         cf = plt.contourf(VY, zVZ, Xamoc, vc, cmap = palette, norm = pal_norm)
-        plt.hold(True)
         if lkcont: plt.contour(VY, zVZ, Xamoc, vc, colors='k', linewidths=0.2)
 
         # Colorbar:
