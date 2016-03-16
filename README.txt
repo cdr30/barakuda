@@ -19,15 +19,15 @@ I / What do you need to be able to use BaraKuda ?
   A good idea is to install a shiny python distribution, something like Canopy:
   => https://www.enthought.com/products/canopy/
 
-- NEMO output data! => A directory containing the monthly NEMO output to analyze
+- NEMO output data! => A directory containing the MONTHLY-AVERAGED, global
+                       (rebuilt), NEMO output to analyze
                (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"
-               (it might also be a good idea to save the SBC files too...)
 
 - a NEMO mesh_mask file and the the corresponding basin_mask (ocean basins).
   (variables MM_FILE and BM_FILE into your config/conf_<MYCONF>.sh file)
   To create the NEMO mesh_mask.nc just launch the relevant NEMO experiment with the
   namelist parameter nn_msh set to 1 !
-  If you use ORCA1 you can use the "orca1_create_basin_mask_from_meshmask.py" in python/exec
+  If you use ORCA1 or ORCA025 you can use the "<ORCA>_create_basin_mask_from_meshmask.py" in python/exec
   to generate the basin file!
               tmaskatl(y, x) => "Atlantic Basin" ;
               tmaskpac(y, x) => "Pacific Basin" ;
