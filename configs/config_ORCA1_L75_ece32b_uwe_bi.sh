@@ -16,7 +16,7 @@ export CONF=ORCA1.L75 ; # horizontal global configuration
 export NBL=75     ; # number of levels
 
 # File system where NEMO config and output files are stored:
-export STORE_DIR="/nobackup/rossby15/x_laubr"
+export STORE_DIR="/proj/bolinc/users/x_laubr"
 
 
 # Is it an ec-earth run?
@@ -53,6 +53,8 @@ export NN_MLD="mldr10_1"
 export NN_RNF="runoffs"
 export NN_U="uo"
 export NN_V="vo"
+#export NN_U_EIV="vozoeivu"
+#export NN_V_EIV="vomeeivv"
 export NN_U_EIV="0" ; # ignore
 export NN_V_EIV="0" ; # ignore
 export NN_TAUX="tauuo"
@@ -76,10 +78,10 @@ export BM_FILE="${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/basin_mask_L
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
 export F_T_CLIM_3D_12=${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc
 export F_S_CLIM_3D_12=${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/so_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc
-export SST_CLIM_12=${STORE_DIR}/ORCA1/ORCA1-I/sst_1degx1deg-ORCA1_WOA2009_monthly.nc
+export SST_CLIM_12=${STORE_DIR}/ORCA1.L75/ORCA1.L75-I/tos_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc
 export NN_T_CLIM="thetao"
 export NN_S_CLIM="so"
-export NN_SST_CLIM="sst"
+export NN_SST_CLIM="tos"
 
 export ICE_CLIM_12=${STORE_DIR}/ORCA1.L75/ORCA1.L75-I/ice_cover_180x360-ORCA1_Hurrell_monthly_mean1980-1999.nc4
 export NN_ICEF_CLIM="ice_cover"
