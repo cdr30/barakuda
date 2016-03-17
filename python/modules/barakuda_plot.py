@@ -1745,7 +1745,7 @@ def __subsample_colorbar__(i_sbsmp, vcc, clb_hndl, cb_or='vertical'):
     # First checking if vcc countains integers or not...
     lcint = False
     vc = vcc.astype(nmp.int64)  ; # integer version of vcc
-    if [ nmp.sum(vcc-vc) == 0. ]: lcint=True
+    if nmp.max(nmp.abs(vcc))>5 and nmp.sum(vcc-vc) == 0. : lcint=True
 
     cpt = 0
     if int(vcc[0]) % 2 != 0: cpt = 1   # not an even number !
