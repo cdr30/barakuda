@@ -227,9 +227,9 @@ class plot :
             # contour for specific values on the ploted field:
             if len(vcont_spec) >= 1:
                 if i_lat_lon == 1:
-                    cfs = plt.contour(VX0, VY, XF0, vcont_spec, colors='white', linewidths = 1.2)
+                    cfs = plt.contour(VX0, VY, XF0, vcont_spec, colors='black', linewidths = 1.5)
                 else:
-                    cfs = plt.contour(XF0, vcont_spec, colors='white', linewidths = 1.2)
+                    cfs = plt.contour(XF0, vcont_spec, colors='black', linewidths = 1.5)
 
                 plt.clabel(cfs, inline=1, fmt='%4.1f', fontsize=10)
                 for c in cfs.collections: c.set_zorder(0.35)
