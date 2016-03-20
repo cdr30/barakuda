@@ -28,7 +28,7 @@ export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
 
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
-export NEMO_OUT_STRCT="/proj/bolinc/users/x_laubr/ecrundir/<RUN>/output/nemo"
+export NEMO_OUT_STRCT="${STORE_DIR}/ecrundir/<RUN>/output/nemo"
 
 export TSTAMP="1m"   ; # output time-frequency stamp as in NEMO output files...
 
@@ -72,8 +72,10 @@ export L_RENAME=false ; # set to true if your ORCA output has old name conventio
 export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / EC-Earth 3.2_beta"
 
 # Land-sea mask and basins files:
-export MM_FILE="${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/mesh_mask_LB_20160223.nc"
-export BM_FILE="${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/basin_mask_LB_20160223.nc"
+#export MM_FILE="${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/mesh_mask_LB_20160223.nc"
+#export BM_FILE="${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/basin_mask_LB_20160223.nc"
+export MM_FILE=${STORE_DIR}/ORCA1.L75/mesh_mask.nc
+export BM_FILE=${STORE_DIR}/ORCA1.L75/new_maskglo.nc
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
 export F_T_CLIM_3D_12=${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc

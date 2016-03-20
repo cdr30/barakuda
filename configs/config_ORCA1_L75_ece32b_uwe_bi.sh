@@ -72,8 +72,10 @@ export L_RENAME=false ; # set to true if your ORCA output has old name conventio
 export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / EC-Earth 3.2_beta"
 
 # Land-sea mask and basins files:
-export MM_FILE="${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/mesh_mask_LB_20160223.nc"
-export BM_FILE="${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/basin_mask_LB_20160223.nc"
+#export MM_FILE="${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/mesh_mask_LB_20160223.nc"
+#export BM_FILE="${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/basin_mask_LB_20160223.nc"
+export MM_FILE=${STORE_DIR}/ORCA1.L75/mesh_mask.nc
+export BM_FILE=${STORE_DIR}/ORCA1.L75/new_maskglo.nc
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
 export F_T_CLIM_3D_12=${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc

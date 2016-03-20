@@ -607,7 +607,7 @@ class plot :
             vfig_size = [ 7., 7. ]; vsporg = [0.1, 0.1, 0.85, 0.85]
             if czone == 'nseas':   vfig_size = [ 7., 5.4 ]; vsporg = [0.085,  0.03, 0.9, 0.94]
             if czone == 'natarct': vfig_size = [ 7.35, 7. ]; vsporg = [0.065,  0.04, 0.95, 0.92]
-            if czone == 'spstere': vfig_size = [ 7., 5.8 ]; vsporg = [0.075, 0.042, 0.93, 0.91]
+            if czone == 'spstere': vfig_size = [ 7., 5.8 ]; vsporg = [0.07, 0.05, 0.94, 0.89]
             if czone == 'npol2':   vfig_size = [ 7., 7.1 ]; vsporg = [0.082, 0.03, 0.91, 0.94]
             #if czone == 'kav7':    vfig_size = [ 7., 5.  ]; vsporg = [0.085, 0.03, 0.91, 0.94]
 
