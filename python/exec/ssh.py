@@ -100,6 +100,6 @@ ssh_plot[:,:] = nmp.mean(ssh[:,:,:],axis=0)
 
 bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], ssh_plot[:,:], Xmask[0,:,:], -2.6, 1.6, 0.1,
               corca=ORCA, lkcont=True, cpal='jet',
-              cfignm=path_fig+'ssh_mean_'+CONFRUN, cbunit='m',
+              cfignm=path_fig+'ssh_mean_'+CONFRUN, cbunit=r'$(m)$',
               ctitle='Mean SSH, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_cb_subsamp=2,
               cfig_type=fig_type, lat_min=-77., lat_max=75., lpix=False, vcont_spec = [ 0. ])

@@ -183,7 +183,7 @@ class plot :
 
         if i_lat_lon == 1:
             vert_rat = (lat_max - lat_min)/(75. + 75.)
-            fig_size = (12.4,5.6*vert_rat)
+            fig_size = (14.,6.4*vert_rat)
         else:
             fig_size = (float(nx)/25. , float(ny)/29.)
 
@@ -191,7 +191,7 @@ class plot :
         # FIGURE
         # ~~~~~~
         fig = plt.figure(num = 1, figsize=fig_size, dpi=None, facecolor='w', edgecolor='k')
-        ax = plt.axes([0.05, 0.06, 1., 0.86], axisbg = 'white')
+        ax  = plt.axes([0.05, 0.06, 1., 0.86], axisbg = 'white')
 
         vc = __vcontour__(rmin, rmax, dc); #print vc, '\n'
 
@@ -252,8 +252,8 @@ class plot :
             cf0 = plt.pcolor(XF0, cmap = bcm.chose_palette("mask"))
 
         # Colorbar:
-        ifsize = 14
-        if i_lat_lon == 1: ifsize = int(10*vert_rat); ifsize=max(ifsize,6)
+        ifsize = 16
+        if i_lat_lon == 1: ifsize = int(ifsize*vert_rat); ifsize=max(ifsize,6)
         __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cb_or=cb_orient, cunit=cbunit, cfont=font_clb, fontsize=ifsize)
 
         # X and Y nice ticks:
@@ -268,7 +268,7 @@ class plot :
 
         plt.title(ctitle, **font_ttl)
 
-        plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
+        plt.savefig(cfignm+'.'+cfig_type, dpi=110, orientation='portrait', transparent=False)
 
         print cfignm+'.'+cfig_type+' created!\n'
         plt.close(1)
@@ -386,7 +386,7 @@ class plot :
         # Prevents from using scientific notations in axess ticks numbering:
         #ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-        plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
+        plt.savefig(cfignm+'.'+cfig_type, dpi=110, orientation='portrait', transparent=False)
 
         print cfignm+'.'+cfig_type+' created!\n'
         plt.close(1)
