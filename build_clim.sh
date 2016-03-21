@@ -9,7 +9,6 @@
 #             L. Brodeau, August 2009-2015
 #
 #===============================================================
-<<<<<<< HEAD
 ### Specific header for you batch manager:
 # voima.fmi.fi definitions
 #PBS -N build_clim 
@@ -21,7 +20,8 @@
 # You may need to comment this on other clusters than voima.
 cd $PBS_O_WORKDIR
 # -C ORCA1_L46_v36_voima -R ECN-D501 -i 1983 -e 2012
-export CONFIG=ORCA1_L75_v36_voima
+export CONFIG=eORCA1_L75_v36_voima
+#export CONFIG=ORCA1_L75_v36_voima
 #export CONFIG=ORCA1_L46_v36_voima
 #export CONFIG=ORCA1_L75_v36_LIM2_voima
 export RUN=O1L7516
@@ -37,8 +37,6 @@ export Y2=2012
 #SBATCH -o out_clim_%J.out
 #SBATCH -e err_clim_%J.err
 ###
-=======
->>>>>>> master
 
 export BARAKUDA_ROOT=`pwd`
 
