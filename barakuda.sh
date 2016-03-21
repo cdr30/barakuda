@@ -10,7 +10,6 @@
 #
 #===============================================================
 
-<<<<<<< HEAD
 ### Specific headers for you batch manager:
 
 # voima.fmi.fi 2015-10-29
@@ -47,13 +46,7 @@ LFORCE_END=true
 export BARAKUDA_ROOT=`pwd`
 
 # Supported ORCA grids:
-ORCA_LIST="ORCA025.L75 ORCA1 ORCA1.L46 ORCA1.L75 ORCA2 ORCA2_L46"
-=======
-export BARAKUDA_ROOT=`pwd`
-
-# Supported ORCA grids:
-ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
->>>>>>> master
+ORCA_LIST="eORCA025.L75 ORCA025.L75 ORCA1 ORCA1.L46 ORCA1.L75 ORCA2 ORCA2_L46"
 
 # Checking available configs
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
