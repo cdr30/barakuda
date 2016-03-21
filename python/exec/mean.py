@@ -1,51 +1,19 @@
+#!/usr/bin/env python
 
-# Misc :
-import os
+#       B a r a K u d a
+#
+#     Generate misc. spatial averaging out of NEMO output files...
+#
+#       L. Brodeau, november 2013
+
 import sys
+import os
 import numpy as nmp
+
 from netCDF4 import Dataset
 
-import barakuda_orca as bo
 import barakuda_tool as bt
-
-
-#ldebug = True
-ldebug = False
-
-if ldebug: import barakuda_plot as bp
-
-print ''
-
-
-DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
-
-CONFRUN = os.getenv('CONFRUN')
-if CONFRUN == None: print 'The CONFRUN environement variable is no set'; sys.exit(0)
-
-
-NN_SST = os.getenv('NN_SST')
-if NN_SST == None: print 'The NN_SST environement variable is no set'; sys.exit(0)
-
-NN_SSS = os.getenv('NN_SSS')
-if NN_SSS == None: print 'The NN_SSS environement variable is no set'; sys.exit(0)
-
-NN_SSH = os.getenv('NN_SSH')
-if NN_SSH == None: print 'The NN_SSH environement variable is no set'; sys.exit(0)
-
-NN_T = os.getenv('NN_T')
-if NN_T == None: print 'The NN_T environement variable is no set'; sys.exit(0)
-
-NN_S = os.getenv('NN_S')
-if NN_S == None: print 'The NN_S environement variable is no set'; sys.exit(0)
-
-NN_MLD = os.getenv('NN_MLD')
-if NN_MLD == None: print 'The NN_MLD environement variable is no set'; sys.exit(0)
-
-
-
-
-
+import barakuda_orca as bo
 
 # Box nino 3.4:
 lon1_nino = 360. - 170.  ; # east
@@ -53,52 +21,29 @@ lat1_nino = -5.
 lon2_nino = 360. - 120.  ; # east
 lat2_nino = 5.
 
+venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
 
+vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
-cf_mm  = 'mesh_mask.nc'
-cv_lsm = 'tmask'
-
-
-cf_bm = 'new_maskglo.nc'
-
-
+CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 
 if len(sys.argv) != 3:
     print 'Usage : sys.argv[1] <ORCA1_RUN_grid_T.nc> <year>'
     sys.exit(0)
 
 cnexec = sys.argv[0]
-cf_in = sys.argv[1]
-cyear = sys.argv[2] ; jyear = int(cyear); cyear = '%4.4i'%jyear
-
-
+cf_in  = sys.argv[1]
+cyear  = sys.argv[2] ; jyear = int(cyear); cyear = '%4.4i'%jyear
 
 print 'Current year is '+cyear+' !\n'
 
-
-
-
-
-
 # Checking if the land-sea mask file is here:
-if not os.path.exists(cf_mm): print 'Mask file '+cf_mm+' not found'; sys.exit(0)
+for cf in [vdic['MM_FILE'], vdic['BM_FILE']]:
+    if not os.path.exists(cf):
+        print 'Mask file '+cf+' not found'; sys.exit(0)
 
-
-
-
-
-
-
-if not os.path.exists(cf_bm): print 'ERROR: Basin Mask file '+cf_bm+' not found!!!'; sys.exit(0)
-
-
-
-
-
-
-
-
-id_mm = Dataset(cf_mm)
+# Reading the grid metrics:
+id_mm = Dataset(vdic['MM_FILE'])
 list_variables = id_mm.variables.keys()
 rmask  = id_mm.variables['tmask'][0,:,:,:]
 rlon   = id_mm.variables['glamt'][0,:,:]
@@ -116,30 +61,23 @@ id_mm.close()
 
 [ nk, nj, ni ] = rmask.shape
 
-Xe1t = nmp.zeros(nk*nj*ni) ; Xe1t.shape = [ nk, nj, ni ]
-Xe2t = nmp.zeros(nk*nj*ni) ; Xe2t.shape = [ nk, nj, ni ]
+Xe1t = nmp.zeros((nk, nj, ni))
+Xe2t = nmp.zeros((nk, nj, ni))
 
 for jk in range(nk):
     Xe1t[jk,:,:] = re1t[:,:]
     Xe2t[jk,:,:] = re2t[:,:]
 
 del re1t, re2t
-
-#print 'Shape of mask is ', rmask.shape
-#print 'Shape of e1t is  ', Xe1t.shape
-#print 'Shape of e2t is  ', Xe2t.shape
-#print 'Shape of e3t is  ', Xe3t.shape, '\n'
-
-
     
-print 'Opening different basin masks in file '+cf_bm
-id_bm = Dataset(cf_bm)
+print 'Opening different basin masks in file '+vdic['BM_FILE']
+id_bm = Dataset(vdic['BM_FILE'])
 mask_atl = id_bm.variables['tmaskatl'][:,:]
 mask_pac = id_bm.variables['tmaskpac'][:,:]
 mask_ind = id_bm.variables['tmaskind'][:,:]    
 id_bm.close()
 
-mask = nmp.zeros(4*nk*nj*ni) ; mask.shape = [4,nk,nj,ni]
+mask = nmp.zeros((4,nk,nj,ni))
 
 mask[0,:,:,:] = rmask[:,:,:] ; # global
 for jk in range(nk):
@@ -152,26 +90,13 @@ del rmask, mask_atl, mask_pac, mask_ind
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 ####################################
 # MLD time serie in different boxes:
 ####################################
 l_mld = False
 print '\nSpatially-averaged MLD in different boxes'
 
-cvar = NN_MLD
+cvar = vdic['NN_MLD']
 
 id_in = Dataset(cf_in)
 list_variables = id_in.variables.keys()
@@ -195,7 +120,7 @@ if l_mld:
     for jt in range(nt): vtime[jt] = float(jyear) + (float(jt)+0.5)*1./12.
     print ' * Montly calendar: ', vtime[:], '\n'
 
-    mask2d = nmp.zeros(nj*ni) ; mask2d.shape = [nj,ni]
+    mask2d = nmp.zeros((nj,ni))
     
 
     # Reading boxes definitions into barakuda_orca.py:
@@ -215,25 +140,19 @@ if l_mld:
         while [ i1, i2, j1, j2 ] != vold and itt < 10 :
             itt = itt+1
             vold = [ i1, i2, j1, j2 ]
-            #print '  => itt # ', itt
             if rx1 > -900.: i1 = bt.find_index_from_value( rx1, rlon[j1,:] )
             if rx2 > -900.: i2 = bt.find_index_from_value( rx2, rlon[j2,:] )
             if ry1 > -900.: j1 = bt.find_index_from_value( ry1, rlat[:,i1] )
             if ry2 > -900.: j2 = bt.find_index_from_value( ry2, rlat[:,i2] )
             
-        #print ' rx1, rx2, ry1, ry2 =>', rx1, rx2, ry1, ry2
-        #print ' i1, i2, j1, j2  (nb iter) =>', i1, i2, j1, j2, '('+str(itt)+')'
-
     
         mask2d[:,:] = 0.
         mask2d[j1:j2,i1:i2] = mask[0,0,j1:j2,i1:i2]
 
-        if ldebug: bp.check_with_fig_2(mask2d, mask2d*0.+1., cbox)
-
         Vts = bo.mean_2d(MLD_m, mask2d[:,:], Xe1t[0,:,:], Xe2t[0,:,:])
         
         # NETCDF:
-        cf_out   = DIAG_D+'/mean_'+cvar+'_'+CONFRUN+'_'+cbox+'.nc' ;  cv1 = cvar        
+        cf_out   = vdic['DIAG_D']+'/mean_'+cvar+'_'+CONFRUN+'_'+cbox+'.nc' ;  cv1 = cvar        
         l_nc_is_new = not os.path.exists(cf_out)
         if l_nc_is_new:
             f_out = Dataset(cf_out, 'w', format='NETCDF3_CLASSIC')
@@ -271,23 +190,13 @@ if l_mld:
 
 
 
-
-
-
-
-
-
-
-
-
-
 #############################################
 # 2D (surface) averaging for temperature and salinity #
 #############################################
 
 jvar = 0
 
-for cvar in [ NN_SST, NN_SSS, NN_SSH ]:
+for cvar in [ vdic['NN_SST'], vdic['NN_SSS'], vdic['NN_SSH'] ]:
 
     # DATA:
     print '  *** reading '+cvar+' into '+cf_in
@@ -333,7 +242,7 @@ for cvar in [ NN_SST, NN_SSS, NN_SSH ]:
 
 
         # NETCDF:
-        cf_out   = DIAG_D+'/mean_'+cvar+'_'+CONFRUN+'_'+cocean+'.nc' ;  cv1 = cvar
+        cf_out   = vdic['DIAG_D']+'/mean_'+cvar+'_'+CONFRUN+'_'+cocean+'.nc' ;  cv1 = cvar
         l_nc_is_new = not os.path.exists(cf_out)
         if l_nc_is_new:
             f_out = Dataset(cf_out, 'w', format='NETCDF3_CLASSIC')
@@ -383,10 +292,10 @@ print '\n'
 print ' Nino box 3.4, longitude: '+str(rlon[10,i1])+' => '+str(rlon[10,i2])+' \ latitude: '+str(rlat[j1,50])+' => '+str(rlat[j2,50])
 
 id_in = Dataset(cf_in)
-if NN_SST == 'thetao':
-    Xs_m = id_in.variables[NN_SST][:,0,:,:]
+if vdic['NN_SST'] == 'thetao':
+    Xs_m = id_in.variables[vdic['NN_SST']][:,0,:,:]
 else:
-    Xs_m = id_in.variables[NN_SST][:,:,:]
+    Xs_m = id_in.variables[vdic['NN_SST']][:,:,:]
 id_in.close()
 
 Vts = bo.mean_2d(Xs_m[:,j1:j2+1,i1:i2+1], mask[0,0,j1:j2+1,i1:i2+1], Xe1t[0,j1:j2+1,i1:i2+1], Xe2t[0,j1:j2+1,i1:i2+1])
@@ -403,7 +312,7 @@ if 'cf_out' in locals() or 'cf_out' in globals():
     print cf_out+' written!'
 
 # NETCDF:
-cf_out   = DIAG_D+'/Nino34_'+CONFRUN+'.nc' ;  cv1 = NN_SST
+cf_out   = vdic['DIAG_D']+'/Nino34_'+CONFRUN+'.nc' ;  cv1 = vdic['NN_SST']
 l_nc_is_new = not os.path.exists(cf_out)
 if l_nc_is_new:
     f_out = Dataset(cf_out, 'w', format='NETCDF3_CLASSIC')
@@ -447,7 +356,7 @@ print cf_out+' written!'
 
 jvar = 0
 
-for cvar in [ NN_T , NN_S ]:
+for cvar in [ vdic['NN_T'] , vdic['NN_S'] ]:
 
 
 
@@ -459,7 +368,6 @@ for cvar in [ NN_T , NN_S ]:
 
 
     if jvar == 0:
-        # print 'vdepth = ', vdepth[:]
         j100m  = bt.find_index_from_value(100.  , vdepth) ; print 'j100m  = ', j100m,  '=> ', vdepth[j100m]
         j1000m = bt.find_index_from_value(1000. , vdepth) ; print 'j1000m = ', j1000m, '=> ', vdepth[j1000m]
 
@@ -477,7 +385,7 @@ for cvar in [ NN_T , NN_S ]:
 
 
     # Annual mean array for current year:
-    Xd_y = nmp.zeros(nk*nj*ni) ; Xd_y.shape = [ 1, nk, nj, ni ]
+    Xd_y = nmp.zeros((1, nk, nj, ni))
     
     Xd_y[0,:,:,:] = nmp.mean(Xd_m, axis=0)
 
@@ -499,23 +407,8 @@ for cvar in [ NN_T , NN_S ]:
         Vts_0_100 = bo.mean_3d(Xd_m[:,:j100m,:,:], mask[joce,:j100m,:,:], Xe1t[:j100m,:,:], Xe2t[:j100m,:,:], Xe3t[:j100m,:,:])
         Vts_100_1000 = bo.mean_3d(Xd_m[:,j100m:j1000m,:,:], mask[joce,j100m:j1000m,:,:], Xe1t[j100m:j1000m,:,:], Xe2t[j100m:j1000m,:,:], Xe3t[j100m:j1000m,:,:])
         Vts_1000_bot = bo.mean_3d(Xd_m[:,j1000m:,:,:], mask[joce,j1000m:,:,:], Xe1t[j1000m:,:,:], Xe2t[j1000m:,:,:], Xe3t[j1000m:,:,:])
-
-        # Writing in ascii files:
-
-        #f.write('#      Year       All depth        0-100m        100-1000m     1000m-bootom\n')
-        #for jt in range(nt):
-        #    f.write('%13.6f'%vtime[jt])
-        #    f.write('  '+'%13.6f'%round(Vts_tot[jt],6))
-        #    f.write('  '+'%13.6f'%round(Vts_0_100[jt],6))
-        #    f.write('  '+'%13.6f'%round(Vts_100_1000[jt],6))
-        #    f.write('  '+'%13.6f'%round(Vts_1000_bot[jt],6))
-        #    f.write('\n')
-        #    #
-        #f.close()
-        #print cf_out+' written!'
         
-        # NETCDF:
-        cf_out = DIAG_D+'/3d_'+cvar+'_'+CONFRUN+'_'+cocean+'.nc'
+        cf_out = vdic['DIAG_D']+'/3d_'+cvar+'_'+CONFRUN+'_'+cocean+'.nc'
         cv1 = cvar+'_0-bottom'
         cv2 = cvar+'_0-100'
         cv3 = cvar+'_100-1000'
@@ -591,7 +484,7 @@ for cvar in [ NN_T , NN_S ]:
 
 
         # NETCDF:
-        cf_out = DIAG_D+'/'+cvar+'_mean_Vprofile_'+CONFRUN+'_'+cocean+'.nc'
+        cf_out = vdic['DIAG_D']+'/'+cvar+'_mean_Vprofile_'+CONFRUN+'_'+cocean+'.nc'
         l_nc_is_new = not os.path.exists(cf_out)
         #
         # Creating/Opening output Netcdf file:
@@ -639,14 +532,6 @@ for cvar in [ NN_T , NN_S ]:
 
     jvar = jvar + 1
     print '\n'
-
-
-
-
-
-
-
-
 
 
 

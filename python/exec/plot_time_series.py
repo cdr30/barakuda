@@ -1,4 +1,11 @@
-# L. Brodeau, november 2013
+#!/usr/bin/env python
+
+#       B a r a K u d a
+#
+#     Generate misc. time-series out of NEMO output files...
+#
+#       L. Brodeau, 2013
+#
 
 import sys
 import os
@@ -6,106 +13,87 @@ import numpy as nmp
 
 from netCDF4 import Dataset
 
+import barakuda_tool as bt
 import barakuda_ncio as bn
 import barakuda_orca as bo
 import barakuda_plot as bp
-import barakuda_tool as bt
 
+DEFAULT_LEGEND_LOC = 'lower left'
 
-CONFRUN = os.getenv('CONFRUN')
-if CONFRUN == None: print 'The CONFRUN environement variable is no set'; sys.exit(0)
+venv_needed = {'ORCA','RUN','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD','LMOCLAT','TRANSPORT_SECTION_FILE'}
 
-DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
+vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
-NN_SST = os.getenv('NN_SST')
-if NN_SST == None: print 'The NN_SST environement variable is no set'; sys.exit(0)
-NN_SSS = os.getenv('NN_SSS')
-if NN_SSS == None: print 'The NN_SSS environement variable is no set'; sys.exit(0)
-NN_SSH = os.getenv('NN_SSH')
-if NN_SSH == None: print 'The NN_SSH environement variable is no set'; sys.exit(0)
-NN_T = os.getenv('NN_T')
-if NN_T == None: print 'The NN_T environement variable is no set'; sys.exit(0)
-NN_S = os.getenv('NN_S')
-if NN_S == None: print 'The NN_S environement variable is no set'; sys.exit(0)
-NN_MLD = os.getenv('NN_MLD')
-if NN_MLD == None: print 'The NN_MLD environement variable is no set'; sys.exit(0)
-
-
-
-
-
-
-
+CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 
 narg = len(sys.argv)
-if narg != 2: print 'Usage: '+sys.argv[0]+' <diag>'; sys.exit(0)
+if narg != 2:
+    print 'Usage: {} <diag>'.format(sys.argv[0])
+    sys.exit(0)
 cdiag = sys.argv[1]
-
 
 print '\n plot_time_series.py: diag => "'+cdiag+'"'
 
-
-
 if cdiag == 'mean_tos':
-    cvar  = NN_SST
+    cvar  = vdic['NN_SST']
     idfig = 'simple'
     clnm  = 'Globally-averaged sea surface temperature'
-    cyu   = r'$^{\circ}$C' ; ym    = 0. ; yp = 0.
-    
+    cyu   = r'$^{\circ}$C'
+    ym    = yp = 0.
+
 elif cdiag == 'mean_sos':
-    cvar  = NN_SSS
+    cvar  = vdic['NN_SSS']
     idfig = 'simple'
     clnm  = 'Globally-averaged sea surface salinity'
-    cyu   = r'PSU' ;  ym = 0. ; yp = 0.
-    
+    cyu   = r'PSU'
+    ym = yp = 0.
+
 elif cdiag == 'mean_zos':
-    cvar  = NN_SSH
+    cvar  = vdic['NN_SSH']
     idfig = 'simple'
     clnm  = 'Globally-averaged sea surface height'
-    cyu   = r'm'    ;  ym = 0. ; yp = 0.
+    cyu   = r'm'
+    ym = yp = 0.
 
 
 elif  cdiag == '3d_thetao':
-    cvar  = NN_T
+    cvar  = vdic['NN_T']
     idfig = 'ts3d'
     clnm = 'Globally-averaged temperature'
     cyu  = r'$^{\circ}$C'
     #ym = 3.6 ; yp = 4.
     ym = 0. ; yp = 0.
     #ym0  = 1.5 ; yp0 = 20.
-    ym0  = 0. ; yp0 = 0.
+    ym0  = yp0 = 0.
 
 elif cdiag == '3d_so':
-    cvar  = NN_S
+    cvar  = vdic['NN_S']
     idfig = 'ts3d'
     clnm = 'Globally-averaged salinity'
     cyu  = r'PSU'
     #ym  = 34.6 ; yp  = 35.
     #ym0 = 34.6 ; yp0 = 35.
-    ym  = 0. ; yp  = 0.
-    ym0 = 0. ; yp0 = 0.
+    ym  = yp  = 0.
+    ym0 = yp0 = 0.
 
 elif cdiag == 'amoc':
-    LMOCLAT = os.getenv('LMOCLAT')
-    if LMOCLAT == None: print 'The LMOCLAT environement variable is no set'; sys.exit(0)
     idfig = 'amoc'
     cyu  = r'Sv'
-    ym = 3.75 ; yp = 20.25
+    ym = 3.5
+    yp = 24.5
 
 elif cdiag == 'mean_mldr10_1':
-    cvar  = NN_MLD
+    cvar  = vdic['NN_MLD']
     idfig = 'mld'
-    clnm   = 'Mean mixed-layer depth, '
-    cyu    = r'm' ;  ym = 0. ; yp = 0.
+    clnm  = 'Mean mixed-layer depth, '
+    cyu   = r'm'
+    ym = yp = 0.
 
 
 elif cdiag == 'transport_sections':
     idfig = 'transport'
-    TRANSPORT_SECTION_FILE = os.getenv('TRANSPORT_SECTION_FILE')
-    if TRANSPORT_SECTION_FILE == None: print 'The TRANSPORT_SECTION_FILE environement variable is no set'; sys.exit(0)
-    print '  Using TRANSPORT_SECTION_FILE = '+TRANSPORT_SECTION_FILE
-    list_sections = bo.get_sections_names_from_file(TRANSPORT_SECTION_FILE)
+    print '  Using TRANSPORT_SECTION_FILE = '+vdic['TRANSPORT_SECTION_FILE']
+    list_sections = bo.get_sections_names_from_file(vdic['TRANSPORT_SECTION_FILE'])
     print 'List of sections to treat: ', list_sections
 
 
@@ -138,8 +126,10 @@ if idfig == 'simple':
     vtime = id_in.variables['time'][:] ; nbm = len(vtime)
     vvar  = id_in.variables[cvar][:]
     id_in.close()
-    
-    if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cvar+', numberof records not a multiple of 12!', sys.exit(0)
+
+    if nbm%12 != 0:
+        print 'ERROR: plot_time_series.py => '+cvar+', numberof records not a multiple of 12!'
+        sys.exit(0)
 
     # Annual data
     VY, FY = bt.monthly_2_annual(vtime[:], vvar[:])
@@ -147,8 +137,8 @@ if idfig == 'simple':
     ittic = bt.iaxe_tick(nbm/12)
 
     # Time to plot
-    bp.plot_1d_mon_ann(vtime, VY, vvar, FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
-                       cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
+    bp.plot("1d_mon_ann")(vtime, VY, vvar, FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
+                          cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
 
 
 
@@ -159,7 +149,7 @@ if idfig == 'ts3d':
 
     vzrange = [ '0-bottom', '0-100'  , '100-1000',   '1000-bottom'  ] ;  nbzrange = len(vzrange)
     vlab    = [ 'AllDepth', '0m-100m', '100m-1000m', '1000m-bottom' ]
-    
+
     joce = 0
     for coce in bo.voce2treat[:]:
 
@@ -168,14 +158,16 @@ if idfig == 'ts3d':
         vtime = id_in.variables['time'][:] ; nbm = len(vtime)
         jz = 0
         for czr in vzrange:
-            if joce == 0 and jz == 0: FM = nmp.zeros(nbm*nbzrange*nb_oce); FM.shape = [ nb_oce, nbzrange, nbm ]
+            if not joce and not jz:
+                FM = nmp.zeros(nbm*nbzrange*nb_oce)
+                FM.shape = [ nb_oce, nbzrange, nbm ]
             print '   * reading '+cvar+'_'+czr+' in '+cf_in
             FM[joce,jz,:]  = id_in.variables[cvar+'_'+czr][:]
             jz = jz + 1
         id_in.close()
 
         # Annual data:
-        if joce == 0:
+        if not joce:
             nby = nbm/12
             FY = nmp.zeros(nby*4*nb_oce) ; FY.shape = [ nb_oce, 4, nby ]
         VY, FY[joce,:,:] = bt.monthly_2_annual(vtime[:], FM[joce,:,:])
@@ -186,18 +178,18 @@ if idfig == 'ts3d':
     ittic = bt.iaxe_tick(nby)
 
     # One plot only for global:
-    bp.plot_1d_mon_ann(vtime, VY, FM[0,0,:], FY[0,0,:], cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
-                         cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
+    bp.plot("1d_mon_ann")(vtime, VY, FM[0,0,:], FY[0,0,:], cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
+                          cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
 
 
-    # Global for different depth:    
-    bp.plot_1d_multi(vtime, FM[0,:,:], vlab[:], cfignm=cdiag+'_lev_'+CONFRUN, dt_year=ittic,
-                       cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0)
+    # Global for different depth:
+    bp.plot("1d_multi")(vtime, FM[0,:,:], vlab[:], cfignm=cdiag+'_lev_'+CONFRUN, dt_year=ittic,
+                        cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0)
 
 
     # Show each ocean (All depth):
-    bp.plot_1d_multi(vtime, FM[:,0,:], bo.voce2treat, cfignm=cdiag+'_basins_'+CONFRUN, dt_year=ittic,
-                       cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0)
+    bp.plot("1d_multi")(vtime, FM[:,0,:], bo.voce2treat, cfignm=cdiag+'_basins_'+CONFRUN, dt_year=ittic,
+                        cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0)
 
 
 
@@ -209,8 +201,8 @@ if idfig == 'ts3d':
 ##########################################
 
 if idfig == 'amoc':
-
-    list_lat = LMOCLAT.split() ; nblat = len(list_lat)
+    clmoc = vdic['LMOCLAT']
+    list_lat = clmoc.split() ; nblat = len(list_lat)
     print '\n AMOC: '+str(nblat)+' latitude bands!'
 
     i45 = 3 ; # position of AMOC at 45!
@@ -220,7 +212,7 @@ if idfig == 'amoc':
         [ c1, c2 ] = clr.split('-') ; clat_info = '+'+c1+'N+'+c2+'N'
         cf_in = 'max_moc_atl_'+clat_info+'.nc' ; bt.chck4f(cf_in, script_name='plot_time_series.py')
         id_in = Dataset(cf_in)
-        if jl == 0:
+        if not jl:
             vtime = id_in.variables['time'][:] ; nbm = len(vtime)
             vlabels = nmp.zeros(nblat, dtype = nmp.dtype('a8'))
             Xamoc   = nmp.zeros(nbm*(nblat)) ; Xamoc.shape = [ nblat , nbm ]
@@ -230,30 +222,32 @@ if idfig == 'amoc':
 
         jl = jl + 1
 
-    if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!', sys.exit(0)
+    if nbm%12 != 0:
+        print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!'
+        sys.exit(0)
     VY, FY = bt.monthly_2_annual(vtime, Xamoc[i45,:])
 
     ittic = bt.iaxe_tick(nbm/12)
 
     # Time to plot
-    bp.plot_1d_mon_ann(vtime, VY, Xamoc[i45,:], FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
-                       cyunit=cyu, ctitle = CONFRUN+': '+r'Max. of AMOC between '+vlabels[i45],
-                       ymin=ym, ymax=yp, dy=1.)
+    bp.plot("1d_mon_ann")(vtime, VY, Xamoc[i45,:], FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
+                          cyunit=cyu, ctitle = CONFRUN+': '+r'Max. of AMOC between '+vlabels[i45],
+                          ymin=ym, ymax=yp, dy=1., i_y_jump=2)
 
     # Annual:
     VY, FY  = bt.monthly_2_annual(vtime, Xamoc[:,:])
 
     # Time to plot
-    bp.plot_1d_multi(VY, FY, vlabels, cfignm=cdiag+'_'+CONFRUN+'_comp', dt_year=ittic,
-                     cyunit=cyu, ctitle = CONFRUN+': '+r'Max. of AMOC', ymin=0, ymax=0,
-                     loc_legend='lower left')
+    bp.plot("1d_multi")(VY, FY, vlabels, cfignm=cdiag+'_'+CONFRUN+'_comp', dt_year=ittic,
+                        cyunit=cyu, ctitle = CONFRUN+': '+r'Max. of AMOC', ymin=0, ymax=0,
+                        loc_legend='lower left')
 
 
 
 
-    
+
 if idfig == 'ice':
-        
+
     vlab = [ 'Arctic', 'Antarctic' ]
 
     # montly sea-ice volume and extent, Arctic and Antarctic...
@@ -269,7 +263,13 @@ if idfig == 'ice':
     cyua = r'10$^6$km$^2$'
     cyuv = r'10$^3$km$^3$'
 
+<<<<<<< HEAD
     if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!', sys.exit(0)
+=======
+    if nbm%12 != 0:
+        print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!'
+        sys.exit(0)
+>>>>>>> master
     nby = nbm/12
 
     ittic = bt.iaxe_tick(nby)
@@ -282,6 +282,7 @@ if idfig == 'ice':
     # End local summer
     Xplt[0,:] = varea_n[8::12] ; # extent Arctic september
     Xplt[1,:] = varea_s[2::12] ; # extent Antarctic march
+<<<<<<< HEAD
     bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_extent_summer_'+CONFRUN, dt_year=ittic,
                      cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer', ymin=0., ymax=0.)
 
@@ -289,10 +290,20 @@ if idfig == 'ice':
     Xplt[1,:] = vvolu_s[2::12] ; # volume Antarctic march
     bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_volume_summer_'+CONFRUN, dt_year=ittic,
                      cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer', ymin=0., ymax=0.)
+=======
+    bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_extent_summer_'+CONFRUN, dt_year=ittic,
+                        cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer', ymin=0., ymax=0.)
+
+    Xplt[0,:] = vvolu_n[8::12] ; # volume Arctic september
+    Xplt[1,:] = vvolu_s[2::12] ; # volume Antarctic march
+    bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_volume_summer_'+CONFRUN, dt_year=ittic,
+                        cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer', ymin=0., ymax=0.)
+>>>>>>> master
 
     # End of local winter
     Xplt[0,:] = varea_n[2::12] ; # extent Arctic march
     Xplt[1,:] = varea_s[8::12] ; # extent Antarctic september
+<<<<<<< HEAD
     bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_extent_winter_'+CONFRUN, dt_year=ittic,
                      cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter', ymin=0., ymax=0.)
 
@@ -300,6 +311,15 @@ if idfig == 'ice':
     Xplt[1,:] = vvolu_s[8::12] ; # volume Antarctic september
     bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_volume_winter_'+CONFRUN, dt_year=ittic,
                      cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter', ymin=0., ymax=0.)
+=======
+    bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_extent_winter_'+CONFRUN, dt_year=ittic,
+                        cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter', ymin=0., ymax=0.)
+
+    Xplt[0,:] = vvolu_n[2::12] ; # volume Arctic march
+    Xplt[1,:] = vvolu_s[8::12] ; # volume Antarctic september
+    bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_volume_winter_'+CONFRUN, dt_year=ittic,
+                        cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter', ymin=0., ymax=0.)
+>>>>>>> master
 
 
 
@@ -313,7 +333,9 @@ if idfig == 'transport':
 
         cf_in = 'transport_sect_'+csec+'.nc' ;   bt.chck4f(cf_in, script_name='plot_time_series.py')
         id_in = Dataset(cf_in)
-        if js == 0: vtime = id_in.variables['time'][:] ; nbm = len(vtime)
+        if js == 0:
+            vtime = id_in.variables['time'][:]
+            nbm = len(vtime)
         Xtrsp   = nmp.zeros(nbm*3) ; Xtrsp.shape = [ 3 , nbm ] ; # time + 3 types of transport
         Xtrsp[0,:] = id_in.variables['trsp_volu'][:]
         Xtrsp[1,:] = id_in.variables['trsp_heat'][:]
@@ -327,12 +349,12 @@ if idfig == 'transport':
         ittic = bt.iaxe_tick(nbm/12)
 
         # Transport of volume:
-        bp.plot_1d_mon_ann(vtime, VY, Xtrsp[0,:], FY[0,:], cfignm='transport_vol_'+csec+'_'+CONFRUN,
+        bp.plot("1d_mon_ann")(vtime, VY, Xtrsp[0,:], FY[0,:], cfignm='transport_vol_'+csec+'_'+CONFRUN,
                              dt_year=ittic, cyunit='Sv', ctitle = CONFRUN+': transport of volume, '+csec,
                              ymin=0, ymax=0)
 
         # Transport of heat:
-        bp.plot_1d_mon_ann(vtime, VY, Xtrsp[1,:], FY[1,:], cfignm='transport_heat_'+csec+'_'+CONFRUN,
+        bp.plot("1d_mon_ann")(vtime, VY, Xtrsp[1,:], FY[1,:], cfignm='transport_heat_'+csec+'_'+CONFRUN,
                              dt_year=ittic, cyunit='PW', ctitle = CONFRUN+': transport of heat, '+csec,
                              ymin=0, ymax=0, mnth_col='g')
 
@@ -350,11 +372,13 @@ if idfig == 'mld':
             print ' Opening '+cf_in_m
             vt0, vd0 = bn.read_1d_series(cf_in_m, cvar, cv_t='time', l_return_time=True)
             nbm = len(vt0)
-            if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cvar+', number of records not a multiple of 12!', sys.exit(0)
+            if nbm%12 != 0:
+                print 'ERROR: plot_time_series.py => '+cvar+', number of records not a multiple of 12!'
+                sys.exit(0)
             VY, FY = bt.monthly_2_annual(vt0, vd0)
             ittic = bt.iaxe_tick(nbm/12)
-            bp.plot_1d_mon_ann(vt0, VY, vd0, FY, cfignm=cdiag+'_'+CONFRUN+'_'+cbox, dt_year=ittic, cyunit=cyu,
-                               ctitle = CONFRUN+': '+clnm+bo.clgnm_mld_boxes[jbox], ymin=ym, ymax=yp, plt_m03=True, plt_m09=True)
+            bp.plot("1d_mon_ann")(vt0, VY, vd0, FY, cfignm=cdiag+'_'+CONFRUN+'_'+cbox, dt_year=ittic, cyunit=cyu,
+                                  ctitle = CONFRUN+': '+clnm+bo.clgnm_mld_boxes[jbox], ymin=ym, ymax=yp, plt_m03=True, plt_m09=True)
         else:
             print 'WARNING: plot_time_series.py => MLD diag => '+cf_in_m+' not found!'
         jbox = jbox+1

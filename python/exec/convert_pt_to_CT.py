@@ -1,4 +1,4 @@
-#!/home/x_laubr/opt/Canopy_64bit/User/bin/python
+#!/usr/bin/env python
 
 
 # L. Brodeau, 2015

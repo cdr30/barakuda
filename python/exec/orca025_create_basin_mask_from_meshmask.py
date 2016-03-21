@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 #!/home/x_laubr/bin/python
 
 # L. Brodeau, april 2010
+=======
+#!/usr/bin/env python
+
+# Petteri Uotila, 2015
+>>>>>>> master
 
 import sys
 import numpy as nmp

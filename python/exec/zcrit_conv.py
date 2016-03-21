@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 
 # L. Brodeau 2015
 
@@ -10,7 +10,6 @@ from netCDF4 import Dataset
 from os.path import basename
 
 # Laurent's:
-import barakuda_plot    as bp
 import barakuda_tool    as bt
 import barakuda_physics as bph
 

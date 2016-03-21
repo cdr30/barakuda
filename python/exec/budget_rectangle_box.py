@@ -1,4 +1,4 @@
-#!/home/x_laubr/bin/python
+#!/usr/bin/env python
 
 # L. Brodeau, May 2014
 
@@ -16,7 +16,7 @@ from os.path import basename
 
 # Laurent's:
 import barakuda_tool as bt
-import barakuda_plot as bp
+#import barakuda_plot as bp
 from barakuda_physics import sigma0
 
 
@@ -326,7 +326,8 @@ for jb in range(nbb):
     for jk in range(nk): XVolu[jk,:,:] = Xmask[jk, j1:j2, i1:i2]*ZArea[:,:]*ve3t[jk]
 
     ZArea[:,:] = Xmask[0, j1:j2, i1:i2]*ZArea[:,:]
-    if l_plot_debug: bp.check_with_fig_2(ZArea, ZArea*0.+1., 'ZArea', fig_type=FIG_FORM)
+
+    #if l_plot_debug: bp.check_with_fig_2(ZArea, ZArea*0.+1., 'ZArea', fig_type=FIG_FORM)
 
 
     

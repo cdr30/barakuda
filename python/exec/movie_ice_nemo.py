@@ -1,4 +1,4 @@
-#!/home/x_laubr/bin/python
+#!/usr/bin/env python
 
 # Misc :
 import os
@@ -9,8 +9,8 @@ import numpy as nmp
 from string import replace
 
 # Mine:
-import barakuda_tool as brkdt
-import barakuda_plot as brkdp
+import barakuda_tool as bt
+import barakuda_plot as bp
 
 
 #FIF='eps'
@@ -27,11 +27,11 @@ if len(sys.argv) < 3:
 cf_in = sys.argv[1]
 cv_in = sys.argv[2]
 
-if cv_in == 'siconc':
+if cv_in == 'siconc' or 'ileadfra':
     rmax = 1. ; rmin = 0. ; dr = 0.1
     colmap = 'ice' ; cunit = 'frac.'
 
-elif cv_in == 'sithic':
+elif cv_in == 'sithic' or 'iicethic':
     rmax = 6. ; rmin = 0. ; dr = 0.25
     colmap = 'jet' ; cunit = 'm'
 
@@ -42,7 +42,7 @@ else:
 cfig_suff = replace(os.path.basename(cf_in), '.nc4', '')
 
 
-brkdt.chck4f(cf_in)
+bt.chck4f(cf_in)
 id_in = Dataset(cf_in)
 xlon = id_in.variables['nav_lon'][:,:]
 xlat = id_in.variables['nav_lat'][:,:]
@@ -77,7 +77,7 @@ for jt in range(Nt):
 
     print '  *** will create fig '+cfig+' (year = '+cy+', month = '+cm+')'
     
-    brkdp.plot_nproj('spstere', rmin, rmax, dr, xlon, xlat, XF2D[jt,:,:],
+    bp.plot("nproj")('spstere', rmin, rmax, dr, xlon, xlat, XF2D[jt,:,:],
                      cfignm=cfig, cpal=colmap, cbunit=cunit,
                      ctitle='Sea-Ice, year = '+cy+', month = '+cm,
                      lkcont=True, cfig_type=FIF,

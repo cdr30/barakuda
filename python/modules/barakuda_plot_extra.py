@@ -63,7 +63,7 @@ projection_def = [
 def plot_nproj_extra(czone, rmin, rmax, dc, xlon, xlat, XF, XI,
                      cfignm='fig', lkcont=False, cpal='jet', cbunit=' ',
                      cfig_type='pdf', ctitle=' ', lforce_lim=False,
-                     cb_orient='vertical', i_colorbar_jump=1, dpi_fig=140,
+                     cb_orient='vertical', i_cb_subsamp=1, dpi_fig=140,
                      xlon_o=[ 0. ], xlat_o=[ 0. ], XI_o=[ 0. ], rice_crit=0.15):
 
     # Plot projection with basemap...
@@ -243,10 +243,10 @@ def plot_nproj_extra(czone, rmin, rmax, dc, xlon, xlat, XF, XI,
         for t in clb.ax.get_yticklabels(): t.set_fontsize(16)
 
 
-    if i_colorbar_jump > 1:
+    if i_cb_subsamp > 1:
         cn_clb = [] ; jcpt = 0
         for rtck in vc:
-            if jcpt % i_colorbar_jump == 0:                
+            if jcpt % i_cb_subsamp == 0:                
                 if float(int(rtck)) == round(rtck,0):
                     cn_clb.append(str(int(rtck))) ; # we can drop the ".0"
                 else:

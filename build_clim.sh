@@ -9,6 +9,7 @@
 #             L. Brodeau, August 2009-2015
 #
 #===============================================================
+<<<<<<< HEAD
 ### Specific header for you batch manager:
 # voima.fmi.fi definitions
 #PBS -N build_clim 
@@ -36,28 +37,26 @@ export Y2=2012
 #SBATCH -o out_clim_%J.out
 #SBATCH -e err_clim_%J.err
 ###
+=======
+>>>>>>> master
 
 export BARAKUDA_ROOT=`pwd`
-
 
 iremap=0 ; REGG="360x180"; # remap to regular lat-lon grid?
 iuv=0      ; # Do a climatology for current...
 ivt=1      ; # Do a climatology for VT
 iamoc=1    ; # Do a climatology for 2D lat-depth AMOC?
 ibpsi=0    ; # Do a climatology for barotropic stream function
-iice=0     ; # do sea-ice clim...
 
 
 # Supported ORCA grids:
-ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA2 ORCA2_L46"
+ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
 
 # Checking available configs
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
 
 # Important bash functions:
 . ${BARAKUDA_ROOT}/configs/bash_functions.bash
-
-
 
 usage()
 {
@@ -171,25 +170,24 @@ C2EW="nav_lon,nav_lat,depthw" #,time_counter"
 
 GRID_IMP="grid_T"
 
-if [ ${iamoc} -eq 1 ]; then
+if [ ${ivt} -eq 1 -o ${ibpsi} -eq 1 -o ${iuv} -eq 1 ]; then
+    GRID_IMP="${GRID_IMP} grid_U"
+fi
+
+if [ ${iamoc} -eq 1 -o ${ivt} -eq 1 -o ${ibpsi} -eq 1 -o ${iuv} -eq 1 ]; then
     GRID_IMP="${GRID_IMP} grid_V"
 fi
 
-if [ ${ibpsi} -eq 1 ]; then
-    GRID_IMP="${GRID_IMP} grid_U grid_V"
-fi
-
-if [ ${ivt} -eq 1 ]; then
-    GRID_IMP="${GRID_IMP} grid_U grid_V"
-fi
-
-if [ ${iuv} -eq 1 ]; then
-    GRID_IMP="${GRID_IMP} grid_U grid_V"
-fi
-
-if [ ${iice} -eq 1 ]; then
+if [ `contains_string ${FILE_ICE_SUFFIX} ${NEMO_SAVED_FILES}` -eq 1 ]; then
     GRID_IMP="${GRID_IMP} ${FILE_ICE_SUFFIX}"
 fi
+
+if [ `contains_string SBC ${NEMO_SAVED_FILES}` -eq 1 ]; then
+    GRID_IMP="${GRID_IMP} SBC"
+fi
+
+echo; echo " GRID_IMP = ${GRID_IMP}"; echo
+
 
 
 # Checking what files we have / plan to use:
@@ -197,7 +195,7 @@ if [ "${NEMO_SAVED_FILES}" = "" ]; then
     echo "Please specify which NEMO files are saved (file suffixes, grid_T, ..., icemod) ?"
     echo " => set the variable NEMO_SAVED_FILES in your config_${CONFIG}.sh file!"; exit
 fi
-VAF=( "grid_T" "grid_U" "grid_V" "icemod" )
+VAF=( "grid_T" "grid_U" "grid_V" "icemod" "SBC" )
 js=0 ; gimp_new=""
 for sf in ${VAF[*]}; do
     echo "Checking ${sf}..."
@@ -206,7 +204,7 @@ for sf in ${VAF[*]}; do
     if [ "${ca}" = "" ]; then
         if [ "${cb}" != "" ]; then
             echo "PROBLEM! The diags you specified say you need ${sf} files"
-            echo "     => but you have not specified ${sf} in NEMO_SAVED_FILES !"; exit
+1            echo "     => but you have not specified ${sf} in NEMO_SAVED_FILES !"; exit
         fi
     else
         gimp_new="${sf} ${gimp_new}"
@@ -298,6 +296,10 @@ fi
 
 
 
+if [ ${ece_run} -eq 1 ]; then
+    if [ ! -d ${NEMO_OUT_D}/001 ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory 001 in:"; echo " ${NEMO_OUT_D}"; fi
+fi
+
 
 export jyear=${Y1}
 
@@ -307,6 +309,20 @@ while [ ${jyear} -le ${Y2} ]; do
     cyear=`printf "%04d" ${jyear}`
     echo; echo "Year = ${cyear}:"
 
+
+    cpf=""
+    if [ ${ece_run} -eq 1 ]; then
+        # Need initial year in 001:
+        fin=`\ls ${NEMO_OUT_D}/001/${CPREF}*_grid_T.${NCE}` ; fin=`basename ${fin}`
+        YEAR_INI=`echo ${fin} | sed -e "s|${CPREF}||g" | cut -c1-4`
+        echo " *** YEAR_INI = ${YEAR_INI}"
+        iy=`expr ${jyear} - ${YEAR_INI} + 1` ; dir_ece=`printf "%03d" ${iy}`
+        echo " *** ${cyear} => dir_ece = ${dir_ece}"
+        cpf="${dir_ece}/"
+        echo
+    fi
+    
+    #exit ; #lolo
 
     TTAG_ann=${cyear}0101_${cyear}1231
 
@@ -345,12 +361,12 @@ while [ ${jyear} -le ${Y2} ]; do
         # Importing required files to tmp dir and gunzipping:
         for gt in ${GRID_IMP}; do
             f2i=${CRTM}_${gt}.${NCE} ; sgz=""
-            if [ -f ${NEMO_OUT_D}/${f2i}.gz ]; then sgz=".gz"; fi
+            if [ -f ${NEMO_OUT_D}/${cpf}${f2i}.gz ]; then sgz=".gz"; fi
 
-            check_if_file ${NEMO_OUT_D}/${f2i}${sgz}
+            check_if_file ${NEMO_OUT_D}/${cpf}${f2i}${sgz}
             if [ ! -f ./${FPREF}${f2i} ]; then
                 echo "Importing ${f2i}${sgz} ..."
-                cp -L ${NEMO_OUT_D}/${f2i}${sgz} ./${FPREF}${f2i}${sgz}
+                cp -L ${NEMO_OUT_D}/${cpf}${f2i}${sgz} ./${FPREF}${f2i}${sgz}
                 if [ "${sgz}" = ".gz" ]; then gunzip -f ./${FPREF}${f2i}.gz ; fi
                 #
                 if [ ! "${NCE}" = "nc4" ]; then
@@ -368,7 +384,7 @@ while [ ${jyear} -le ${Y2} ]; do
 
         # Need to create annual files if needed
         if [ ${IFREQ_SAV_YEARS} -gt 1 ]; then
-            for gt in grid_T grid_U grid_V ${FILE_ICE_SUFFIX}; do
+            for gt in grid_T grid_U grid_V ${FILE_ICE_SUFFIX} SBC; do
                 ftd=./${FPREF}${CRTM}_${gt}.${NCE} ; # file to divide!
                 if [ -f ${ftd} ]; then
                     jy=0
@@ -489,7 +505,7 @@ echo "Phase 2:"; ls ; echo
 
 # Mean monthly climatology
 
-for suff in grid_T grid_U grid_V icemod VT MOC PSI; do
+for suff in grid_T grid_U grid_V icemod SBC VT MOC PSI; do
 
 
     if [ -f ./${CPREF}${CY1}0101_${CY1}1231_${suff}.${NCE} ]; then

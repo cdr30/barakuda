@@ -4,7 +4,7 @@
 #
 #         Configuration file for
 #
-# OCEAN MONITORING for NEMO v3.6 of EC-Earth 3.2 beta on 75 levels
+# OCEAN MONITORING for NEMO and EC-EARTH2.3 output
 #
 #            HPC: triolith
 #
@@ -12,30 +12,25 @@
 #
 #===========================================================
 
-export CONF=ORCA1.L75 ; # horizontal global configuration
-export NBL=75     ; # number of levels
+export CONF=ORCA1.L42 ; # horizontal global configuration
+export NBL=42         ; # number of levels
 
 # Root directory where NEMO output files are stored:
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
-
-# Is it an ec-earth run?
-export ece_run=1 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
-#                  # where YYY starts from '001' to
-
 # List of suffixed of files that have been saved by NEMO:
-export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
+export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod"
 
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
-export NEMO_OUT_STRCT="/proj/bolinc/users/x_laubr/ecrundir/<RUN>/output/nemo"
+export NEMO_OUT_STRCT="${STORE_DIR}/CMIP5/<RUN>-SAVED/NEMO"
 
-export TSTAMP="1m"   ; # output time-frequency stamp as in NEMO output files...
+export TSTAMP="MM"   ; # output time-frequency stamp as in NEMO output files...
 
 # How does the nemo files prefix looks like
 # Everything before "<year_related_info>_grid_<X>" or "<year_related_info>_icemod"
 # use <ORCA>, <RUN> and <TSTAMP>=>  Ex: export NEMO_FILE_PREFIX="<ORCA>-<RUN>_<TSTAMP>_"
-export NEMO_FILE_PREFIX="<RUN>_<TSTAMP>_"
+export NEMO_FILE_PREFIX="ORCA1-<RUN>_<TSTAMP>_"
 # => should get rid of TSTAMP actually...
 
 # Temporary file system (scratch) on which to perform the job you can use <JOB_ID> if scracth depends on JOB ID:
@@ -44,24 +39,23 @@ export SCRATCH="/scratch/local/<JOB_ID>"
 export CANOPY_PATH=${HOME}/opt/Canopy_64bit/User
 
 # If variables names in NEMO files are not the default...
-export NN_SST="tos"
-export NN_SSS="sos"
-export NN_SSH="zos"
-export NN_T="thetao"
-export NN_S="so"
-export NN_MLD="mldr10_1"
-export NN_RNF="runoffs"
-export NN_U="uo"
-export NN_V="vo"
+export NN_SST="sosstsst"
+export NN_SSS="sosaline"
+export NN_SSH="sossheig"
+export NN_T="votemper"
+export NN_S="vosaline"
+export NN_MLD="somixhgt"
+export NN_U="vozocrtx"
+export NN_V="vomecrty"
 #export NN_U_EIV="vozoeivu"
 #export NN_V_EIV="vomeeivv"
 export NN_U_EIV="0" ; # ignore
 export NN_V_EIV="0" ; # ignore
-export NN_TAUX="tauuo"
-export NN_TAUY="tauvo"
+export NN_TAUX="sozotaux"
+export NN_TAUY="sometauy"
 
-export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
-export NN_ICET="sithic" ; # ice thickness but 'sit' is only in icemod file !!!
+export NN_ICEF="ileadfra" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
+export NN_ICET="iicethic" ; # ice thickness but 'sit' is only in icemod file !!!
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
@@ -69,16 +63,16 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / EC-Earth 3.2_beta"
+export JTITLE="NEMO ORCA1 L42 EC-Earth CMIP5 experiment"
 
 # Land-sea mask and basins files:
-export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask.nc"
-export BM_FILE="/proj/bolinc/users/x_laubr/${CONF}/new_maskglo.nc"
+export MM_FILE="${STORE_DIR}/${CONF}/${CONF}-I/mesh_mask_ORCA1_ecearth2_42l_NoCaspian.nc4"
+export BM_FILE="${STORE_DIR}/${CONF}/${CONF}-I/basin_mask_ORCA1_ecearth2_42l_NoCaspian.nc4"
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
-export F_T_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/thetao_1degx1deg_WOA2009_monthly_${CONF}_cut.nc
-export F_S_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/so_1degx1deg_WOA2009_monthly_${CONF}_cut.nc
-export SST_CLIM_12=${STORE_DIR}/ORCA1.L75/ORCA1.L75-I/tos_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc
+export F_T_CLIM_3D_12="${STORE_DIR}/${CONF}/${CONF}-I/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly.nc4"
+export F_S_CLIM_3D_12="${STORE_DIR}/${CONF}/${CONF}-I/so_1degx1deg-ORCA1.L75_WOA2009_monthly.nc4"
+export SST_CLIM_12="/proj/bolinc/users/x_laubr/ORCA1.L75/ORCA1.L75-I/tos_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc"
 export NN_T_CLIM="thetao"
 export NN_S_CLIM="so"
 export NN_SST_CLIM="tos"
@@ -95,7 +89,7 @@ export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_ORCA1.dat"
 
 
 # In what directory of the local machine to save the diagnostics:
-export DIAG_DIR="/proj/bolinc/users/x_laubr/tmp/barakuda/${CONF}_ece32b"
+export DIAG_DIR="${STORE_DIR}/tmp/barakuda/cmip5"
 
 
 # Files with the list of rectangular boxes to look at more closely:
@@ -107,7 +101,7 @@ export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 ihttp=1 ; # do we export on a remote http server (1) or keep on the local machine (0)
 RHOST=misu228.misu.su.se ; # remote host to send diagnostic page to///
 RUSER=laurent ; # username associated to remote host (for file export)
-RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host to send the diagnostic page to
+RWWWD=/data/www/barakuda/CMIP5 ; # directory of the local or remote host to send the diagnostic page to
 
 
 
@@ -121,32 +115,32 @@ RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host
 
 
 # Basic 3D and surface averages:
-i_do_mean=1
+i_do_mean=0
 
 # AMOC:
-i_do_amoc=1
+i_do_amoc=0
 export LMOCLAT="20-23 30-33 40-43 45-48 50-53" ; # List of latitude bands to look in for max of AMOC
 
 
 # Transport of mass, heat and salt through specified sections (into TRANSPORT_SECTION_FILE):
-i_do_trsp=2  ; # transport of mass, heat and salt through specified sections
+i_do_trsp=0  ; # transport of mass, heat and salt through specified sections
 #              # i_do_trsp=2 => treat also different depths range!
 z1_trsp=100  ; # first  depth: i_do_trsp must be set to 2
 z2_trsp=1000 ; # second depth: i_do_trsp must be set to 2
 
 
 # meridional heat/salt transport (advective)
-i_do_mht=1
+i_do_mht=0
 
 # Transport by sigma class
-i_do_sigt=1
+i_do_sigt=0
 
 # sea-ice diags
-i_do_ice=1  ; # Sea-ice diags
+i_do_ice=0  ; # Sea-ice diags
 export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction NN_ICEF? => "icemod" or "grid_T"
 
 
-i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!
+i_do_bb=0   ; # Budget and other stuffs on a given rectangular box!
 #             # => needs file FILE_DEF_BOXES !!!
 # => produces time-series f(t)  (mean of 2D fields)
 
@@ -156,17 +150,17 @@ i_do_ssx_box=0 ; # zoom on given boxes (+spatially-averaged values) for surface 
 
 
 # Vertical profiles on of box-averaged as a function of time...
-i_do_box_TS_z=1 ; # do sigma vert. profiles on given boxes... # 1 => no figures, 2 => figures
+i_do_box_TS_z=0 ; # do sigma vert. profiles on given boxes... # 1 => no figures, 2 => figures
 #                 # => needs file FILE_DEF_BOXES !!!
 # => produces time-series f(t,z)
 
 #
 # Deep Mixed volume in prescribed boxes:
 i_do_dmv=1
-export MLD_CRIT="1000,725,500"
+export MLD_CRIT="4000,3000,2000,1500,1000,725,500"
 
 
-# Some nerdy stuffs about the critical depth in prescribed boxes:
+# Some nerdy stuffs about the critical depth in prescribed boxes: 
 i_do_zcrit=0
 
 

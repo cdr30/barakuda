@@ -6,10 +6,11 @@
 #
 #    An OCEAN MONITORING python environment for NEMO
 #
-#             L. Brodeau, August 2009-2015
+#             L. Brodeau, 2009-2015
 #
 #===============================================================
 
+<<<<<<< HEAD
 ### Specific headers for you batch manager:
 
 # voima.fmi.fi 2015-10-29
@@ -47,6 +48,12 @@ export BARAKUDA_ROOT=`pwd`
 
 # Supported ORCA grids:
 ORCA_LIST="ORCA025.L75 ORCA1 ORCA1.L46 ORCA1.L75 ORCA2 ORCA2_L46"
+=======
+export BARAKUDA_ROOT=`pwd`
+
+# Supported ORCA grids:
+ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
+>>>>>>> master
 
 # Checking available configs
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
@@ -69,12 +76,15 @@ usage()
     echo
     echo "      -z <YYYY> => force BaraKuda to stop at year YYYY"
     echo
-    echo "      -c <run>  => 2D comparison diagnostics are performed against run <run>"
-    echo "                   instead of a climatology"
-    echo
     echo "      -f        => forces creation of diagnostic page eventhough treatment of output files is not finished"
     echo
     echo "      -e        => create the HTML diagnostics page on local or remote server"
+    echo
+    echo "      -E        => same as '-e' but also create the 2D plots / observations"
+    echo "                   you need to have built a climatology of your run with 'build_clim.sh' first!"
+    echo
+    echo "      -c <run>  => when '-E' specified, 2D comparison diagnostics are performed "
+    echo "                   against the climatology of another run <run> rather than observations"
     echo
     echo "      -h        => print this message"
     echo
@@ -90,9 +100,9 @@ export RUNREF=""
 ISTAGE=1 ; # 1 => generation of data diagnostic files
 #          # 2 => creation of figures and diagnostic HTML page
 LFORCEDIAG=false
+l_clim_diag=false
 
-
-while getopts C:R:y:z:c:feh option ; do
+while getopts C:R:y:z:c:feEh option ; do
     case $option in
         C) CONFIG=${OPTARG};;
         R) RUN=${OPTARG};;
@@ -101,6 +111,7 @@ while getopts C:R:y:z:c:feh option ; do
         c) export RUNREF=${OPTARG} ;;
         f) LFORCEDIAG=true;;
         e) ISTAGE=2;;
+        E) ISTAGE=2 ; l_clim_diag=true ;;
         h)  usage;;
         \?) usage ;;
     esac
@@ -108,6 +119,11 @@ done
 
 
 if [ "${CONFIG}" = "" -o "${RUN}" = "" ]; then usage ; exit ; fi
+
+if [ "${RUNREF}" != "" -a ${ISTAGE} -eq 1 ]; then    
+    echo; echo " WARNING: option '-c' only makes sense when '-e' or '-E' are specified !"
+    sleep 2; echo
+fi
 
 for og in ${ORCA_LIST}; do
     echo " ${og} / ${CONFIG}"
@@ -201,7 +217,7 @@ if [ "${NEMO_SAVED_FILES}" = "" ]; then
     echo "Please specify which NEMO files are saved (file suffixes, grid_T, ..., icemod) ?"
     echo " => set the variable NEMO_SAVED_FILES in your config_${CONFIG}.sh file!"; exit
 fi
-VAF=( "grid_T" "grid_U" "grid_V" "icemod" )
+VAF=( "grid_T" "grid_U" "grid_V" "icemod" "SBC" )
 js=0 ; gimp_new=""
 for sf in ${VAF[*]}; do
     echo "Checking ${sf}..."
@@ -287,27 +303,13 @@ export CPREF=`echo ${NEMO_FILE_PREFIX} | sed -e "s|<ORCA>|${ORCA}|g" -e "s|<RUN>
 # Will have a look at NEMO files in the directory where they are stored
 cd ${NEMO_OUT_D}/
 
-
-
-
-i_monolitic_files=1 ; ctest="grid_T.nc"
-
-
 if [ ${ISTAGE} -eq 1 ]; then
     
-    # Are files rebuilt or still on proc-domains?
-    ctest1=`\ls ${CPREF}*grid_T* | grep 'grid_T.nc'`
-    ctest2=`\ls ${CPREF}*grid_T* | grep 'grid_T_0000.nc'`
-    if [ "${ctest1}" = "" ]; then
-        if [ ! "${ctest2}" = "" ]; then
-            i_monolitic_files=0 ; ctest="grid_T_0000.nc"
-            echo " NEMO files will have to be rebuilt!"
-        else
-            echo "Problem: your NEMO output files must look weird..."
-            exit
-        fi
+    if [ ${ece_run} -eq 1 ]; then
+        if [ ! -d 001 ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory 001 in:"; echo " ${NEMO_OUT_D}"; exit ; fi
+        nby_ece=`ls -d */ | wc -l` ; echo " ${nby_ece} years have been completed..."
+        cd 001/
     fi
-
 
     if ! ${LFORCE_YEAR1}; then
     # Try to guess the first year from stored "grid_T" files:
@@ -332,13 +334,22 @@ if [ ${ISTAGE} -eq 1 ]; then
         echo " Initial year forced to ${YEAR_INI}"; echo
     fi
 
-    export YEAR_END=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/''/g | tail -1 | cut -c1-4`
-    echo ${YEAR_END} |  grep "[^0-9]" >/dev/null; # Checking if it's an integer
-    if [ ! "$?" -eq 1 ]; then
-        echo "ERROR: it was imposible to guess the year coresponding to the last saved year!"
-        echo "       => check your NEMO output directory and file naming..."; exit
+
+    cd ${NEMO_OUT_D}/
+
+    if [ ${ece_run} -eq 1 ]; then
+        dir_end=`printf "%03d" ${nby_ece}`
+        if [ ! -d ${dir_end} ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory ${dir_end} in:"; echo " ${NEMO_OUT_D}"; exit ; fi
+        YEAR_END=`expr ${YEAR_INI} + ${nby_ece}`
+    else
+        export YEAR_END=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/''/g | tail -1 | cut -c1-4`
+        echo ${YEAR_END} |  grep "[^0-9]" >/dev/null; # Checking if it's an integer
+        if [ ! "$?" -eq 1 ]; then
+            echo "ERROR: it was imposible to guess the year coresponding to the last saved year!"
+            echo "       => check your NEMO output directory and file naming..."; exit
+        fi
+        YEAR_END=`expr ${YEAR_END} + ${IFREQ_SAV_YEARS} - 1`
     fi
-    YEAR_END=`expr ${YEAR_END} + ${IFREQ_SAV_YEARS} - 1`
     echo " Last year guessed from stored files => ${YEAR_END}"; echo
 
 
@@ -363,79 +374,10 @@ fi
 
 cyear_ini=`printf "%04d" ${YEAR_INI}` ; cyear_end=`printf "%04d" ${YEAR_END}`
 
-
-
 if ${LFORCE_END}; then
     if [ ${YEARN} -le ${YEAR_INI} ]; then echo "ERROR: forced stop year is before first year!"; exit; fi
 fi
 
-
-
-if [ ${i_monolitic_files} -eq 0 ]; then
-
-    RBLD_EXE=rebuild_nemo
-    # If not monolitic files, we're going to rebuild everything in scratch directory
-    # and update the path NEMO output dir:
-    cc=`which ${RBLD_EXE}`
-    if [ "${cc}" = "" ]; then echo "ERROR: ${RBLD_EXE} script not found!!!"; exit; fi
-
-    NEMO_OUT_D_NEW=${SCRATCH}/REBUILT_OUTPUT_${CONFRUN} ; mkdir -p ${NEMO_OUT_D_NEW}
-
-    cd ${NEMO_OUT_D_NEW}/
-
-    jyear=${YEAR_INI}
-
-    while [ ${jyear} -le ${YEAR_END} ]; do
-        cyear=`printf "%04d" ${jyear}`
-        echo; echo "Rebuilding year ${cyear}"
-
-        TTAG=${cyear}0101_${cyear}1231
-
-        for ft in ${GRID_IMP}; do
-            
-            # Number of proc domains:
-            npd=`\ls -l ${NEMO_OUT_D}/${CPREF}${TTAG}_${ft}_0* | wc -l`
-
-            file_reb=${CPREF}${TTAG}_${ft}.nc
-            if [ ! -f ${file_reb} ]; then
-                rm -f tmp.*
-                ln -sf ${NEMO_OUT_D}/${CPREF}${TTAG}_${ft}_0*.nc .
-                ls -l
-                echo "${RBLD_EXE} -t 4 ${CPREF}${TTAG}_${ft} ${npd}"
-                ${RBLD_EXE} -t 4 ${CPREF}${TTAG}_${ft} ${npd}
-                rm -f ${CPREF}${TTAG}_${ft}_0*.nc nam_rebuild
-                ls -l
-                echo
-            else
-                echo " ${file_reb} was already present in `pwd`, skipping rebuilding!"
-            fi
-            echo
-        done
-
-
-        jyear=`expr ${jyear} + 1`
-    done
-    # Important:
-    export NEMO_OUT_D=${NEMO_OUT_D_NEW}
-fi
-
-
-
-# First checking the progression of the run:
-cd ${DIAG_D}/
-
-if [ ${ISTAGE} -eq 1 ]; then
-    echo; echo "In ${DIAG_D}, doing:"
-    echo "${BARAKUDA_ROOT}/scripts/print_progression.sh ${CPREF} ${NEMO_OUT_D} ${TSTAMP}"
-    ${BARAKUDA_ROOT}/scripts/print_progression.sh ${CPREF} ${NEMO_OUT_D} ${TSTAMP}
-fi
-echo
-if [ -f tmp_progression_${CPREF}.dat ]; then
-    cat tmp_progression_${CPREF}.dat >> ${CPREF}progression.dat
-    echo "Progression printed in:" ; echo "${DIAG_D}/${CPREF}progression.dat"; echo; echo
-fi
-
-rm -f tmp_progression_${CPREF}.dat
 
 
 jyear=${YEAR_INI}
@@ -443,12 +385,7 @@ jyear=${YEAR_INI}
 fcompletion=${DIAG_D}/last_year_done.info
 if [ -f ${fcompletion} ]; then jyear=`cat ${fcompletion}`; jyear=`expr ${jyear} + 1`; fi
 
-
-
-
-
 cd ${TMP_DIR}/
-
 
 
 # Importing mesh_mask files:
@@ -507,6 +444,14 @@ while ${lcontinue}; do
 
     cyear=`printf "%04d" ${jyear}`
 
+    #lolo
+    cpf=""
+    if [ ${ece_run} -eq 1 ]; then
+        iy=`expr ${jyear} - ${YEAR_INI} + 1` ; dir_ece=`printf "%03d" ${iy}`
+        echo " *** ${cyear} => dir_ece = ${dir_ece}"
+        cpf="${dir_ece}/"
+    fi
+
     TTAG_ann=${cyear}0101_${cyear}1231
 
     i_get_file=0
@@ -526,7 +471,7 @@ while ${lcontinue}; do
 
         # Testing if the current year-group has been done
         for ft in ${GRID_IMP}; do            
-            ftst=${NEMO_OUT_D}/${CPREF}${TTAG}_${ft} ;  cfxt="0"
+            ftst=${NEMO_OUT_D}/${cpf}${CPREF}${TTAG}_${ft} ;  cfxt="0"
             for ca in "nc" "nc.gz" "nc4"; do
                 if [ -f ${ftst}.${ca} ]; then cfxt="${ca}"; fi
             done
@@ -579,19 +524,15 @@ while ${lcontinue}; do
                     f2i=${CRTM}_${gt}.nc ;   sgz=""
                     
                     for ca in ".gz" "4"; do
-                        if [ -f ${NEMO_OUT_D}/${f2i}${ca} ]; then sgz="${ca}"; fi
+                        if [ -f ${NEMO_OUT_D}/${cpf}${f2i}${ca} ]; then sgz="${ca}"; fi
                     done
                     
-                    check_if_file ${NEMO_OUT_D}/${f2i}${sgz}
+                    check_if_file ${NEMO_OUT_D}/${cpf}${f2i}${sgz}
                     
-                    if [ ${i_monolitic_files} -eq 0 ]; then
-                        ln -sf ${NEMO_OUT_D_NEW}/${f2i} .
-                    fi
-
                     if [ ! -f ./${f2i} ]; then
                         echo "Importing ${f2i}${sgz} ..."
-                        echo "rsync -L ${NEMO_OUT_D}/${f2i}${sgz} `pwd`/"
-                        rsync -L ${NEMO_OUT_D}/${f2i}${sgz} ./
+                        echo "rsync -L ${NEMO_OUT_D}/${cpf}${f2i}${sgz} `pwd`/"
+                        rsync -L ${NEMO_OUT_D}/${cpf}${f2i}${sgz} ./
                         if [ "${sgz}" = ".gz" ]; then gunzip -f ./${f2i}.gz ; fi
                         if [ "${sgz}" = "4"   ]; then
                             if ${L_CONV2NC3}; then
@@ -1090,49 +1031,49 @@ done ; # while ${lcontinue}; do
 # Combining files that need to be combined!
 
 
-yr1=`cat ${DIAG_D}/${CPREF}progression.dat | grep -v '\#' | head -1 | cut -c1-4`
-yr2=`cat ${DIAG_D}/${CPREF}progression.dat | grep -v '\#' | tail -1 | cut -c1-4`
-echo; echo; echo "yr1, yr2 = ${yr1} and ${yr2}"; echo
+#yr1=`cat ${DIAG_D}/${CPREF}progression.dat | grep -v '\#' | head -1 | cut -c1-4`
+#yr2=`cat ${DIAG_D}/${CPREF}progression.dat | grep -v '\#' | tail -1 | cut -c1-4`
+#echo; echo; echo "yr1, yr2 = ${yr1} and ${yr2}"; echo
 
 
-if [ ${i_do_amo} -eq 1 ]; then
-    # Combining all the sigma files into 1 big file!
-    diro=${DIAG_D}/amo
-    l0=`\ls ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc 2>/dev/null`
-    if [ ! "${l0}" = "" ]; then
-        rm -f ${DIAG_D}/AMO_SST_Atl_*.nc
-        echo
-        echo "ncrcat -h -O ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc -o \
-            ${DIAG_D}/AMO_SST_Atl_${CONFRUN}_${yr1}0101-${yr2}1231.nc"
-        ncrcat -h -O ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc -o \
-            ${DIAG_D}/AMO_SST_Atl_${CONFRUN}_${yr1}0101-${yr2}1231.nc
-        echo; echo
-        rm -f ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc
-    fi
-fi
+#if [ ${i_do_amo} -eq 1 ]; then
+#    # Combining all the sigma files into 1 big file!
+#    diro=${DIAG_D}/amo
+#    l0=`\ls ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc 2>/dev/null`
+#    if [ ! "${l0}" = "" ]; then
+#        rm -f ${DIAG_D}/AMO_SST_Atl_*.nc
+#        echo
+#        echo "ncrcat -h -O ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc -o \
+#            ${DIAG_D}/AMO_SST_Atl_${CONFRUN}_${yr1}0101-${yr2}1231.nc"
+#        ncrcat -h -O ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc -o \
+#            ${DIAG_D}/AMO_SST_Atl_${CONFRUN}_${yr1}0101-${yr2}1231.nc
+#        echo; echo
+#        rm -f ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc
+#    fi
+#fi
 
 
 
 
 
-if [ ${i_do_sect} -eq 1 ]; then
-    # Combining all the section files into 1 big file!
-    diro=${DIAG_D}/sections
-    for cs in ${VSECT_NM[*]}; do
-        l0=`\ls ${diro}/section_*_grid_T_${cs}.nc 2>/dev/null`
-        if [ ! "${l0}" = "" ]; then
-            rm -f ${DIAG_D}/section_*_grid_T_${cs}.nc
-            echo "ncrcat -h -O ${diro}/section_*_grid_T_${cs}.nc -o \
-                ${DIAG_D}/section_${CONFRUN}_${yr1}0101-${yr2}1231_grid_T_${cs}.nc"
-            ncrcat -h -O ${diro}/section_*_grid_T_${cs}.nc -o \
-                ${DIAG_D}/section_${CONFRUN}_${yr1}0101-${yr2}1231_grid_T_${cs}.nc
-            rm -f ${diro}/section_*_grid_T_${cs}.nc
-            echo
-        fi
-    done
-    echo
-
-fi
+#if [ ${i_do_sect} -eq 1 ]; then
+#    # Combining all the section files into 1 big file!
+#    diro=${DIAG_D}/sections
+#    for cs in ${VSECT_NM[*]}; do
+#        l0=`\ls ${diro}/section_*_grid_T_${cs}.nc 2>/dev/null`
+#        if [ ! "${l0}" = "" ]; then
+#            rm -f ${DIAG_D}/section_*_grid_T_${cs}.nc
+#            echo "ncrcat -h -O ${diro}/section_*_grid_T_${cs}.nc -o \
+#                ${DIAG_D}/section_${CONFRUN}_${yr1}0101-${yr2}1231_grid_T_${cs}.nc"
+#            ncrcat -h -O ${diro}/section_*_grid_T_${cs}.nc -o \
+#                ${DIAG_D}/section_${CONFRUN}_${yr1}0101-${yr2}1231_grid_T_${cs}.nc
+#            rm -f ${diro}/section_*_grid_T_${cs}.nc
+#            echo
+#        fi
+#    done
+#    echo
+#
+#fi
 
 
 
@@ -1677,7 +1618,7 @@ EOF
         echo "Preparing to export to remote host!"; echo
         mkdir ${RUN}
 
-        cp -r ${BARAKUDA_ROOT}/scripts/html/conf ${RUN}/
+        cp -r ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
         mv -f index.php ${RUN}/
         mv -f *.png      ${RUN}/ >/dev/null 2>/dev/null
         mv -f ./merid_transport/*.png ${RUN}/ >/dev/null 2>/dev/null

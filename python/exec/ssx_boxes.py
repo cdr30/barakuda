@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 
 # L. Brodeau 2014
 
@@ -11,12 +12,6 @@ import barakuda_orca as bo
 import barakuda_tool as bt
 
 #####################################
-
-
-#l_debug = True
-l_debug = False
-
-if l_debug: import barakuda_plot as bp
 
 
 DIAG_D = os.getenv('DIAG_D')
@@ -118,7 +113,6 @@ id_in.close()
 #id_mm = Dataset(cf_basin)
 #rmsk_atl = id_mm.variables['tmaskatl'][0,:,:]
 #id_mm.close()
-#if l_debug: bp.check_with_fig_2(XSST[0,:,:], rmsk_atl[:,:], 'sst_atl')
 
 
 
@@ -137,7 +131,6 @@ for jt in range(nt): vtime[jt] = float(jyear) + (float(jt) + 0.5)/float(nt)
 
 
 
-if l_debug: Xtmp = nmp.zeros(nj*ni) ; Xtmp.shape = [ nj , ni ]
 
 
 # First will read name and coordinates of rectangular boxes to treat into file FILE_DEF_BOXES

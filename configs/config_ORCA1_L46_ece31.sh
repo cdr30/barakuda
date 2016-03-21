@@ -4,7 +4,7 @@
 #
 #         Configuration file for
 #
-# OCEAN MONITORING for NEMO v3.6 of EC-Earth 3.2 beta on 75 levels
+# OCEAN MONITORING for NEMO v3.3.X of EC-Earth 3.1 on 46 levels
 #
 #            HPC: triolith
 #
@@ -12,10 +12,10 @@
 #
 #===========================================================
 
-export CONF=ORCA1.L75 ; # horizontal global configuration
-export NBL=75     ; # number of levels
+export CONF=ORCA1.L46 ; # horizontal global configuration
+export NBL=46     ; # number of levels
 
-# Root directory where NEMO output files are stored:
+# File system where NEMO config and output files are stored:
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
 
@@ -24,10 +24,12 @@ export ece_run=1 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/
 #                  # where YYY starts from '001' to
 
 # List of suffixed of files that have been saved by NEMO:
-export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
+export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod icemoa"
 
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
+#export NEMO_OUT_STRCT="${STORE_DIR}/<ORCA>/<ORCA>-<RUN>-S"
+#export NEMO_OUT_STRCT="/proj/climod/users/x_laubr/run/<RUN>/output/nemo"
 export NEMO_OUT_STRCT="/proj/bolinc/users/x_laubr/ecrundir/<RUN>/output/nemo"
 
 export TSTAMP="1m"   ; # output time-frequency stamp as in NEMO output files...
@@ -44,24 +46,23 @@ export SCRATCH="/scratch/local/<JOB_ID>"
 export CANOPY_PATH=${HOME}/opt/Canopy_64bit/User
 
 # If variables names in NEMO files are not the default...
-export NN_SST="tos"
-export NN_SSS="sos"
-export NN_SSH="zos"
-export NN_T="thetao"
-export NN_S="so"
-export NN_MLD="mldr10_1"
-export NN_RNF="runoffs"
-export NN_U="uo"
-export NN_V="vo"
+export NN_SST="sosstsst"
+export NN_SSS="sosaline"
+export NN_SSH="sossheig"
+export NN_T="votemper"
+export NN_S="vosaline"
+export NN_MLD="somixhgt"
+export NN_U="vozocrtx"
+export NN_V="vomecrty"
 #export NN_U_EIV="vozoeivu"
 #export NN_V_EIV="vomeeivv"
 export NN_U_EIV="0" ; # ignore
 export NN_V_EIV="0" ; # ignore
-export NN_TAUX="tauuo"
-export NN_TAUY="tauvo"
+export NN_TAUX="sozotaux"
+export NN_TAUY="sometauy"
 
-export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
-export NN_ICET="sithic" ; # ice thickness but 'sit' is only in icemod file !!!
+export NN_ICEF="iiceconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
+export NN_ICET="iicethic" ; # ice thickness but 'sit' is only in icemod file !!!
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
@@ -69,15 +70,15 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / EC-Earth 3.2_beta"
+export JTITLE="NEMO v3.3.1 ORCA1 (L${NBL}) - LIM3 / EC-Earth 3.1"
 
 # Land-sea mask and basins files:
 export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask.nc"
-export BM_FILE="/proj/bolinc/users/x_laubr/${CONF}/new_maskglo.nc"
+export BM_FILE="/proj/bolinc/users/x_laubr/${CONF}/basin_mask.nc"
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
-export F_T_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/thetao_1degx1deg_WOA2009_monthly_${CONF}_cut.nc
-export F_S_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/so_1degx1deg_WOA2009_monthly_${CONF}_cut.nc
+export F_T_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/thetao_1degx1deg-ORCA1_L46_WOA2009_monthly.nc4
+export F_S_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/so_1degx1deg-ORCA1_L46_WOA2009_monthly.nc4
 export SST_CLIM_12=${STORE_DIR}/ORCA1.L75/ORCA1.L75-I/tos_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc
 export NN_T_CLIM="thetao"
 export NN_S_CLIM="so"
@@ -88,14 +89,14 @@ export NN_ICEF_CLIM="ice_cover"
 
 
 # A text file where the vertical hydraugraphical sections of interest are defined :
-export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1.dat"
+export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1_old.dat"
 
 # For transport by sigma-class:
 export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_ORCA1.dat"
 
 
 # In what directory of the local machine to save the diagnostics:
-export DIAG_DIR="/proj/bolinc/users/x_laubr/tmp/barakuda/${CONF}_ece32b"
+export DIAG_DIR="/proj/bolinc/users/x_laubr/tmp/barakuda/${CONF}_ece31"
 
 
 # Files with the list of rectangular boxes to look at more closely:
@@ -107,7 +108,8 @@ export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 ihttp=1 ; # do we export on a remote http server (1) or keep on the local machine (0)
 RHOST=misu228.misu.su.se ; # remote host to send diagnostic page to///
 RUSER=laurent ; # username associated to remote host (for file export)
-RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host to send the diagnostic page to
+RWWWD=/data/www/barakuda/ec-earth_3.1 ; # directory of the local or remote host to send the diagnostic page to
+#RWWWD=/data/www/barakuda/TEST ; # directory of the local or remote host to send the diagnostic page to
 
 
 

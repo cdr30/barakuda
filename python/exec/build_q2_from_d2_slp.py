@@ -1,4 +1,4 @@
-#!/home/x_laubr/bin/python
+#!/usr/bin/env python
 #
 # L. Brodeau, Feb.2001
 
@@ -9,12 +9,10 @@ import string
 
 from os.path import basename
 
-#
 import barakuda_tool as bt
 import barakuda_thermo as bthermo
 
 cv_d2='D2M'
-cv_t2='T2M'
 cv_p0='MSL'
 cv_q2='Q2M' ; # OUTPUT !
 
@@ -24,10 +22,8 @@ if len(sys.argv) != 2:
     sys.exit(0)
 
 cf_d2   = sys.argv[1]
-cf_t2 = string.replace(cf_d2, cv_d2, cv_t2)
 cf_p0 = string.replace(cf_d2, cv_d2, cv_p0)
 cf_q2 = basename(string.replace(cf_d2, cv_d2, cv_q2))
-#cf_q2   = sys.argv[2]
 
 
 
@@ -60,18 +56,7 @@ for jt in range(Nt):
 
     print ' *** jt = ', jt
     
-    
-    #  T2M
-    #  ~~~~
-    if jt == 0:
-        bt.chck4f(cf_t2)
-        f_t2_in = Dataset(cf_t2)
-        cunt_t2 = f_t2_in.variables[cv_t2].units
-    xt2     = f_t2_in.variables[cv_t2][jt,:,:]
-    if jt == Nt-1: f_t2_in.close()
-    
-    
-    
+        
     # D2M
     # ~~~
     if jt == 0:
@@ -98,13 +83,13 @@ for jt in range(Nt):
     # Checking dimensions
     # ~~~~~~~~~~~~~~~~~~~
     if jt == 0:
-        dim_t2 = xt2.shape ; dim_d2 = xd2.shape ; dim_p0 = xp0.shape
-        if dim_t2 != dim_d2 and dim_t2 != dim_p0:
-            print 'Shape problem!!!'; print dim_t2 , dim_d2 , dim_p0
+        dim_d2 = xd2.shape ; dim_p0 = xp0.shape
+        if dim_d2 != dim_p0:
+            print 'Shape problem!!!'; print dim_d2 , dim_p0
         print '\n'
-        [ nj, ni ] = dim_t2
+        [ nj, ni ] = dim_d2
         print 'ni, nj, nt = ', ni, nj, Nt
-        xq2 = nmp.zeros(nj*ni) ; xq2.shape = dim_t2
+        xq2 = nmp.zeros(nj*ni) ; xq2.shape = dim_d2
     
     
     # Building q2
@@ -144,12 +129,12 @@ for jt in range(Nt):
     
         id_tim.units         = cunt_time
     
-        id_q2.long_name = 'Surface specific humidity at 2m, built from T2M, D2M and MSL'
+        id_q2.long_name = 'Surface specific humidity at 2m, built from D2M and MSL'
         id_q2.units = 'kg/kg'
         id_q2.code  = '133'
         id_q2.table = '128'
     
-        f_out.About = 'Created by L. Brodeau using MSL, T2M and D2M corresponding fields'
+        f_out.About = 'Created by L. Brodeau using MSL and D2M corresponding fields'
     
         # Filling variables:
         id_lat[:] = vlat[:]

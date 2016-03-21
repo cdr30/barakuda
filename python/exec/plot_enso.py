@@ -1,4 +1,4 @@
-#!/home/x_laubr/bin/python
+#!/usr/bin/env python
 
 # L. Brodeau, April 2011
 
@@ -9,7 +9,7 @@ import os
 from netCDF4 import Dataset
 
 import barakuda_tool as bt
-import barakuda_plot  as bp
+import barakuda_plot as bp
 
 # Some constants:
 Pi = 3.141592654 ; to_rad = Pi/180. ; RE = 6.36 ; # (10^6 m)
@@ -97,6 +97,6 @@ print 'mean value for anomaly = ', nmp.sum(xnino[:,3])/nt
 
 
 
-bp.plot_enso( vtime, xnino[:,0], cfignm=cname, dt_year=ittic )
+bp.plot("enso")( vtime, xnino[:,0], cfignm=cname, dt_year=ittic )
 
 

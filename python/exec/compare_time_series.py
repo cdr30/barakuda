@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 # L. Brodeau, november 2013
 
 import sys
@@ -10,6 +12,8 @@ import barakuda_ncio as bn
 import barakuda_orca as bo
 import barakuda_plot as bp
 import barakuda_tool as bt
+
+DEFAULT_LEGEND_LOC = 'lower right'
 
 iamoc  = 1
 i2dfl  = 1
@@ -28,6 +32,8 @@ if DIAG_DIR == None: print 'The DIAG_DIR environement variable is no set'; sys.e
 CONF = os.getenv('CONF')
 if CONF == None: print 'The CONF environement variable is no set'; sys.exit(0)
 
+FIG_FORMAT = os.getenv('FIG_FORMAT')
+if FIG_FORMAT == None: print 'The FIG_FORMAT environement variable is no set'; sys.exit(0)
 
 NN_SST = os.getenv('NN_SST')
 if NN_SST == None: print 'The NN_SST environement variable is no set'; sys.exit(0)
@@ -110,9 +116,9 @@ if i2dfl == 1:
                 Xf[jrun,:nbm/12] = FY[:] ; Xf[jrun,nbm/12:] = -999.
                 jrun = jrun + 1
     
-            bp.plot_1d_multi(vtime[:], Xf[:,:], clist_confruns, cfig_type='svg',
-                             cfignm=cdiag+'_comparison_'+cocean, dt_year=ittic,
-                             cyunit=vunit[jvar], ctitle = vname[jvar]+', '+cocean, ymin=0, ymax=0)
+            bp.plot("1d_multi")(vtime[:], Xf[:,:], clist_confruns, cfig_type=FIG_FORMAT,
+                                cfignm=cdiag+'_comparison_'+cocean, dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
+                                cyunit=vunit[jvar], ctitle = vname[jvar]+', '+cocean, ymin=0, ymax=0)
     
         jvar = jvar+1
     
@@ -152,9 +158,9 @@ if imld == 1:
             jrun = jrun + 1
     
         if lplot:
-            bp.plot_1d_multi(vtime[:], Xf[:,:], clist_confruns, cfig_type='svg',
-                             cfignm=cdiag+'_'+cbox+'_comparison', dt_year=ittic,
-                             cyunit='m', ctitle = 'Mixed layer depth, '+bo.clgnm_mld_boxes[jbox], ymin=0, ymax=0)
+            bp.plot("1d_multi")(vtime[:], Xf[:,:], clist_confruns, cfig_type=FIG_FORMAT,
+                                cfignm=cdiag+'_'+cbox+'_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
+                                cyunit='m', ctitle = 'Mixed layer depth, '+bo.clgnm_mld_boxes[jbox], ymin=0, ymax=0)
         jbox = jbox+1
     
     
@@ -204,9 +210,9 @@ if i3dfl == 1:
                     Xf[jrun,:nbm/12] = FY[:]  ; Xf[jrun,nbm/12:] = -999.
                     jrun = jrun + 1
     
-                bp.plot_1d_multi(vtime[:], Xf[:,:], clist_confruns, cfig_type='svg',
-                                 cfignm=cdiag+'_comparison_'+cocean+'_'+cdepth, dt_year=ittic,
-                                 cyunit=vunit[jdiag], ctitle = vname[jdiag]+', '+cocean+', depth range = '+cdepth, ymin=0, ymax=0)
+                bp.plot("1d_multi")(vtime[:], Xf[:,:], clist_confruns, cfig_type=FIG_FORMAT,
+                                    cfignm=cdiag+'_comparison_'+cocean+'_'+cdepth, dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
+                                    cyunit=vunit[jdiag], ctitle = vname[jdiag]+', '+cocean+', depth range = '+cdepth, ymin=0, ymax=0)
     
                 idepth = idepth + 1
     
@@ -257,9 +263,9 @@ if iice == 1:
 
                 cdiag = 'seaice_'+cvar
                 cmnth = '%2.2i'%(vmnth[jdiag]+1)
-                bp.plot_1d_multi(vtime, Xf, clist_confruns, cfig_type='svg',
-                             cfignm=cdiag+'_m'+str(cmnth)+'_comparison_'+cpole, dt_year=ittic, loc_legend='upper center',
-                             cyunit=vunit[jdiag], ctitle = vname[jdiag]+', '+cpole, ymin=0, ymax=0)
+                bp.plot("1d_multi")(vtime, Xf, clist_confruns, cfig_type=FIG_FORMAT,
+                                    cfignm=cdiag+'_m'+str(cmnth)+'_comparison_'+cpole, dt_year=ittic, loc_legend='upper center',
+                                    cyunit=vunit[jdiag], ctitle = vname[jdiag]+', '+cpole, ymin=0, ymax=0)
     
                 ipole = ipole + 1
     
@@ -328,10 +334,10 @@ if itrsp == 1:
         jstuff = 0
         for cstuff in vstuff:
 
-            bp.plot_1d_multi(vyear[:], Xtrsp[:,jsect,jstuff,:], clist_confruns, cfig_type='svg',
-                             cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic,
-                             cyunit=vunit[jstuff], ctitle = 'Transport of '+cstuff+' through section '+csect,
-                             ymin=0, ymax=0)
+            bp.plot("1d_multi")(vyear[:], Xtrsp[:,jsect,jstuff,:], clist_confruns, cfig_type=FIG_FORMAT,
+                                cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic, loc_legend='upper left',
+                                cyunit=vunit[jstuff], ctitle = 'Transport of '+cstuff+' through section '+csect,
+                                ymin=0, ymax=0)
             
             jstuff = jstuff + 1
         jsect = jsect+1
@@ -383,9 +389,9 @@ if iamoc == 1:
     jl = 0
     for clr in list_lat:
 
-        bp.plot_1d_multi(vyear[:], Xamoc[:,jl,:], clist_confruns, cfig_type='svg',
-                         cfignm='AMOC_'+clr+'_comparison',
-                         dt_year=ittic, cyunit='Sv', ctitle = 'AMOC ('+clr+')', ymin=0, ymax=0)
+        bp.plot("1d_multi")(vyear[:], Xamoc[:,jl,:], clist_confruns, cfig_type=FIG_FORMAT,
+                            cfignm='AMOC_'+clr+'_comparison', loc_legend='lower left',
+                            dt_year=ittic, cyunit='Sv', ctitle = 'AMOC ('+clr+')', ymin=0, ymax=0)
     
         jl = jl + 1
 
