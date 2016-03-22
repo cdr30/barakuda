@@ -91,11 +91,13 @@ for coce in bo.voce2treat:
     vy1 = nmp.zeros(nz) ; vy1[:] = XSe[:,0]
     for jy in range(nby): XSe[:,jy] = XSe[:,jy] - vy1[:]
 
+    z0 = vdepth[0]
+    zK = max(vdepth)
 
     [ rmin, rmax, rdf ] = bt.get_min_max_df(XTe,40)
     bp.plot("vert_section")(vyears[:], vdepth[:nz], XTe[:,:], XTe[:,:]*0.+1., rmin, rmax, rdf,
                             cpal='bbr2', xmin=yr1, xmax=yr2+1., dx=ixtics, lkcont=False,
-                            zmin = vdepth[0], zmax = max(vdepth), l_zlog=True,
+                            zmin = z0, zmax = zK, l_zlog=True,
                             cfignm=path_fig+'hov_temperature_'+CONFRUN+'_'+coce, cbunit=r'$^{\circ}$C', cxunit='',
                             czunit='Depth (m)',
                             ctitle=CONFRUN+': Spatially-averaged temperature evolution, '+voceans_u[jo]+', ('+str(int(yr1))+'-'+str(int(yr2))+')',
@@ -105,7 +107,7 @@ for coce in bo.voce2treat:
     [ rmin, rmax, rdf ] = bt.get_min_max_df(XSe,40)
     bp.plot("vert_section")(vyears[:], vdepth[:nz], XSe[:,:], XSe[:,:]*0.+1., rmin, rmax, rdf,
                             cpal='bbr2', xmin=yr1, xmax=yr2+1., dx=ixtics, lkcont=False,
-                            zmin = vdepth[0], zmax = max(vdepth), l_zlog=True,
+                            zmin = z0, zmax = zK, l_zlog=True,
                             cfignm=path_fig+'hov_salinity_'+CONFRUN+'_'+coce, cbunit=r'10$^{-3}$PSU', cxunit='',
                             czunit='Depth (m)',
                             ctitle=CONFRUN+': Spatially-averaged salinity evolution, '+voceans_u[jo]+', ('+str(int(yr1))+'-'+str(int(yr2))+')',

@@ -236,7 +236,7 @@ if lfig0:
     vzc[:] = bt.mk_zonal(SSTnemo_annual[:,:] - SSTclim_annual[:,:], imask[0,:,:])
     # Only at the end of all the runs we do 2d plotting:
     bp.plot("zonal")(vlat, vzc, cfignm=path_fig+'1d_zonal_temp_anom_vs_'+CC, zmin=-5., zmax=5., dz=1.,
-                     xmin=-75., xmax=65., cyunit=r'$^{\circ}$C', cfig_type=fig_type,
+                     xmin=-75., xmax=65., czunit=r'$^{\circ}$C', cfig_type=fig_type,
                      ctitle=ctt)
 
     if CC == 'CLIM':
@@ -247,7 +247,7 @@ if lfig0:
     vzc[:] = bt.mk_zonal(Snemo_annual[0,:,:] - Sclim_annual[0,:,:], imask[0,:,:])
     # Only at the end of all the runs we do 2d plotting:
     bp.plot("zonal")(vlat, vzc, cfignm=path_fig+'1d_zonal_sali_anom_vs_'+CC , zmin=-2.5, zmax=2.5, dz=0.5,
-                     xmin=-75., xmax=65., cyunit='PSU', cfig_type=fig_type,
+                     xmin=-75., xmax=65., czunit='PSU', cfig_type=fig_type,
                      ctitle=ctt)
 
 

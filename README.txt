@@ -19,18 +19,15 @@ I / What do you need to be able to use BaraKuda ?
   A good idea is to install a shiny python distribution, something like Canopy:
   => https://www.enthought.com/products/canopy/
 
-  CANOPY_PATH points to the python package directory also in case Canopy is
-  not used, e.g. to /opt/Python/2.7
-
-- NEMO output data! => A directory containing the monthly NEMO output to analyze
+- NEMO output data! => A directory containing the MONTHLY-AVERAGED, global
+                       (rebuilt), NEMO output to analyze
                (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"
-               (it might also be a good idea to save the SBC files too...)
 
 - a NEMO mesh_mask file and the the corresponding basin_mask (ocean basins).
   (variables MM_FILE and BM_FILE into your config/conf_<MYCONF>.sh file)
   To create the NEMO mesh_mask.nc just launch the relevant NEMO experiment with the
   namelist parameter nn_msh set to 1 !
-  If you use ORCA1 you can use the "orca1_create_basin_mask_from_meshmask.py" in python/exec
+  If you use ORCA1 or ORCA025 you can use the "<ORCA>_create_basin_mask_from_meshmask.py" in python/exec
   to generate the basin file!
               tmaskatl(y, x) => "Atlantic Basin" ;
               tmaskpac(y, x) => "Pacific Basin" ;
@@ -94,19 +91,34 @@ Use the -h switch to see available options
 V) Create figures and browsable HTML page
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A/ Once the previous job has finished to run, launch:
+A/ Once the previous job has finished to run, launch
+
+   * To only generate time-series plots use the "-e" switch:
 
    ./barakuda.sh -C <MY_CONF> -R <RUN> -e
    (ex: ./barakuda.sh -C ORCA1_L75_v36_triolith -R SL36C00 -e)
 
-B/ If you want to perform the "climatology" plots (maps, sections, etc, based on a
-   monthly climatology of a few years) you will have to:
+   * To generate time-series + 2D climatological plots use the "-E" switch,
+     provided you have built a climatology out of your run with the
+     "build_clim.sh" script (see point V/B):
 
-   i) create the climatology with the "build_clim.sh"
-      => EX: $ ./build_clim.sh -C ORCA1_L75_v36_triolith -R SL36C00 -f 10 -i 0090 -e 0099 -k 4
-         (check ./build_clim.sh -h to see the options)
+   ./barakuda.sh -C <MY_CONF> -R <RUN> -E
 
-   ii) set "l_clim_diag=true" in your config file "configs/config_<MY_CONF>.sh"
+
+B/ To be able to create the "climatology" plots (maps, sections, etc, based on a
+   monthly climatology of a few years) you will have to
+
+  i) create the climatology with the "build_clim.sh" script:
+   
+   ./build_clim.sh -C <MY_CONF> -R <RUN> -i <first_year> -e <last_year>
+         (check ./build_clim.sh -h to see the other important options...)
+
+    (ex: ./build_clim.sh -C ORCA1_L75_v36_triolith -R SL36C00 -f 10 -i 0090 -e 0099 -k 4)
+      
+
+  ii) the you can tell "barakuda.sh" to create climatology-related plots by
+       using the "-E" switch instead of "-e" (see point V/A)
+
 
 C/ If you want to create time-series comparing 2 runs (each already diagnosed, at least stage III):
    

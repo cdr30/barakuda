@@ -423,7 +423,6 @@ while [ ${jyear} -le ${Y2} ]; do
 
     echo
 
-
     if [ ${ivt} -eq 1 ]; then
         # Creating VT files:
         echo "Doing: ${BARAKUDA_ROOT}/cdftools_light/bin/cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV}"
@@ -441,6 +440,7 @@ while [ ${jyear} -le ${Y2} ]; do
         echo "Done!"; echo; echo; echo
         ncwa -O -a x moc.nc ${CPREF}${TTAG_ann}_MOC.nc ; # removing degenerate x record...
         rm -f moc.nc
+        echo "After:"; ls *MOC.nc*
         echo
     fi
 
@@ -450,9 +450,9 @@ while [ ${jyear} -le ${Y2} ]; do
         ${BARAKUDA_ROOT}/cdftools_light/bin/cdfpsi.x ${fu} ${fv} V
         echo "Done!"; echo; echo; echo
         mv -f psi.nc ${CPREF}${TTAG_ann}_PSI.nc
+        echo "After:"; ls *PSI.nc*
         echo
     fi
-
 
     export jyear=`expr ${jyear} + 1`
 

@@ -532,6 +532,14 @@ def pal_mask():
 def chose_palette(cname):
 
     if cname == 'jet'   : palette = cm.jet
+    if cname == 'BrBG'   : palette = cm.BrBG
+    if cname == 'BrBG_r'   : palette = cm.BrBG_r    
+    if cname == 'cubehelix'   : palette = cm.cubehelix
+    if cname == 'cubehelix_r' : palette = cm.cubehelix_r
+    
+
+
+    
     if cname == 'mld'   : palette = pal_mld()
     if cname == 'mld_r' : palette = pal_mld_r()
     if cname == 'rms'   : palette = pal_rms()

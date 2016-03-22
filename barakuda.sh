@@ -65,11 +65,14 @@ usage()
     echo "             => ${list_conf}"
     echo
     echo "   OPTIONS:"
+    echo
+    echo "      -f <years> => how many years per NEMO file? default = 1"
+    echo
     echo "      -y <YYYY> => force initial year to YYYY"
     echo
     echo "      -z <YYYY> => force BaraKuda to stop at year YYYY"
     echo
-    echo "      -f        => forces creation of diagnostic page eventhough treatment of output files is not finished"
+    echo "      -F        => forces creation of diagnostic page even if treatment of output files is not finished"
     echo
     echo "      -e        => create the HTML diagnostics page on local or remote server"
     echo
@@ -94,15 +97,17 @@ ISTAGE=1 ; # 1 => generation of data diagnostic files
 #          # 2 => creation of figures and diagnostic HTML page
 LFORCEDIAG=false
 l_clim_diag=false
+IFREQ_SAV_YEARS=1
 
-while getopts C:R:y:z:c:feEh option ; do
+while getopts C:R:f:y:z:c:FeEh option ; do
     case $option in
         C) CONFIG=${OPTARG};;
         R) RUN=${OPTARG};;
+        f) IFREQ_SAV_YEARS=${OPTARG};;
         y) YEAR0=${OPTARG} ; LFORCE_YEAR1=true ;;
         z) YEARN=${OPTARG} ; LFORCE_END=true ;;
         c) export RUNREF=${OPTARG} ;;
-        f) LFORCEDIAG=true;;
+        F) LFORCEDIAG=true;;
         e) ISTAGE=2;;
         E) ISTAGE=2 ; l_clim_diag=true ;;
         h)  usage;;
@@ -315,16 +320,13 @@ if [ ${ISTAGE} -eq 1 ]; then
             echo "      => use the -y <YEAR> switch to force the initial year!"; exit
         fi
         echo " Initial year guessed from stored files => ${YEAR_INI}"; echo
-        YEAR_INI=`expr ${YEAR_INI} + 0`  ; # example: 1 instead of 0001...
-        IFREQ_SAV_YEARS=1
-        Y2=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/""/g | head -1 | cut -c10-13`
-        YIr=`expr ${YEAR_INI} + 0`; Y2r=`expr ${Y2} + 0`
-        if [ ${Y2r} -gt ${YIr} ]; then IFREQ_SAV_YEARS=$((${Y2r}-${YIr}+1)); fi
-        echo "1 NEMO file contains ${IFREQ_SAV_YEARS} year(s)"; echo
+        YEAR_INI=`expr ${YEAR_INI} + 0`  ; # example: 1 instead of 0001...        
+        #Y2=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/""/g | head -1 | cut -c10-13`
+        #YIr=`expr ${YEAR_INI} + 0`; Y2r=`expr ${Y2} + 0`
+        #if [ ${Y2r} -gt ${YIr} ]; then IFREQ_SAV_YEARS=$((${Y2r}-${YIr}+1)); fi
+        #echo "1 NEMO file contains ${IFREQ_SAV_YEARS} year(s)"; echo
     else
-    #echo " FIX me !!! With IFREQ_SAV_YEARS !!!"; exit
         export YEAR_INI=${YEAR0}
-        IFREQ_SAV_YEARS=10
         echo " Initial year forced to ${YEAR_INI}"; echo
     fi
 
@@ -623,7 +625,7 @@ while ${lcontinue}; do
                 echo "Done!"; echo; echo
             fi
         fi
-        
+
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Computing time-series of spatially-averaged variables
