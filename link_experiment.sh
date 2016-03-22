@@ -5,7 +5,8 @@
 
 EPATH=/lustre/tmp/${USER}/$1
 #GRID=ORCA1.L46
-GRID=ORCA1.L75
+#GRID=ORCA1.L75
+GRID=eORCA1.L75
 
 for GTYPE in grid_U grid_V grid_T icemod
 do

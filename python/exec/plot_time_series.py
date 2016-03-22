@@ -263,13 +263,9 @@ if idfig == 'ice':
     cyua = r'10$^6$km$^2$'
     cyuv = r'10$^3$km$^3$'
 
-<<<<<<< HEAD
-    if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!', sys.exit(0)
-=======
     if nbm%12 != 0:
         print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!'
         sys.exit(0)
->>>>>>> master
     nby = nbm/12
 
     ittic = bt.iaxe_tick(nby)
@@ -282,15 +278,6 @@ if idfig == 'ice':
     # End local summer
     Xplt[0,:] = varea_n[8::12] ; # extent Arctic september
     Xplt[1,:] = varea_s[2::12] ; # extent Antarctic march
-<<<<<<< HEAD
-    bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_extent_summer_'+CONFRUN, dt_year=ittic,
-                     cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer', ymin=0., ymax=0.)
-
-    Xplt[0,:] = vvolu_n[8::12] ; # volume Arctic september
-    Xplt[1,:] = vvolu_s[2::12] ; # volume Antarctic march
-    bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_volume_summer_'+CONFRUN, dt_year=ittic,
-                     cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer', ymin=0., ymax=0.)
-=======
     bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_extent_summer_'+CONFRUN, dt_year=ittic,
                         cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer', ymin=0., ymax=0.)
 
@@ -298,20 +285,10 @@ if idfig == 'ice':
     Xplt[1,:] = vvolu_s[2::12] ; # volume Antarctic march
     bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_volume_summer_'+CONFRUN, dt_year=ittic,
                         cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer', ymin=0., ymax=0.)
->>>>>>> master
 
     # End of local winter
     Xplt[0,:] = varea_n[2::12] ; # extent Arctic march
     Xplt[1,:] = varea_s[8::12] ; # extent Antarctic september
-<<<<<<< HEAD
-    bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_extent_winter_'+CONFRUN, dt_year=ittic,
-                     cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter', ymin=0., ymax=0.)
-
-    Xplt[0,:] = vvolu_n[2::12] ; # volume Arctic march
-    Xplt[1,:] = vvolu_s[8::12] ; # volume Antarctic september
-    bp.plot_1d_multi(vtime_y, Xplt, vlab, cfignm='seaice_volume_winter_'+CONFRUN, dt_year=ittic,
-                     cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter', ymin=0., ymax=0.)
-=======
     bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_extent_winter_'+CONFRUN, dt_year=ittic,
                         cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter', ymin=0., ymax=0.)
 
@@ -319,7 +296,6 @@ if idfig == 'ice':
     Xplt[1,:] = vvolu_s[8::12] ; # volume Antarctic september
     bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_volume_winter_'+CONFRUN, dt_year=ittic,
                         cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter', ymin=0., ymax=0.)
->>>>>>> master
 
 
 

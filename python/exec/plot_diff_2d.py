@@ -111,21 +111,13 @@ idxm = nmp.where(msk_vert[:,:] > 0.);
 msk_vert[idxm] = 1.
 
 
-<<<<<<< HEAD
-brkdp.plot_amoc_lat_depth(vlat[:], -vz[:], Amoc1[0,:,:], msk_vert[:,:], -3.5, 22., 0.5, \
-=======
 bp.plot("amoc_lat_depth")(vlat[:], -vz[:], Amoc1[0,:,:], msk_vert[:,:], -3.5, 22., 0.5, \
->>>>>>> master
                           cfig_type=fig_type, lkcont=True, cpal='amoc', ymin=0., ymax=70.,
                           cfignm='AMOC_'+ORCA+'-'+crun1, cbunit='Sv',
                           cxunit=r'Latitude ($^{\circ}$N)', zmin = 5000., zmax = 0., l_zlog=False,
                           czunit='Depth (m)', ctitle='AMOC, ('+cy1_1+'-'+cy2_1+'), '+ORCA+'-'+crun1, lforce_lim=True)
 
-<<<<<<< HEAD
-brkdp.plot_amoc_lat_depth(vlat[:], -vz[:], Amoc2[0,:,:], msk_vert[:,:], -3.5, 22., 0.5, \
-=======
 bp.plot("amoc_lat_depth")(vlat[:], -vz[:], Amoc2[0,:,:], msk_vert[:,:], -3.5, 22., 0.5, \
->>>>>>> master
                           cfig_type=fig_type, lkcont=True, cpal='amoc', ymin=0., ymax=70.,
                           cfignm='AMOC_'+ORCA+'-'+crun2, cbunit='Sv',
                           cxunit=r'Latitude ($^{\circ}$N)', zmin = 5000., zmax = 0., l_zlog=False,

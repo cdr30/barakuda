@@ -21,13 +21,13 @@
 #PBS -l walltime=12:00:00
 # You may need to comment this on other clusters than voima.
 cd $PBS_O_WORKDIR
-CONFIG=ORCA1_L75_v36_voima
+CONFIG=eORCA1_L75_v36_voima
+#CONFIG=ORCA1_L75_v36_voima
 #CONFIG=ORCA1_L46_v36_voima
 #CONFIG=ORCA1_L75_v36_LIM2_voima
-RUN=O1L7516
-#RUN=O1L4602
+RUN=eO1L7501
 YEAR0=1958
-YEARN=2012
+YEARN=1971
 LFORCE_YEAR1=true
 LFORCE_END=true
 
@@ -46,7 +46,7 @@ LFORCE_END=true
 export BARAKUDA_ROOT=`pwd`
 
 # Supported ORCA grids:
-ORCA_LIST="eORCA025.L75 ORCA025.L75 ORCA1 ORCA1.L46 ORCA1.L75 ORCA2 ORCA2_L46"
+ORCA_LIST="eORCA1.L75 ORCA025.L75 ORCA1 ORCA1.L46 ORCA1.L75 ORCA2 ORCA2_L46"
 
 # Checking available configs
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
@@ -120,7 +120,7 @@ fi
 
 for og in ${ORCA_LIST}; do
     echo " ${og} / ${CONFIG}"
-    ca=""; ca=`echo ${CONFIG} | grep ${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
+    ca=""; ca=`echo ${CONFIG} | grep ^${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
 done
 
 if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
@@ -139,6 +139,7 @@ echo
 
 if [ ! "${ORCA}" = "${CONF}" ]; then echo "ERROR: ORCA and CONF disagree! => ${ORCA} ${CONF}"; exit; fi
 export ORCA=${CONF}
+##
 
 echo
 if [ "${CANOPY_PATH}" = "" ]; then echo "ERROR: CANOPY_PATH is not set! => add it to config file"; exit; fi

@@ -80,70 +80,9 @@ class plot :
 
             self.__class__.__dict__["_"+self.__class__.__name__+ "__" + self.splot](self,*args, **kw)
 
-<<<<<<< HEAD
-    # If log / z:
-    if l_zlog:
-        zmin = math.log10(zmin); zmax = math.log10(zmax);
-        for jk in range(len(VZ)): zVZ[jk] = math.log10(VZ[jk])
-    else:
-        zVZ= VZ
-
-    if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
-
-    # Masking where mask is zero!
-    XF = nmp.ma.masked_where(XMSK == 0, XF)
-
-    fig = plt.figure(num = 1, figsize=(WDTH_TS,5.), dpi=None, facecolor='w', edgecolor='k')
-    ax = plt.axes([0.08, 0.12, 1., 0.82], axisbg = 'gray')
-    vc = __vcontour__(rmin, rmax, dc); #print 'plot_vert_section: contours =>\n', vc, '\n'
-
-    # Palette:
-    palette = barakuda_colmap.chose_palette(cpal)
-    pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
-
-    cf = plt.contourf(VX, zVZ, XF, vc, cmap = palette, norm = pal_norm)
-    plt.hold(True)
-    if lkcont: plt.contour(VX, zVZ, XF, vc, colors='k', linewidths=0.2)
-
-    # Colorbar
-    clb = plt.colorbar(cf, ticks=vc); clb.set_label('('+cbunit+')', **font_clb)
-    # Sub-sampling if needed:
-    if i_sub_samp != 1:
-        cb_labels = [] ; cpt = i_sub_samp
-        for cr in vc:
-            rr = round(float(cr),6) ; cnr = str(rr)
-            if cpt == i_sub_samp:
-                cpt = 1 ; cb_labels.append(cnr)
-            else:
-                cpt = cpt + 1 ; cb_labels.append(' ')
-        clb.ax.set_yticklabels(cb_labels)
-
-    for t in clb.ax.get_yticklabels(): t.set_fontsize(10)
-
-    # X-axis:
-    if xmax<1000:
-        plt.xticks( nmp.arange(xmin, xmax+dx, dx) )
-    ax.set_xlim(xmin,xmax)
-    plt.xlabel(cxunit, **font_ylb);
-
-    # Y-axis:
-    plt.ylabel(czunit, **font_ylb)
-    # Correcting ticks for log
-    if l_zlog:
-        locs, labels = plt.yticks(); cny = []
-        print 'locs =', locs
-        for jl in range(len(locs[:])): cny.append(str(int(10**locs[jl])))
-        plt.yticks(locs,cny)
-    if l_z_increase:
-        ax.set_ylim(zmin,zmax)    
-    else:
-        ax.set_ylim(zmax+(zmax-zmin)/50. , zmin)    
-=======
         else :
             print "function " + "__" + self.splot + " does not exist"
             sys.exit()
->>>>>>> master
-
 
 
 
@@ -1111,16 +1050,7 @@ class plot :
         plt.axis([ xmin, xmax, zmax, zmin])
         plt.xlabel(cxunit, **font_xylb); plt.ylabel(czunit, **font_xylb)
 
-<<<<<<< HEAD
-    # AXES:
-    y1 = int(min(VT))  ; y2 = int(max(VT))+1
-    plt.axis([y1, y2, vsigma_bounds[nbins], vsigma_bounds[0]])
-    if y2<1000:
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-    plt.yticks( nmp.flipud(vsigma_bounds) )
-=======
         plt.plot(VX,Vcurve, 'w', linewidth=2)
->>>>>>> master
 
         for zz in zVZ[:]:
             plt.plot(VX,VX*0.+zz, 'k', linewidth=0.3)
@@ -1292,16 +1222,11 @@ class plot :
         vsst_plus[0] = 0. ; vsst_minus[0] = 0.
         vsst_plus[Nt-1] = 0. ; vsst_minus[Nt-1] = 0.
 
-<<<<<<< HEAD
-    if tmax<1000:
-        plt.xticks( nmp.arange(tmin, tmax+dt, dt) )
-=======
         y1 = int(min(VT))
         y2 = int(max(VT)+0.25)
 
         fig = plt.figure(num = 2, figsize=FIG_SIZE_TS, facecolor='w', edgecolor='k')
         ax = plt.axes(AXES_TS)
->>>>>>> master
 
         xnino[:,0] =  0.4 ; plt.plot(VT, xnino[:,0], 'r--', linewidth=1.5)
         xnino[:,0] = -0.4 ; plt.plot(VT, xnino[:,0], 'b--', linewidth=1.5)
@@ -1382,16 +1307,10 @@ class plot :
         else:
             plt.axis([y1, y2, ymin, ymax])
 
-<<<<<<< HEAD
-    #plt.xticks( nmp.arange(trunc(VT[0]), trunc(max(VT[:]))+dt_year, dt_year) )
-    if y2<1000:
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-=======
             if dy != 0:
                 plt.yticks( nmp.arange(float(int(ymin+0.5)), float(int(ymax))+dy, dy) )
                 locs, labels = plt.yticks() #lolo?
                 if i_y_jump > 1: __subsample_axis__('y', i_y_jump, plt)
->>>>>>> master
 
         __nice_x_axis__(y1, y2, dt_year, ax, plt, cfont=font_xylb)
 
@@ -1475,10 +1394,6 @@ class plot :
             else:
                 y1 = xmin ; y2 = xmax
 
-<<<<<<< HEAD
-    if y2<1000:
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-=======
         if ymin==0 and ymax==0:
             mean_val = nmp.mean(XD[:,:])
             df = max( abs(nmp.min(XD[:,:])-mean_val), abs(nmp.max(XD[:,:])-mean_val) )
@@ -1487,7 +1402,6 @@ class plot :
             plt.axis([y1, y2, ymin,     ymax])
 
         #print 'y1, y2 =', y1, y2
->>>>>>> master
 
         if lzonal:
             __nice_x_axis__(y1, y2, 10., ax, plt, cfont=font_xylb)
@@ -1552,178 +1466,12 @@ class plot :
         else:
             y1 = xmin ; y2 = xmax
 
-<<<<<<< HEAD
-    if ymin==0 and ymax==0:
-        mean_val = nmp.mean(XD[:,:])
-        df = max( abs(nmp.min(XD[:,:])-mean_val), abs(nmp.max(XD[:,:])-mean_val) )
-        plt.axis( [y1, y2, nmp.min(XD[:,:])-0.2*df, nmp.max(XD[:,:])+0.2*df] )
-    else:
-        plt.axis([y1, y2, ymin,     ymax])
-
-    #print 'y1, y2 =', y1, y2
-
-    if lzonal:
-        plt.xticks( nmp.arange(y1, y2+10, 10) )
-
-    else:
-        if y2<1000:
-            plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-        if i_t_jump > 1:
-            locs, labels = plt.xticks() ; new_t_labels = []
-            jcpt = 1 ; # => tick priting will start at y1+dt_year on x axis rather than y1
-            for tt in locs:
-                if jcpt % i_t_jump == 0:
-                    new_t_labels.append(str(int(tt))) ; # keeping the decimals...
-                else:
-                    new_t_labels.append(' ')
-                jcpt = jcpt + 1
-            plt.xticks(locs,new_t_labels)
-        ax.set_xlim(y1, y2)
-
-    ax.grid(color='k', linestyle='-', linewidth=0.2)
-
-    if lzonal: plt.xlabel(r'Latitude ($^{\circ}$N)', **font_ylb)
-
-    if cyunit != '': plt.ylabel('('+cyunit+')', **font_ylb)
-    if cxunit != '': plt.xlabel('('+cxunit+')', **font_ylb)
-
-    plt.title(ctitle, **font_ttl)
-
-    cf_fig = cfignm+'.'+cfig_type
-
-    plt.savefig(cf_fig, dpi=DPI_TS, orientation='portrait', transparent=l_tranparent_bg)
-
-    plt.close(1)
-    print '   => Multi figure "'+cf_fig+'" created!'
-
-
-
-
-
-
-
-
-
-
-def plot_1d(vt, VF, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='', ctitle='',
-            cfig_type='png', ymin=0, ymax=0, xmin=0, xmax=0,
-            loc_legend='lower center', line_styles='-', fig_size=FIG_SIZE_TS,
-            l_tranparent_bg=False, cxunit='', lmask=True):
-
-    font_ttl, font_ylb, font_clb = __font_unity__()
-
-    # Number of lines to plot:
-    nbt = len(VF)
-
-    if len(vt) != nbt: print 'ERROR: plot_1d.barakuda_plot.py => vt and VF do not agree in shape!'; sys.exit(0)
-
-
-    # Masking the time-series shorter than others (masked with -999.)
-    if lmask: VF = nmp.ma.masked_where(VF < -900., VF)
-
-    fig = plt.figure(num = 1, figsize=fig_size, facecolor='w', edgecolor='k')
-    ax = plt.axes(AXES_TS)
-
-    plt.plot(vt[:], VF[:], line_styles, linewidth=2)
-
-
-    # Prevents from using scientific notations in axess ticks numbering:
-    ax.get_xaxis().get_major_formatter().set_useOffset(False)
-    ax.get_yaxis().get_major_formatter().set_useOffset(False)
-
-    if xmin == 0 and xmax == 0:
-        y1 = int(vt[0])
-        y2 = int(round(vt[len(vt)-1]+0.4))
-    else:
-        y1 = xmin ; y2 = xmax
-
-    if ymin==0 and ymax==0:
-        mean_val = nmp.mean(VF[:])
-        df = max( abs(nmp.min(VF[:])-mean_val), abs(nmp.max(VF[:])-mean_val) )
-        plt.axis( [y1, y2, nmp.min(VF[:])-0.2*df, nmp.max(VF[:])+0.2*df] )
-    else:
-        plt.axis([y1, y2, ymin,     ymax])
-
-
-    print nmp.arange(y1, y2+dt_year, dt_year)
-    
-    if y2<1000:
-        plt.xticks( nmp.arange(y1, y2+dt_year, dt_year) )
-    if i_t_jump > 1:
-        locs, labels = plt.xticks() ; new_t_labels = []
-        jcpt = 1 ; # => tick priting will start at y1+dt_year on x axis rather than y1
-        for tt in locs:
-            if jcpt % i_t_jump == 0:
-                new_t_labels.append(str(int(tt))) ; # keeping the decimals...
-            else:
-                new_t_labels.append(' ')
-            jcpt = jcpt + 1
-        plt.xticks(locs,new_t_labels)
-    ax.set_xlim(y1, y2)
-
-    ax.grid(color='k', linestyle='-', linewidth=0.2)
-
-    if cyunit != '': plt.ylabel('('+cyunit+')', **font_ylb)
-    if cxunit != '': plt.xlabel('('+cxunit+')', **font_ylb)
-
-    plt.title(ctitle, **font_ttl)
-
-    cf_fig = cfignm+'.'+cfig_type
-
-    plt.savefig(cf_fig, dpi=DPI_TS, orientation='portrait', transparent=l_tranparent_bg)
-
-    plt.close(1)
-    print '   => Multi figure "'+cf_fig+'" created!'
-
-
-
-
-
-
-
-
-
-
-def check_with_fig_2(x2d, msk, cname, rmin=999., rmax=-999., cpal='jet', fig_type='png'):
-
-    import barakuda_colmap
-
-    font_ttl, font_ylb, font_clb = __font_unity__()
-
-    [ ny, nx ] = x2d.shape
-
-    if x2d.shape != msk.shape:
-        print 'ERROR: check_with_fig_2.barakuda_plot.py => x2d and msk do not agree in size!'; sys.exit(0)
-
-    if rmin ==  999. : rmin = nmp.amin(x2d)
-    if rmax == -999. : rmax = nmp.amax(x2d)
-
-    x2d = nmp.ma.array(x2d, mask=-msk+1)
-
-    fig = plt.figure(num = 1, figsize=(8.,7.), dpi=None, facecolor='w', edgecolor='k')
-
-    ax  = plt.axes([0.09, 0.06, 0.9, 0.9], axisbg = 'gray')
-
-    # Palette:
-    palette = barakuda_colmap.chose_palette(cpal)
-
-    print 'rmin, rmax = ', rmin, rmax
-
-    # Tout ce qui depasse de la pallete a sa couleur changee!!!
-    palette.set_over('k', 1.0)
-    palette.set_under('w', 1.0)
-    #palette.set_bad('w', 1.0)
-
-
-=======
         if ymin==0 and ymax==0:
             mean_val = nmp.mean(VF[:])
             df = max( abs(nmp.min(VF[:])-mean_val), abs(nmp.max(VF[:])-mean_val) )
             plt.axis( [y1, y2, nmp.min(VF[:])-0.2*df, nmp.max(VF[:])+0.2*df] )
         else:
             plt.axis([y1, y2, ymin,     ymax])
->>>>>>> master
-
 
         print nmp.arange(y1, y2+dt_year, dt_year)
 
