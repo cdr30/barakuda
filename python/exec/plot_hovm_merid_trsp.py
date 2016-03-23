@@ -107,7 +107,7 @@ for jb in range(nbasins):
 
     bp.plot("vert_section")(vyear[:], vlat[:], nmp.flipud(nmp.rot90(Xheat[jb,:,:])), nmp.flipud(nmp.rot90(imask[:,:])),
                             rmin, rmax, rdf,
-                            cpal='jet', xmin=yr1, xmax=yr2+1., dx=ittic, lkcont=False,
+                            cpal='RdBu', xmin=yr1, xmax=yr2+1., dx=ittic, lkcont=False,
                             zmin = vlat[0], zmax = vlat[Nlat-1], l_zlog=False, 
                             cfignm=path_fig+'MHT_'+CONFRUN+'_'+cbasin, cbunit='PW', cxunit='',
                             czunit=r'Latitude ($^{\circ}$N)',
@@ -122,7 +122,7 @@ for jb in range(nbasins):
 
     bp.plot("vert_section")(vyear[:], vlat[:], nmp.flipud(nmp.rot90(Xsalt[jb,:,:])), nmp.flipud(nmp.rot90(imask[:,:])),
                             rmin, rmax, rdf,
-                            cpal='jet', xmin=yr1, xmax=yr2+1., dx=ittic, lkcont=False,
+                            cpal='RdBu', xmin=yr1, xmax=yr2+1., dx=ittic, lkcont=False,
                             zmin = vlat[0], zmax = vlat[Nlat-1], l_zlog=False, 
                             cfignm=path_fig+'MST_'+CONFRUN+'_'+cbasin, cbunit=r'10$^3$ tons/s', cxunit='',
                             czunit=r'Latitude ($^{\circ}$N)',
@@ -130,6 +130,3 @@ for jb in range(nbasins):
                             cfig_type=fig_type, lforce_lim=False, i_cb_subsamp=2, l_z_increase=True)
 
 
-
-
-    

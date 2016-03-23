@@ -287,7 +287,7 @@ while [ ${jyear} -le ${Y2} ]; do
         YEAR_INI=`echo ${fin} | sed -e "s|${CPREF}||g" | cut -c1-4`
         echo " *** YEAR_INI = ${YEAR_INI}"
         iy=`expr ${jyear} - ${YEAR_INI} + 1` ; dir_ece=`printf "%03d" ${iy}`
-        echo " *** ${cyear} => dir_ece = ${dir_ece}"
+        echo " *** ${jyear} => ${cyear} => dir_ece = ${dir_ece}"
         cpf="${dir_ece}/"
         echo
     fi
