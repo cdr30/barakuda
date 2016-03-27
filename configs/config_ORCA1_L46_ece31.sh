@@ -61,9 +61,9 @@ export NN_V_EIV="0" ; # ignore
 export NN_TAUX="sozotaux"
 export NN_TAUY="sometauy"
 
+export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction and volume?
 export NN_ICEF="iiceconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
-export NN_ICET="iicethic" ; # ice thickness but 'sit' is only in icemod file !!!
-
+export NN_ICET="iicethic" ; # ice thickness or rather volume...
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
 
@@ -109,7 +109,6 @@ ihttp=1 ; # do we export on a remote http server (1) or keep on the local machin
 RHOST=misu228.misu.su.se ; # remote host to send diagnostic page to///
 RUSER=laurent ; # username associated to remote host (for file export)
 RWWWD=/data/www/barakuda/ec-earth_3.1 ; # directory of the local or remote host to send the diagnostic page to
-#RWWWD=/data/www/barakuda/TEST ; # directory of the local or remote host to send the diagnostic page to
 
 
 
@@ -145,7 +144,6 @@ i_do_sigt=1
 
 # sea-ice diags
 i_do_ice=1  ; # Sea-ice diags
-export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction NN_ICEF? => "icemod" or "grid_T"
 
 
 i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!

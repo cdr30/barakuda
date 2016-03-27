@@ -60,8 +60,10 @@ export NN_V_EIV="0" ; # ignore
 export NN_TAUX="tauuo"
 export NN_TAUY="tauvo"
 
+export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction and volume?
 export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
-export NN_ICET="sithic" ; # ice thickness but 'sit' is only in icemod file !!!
+export NN_ICET="sivolu" ; # ice thickness or rather volume...
+
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
@@ -145,7 +147,6 @@ i_do_sigt=1
 
 # sea-ice diags
 i_do_ice=1  ; # Sea-ice diags
-export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction NN_ICEF? => "icemod" or "grid_T"
 
 
 i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!

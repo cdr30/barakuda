@@ -536,6 +536,8 @@ def chose_palette(cname):
     if cname == 'BrBG_r'   : palette = cm.BrBG_r    
     if cname == 'cubehelix'   : palette = cm.cubehelix
     if cname == 'cubehelix_r' : palette = cm.cubehelix_r
+    if cname == 'RdBu'   : palette = cm.RdBu
+    if cname == 'RdBu_r'   : palette = cm.RdBu_r    
     
 
 

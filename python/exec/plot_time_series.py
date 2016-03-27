@@ -248,7 +248,8 @@ if idfig == 'amoc':
 
 if idfig == 'ice':
 
-    vlab = [ 'Arctic', 'Antarctic' ]
+    vlab_sum = [ 'Arctic (Sept.)'   , 'Antarctic (March)' ]
+    vlab_win = [ 'Arctic (March)'   , 'Antarctic (Sept.)' ]
 
     # montly sea-ice volume and extent, Arctic and Antarctic...
     cf_in = 'seaice_diags.nc' ;  bt.chck4f(cf_in, script_name='plot_time_series.py')
@@ -278,23 +279,23 @@ if idfig == 'ice':
     # End local summer
     Xplt[0,:] = varea_n[8::12] ; # extent Arctic september
     Xplt[1,:] = varea_s[2::12] ; # extent Antarctic march
-    bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_extent_summer_'+CONFRUN, dt_year=ittic,
+    bp.plot("1d_multi")(vtime_y, Xplt, vlab_sum, cfignm='seaice_extent_summer_'+CONFRUN, dt_year=ittic,
                         cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer', ymin=0., ymax=0.)
 
     Xplt[0,:] = vvolu_n[8::12] ; # volume Arctic september
     Xplt[1,:] = vvolu_s[2::12] ; # volume Antarctic march
-    bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_volume_summer_'+CONFRUN, dt_year=ittic,
+    bp.plot("1d_multi")(vtime_y, Xplt, vlab_sum, cfignm='seaice_volume_summer_'+CONFRUN, dt_year=ittic,
                         cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer', ymin=0., ymax=0.)
 
     # End of local winter
     Xplt[0,:] = varea_n[2::12] ; # extent Arctic march
     Xplt[1,:] = varea_s[8::12] ; # extent Antarctic september
-    bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_extent_winter_'+CONFRUN, dt_year=ittic,
+    bp.plot("1d_multi")(vtime_y, Xplt, vlab_win, cfignm='seaice_extent_winter_'+CONFRUN, dt_year=ittic,
                         cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter', ymin=0., ymax=0.)
 
     Xplt[0,:] = vvolu_n[2::12] ; # volume Arctic march
     Xplt[1,:] = vvolu_s[8::12] ; # volume Antarctic september
-    bp.plot("1d_multi")(vtime_y, Xplt, vlab, cfignm='seaice_volume_winter_'+CONFRUN, dt_year=ittic,
+    bp.plot("1d_multi")(vtime_y, Xplt, vlab_win, cfignm='seaice_volume_winter_'+CONFRUN, dt_year=ittic,
                         cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter', ymin=0., ymax=0.)
 
 
