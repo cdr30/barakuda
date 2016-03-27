@@ -12,7 +12,7 @@
 
 export BARAKUDA_ROOT=`pwd`
 
-CANOPY_PATH=${HOME}/opt/Canopy_64bit/User
+CANOPY_PATH=/opt/Python/2.7
 PYTH="${CANOPY_PATH}/bin/python -W ignore" ; # which Python installation to use
 export PYTHONPATH=${CANOPY_PATH}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
 PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
@@ -21,7 +21,7 @@ PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakud
 export FIG_FORMAT='png'
 
 # Supported ORCA grids:
-ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
+ORCA_LIST="eORCA1.L75 ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
 
 # Checking available configs
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
@@ -77,7 +77,7 @@ done
 if [ "${CONFIG}" = "" -o "${CRUNS}" = "" ]; then usage ; exit ; fi
 
 for og in ${ORCA_LIST}; do
-    ca=""; ca=`echo ${CONFIG} | grep ${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
+    ca=""; ca=`echo ${CONFIG} | grep ^${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
 done
 
 if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
@@ -138,8 +138,8 @@ DIAG_COMP_DIR=${DIAG_DIR}/comparisons/${BASE_NAME} ; rm -rf ${DIAG_COMP_DIR} ; m
 
 
 
-YEAR_INI=4000
-YEAR_END=0
+YEAR_INI=1958
+YEAR_END=2012
 
 # just that they become righ arrays...
 VRUNS=( ${LRUNS} ) ;  VCONFRUNS=( ${LRUNS} ) ; VDIAGS=( ${LRUNS} ) ; 

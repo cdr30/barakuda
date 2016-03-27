@@ -20,7 +20,8 @@
 #PBS -l mppdepth=1
 #PBS -l walltime=12:00:00
 # You may need to comment this on other clusters than voima.
-cd $PBS_O_WORKDIR
+set -x
+#cd $PBS_O_WORKDIR
 CONFIG=eORCA1_L75_v36_voima
 #CONFIG=ORCA1_L75_v36_voima
 #CONFIG=ORCA1_L46_v36_voima

@@ -147,6 +147,8 @@ def lon_reorg_orca(ZZ, corca, ilon_ext):
     # jx_junc : ji when lon become positive!
     if (corca == 'ORCA1') or (corca[:5] == 'ORCA1' and corca[5:6] == '.'):
         jx_junc = 288
+    elif (corca == 'eORCA1') or (corca[:6] == 'eORCA1' and corca[6:7] == '.'):
+        jx_junc = 288
     elif corca == 'ORCA025' or corca == 'ORCA025.L75':
         jx_junc = 1150
     elif corca == 'ORCA2' or corca == 'ORCA2_L46' or corca == 'ORCA2.L46':

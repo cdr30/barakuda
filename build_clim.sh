@@ -17,16 +17,18 @@
 #PBS -l mppnppn=20
 #PBS -l mppdepth=1
 #PBS -l walltime=05:00:00
+#PBS -j oe
 # You may need to comment this on other clusters than voima.
+set -x
 cd $PBS_O_WORKDIR
 # -C ORCA1_L46_v36_voima -R ECN-D501 -i 1983 -e 2012
 export CONFIG=eORCA1_L75_v36_voima
 #export CONFIG=ORCA1_L75_v36_voima
 #export CONFIG=ORCA1_L46_v36_voima
 #export CONFIG=ORCA1_L75_v36_LIM2_voima
-export RUN=O1L7516
-export Y1=2003
-export Y2=2012
+export RUN=eO1L7501
+export Y1=1961
+export Y2=1971
 
 #SBATCH -A snic2014-10-3
 #SBATCH --reservation=dcs
@@ -48,7 +50,7 @@ ibpsi=0    ; # Do a climatology for barotropic stream function
 
 
 # Supported ORCA grids:
-ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
+ORCA_LIST="eORCA1.L75 ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
 
 # Checking available configs
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
@@ -94,7 +96,7 @@ done
 if [ "${CONFIG}" = "" -o "${RUN}" = "" ]; then usage ; exit ; fi
 
 for og in ${ORCA_LIST}; do
-    ca=""; ca=`echo ${CONFIG} | grep ${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
+    ca=""; ca=`echo ${CONFIG} | grep ^${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
 done
 
 if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
