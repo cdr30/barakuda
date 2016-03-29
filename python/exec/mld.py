@@ -1,85 +1,46 @@
 #!/usr/bin/env python
 
-# L. Brodeau, november 2009
+#       B a r a K u d a
+#
+#     Generate 2D plots and maps of the Mixed layer depth
+#
+#       L. Brodeau, 2009
 
 import sys
-import os
 import numpy as nmp
 from netCDF4 import Dataset
 
 import barakuda_tool as bt
-import barakuda_orca as bo
 import barakuda_plot as bp
 import barakuda_physics as bphys
 
+venv_needed = {'ORCA','RUN','DIAG_D','COMP2D','MM_FILE','NN_MLD','NN_S_CLIM','NN_T_CLIM','F_T_CLIM_3D_12','F_S_CLIM_3D_12'}
+
+vdic = bt.check_env_var(sys.argv[0], venv_needed)
+
+CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 ldebug = False
 
 zmax_mld_atl = 1600. ; dz_mld = 100.
 
-ORCA = os.getenv('ORCA')
-if ORCA == None: print 'The ORCA environement variable is no set'; sys.exit(0)
-RUN = os.getenv('RUN')
-if RUN == None: print 'The RUN environement variable is no set'; sys.exit(0)
-DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
-
-COMP2D = os.getenv('COMP2D')
-if COMP2D == None: print 'The COMP2D environement variable is no set'; sys.exit(0)
-
-NN_MLD = os.getenv('NN_MLD')
-if NN_MLD == None: print 'The NN_MLD environement variable is no set'; sys.exit(0)
-NN_S = os.getenv('NN_S')
-if NN_S == None: print 'The NN_S environement variable is no set'; sys.exit(0)
-NN_T = os.getenv('NN_T')
-if NN_T == None: print 'The NN_T environement variable is no set'; sys.exit(0)
-
-NN_S_CLIM = os.getenv('NN_S_CLIM')
-if NN_S_CLIM == None: print 'The NN_S_CLIM environement variable is no set'; sys.exit(0)
-NN_T_CLIM = os.getenv('NN_T_CLIM')
-if NN_T_CLIM == None: print 'The NN_T_CLIM environement variable is no set'; sys.exit(0)
 
 
 
-F_T_CLIM_3D_12 = os.getenv('F_T_CLIM_3D_12')
-if F_T_CLIM_3D_12 == None: print 'The F_T_CLIM_3D_12 environement variable is no set\n'
-F_S_CLIM_3D_12 = os.getenv('F_S_CLIM_3D_12')
-if F_S_CLIM_3D_12 == None: print 'The F_S_CLIM_3D_12 environement variable is no set\n'
-
-
-print ' ORCA = '+ORCA
-print ' RUN = '+RUN
-print ' DIAG_D = '+DIAG_D
-print ' COMP2D = '+COMP2D
-
-
-
-if 'ORCA2' in ORCA:
+if 'ORCA2' in vdic['ORCA']:
     ji_lat0 = 132
-elif 'ORCA1' in ORCA:
+elif 'ORCA1' in vdic['ORCA']:
     ji_lat0 = 265
 else:
-    print 'FIX ME!!! ssh.py => dont know ji_lat0 for conf '+ORCA+' !!!'; sys.exit(0)
-
-
+    print 'FIX ME!!! ssh.py => dont know ji_lat0 for conf '+vdic['ORCA']+' !!!'; sys.exit(0)
 
 
 l_obs_mld = False
-if (not F_T_CLIM_3D_12 == None) and (not F_T_CLIM_3D_12 == None):
+if (not vdic['F_T_CLIM_3D_12'] == None) and (not vdic['F_T_CLIM_3D_12'] == None):
     l_obs_mld = True ; print 'Since obs Temp and Sali here will compute observed MLD!'
-
-
-
-
-CONFRUN = ORCA+'-'+RUN
 
 
 path_fig='./'
 fig_type='png'
-
-# Mesh-mask file:
-cf_mesh_mask = os.getenv('MM_FILE')
-if cf_mesh_mask == None: print 'The MM_FILE environement variable (mesh_mask) is no set'; sys.exit(0)
-print '\n Mesh-Mask file is:\n', cf_mesh_mask, '\n'
 
 
 
@@ -94,13 +55,9 @@ print ' => mean on the clim : ', jy1_clim, jy2_clim, '\n'
 
 
 
-store_dir = os.getenv('DIAG_D')
-if store_dir == '': print 'The DIAG_D environement variable is no set'; sys.exit(0)
-
-
 # Getting coordinates:
-bt.chck4f(cf_mesh_mask)
-id_mm = Dataset(cf_mesh_mask)
+bt.chck4f(vdic['MM_FILE'])
+id_mm = Dataset(vdic['MM_FILE'])
 xlon   = id_mm.variables['glamt'][0,:,:] ; xlat = id_mm.variables['gphit'][0,:,:]
 Xmask = id_mm.variables['tmask'][0,:,:,:]
 vlev  = id_mm.variables['gdept_1d'][0,:]
@@ -111,11 +68,11 @@ nk = len(vlev)
 
 
 #  Getting NEMO mean monthly climatology of MLD coverage:
-cf_nemo_mnmc = DIAG_D+'/clim/mclim_'+CONFRUN+'_'+cy1+'-'+cy2+'_grid_T.nc4'
+cf_nemo_mnmc = vdic['DIAG_D']+'/clim/mclim_'+CONFRUN+'_'+cy1+'-'+cy2+'_grid_T.nc4'
 
 bt.chck4f(cf_nemo_mnmc)
 id_nemo = Dataset(cf_nemo_mnmc)
-mldr10   = id_nemo.variables[NN_MLD][:,:,:]
+mldr10   = id_nemo.variables[vdic['NN_MLD']][:,:,:]
 id_nemo.close()
 
 [ nt, nj, ni ] = mldr10.shape ; print ' Shape of MLD :', nt, nj, ni, '\n'
@@ -129,20 +86,20 @@ if l_obs_mld:
     # --------------------------------------------
 
     # Temperature
-    bt.chck4f(F_T_CLIM_3D_12) ; id_clim = Dataset(F_T_CLIM_3D_12)
-    Tclim  = id_clim.variables[NN_T_CLIM][:,:,:,:]; print '(has ',Tclim.shape[0],' time snapshots)\n'
+    bt.chck4f(vdic['F_T_CLIM_3D_12']) ; id_clim = Dataset(vdic['F_T_CLIM_3D_12'])
+    Tclim  = id_clim.variables[vdic['NN_T_CLIM']][:,:,:,:]; print '(has ',Tclim.shape[0],' time snapshots)\n'
     id_clim.close()
 
     # Salinity
-    bt.chck4f(F_S_CLIM_3D_12) ; id_clim = Dataset(F_S_CLIM_3D_12)
-    Sclim  = id_clim.variables[NN_S_CLIM][:,:,:,:]; print '(has ',Sclim.shape[0],' time snapshots)\n'
+    bt.chck4f(vdic['F_S_CLIM_3D_12']) ; id_clim = Dataset(vdic['F_S_CLIM_3D_12'])
+    Sclim  = id_clim.variables[vdic['NN_S_CLIM']][:,:,:,:]; print '(has ',Sclim.shape[0],' time snapshots)\n'
     id_clim.close()
 
     [ nmn , nk0, nj0 , ni0 ] = Tclim.shape
 
     if nj != nj0 or ni != ni0 or nk != nk0:
         print 'ERROR: 3D clim and NEMO file do no agree in shape!'
-        print '       clim => '+str(ni0)+', '+str(nj0)+', '+str(nk0)+' ('+F_T_CLIM_3D_12+')'
+        print '       clim => '+str(ni0)+', '+str(nj0)+', '+str(nk0)+' ('+vdic['F_T_CLIM_3D_12']+')'
         print '       NEMO => '+str(ni)+', '+str(nj)+', '+str(nk)
         sys.exit(0)
 
@@ -161,12 +118,8 @@ if l_obs_mld:
 
     if ldebug: Sigma0_nemo = bphys.sigma0(Tnemo[imnth:,:,:], Snemo[imnth,:,:,:])*Xmask[:,:,:]
 
-
-
-    Xmld_obs = nmp.zeros(nj*ni) ; Xmld_obs.shape = [nj,ni]
-    mmask = nmp.zeros(nj*ni)    ; mmask.shape = [nj,ni]
-
-
+    Xmld_obs = nmp.zeros((nj,ni))
+    mmask = nmp.zeros((nj,ni))
 
     mmask[:,:] = 1.
     for jk in range(nk-1):
@@ -174,7 +127,6 @@ if l_obs_mld:
         Sigma0[jk,:,:]   = Sigma0[jk,:,:]*mmask[:,:]
         Sigma0[jk+1,:,:] = Sigma0[jk+1,:,:]*mmask[:,:]
         ijloc = nmp.where( Sigma0[jk+1,:,:] - 0.01 > Sigma0[jk,:,:] )
-        #lolo Xmld_obs[ijloc] = zz ; # lolo, gives bug!
         mmask[ijloc] = 0. ; # these points won't be checked again only first occurence of the criterion matters!
 
 
@@ -190,7 +142,7 @@ if l_obs_mld:
             Xmld_obs[ijloc] = zz
             mmask[ijloc] = 0. ; # these points won't be checked again only first occurence of the criterion matters!
         bp.plot("nproj")('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, Xmld_obs[:,:],
-                         cfignm=path_fig+'mld_NEMO_001_NSeas_march_'+CONFRUN+'_vs_'+COMP2D, cpal='sst0', cbunit='m',
+                         cfignm=path_fig+'mld_NEMO_001_NSeas_march_'+CONFRUN+'_vs_'+vdic['COMP2D'], cpal='sst0', cbunit='m',
                          ctitle='MLD NEMO (0.01 crit.), March, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                          lkcont=True, cfig_type=fig_type, lforce_lim=True)
 

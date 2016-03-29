@@ -46,7 +46,9 @@ print ' => mean on the clim : ', jy1_clim, jy2_clim, '\n'
 bt.chck4f(vdic['MM_FILE'])
 id_mm = Dataset(vdic['MM_FILE'])
 xlon   = id_mm.variables['glamt'][0,:,:] ; xlat = id_mm.variables['gphit'][0,:,:]
-Xmask = id_mm.variables['tmask'][0,:,:,:]
+Xmask = id_mm.variables['tmask'][0,0,:,:]
+Xe1t = id_mm.variables['e1t'][0,:,:]
+Xe2t = id_mm.variables['e2t'][0,:,:]
 id_mm.close()
 
 
@@ -64,8 +66,16 @@ ssh_plot = nmp.zeros((nj,ni))
 
 ssh_plot[:,:] = nmp.mean(ssh[:,:,:],axis=0)
 
-bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], ssh_plot[:,:], Xmask[0,:,:], -2., 2., 0.1,
+
+ztot = nmp.sum(ssh_plot*Xmask*Xe1t*Xe2t)/nmp.sum(Xmask*Xe1t*Xe2t)
+print 'ztot =', ztot
+
+ssh_plot = ssh_plot - ztot
+
+bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], ssh_plot[:,:], Xmask, -2., 2., 0.1,
               corca=vdic['ORCA'], lkcont=True, cpal='BrBG_r',
               cfignm=path_fig+'ssh_mean_'+CONFRUN, cbunit=r'$(m)$',
-              ctitle='Mean SSH, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_cb_subsamp=2,
+              ctitle='Mean SSH (corrected about z=0), '+CONFRUN+' ('+cy1+'-'+cy2+')',
+              lforce_lim=True, i_cb_subsamp=2,
               cfig_type=fig_type, lat_min=-77., lat_max=75., lpix=False, vcont_spec = [ 0. ])
+

@@ -170,12 +170,18 @@ class plot :
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XFtmp)
 
-        if i_lat_lon == 1:
-            VX0 = bo.lon_reorg_orca(VX,  corca, rlon_ext)
-            iwa   = nmp.where(VX0 < 0.) ; VX0[iwa] = VX0[iwa] + 360.
+        #if i_lat_lon == 1:
+        #    VX0 = bo.lon_reorg_orca(VX,  corca, rlon_ext)
+        #    iwa   = nmp.where(VX0 < 0.) ; VX0[iwa] = VX0[iwa] + 360.
 
         XMSK0 = bo.lon_reorg_orca(XMSK,corca, rlon_ext)
         XF0   = bo.lon_reorg_orca(XFtmp,  corca, rlon_ext)
+
+        if i_lat_lon == 1:
+            [ny, nx] = nmp.shape(XMSK0)
+            VX0 = nmp.arange(nx)
+
+
 
 
         # Masking continents: => done later a cleaner way...
@@ -221,7 +227,7 @@ class plot :
                     cfk = plt.contour(VX0, VY, XF0, vc, colors='k', linewidths = 0.2)
                 else:
                     cfk = plt.contour(XF0, vc, colors='k', linewidths = 0.2)
-
+            
                 for c in cfk.collections: c.set_zorder(0.25)
 
             # contour for specific values on the ploted field:
@@ -230,13 +236,13 @@ class plot :
                     cfs = plt.contour(VX0, VY, XF0, vcont_spec, colors='black', linewidths = 1.5)
                 else:
                     cfs = plt.contour(XF0, vcont_spec, colors='black', linewidths = 1.5)
-
+            
                 plt.clabel(cfs, inline=1, fmt='%4.1f', fontsize=10)
                 for c in cfs.collections: c.set_zorder(0.35)
 
-            # Contours of continents:
-            #cfm = plt.contour(VX0, VY, XMSK0, [ 0.7 ], colors='k', linewidths = 0.4)
-            #for c in cfm.collections: c.set_zorder(1.)
+            ## Contours of continents:
+            ##cfm = plt.contour(VX0, VY, XMSK0, [ 0.7 ], colors='k', linewidths = 0.4)
+            ##for c in cfm.collections: c.set_zorder(1.)
 
 
 
@@ -247,7 +253,7 @@ class plot :
         XF0 = nmp.ma.masked_where(XMSK0[:,:] > 0.5, XF0)
         XF0[idx_land] = 1000.
         if i_lat_lon == 1:
-            cf0 = plt.pcolor(VX0, VY, XF0, cmap = bcm.chose_palette("mask"))
+            cf0 = plt.pcolor(VX0[:], VY, XF0[:,:], cmap = bcm.chose_palette("mask"))
         else:
             cf0 = plt.pcolor(XF0, cmap = bcm.chose_palette("mask"))
 
@@ -257,7 +263,6 @@ class plot :
         __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cb_or=cb_orient, cunit=cbunit, cfont=font_clb, fontsize=ifsize)
 
         # X and Y nice ticks:
-        # ~~~~~~~~~~~~~~~~~~~
         if i_lat_lon == 1:
             [vvx, vvy, clon, clat] = __name_coor_ticks__(lon_ext=rlon_ext);
             plt.yticks(vvy,clat) ; plt.xticks(vvx,clon)
