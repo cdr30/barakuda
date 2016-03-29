@@ -180,13 +180,8 @@ class plot :
 
         if i_lat_lon == 1:
             [ny, nx] = nmp.shape(XMSK0)
-            VX0 = nmp.arange(nx)
-
-
-
-
-        # Masking continents: => done later a cleaner way...
-        #XF0 = nmp.ma.masked_where(XMSK0[:,:] < 0.5, XF0)
+            dx  = abs(VX[1] - VX[0])/2.
+            VX0 = nmp.arange(nx) + dx
 
         if i_lat_lon == 1:
             vert_rat = (lat_max - lat_min)/(75. + 75.)
