@@ -179,9 +179,9 @@ class plot :
         XF0   = bo.lon_reorg_orca(XFtmp,  corca, rlon_ext)
 
         if i_lat_lon == 1:
-            [ny, nx] = nmp.shape(XMSK0)
-            dx  = abs(VX[1] - VX[0])/2.
-            VX0 = nmp.arange(nx) + dx
+            [ny, nx] = nmp.shape(XF0)
+            dlong  = abs(VX[11] - VX[10])
+            VX0 = nmp.arange(0.,nx,dlong) + dlong/2. ; #lolo:
 
         if i_lat_lon == 1:
             vert_rat = (lat_max - lat_min)/(75. + 75.)
