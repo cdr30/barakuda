@@ -155,6 +155,11 @@ class plot :
 
         i_lat_lon = 1
         if len(VX) == 1 or len(VY) == 1: i_lat_lon = 0 ; # no long. and lat. provided !
+        if corca[:5] == 'eORCA':
+            # don't know how to lat-lon 2d plot eORCA
+            # so just plot without projections
+            i_lat_lon = 0
+
 
 
         # Don't want to modify XF array, working with XFtmp:

@@ -25,8 +25,11 @@ fig_type='png'
 
 
 # What ji point to use to extract latitude vector:
+ji_lon0 = 0
 if 'ORCA2' in vdic['ORCA']:
     ji_lat0 = 132
+elif 'eORCA1' in vdic['ORCA']:
+    ji_lat0 = 265
 elif 'ORCA1' in vdic['ORCA']:
     ji_lat0 = 265
 else:

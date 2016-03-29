@@ -217,7 +217,7 @@ cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html .
 
 echo; echo
 
-cp -r ${BARAKUDA_ROOT}/scripts/html/conf ${BASE_NAME}/
+#cp -r ${BARAKUDA_ROOT}/scripts/html/conf ${BASE_NAME}/
 
 
 if [ ${ihttp} -eq 0 ]; then
