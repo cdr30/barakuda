@@ -158,25 +158,19 @@ def lon_reorg_orca(ZZ, corca, ilon_ext):
 
 
     jx_oo = 2  # orca longitude overlap...
-    #
-    #
+
     vdim = ZZ.shape
-    #
+
     ndim = len(vdim)
-    #
+
     if ndim < 1 or ndim > 4:
         print 'util_orca.lon_reorg_orca: ERROR we only treat 1D, 2D, 3D or 4D arrays...'
-        #
-    #print vdim
-    #
-    #
+
     if ndim == 4:
         #
         [ nr, nz , ny , nx ] = vdim ;     nx0 = nx - jx_oo
-        #print 'nx, ny, nz, nr = ', nx, ny, nz, nr
-        #
-        ZZx  = nmp.zeros(nx0*ny*nz*nr) ;  ZZx.shape = [nr, nz, ny, nx0]
-        ZZx_ext  = nmp.zeros((nx0+ilon_ext)*ny*nz*nr) ;  ZZx_ext.shape = [nr, nz, ny, (nx0+ilon_ext)]
+        ZZx  = nmp.zeros((nr, nz, ny, nx0))
+        ZZx_ext  = nmp.zeros((nr, nz, ny, (nx0+ilon_ext)))
         #
         for jx in range(jx_junc,nx):
             ZZx[:,:,:,jx-jx_junc] = ZZ[:,:,:,jx]
@@ -242,7 +236,8 @@ def lon_reorg_orca(ZZ, corca, ilon_ext):
         #
         # Now longitude extenstion:
     if ilon_ext > 0: ZZx_ext = brkdt.extend_domain(ZZx, ilon_ext)
-    #
+    del ZZx
+    
     return ZZx_ext
 
 

@@ -39,11 +39,10 @@ f_mm.close()
 
 print 'Dimension = ', ni, nj, '\n'
 
-mask_atl = nmp.zeros(nj*ni) ; mask_atl.shape = [ nj, ni ]
-mask_pac = nmp.zeros(nj*ni) ; mask_pac.shape = [ nj, ni ]
-mask_ind = nmp.zeros(nj*ni) ; mask_ind.shape = [ nj, ni ]
-mask_soc = nmp.zeros(nj*ni) ; mask_soc.shape = [ nj, ni ]
-mask_inp = nmp.zeros(nj*ni) ; mask_inp.shape = [ nj, ni ]
+mask_atl = nmp.zeros((nj,ni))
+mask_pac = nmp.zeros((nj,ni))
+mask_ind = nmp.zeros((nj,ni))
+mask_soc = nmp.zeros((nj,ni))
 
 f_mo025 = Dataset('new_maskglo_ORCA025.nc')
 # ATL for ORCA025
@@ -102,13 +101,10 @@ id_soc[:,:]  =  mask_soc[:,:]
 id_inp[:,:]  =  mask_inp[:,:]
 
 
-f_out.About  = 'ORCA1 main oceans basin land-sea mask created from '+cf_mm
-f_out.Author = 'L. Brodeau (lb_nemo_create_basin_mask.py of PYLB)'
-
+f_out.About  = 'ORCA1 main oceanic basin land-sea mask created from '+cf_mm
+f_out.Author = ' Generated with "orca025_create_basin_mask_from_meshmask.py" of BaraKuda (https://github.com/brodeau/barakuda)'
 
 f_out.close()
-
-
 
 
 print cf_out+' sucessfully created!'
