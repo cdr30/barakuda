@@ -1,62 +1,37 @@
 #!/usr/bin/env python
 
-# L. Brodeau 2014
+#       B a r a K u d a
+#
+#     Generate time-series plot of averaged variables on a rectangular box
+#
+#       L. Brodeau, 2014
 
-#####################################
 import sys
-import os
 import numpy as nmp
 from netCDF4 import Dataset
 
 import barakuda_orca as bo
 import barakuda_tool as bt
 
-#####################################
+venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','NN_SST','NN_SSS','FILE_DEF_BOXES'}
 
+vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
-DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
-
-ORCA = os.getenv('ORCA')
-if ORCA == None: print 'The ORCA environement variable is no set'; sys.exit(0)
-
-RUN = os.getenv('RUN')
-if RUN == None: print 'The RUN environement variable is no set'; sys.exit(0)
-
-NN_SST = os.getenv('NN_SST')
-if NN_SST == None: print 'The NN_SST environement variable is no set'; sys.exit(0)
-NN_SSS = os.getenv('NN_SSS')
-if NN_SSS == None: print 'The NN_SSS environement variable is no set'; sys.exit(0)
-
-FILE_DEF_BOXES = os.getenv('FILE_DEF_BOXES')
-if FILE_DEF_BOXES == None: print 'The FILE_DEF_BOXES environement variable is no set'; sys.exit(0)
-
-
-
-
-
-print '\n '+sys.argv[0]+':'
-print ' ORCA = '+ORCA;
-print ' RUN = '+RUN
-
-CONFRUN = ORCA+'-'+RUN
-
-
-
+CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 
 cnexec = sys.argv[0]
 
 na = len(sys.argv)
 if na != 3 and na != 5 :
-    print 'Usage : '+cnexec+' <ORCA1_RUN_grid_T.nc> <year> (<name_sst> <name_sss>) '
+    print 'Usage : '+cnexec+' <RUN_grid_T.nc> <year> (<name_sst> <name_sss>) '
     sys.exit(0)
 
 cf_in  = sys.argv[1]
 cyear  = sys.argv[2] ; jyear = int(cyear); cyear = '%4.4i'%jyear
 
 
-cv_sst = NN_SST
-cv_sss = NN_SSS
+cv_sst = vdic['NN_SST']
+cv_sss = vdic['NN_SSS']
 
 if na == 5:
     cv_sst = sys.argv[3]
@@ -66,26 +41,16 @@ if na == 5:
 print 'Current year is '+cyear+' !\n'
 
 
-
-cf_mesh_mask = './mesh_mask.nc'
-cf_basin     = './new_maskglo.nc'
-
-
-
-
-
-
-
-bt.chck4f(cf_mesh_mask)
-id_mm = Dataset(cf_mesh_mask)
-
-ni = id_mm.dimensions
+bt.chck4f(vdic['MM_FILE'])
+id_mm = Dataset(vdic['MM_FILE'])
 rmsk = id_mm.variables['tmask'][0,0,:,:]
 rlon = id_mm.variables['glamt'][0,:,:]
 rlat = id_mm.variables['gphit'][0,:,:]
 Xe1t = id_mm.variables['e1t'][0,:,:]
 Xe2t = id_mm.variables['e2t'][0,:,:]
 id_mm.close()
+
+
 
 [ nj, ni ] = rmsk.shape
 
@@ -108,15 +73,6 @@ id_in.close()
 
 
 
-# Need Atlantic basin mask:
-#bt.chck4f(cf_basin)
-#id_mm = Dataset(cf_basin)
-#rmsk_atl = id_mm.variables['tmaskatl'][0,:,:]
-#id_mm.close()
-
-
-
-
 [ nt, nj0, ni0 ] = XSST.shape
 
 if [ nj0, ni0 ] != [ nj, ni ]: print 'ERROR: ssx_boxes.py => mask and field disagree in shape!'; sys.exit(0)
@@ -133,15 +89,14 @@ for jt in range(nt): vtime[jt] = float(jyear) + (float(jt) + 0.5)/float(nt)
 
 
 
-# First will read name and coordinates of rectangular boxes to treat into file FILE_DEF_BOXES
+# First will read name and coordinates of rectangular boxes to treat into file 'FILE_DEF_BOXE'
 ##############################################################################################
-vboxes, vi1, vj1, vi2, vj2 = bt.read_box_coordinates_in_ascii(FILE_DEF_BOXES)
+vboxes, vi1, vj1, vi2, vj2 = bt.read_box_coordinates_in_ascii(vdic['FILE_DEF_BOXE'])
 nbb = len(vboxes)
 print ''
 
-rmean_sst = nmp.zeros(nt*nbb) ; rmean_sst.shape = [nt,nbb]
-rmean_sss = nmp.zeros(nt*nbb) ; rmean_sss.shape = [nt,nbb]
-
+rmean_sst = nmp.zeros((nt,nbb))
+rmean_sss = nmp.zeros((nt,nbb))
 
 
 for jb in range(nbb):
@@ -171,11 +126,9 @@ for jb in range(nbb):
     
 
 
-    # NETCDF:
-    # Time to save both montly spatially-averaged time-series and 2D boxes
-    # in netcdf files...
+    # Saving in netcdf file:
 
-    cf_out =  DIAG_D+'/'+'SSX_'+cbox+'_'+CONFRUN+'.nc'
+    cf_out =  vdic['DIAG_D']+'/'+'SSX_'+cbox+'_'+CONFRUN+'.nc'
     l_nc_is_new = not os.path.exists(cf_out)
 
 
@@ -220,7 +173,7 @@ for jb in range(nbb):
             id_x02[jt,:,:] = Xbox[:,:]
 
             
-        f_out.Author = 'L. Brodeau (ssx_boxes.py of Barakuda)'
+        f_out.Author = 'Generated with "ssx_boxes.py" of BaraKuda (https://github.com/brodeau/barakuda)'
 
     else:
         vt = f_out.variables['time']
