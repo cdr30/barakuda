@@ -373,7 +373,6 @@ while ${lcontinue}; do
 
     cyear=`printf "%04d" ${jyear}`
 
-    #lolo
     cpf=""
     if [ ${ece_run} -eq 1 ]; then
         iy=`expr ${jyear} - ${YEAR_INI} + 1` ; dir_ece=`printf "%03d" ${iy}`
@@ -556,7 +555,6 @@ while ${lcontinue}; do
             echo; echo; echo "Global monthly values"
             echo "CALLING: mean.py ${ft} ${jyear}"
             ${PYTH} ${PYBRKD_EXEC_PATH}/mean.py ${ft} ${jyear}
-            exit; #lolo
         fi
 
 
