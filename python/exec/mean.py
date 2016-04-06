@@ -23,7 +23,7 @@ lat1_nino = -5.
 lon2_nino = 360. - 120.  ; # east
 lat2_nino = 5.
 
-venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
+venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_P','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
@@ -73,32 +73,24 @@ id_mm.close()
 
 Xarea_t = nmp.zeros((nj, ni))
 Xarea_t[:,:] = re1t[:,:]*re2t[:,:]*rmask[0,:,:]
-Socean = nmp.sum( Xarea_t[:,:] ) * 1.E-12
-print '\n  *** Surface of the ocean = ', Socean, '  [10^6 km^2]\n'
+Socean = nmp.sum( Xarea_t[:,:] )
+print '\n  *** Surface of the ocean = ', Socean* 1.E-12, '  [10^6 km^2]\n'
 
 
 
 cfe_sflx = vdic['FILE_FLX_SUFFIX']
-lemp = False
+l_fwf = False
 if cfe_sflx in vdic['NEMO_SAVED_FILES']:
-    lemp = True
+    l_fwf = True
     cf_F_in = replace(cf_T_in, 'grid_T', cfe_sflx)
-
-
-print 'lolo vdic[FILE_FLX_SUFFIX] =>', cfe_sflx
-print 'lolo vdic[NEMO_SAVED_FILES] =>', vdic['NEMO_SAVED_FILES']
-print 'lolo File for fluxes =>', cf_F_in
-print 'lolo lemp = ', lemp
 
 
 Xe1t = nmp.zeros((nk, nj, ni))
 Xe2t = nmp.zeros((nk, nj, ni))
-
-
 for jk in range(nk):
     Xe1t[jk,:,:] = re1t[:,:]
     Xe2t[jk,:,:] = re2t[:,:]
-
+    
 del re1t, re2t
 
 print 'Opening different basin masks in file '+vdic['BM_FILE']
@@ -127,40 +119,61 @@ del rmask, mask_atl, mask_pac, mask_ind
 # Time-series of globally averaged surface freshwater fluxes #
 ##############################################################
 
-if lemp:
+if l_fwf:
 
     id_in = Dataset(cf_F_in)
+    list_variables = id_in.variables.keys()
     FWF_m = id_in.variables[vdic['NN_FWF']][:,:,:]
     print '   *** E-P-R ('+vdic['NN_FWF']+') read!'
-    EMP_m = id_in.variables[vdic['NN_EMP']][:,:,:]
-    print '   *** E-P ('+vdic['NN_EMP']+') read!'
+
+    l_emp = False
+    cv_emp = vdic['NN_EMP']
+    if  cv_emp in list_variables[:]:
+        l_emp = True
+        EMP_m = id_in.variables[cv_emp][:,:,:]
+        print '   *** E-P ('+cv_emp+') read!'
+             
+    l_prc = False
+    cv_prc = vdic['NN_P']
+    if  cv_prc in list_variables[:]:
+        l_prc = True
+        PRC_m = id_in.variables[cv_prc][:,:,:]
+        print '   *** P ('+cv_prc+') read!'
+
     id_in.close()
 
+               
     [ nt, nj0, ni0 ] = FWF_m.shape
-
-    RNF_m = nmp.zeros((nj0,ni0))
-
-    RNF_m = - ( FWF_m - EMP_m )
+    
+    if l_emp:
+        RNF_m = nmp.zeros((nj0,ni0))
+        RNF_m = - ( FWF_m - EMP_m )
 
     vtime = nmp.zeros(nt)
     for jt in range(nt): vtime[jt] = float(jyear) + (float(jt)+0.5)*1./12.
 
     vfwf = nmp.zeros(nt)
-    vemp = nmp.zeros(nt)
-    vrnf = nmp.zeros(nt)
+    
+    vemp = [] ; vrnf = [] ; vprc = []
+    if l_emp: vemp = nmp.zeros(nt)
+    if l_emp: vrnf = nmp.zeros(nt)
+    if l_prc: vprc = nmp.zeros(nt)
+
 
     for jt in range(nt):
-        vfwf[jt] = nmp.sum( FWF_m[jt,:,:]*Xarea_t ) / Socean * 1.E-9   # to Sv
-        vemp[jt] = nmp.sum( EMP_m[jt,:,:]*Xarea_t ) / Socean * 1.E-9   # to Sv
-        vrnf[jt] = nmp.sum( RNF_m[jt,:,:]*Xarea_t ) / Socean * 1.E-9   # to Sv
+        vfwf[jt]           = nmp.sum( FWF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
+        if l_emp: vemp[jt] = nmp.sum( EMP_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
+        if l_emp: vrnf[jt] = nmp.sum( RNF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
+        if l_prc: vprc[jt] = nmp.sum( PRC_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
 
     cf_out   = vdic['DIAG_D']+'/mean_freshwater_fluxes_'+CONFRUN+'.nc'
 
     bnc.wrt_appnd_1d_series(vtime, vfwf, cf_out, 'EmPmR',
                             cu_t='year', cu_d='Sv',   cln_d ='Globally averaged net freshwater flux',
                             vd2=vemp, cvar2='EmP',    cln_d2='Globally averaged Evap - Precip',
-                            vd3=vrnf, cvar3='Runoff', cln_d3='Globally averaged continental runoffs')
-    
+                            vd3=vrnf, cvar3='R', cln_d3='Globally averaged continental runoffs',
+                            vd4=vprc, cvar4='P', cln_d4='Globally averaged total precip',)
+
 
 
 
