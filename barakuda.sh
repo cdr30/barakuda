@@ -153,20 +153,6 @@ echo ; echo " *** NN_T=${NN_T}, NN_S=${NN_S}, NN_U=${NN_U} and NN_V=${NN_V} "; e
 
 
 
-# What grid-type files to work with:
-GRID_IMP=""
-
-if [ ${i_do_mean} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T"; fi
-if [ ${i_do_trsp} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T grid_U grid_V"; fi
-if [ ${i_do_mht}  -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T grid_U grid_V"; fi
-if [ ${i_do_sigt} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T grid_U grid_V"; fi
-if [ ${i_do_amoc} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_V" ; fi
-if [ ${i_do_ice}  -gt 0 ]; then GRID_IMP="${GRID_IMP} ${FILE_ICE_SUFFIX}"; fi
-if [ ${i_do_ssx_box} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T"; fi
-if [ ${i_do_bb} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T grid_U grid_V"; fi
-if [ ${i_do_box_TS_z} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T"; fi
-if [ ${i_do_dmv} -gt 0 ];      then GRID_IMP="${GRID_IMP} grid_T"; fi
-if [ ${i_do_zcrit} -gt 0 ];    then GRID_IMP="${GRID_IMP} grid_T"; fi
 
 # Not fully supported yet:
 ca=" => diagnostic totally beta and not fully supported yet!"
@@ -181,27 +167,9 @@ if [ "${NEMO_SAVED_FILES}" = "" ]; then
     echo "Please specify which NEMO files are saved (file suffixes, grid_T, ..., icemod) ?"
     echo " => set the variable NEMO_SAVED_FILES in your config_${CONFIG}.sh file!"; exit
 fi
-VAF=( "grid_T" "grid_U" "grid_V" "icemod" "SBC" )
-js=0 ; gimp_new=""
-for sf in ${VAF[*]}; do
-    echo "Checking ${sf}..."
-    ca=`echo "${NEMO_SAVED_FILES}" | grep ${sf}`; #if [ "${ca}" = "" ]; then VOK[${js}]=0; fi
-    cb=`echo "${GRID_IMP}"         | grep ${sf}`
-    if [ "${ca}" = "" ]; then
-        if [ "${cb}" != "" ]; then
-            echo "PROBLEM! The diags you specified say you need ${sf} files"
-            echo "     => but you have not specified ${sf} in NEMO_SAVED_FILES !"; exit
-        fi
-    else
-        gimp_new="${sf} ${gimp_new}"
-    fi
-    js=`expr ${js} + 1`
-done
-GRID_IMP=${gimp_new}
+echo; echo "File types to import (NEMO_SAVED_FILES) : ${NEMO_SAVED_FILES}"; echo; echo
 
-echo; echo "File types to import: ${GRID_IMP}"; echo; echo
 
-boo="EOF"
 
 
 if [ ${ISTAGE} -eq 1 ]; then
@@ -431,7 +399,7 @@ while ${lcontinue}; do
         TTAG=${cy1}0101_${cy2}1231 # calendar-related part of the file name
 
         # Testing if the current year-group has been done
-        for ft in ${GRID_IMP}; do            
+        for ft in ${NEMO_SAVED_FILES}; do            
             ftst=${NEMO_OUT_D}/${cpf}${CPREF}${TTAG}_${ft} ;  cfxt="0"
             for ca in "nc" "nc.gz" "nc4"; do
                 if [ -f ${ftst}.${ca} ]; then cfxt="${ca}"; fi
@@ -461,7 +429,7 @@ while ${lcontinue}; do
 
 
         # On what file type to test file presence:
-        cgrid_test=`echo ${GRID_IMP} | cut -d ' ' -f2`
+        cgrid_test=`echo ${NEMO_SAVED_FILES} | cut -d ' ' -f2`
         echo " *** testing on files \"${cgrid_test}\" !"; echo
 
 
@@ -480,7 +448,7 @@ while ${lcontinue}; do
                 echo " => gonna get ${CRTM}_* files..."
 
                 # Importing required files to tmp dir and unzipping:
-                for gt in ${GRID_IMP}; do
+                for gt in ${NEMO_SAVED_FILES}; do
 
                     f2i=${CRTM}_${gt}.nc ;   sgz=""
                     
@@ -514,7 +482,7 @@ while ${lcontinue}; do
 
                 # Need to create annual files if more than 1 year in 1 once NEMO file
                 if [ ${IFREQ_SAV_YEARS} -gt 1 ]; then
-                    for gt in ${GRID_IMP}; do
+                    for gt in ${NEMO_SAVED_FILES}; do
                         ftd=./${CRTM}_${gt}.nc ; # file to divide!
                         if [ -f ${ftd} ]; then
                             jy=0
@@ -564,7 +532,7 @@ while ${lcontinue}; do
 
 
         # Testing if ALL required files are present now:
-        for gt in ${GRID_IMP}; do
+        for gt in ${NEMO_SAVED_FILES}; do
             ftt="./${CRT1}_${gt}.nc" ;  check_if_file ${ftt}
         done
 
@@ -580,6 +548,18 @@ while ${lcontinue}; do
         fvt=${CRT1}_VT.nc
 
 
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Computing time-series of spatially-averaged variables
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if [ ${i_do_mean} -eq 1 ]; then
+            echo; echo; echo "Global monthly values"
+            echo "CALLING: mean.py ${ft} ${jyear}"
+            ${PYTH} ${PYBRKD_EXEC_PATH}/mean.py ${ft} ${jyear}
+            exit; #lolo
+        fi
+
+
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Creating VT file if needed
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -592,14 +572,6 @@ while ${lcontinue}; do
         fi
 
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Computing time-series of spatially-averaged variables
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if [ ${i_do_mean} -eq 1 ]; then
-            echo; echo; echo "Global monthly values"
-            echo "CALLING: mean.py ${ft} ${jyear}"
-            ${PYTH} ${PYBRKD_EXEC_PATH}/mean.py ${ft} ${jyear}
-        fi
 
 
 

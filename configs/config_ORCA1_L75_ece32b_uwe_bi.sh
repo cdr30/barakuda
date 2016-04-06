@@ -23,7 +23,7 @@ export STORE_DIR="/proj/bolinc/users/x_laubr"
 export ece_run=1 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
 #                  # where YYY starts from '001' to
 
-# List of suffixed of files that have been saved by NEMO:
+# List of suffixed of files that have been saved by NEMO and that are needed for the diags:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
 
 
@@ -63,6 +63,10 @@ export NN_TAUY="tauvo"
 export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction and volume?
 export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
 export NN_ICET="sivolu" ; # ice thickness or rather volume...
+
+export FILE_FLX_SUFFIX="SBC" ; # in what file to find surface fluxes ?
+export NN_FWF="wfo"       ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
+export NN_EMP="emp_oce"   ; # name of E-P in "FILE_FLX_SUFFIX" file...
 
 
 

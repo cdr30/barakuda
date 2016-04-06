@@ -18,7 +18,9 @@ venv_needed = {'ORCA','RUN','DIAG_D','COMP2D','MM_FILE','NN_MLD','NN_S_CLIM','NN
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
-CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
+corca = vdic['ORCA']
+
+CONFRUN = corca+'-'+vdic['RUN']
 ldebug = False
 
 zmax_mld_atl = 1600. ; dz_mld = 100.
@@ -26,12 +28,12 @@ zmax_mld_atl = 1600. ; dz_mld = 100.
 
 
 
-if 'ORCA2' in vdic['ORCA']:
+if 'ORCA2' in corca:
     ji_lat0 = 132
-elif 'ORCA1' in vdic['ORCA']:
+elif 'ORCA1' in corca:
     ji_lat0 = 265
 else:
-    print 'FIX ME!!! ssh.py => dont know ji_lat0 for conf '+vdic['ORCA']+' !!!'; sys.exit(0)
+    print 'FIX ME!!! ssh.py => dont know ji_lat0 for conf '+corca+' !!!'; sys.exit(0)
 
 
 l_obs_mld = False
@@ -165,7 +167,7 @@ bp.plot("nproj")('spstere', 50., 200., 10., xlon, xlat, mldr10[imnth,:,:],
                  lforce_lim=True)
 
 bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 600., 20.,
-              corca=ORCA, lkcont=True, cpal='sst0',
+              corca=corca, lkcont=True, cpal='sst0',
               cfignm=path_fig+'mld_Global_march_'+CONFRUN, cbunit='m',
               ctitle='MLD, March, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_cb_subsamp=1,
               cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
@@ -177,7 +179,7 @@ if l_obs_mld:
                      lkcont=True, cfig_type=fig_type, lforce_lim=True)
 
     bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], Xmld_obs[:,:], Xmask[0,:,:], 0., 600., 20.,
-                  corca=ORCA, lkcont=True, cpal='sst0',
+                  corca=corca, lkcont=True, cpal='sst0',
                   cfignm=path_fig+'mld_obs_001_Global_march_'+CONFRUN, cbunit='m',
                   ctitle='MLD (obs., 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_cb_subsamp=1,
                   cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
@@ -219,7 +221,7 @@ bp.plot("nproj")('spstere', 100., 2000., dz_mld, xlon, xlat, mldr10[imnth,:,:],
                  lforce_lim=True)
 
 bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 600., 20.,
-              corca=ORCA, lkcont=True, cpal='sst0',
+              corca=corca, lkcont=True, cpal='sst0',
               cfignm=path_fig+'mld_Global_september_'+CONFRUN, cbunit='m',
               ctitle='MLD, September, '+CONFRUN+' ('+cy1+'-'+cy2+')', lforce_lim=True, i_cb_subsamp=1,
               cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
@@ -227,7 +229,7 @@ bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], mldr10[imnth,:,:], Xmask[0,:,:], 0., 6
 
 if l_obs_mld:
     bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], Xmld_obs[:,:], Xmask[0,:,:], 0., 600., 20.,
-                  corca=ORCA, lkcont=True, cpal='sst0',
+                  corca=corca, lkcont=True, cpal='sst0',
                   cfignm=path_fig+'mld_obs_001_Global_september_'+CONFRUN, cbunit='m',
                   ctitle='MLD (obs, 0.01 crit.), March (Levitus 1980-1999)', lforce_lim=True, i_cb_subsamp=1,
                   cfig_type=fig_type, lat_min=-80., lat_max=75., lpix=False)
