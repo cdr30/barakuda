@@ -48,6 +48,15 @@ elif cdiag == 'mean_sos':
     cyu   = r'PSU'
     ym = yp = 0.
 
+elif cdiag == 'mean_fwf':
+    idfig = 'fwf'
+    cvar  = 'EmPmR'
+    clnm  = 'Globally-averaged upward net freshwater flux (E-P-R)'
+    cvr2  = 'R'
+    cln2  = 'Globally-averaged continental runoffs + ice calving (R)'
+    cyu   = r'Sv'
+    ym = yp = 0.
+
 elif cdiag == 'mean_zos':
     cvar  = vdic['NN_SSH']
     idfig = 'simple'
@@ -128,7 +137,7 @@ if idfig == 'simple':
     id_in.close()
 
     if nbm%12 != 0:
-        print 'ERROR: plot_time_series.py => '+cvar+', numberof records not a multiple of 12!'
+        print 'ERROR: plot_time_series.py => '+cvar+', number of records not a multiple of 12!'
         sys.exit(0)
 
     # Annual data
@@ -139,6 +148,45 @@ if idfig == 'simple':
     # Time to plot
     bp.plot("1d_mon_ann")(vtime, VY, vvar, FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
                           cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
+
+
+
+
+if idfig == 'fwf':
+    
+    l_rnf = False
+
+    cf_in = cdiag+'_'+CONFRUN+'_global.nc' ;  bt.chck4f(cf_in, script_name='plot_time_series.py')
+    id_in = Dataset(cf_in)
+    list_var = id_in.variables.keys()
+    vtime = id_in.variables['time'][:] ; nbm = len(vtime)
+    vemp  = id_in.variables[cvar][:]
+    if cvr2 in list_var[:]:
+        l_rnf = True
+        vrnf  = id_in.variables[cvr2][:]
+    id_in.close()
+
+    if nbm%12 != 0:
+        print 'ERROR: plot_time_series.py => '+cvar+', number of records not a multiple of 12!'
+        sys.exit(0)
+
+    ittic = bt.iaxe_tick(nbm/12)
+
+    # Annual data
+    VY, FY = bt.monthly_2_annual(vtime, vemp)
+    # Time to plot
+    bp.plot("1d_mon_ann")(vtime, VY, vemp, FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
+                          cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
+
+    if l_rnf:
+        VY, FY = bt.monthly_2_annual(vtime, vrnf)
+        bp.plot("1d_mon_ann")(vtime, VY, vrnf, FY, cfignm=cdiag+'_rnf_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln2, ymin=ym, ymax=yp)
+
+
+
+
+
 
 
 
@@ -223,7 +271,7 @@ if idfig == 'amoc':
         jl = jl + 1
 
     if nbm%12 != 0:
-        print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!'
+        print 'ERROR: plot_time_series.py => '+cdiag+', number of records not a multiple of 12!'
         sys.exit(0)
     VY, FY = bt.monthly_2_annual(vtime, Xamoc[i45,:])
 
@@ -265,7 +313,7 @@ if idfig == 'ice':
     cyuv = r'10$^3$km$^3$'
 
     if nbm%12 != 0:
-        print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!'
+        print 'ERROR: plot_time_series.py => '+cdiag+', number of records not a multiple of 12!'
         sys.exit(0)
     nby = nbm/12
 
@@ -320,7 +368,7 @@ if idfig == 'transport':
         id_in.close()
 
 
-        if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!', sys.exit(0)
+        if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cdiag+', number of records not a multiple of 12!', sys.exit(0)
         VY, FY  = bt.monthly_2_annual(vtime, Xtrsp[:,:])
 
         ittic = bt.iaxe_tick(nbm/12)

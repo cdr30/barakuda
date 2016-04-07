@@ -121,20 +121,22 @@ del rmask, mask_atl, mask_pac, mask_ind
 
 if l_fwf:
 
+    cv_fwf = vdic['NN_FWF']
+    cv_emp = vdic['NN_EMP']
+    cv_prc = vdic['NN_P']
+
     id_in = Dataset(cf_F_in)
     list_variables = id_in.variables.keys()
-    FWF_m = id_in.variables[vdic['NN_FWF']][:,:,:]
-    print '   *** E-P-R ('+vdic['NN_FWF']+') read!'
+    FWF_m = id_in.variables[cv_fwf][:,:,:]
+    print '   *** E-P-R ('+cv_fwf+') read!'
 
     l_emp = False
-    cv_emp = vdic['NN_EMP']
     if  cv_emp in list_variables[:]:
         l_emp = True
         EMP_m = id_in.variables[cv_emp][:,:,:]
         print '   *** E-P ('+cv_emp+') read!'
              
     l_prc = False
-    cv_prc = vdic['NN_P']
     if  cv_prc in list_variables[:]:
         l_prc = True
         PRC_m = id_in.variables[cv_prc][:,:,:]
@@ -166,13 +168,13 @@ if l_fwf:
         if l_emp: vrnf[jt] = nmp.sum( RNF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
         if l_prc: vprc[jt] = nmp.sum( PRC_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
 
-    cf_out   = vdic['DIAG_D']+'/mean_freshwater_fluxes_'+CONFRUN+'.nc'
+    cf_out   = vdic['DIAG_D']+'/mean_fwf_'+CONFRUN+'_global.nc'
 
     bnc.wrt_appnd_1d_series(vtime, vfwf, cf_out, 'EmPmR',
-                            cu_t='year', cu_d='Sv',   cln_d ='Globally averaged net freshwater flux',
-                            vd2=vemp, cvar2='EmP',    cln_d2='Globally averaged Evap - Precip',
-                            vd3=vrnf, cvar3='R', cln_d3='Globally averaged continental runoffs',
-                            vd4=vprc, cvar4='P', cln_d4='Globally averaged total precip',)
+                            cu_t='year', cu_d='Sv', cln_d ='Globally averaged net freshwater flux (nemo:'+cv_fwf+')',
+                            vd2=vemp, cvar2='EmP',  cln_d2='Globally averaged Evap - Precip (nemo:'+cv_emp+')',
+                            vd3=vrnf, cvar3='R',    cln_d3='Globally averaged continental runoffs',
+                            vd4=vprc, cvar4='P',    cln_d4='Globally averaged total precip (nemo:'+cv_prc+')',)
 
 
 
@@ -293,15 +295,15 @@ for cvar in [ vdic['NN_SST'], vdic['NN_SSS'], vdic['NN_SSH'] ]:
         Vts = bo.mean_2d(Xs_m, mask[joce,0,:,:], Xe1t[0,:,:], Xe2t[0,:,:])
 
 
-        if 'cf_out' in locals() or 'cf_out' in globals():
-            f = open(cf_out, 'a'); # 'w' would erase...
-            f.write('#      Year       Mean ('+cocean+')\n')
-            for jt in range(nt):
-                f.write('%13.6f'%vtime[jt])
-                f.write('  '+'%13.6f'%round(Vts[jt],6))
-                f.write('\n')
-            f.close()
-            print cf_out+' written!'
+        #if 'cf_out' in locals() or 'cf_out' in globals():
+        #    f = open(cf_out, 'a'); # 'w' would erase...
+        #    f.write('#      Year       Mean ('+cocean+')\n')
+        #    for jt in range(nt):
+        #        f.write('%13.6f'%vtime[jt])
+        #        f.write('  '+'%13.6f'%round(Vts[jt],6))
+        #        f.write('\n')
+        #    f.close()
+        #    print cf_out+' written!'
 
 
         # NETCDF:
@@ -340,15 +342,15 @@ id_in.close()
 Vts = bo.mean_2d(Xs_m[:,j1:j2+1,i1:i2+1], mask[0,0,j1:j2+1,i1:i2+1], Xe1t[0,j1:j2+1,i1:i2+1], Xe2t[0,j1:j2+1,i1:i2+1])
 
 
-if 'cf_out' in locals() or 'cf_out' in globals():
-    f = open(cf_out, 'a'); # 'w' would erase...
-    f.write('#      Year       Mean ()\n')
-    for jt in range(nt):
-        f.write('%13.6f'%vtime[jt])
-        f.write('  '+'%13.6f'%round(Vts[jt],6))
-        f.write('\n')
-    f.close()
-    print cf_out+' written!'
+#if 'cf_out' in locals() or 'cf_out' in globals():
+#    f = open(cf_out, 'a'); # 'w' would erase...
+#    f.write('#      Year       Mean ()\n')
+#    for jt in range(nt):
+#        f.write('%13.6f'%vtime[jt])
+#        f.write('  '+'%13.6f'%round(Vts[jt],6))
+#        f.write('\n')
+#    f.close()
+#    print cf_out+' written!'
 
 # NETCDF:
 cf_out   = vdic['DIAG_D']+'/Nino34_'+CONFRUN+'.nc' ;  cv1 = vdic['NN_SST']

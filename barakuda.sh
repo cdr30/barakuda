@@ -1060,7 +1060,7 @@ if [ ${ISTAGE} -eq 2 ]; then
     DIAG_1D_LIST=""
 
     if [ ${i_do_mean} -eq 1 ]; then
-        DIAG_1D_LIST="${DIAG_1D_LIST} 3d_so mean_sos 3d_thetao mean_tos mean_zos mean_mldr10_1"
+        DIAG_1D_LIST="${DIAG_1D_LIST} 3d_so mean_sos 3d_thetao mean_tos mean_zos mean_fwf mean_mldr10_1"
     fi
     if [ ${i_do_amoc} -eq 1 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} amoc";        fi
     if [ ${i_do_trsp} -gt 0 ]; then
@@ -1439,6 +1439,8 @@ EOF
     cat >> index.php <<EOF
         <br><br><br><big><big> Misc. time-series </big></big><br><br>
         <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.png"> <br><br>
+        <img style="border: 0px solid" alt="" src="mean_fwf_${CONFRUN}.png"> <br><br>
+        <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.png"> <br><br> <br><br> 
 EOF
