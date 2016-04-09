@@ -30,11 +30,13 @@ DPI_TS      = 120
 AXES_TS     = [0.1, 0.082, 0.87, 0.84]
 
 # Colors for line:    (https://www.daftlogic.com/projects-hex-colour-tester.htm)
-b_blu  = '#2C558A'
-b_red   = '#AD0000'
-b_gre = '#42BD82'
+b_blu = '#2C558A'
+b_red = '#AD0000'
+b_gre = '#3A783E' ; # b_gre = '#42BD82'
+b_prp = '#8C008C'
+b_org = '#ED7C4C'
 
-v_dflt_colors = = [b_blu, b_red, b_gre, 'pink', 'r', 'b', 'g', 'brown', 'orange' ]  ; # extend if more...
+v_dflt_colors = [b_blu, b_red, b_gre, b_org, b_prp, 'pink', 'r', 'b', 'g', 'brown', 'orange' ]  ; # extend if more...
 
 # Some projections to use with BaseMap:
 #
@@ -1196,7 +1198,7 @@ class plot :
 
 
     def __1d_mon_ann(self,VTm, VTy, VDm, VDy, cfignm='fig', dt_year=5, cyunit='', ctitle='',
-                        ymin=0, ymax=0, dy=0, i_y_jump=1, mnth_col=b_blu, plt_m03=False, plt_m09=False,
+                        ymin=0, ymax=0, dy=0, i_y_jump=1, mnth_col='b', plt_m03=False, plt_m09=False,
                         cfig_type='png', l_tranparent_bg=True, fig_size=FIG_SIZE_TS):
 
         # if you specify ymin and ymax you can also specify y increment (for y grid) as dy
@@ -1214,6 +1216,9 @@ class plot :
         fig = plt.figure(num = 1, figsize=fig_size, facecolor='w', edgecolor='k')
 
         ax = plt.axes(AXES_TS)
+
+        if mnth_col == 'g': mnth_col = b_gre
+        if mnth_col == 'b': mnth_col = b_blu
 
         plt.plot(VTm, VDm, mnth_col, label=r'monthly', linewidth=1)
         plt.plot(VTy, VDy, b_red, label=r'annual', linewidth=2)
