@@ -18,9 +18,6 @@ import barakuda_plot as bp
 import barakuda_physics as bphy
 
 
-l_col_lines = ['#2C558A', '#AD0000', '#42BD82', 'k', 'pink', 'r', 'b', 'g', 'brown' ]
-
-
 venv_needed = {'ORCA','RUN','DIAG_D','DENSITY_SECTION_FILE'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
@@ -128,7 +125,7 @@ id_in.close()
 ittic = bt.iaxe_tick(nbm/12)
 
 bp.plot("1d_multi")(vtime_ann, v278, list_sections, cfignm='tr_sigma_gt278_'+CONFRUN,
-                    dt_year=ittic, cyunit='Sv', line_styles=l_col_lines[:nbsec],
+                    dt_year=ittic, cyunit='Sv',
                     ctitle=r'Transport of volume for $\sigma_0$ > '+str(rsigdense0)+', '+CONFRUN,
                     ymin=0., ymax=0.)
 

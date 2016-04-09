@@ -34,6 +34,7 @@ b_blu  = '#2C558A'
 b_red   = '#AD0000'
 b_gre = '#42BD82'
 
+v_dflt_colors = = [b_blu, b_red, b_gre, 'pink', 'r', 'b', 'g', 'brown', 'orange' ]  ; # extend if more...
 
 # Some projections to use with BaseMap:
 #
@@ -1272,6 +1273,7 @@ class plot :
 
         # lzonal => zonally averaged curves...
 
+
         if lzonal:
             font_ttl, font_big_fixed, font_xylb, font_clb = __font_unity__(size='big')
         else:
@@ -1302,9 +1304,9 @@ class plot :
 
         for jp in range(nb_plt):
             if n0 > 0:
-                plt.plot(vt[:], XD[jp,:], line_styles[jp], label=vlabels[jp], linewidth=2)
+                plt.plot(vt[:], XD[jp,:], line_styles[jp],   label=vlabels[jp], linewidth=2)
             else:
-                plt.plot(vt[:], XD[jp,:],                  label=vlabels[jp], linewidth=2)
+                plt.plot(vt[:], XD[jp,:], v_dflt_colors[jp], label=vlabels[jp], linewidth=2)
 
 
         if loc_legend != '0':  plt.legend(loc=loc_legend, ncol=int(nb_plt/4+1), shadow=True, fancybox=True)
