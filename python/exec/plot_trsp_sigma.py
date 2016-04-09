@@ -35,9 +35,6 @@ cfig_type = 'png'
 
 path_fig =  vdic['DIAG_D']+'/'
 
-CONFRUN = CONF+'-'+RUN
-
-
 cf_dens_sect =  vdic['DENSITY_SECTION_FILE']
 print '  Using cf_dens_sect = '+cf_dens_sect
 list_sections = bo.get_sections_names_from_file(cf_dens_sect)
