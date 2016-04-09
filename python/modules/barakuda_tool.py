@@ -52,7 +52,10 @@ def iaxe_tick(ny):
     if itick == 4 or itick == 3: itick = 5
     if ny > 20 and itick == 1: itick = 2
     if ny >=  50 and ny < 100: itick = 5
-    if ny >= 100 and ny < 200: itick = 10
+    if ny >= 100 and ny < 250: itick = 10
+    if ny >= 250 and ny < 750: itick = 25
+    if ny >= 750 and ny <2000: itick = 50
+    if ny >= 2000:             itick = 100
     return itick
 
 
