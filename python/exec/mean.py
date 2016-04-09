@@ -23,7 +23,7 @@ lat1_nino = -5.
 lon2_nino = 360. - 120.  ; # east
 lat2_nino = 5.
 
-venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_P','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
+venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_P','NN_RNF','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
@@ -124,6 +124,7 @@ if l_fwf:
     cv_fwf = vdic['NN_FWF']
     cv_emp = vdic['NN_EMP']
     cv_prc = vdic['NN_P']
+    cv_rnf = vdic['NN_RNF']
 
     id_in = Dataset(cf_F_in)
     list_variables = id_in.variables.keys()
@@ -142,12 +143,19 @@ if l_fwf:
         PRC_m = id_in.variables[cv_prc][:,:,:]
         print '   *** P ('+cv_prc+') read!'
 
+    l_rnf = False
+    if  cv_rnf in list_variables[:]:
+        l_rnf = True
+        RNF_m = id_in.variables[cv_rnf][:,:,:]
+        print '   *** P ('+cv_rnf+') read!'
+
     id_in.close()
 
                
     [ nt, nj0, ni0 ] = FWF_m.shape
     
-    if l_emp:
+    if l_emp and not l_rnf:
+        l_rnf = True
         RNF_m = nmp.zeros((nj0,ni0))
         RNF_m = - ( FWF_m - EMP_m )
 
@@ -158,14 +166,14 @@ if l_fwf:
     
     vemp = [] ; vrnf = [] ; vprc = []
     if l_emp: vemp = nmp.zeros(nt)
-    if l_emp: vrnf = nmp.zeros(nt)
+    if l_rnf: vrnf = nmp.zeros(nt)
     if l_prc: vprc = nmp.zeros(nt)
 
 
     for jt in range(nt):
         vfwf[jt]           = nmp.sum( FWF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
         if l_emp: vemp[jt] = nmp.sum( EMP_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
-        if l_emp: vrnf[jt] = nmp.sum( RNF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
+        if l_rnf: vrnf[jt] = nmp.sum( RNF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
         if l_prc: vprc[jt] = nmp.sum( PRC_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
 
     cf_out   = vdic['DIAG_D']+'/mean_fwf_'+CONFRUN+'_global.nc'
