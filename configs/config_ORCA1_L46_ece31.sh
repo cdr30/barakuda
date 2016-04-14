@@ -108,6 +108,7 @@ export DIAG_DIR="/proj/bolinc/users/x_laubr/tmp/barakuda/${CONF}_ece31"
 
 # Files with the list of rectangular boxes to look at more closely:
 export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
+export FILE_DMV_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 
 
 

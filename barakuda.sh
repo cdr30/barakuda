@@ -848,8 +848,8 @@ while ${lcontinue}; do
                 echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
             fi
 
-            echo "CALLING: dmv.py ${cyear}"
-            ${PYTH} ${PYBRKD_EXEC_PATH}/dmv.py ${cyear}
+            echo "CALLING: dmv.py ${ft} ${cyear}"
+            ${PYTH} ${PYBRKD_EXEC_PATH}/dmv.py ${ft} ${cyear}
             echo;echo
 
         fi
@@ -1439,7 +1439,8 @@ EOF
     cat >> index.php <<EOF
         <br><br><br><big><big> Misc. time-series </big></big><br><br>
         <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="mean_fwf_${CONFRUN}.png"> <br><br>
+        <img style="border: 0px solid" alt="" src="mean_fwf_fwf_${CONFRUN}.png"> <br><br>
+        <img style="border: 0px solid" alt="" src="mean_fwf_emp_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.png"> <br><br> <br><br> 

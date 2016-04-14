@@ -54,6 +54,8 @@ elif cdiag == 'mean_fwf':
     clnm  = 'Globally-averaged upward net freshwater flux (E-P-R)'
     cvr2  = 'R'
     cln2  = 'Globally-averaged continental runoffs + ice calving (R)'
+    cvr3  = 'EmP'
+    cln3  = 'Globally-averaged Evaporation - Precipitation (E-P)'
     cyu   = r'Sv'
     ym = yp = 0.
 
@@ -154,16 +156,19 @@ if idfig == 'simple':
 
 if idfig == 'fwf':
     
-    l_rnf = False
+    l_rnf = False ; l_emp = False
 
     cf_in = cdiag+'_'+CONFRUN+'_global.nc' ;  bt.chck4f(cf_in, script_name='plot_time_series.py')
     id_in = Dataset(cf_in)
     list_var = id_in.variables.keys()
     vtime = id_in.variables['time'][:] ; nbm = len(vtime)
-    vemp  = id_in.variables[cvar][:]
+    vfwf  = id_in.variables[cvar][:]
     if cvr2 in list_var[:]:
         l_rnf = True
         vrnf  = id_in.variables[cvr2][:]
+    if cvr3 in list_var[:]:
+        l_emp = True
+        vemp  = id_in.variables[cvr3][:]
     id_in.close()
 
     if nbm%12 != 0:
@@ -173,9 +178,9 @@ if idfig == 'fwf':
     ittic = bt.iaxe_tick(nbm/12)
 
     # Annual data
-    VY, FY = bt.monthly_2_annual(vtime, vemp)
+    VY, FY = bt.monthly_2_annual(vtime, vfwf)
     # Time to plot
-    bp.plot("1d_mon_ann")(vtime, VY, vemp, FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
+    bp.plot("1d_mon_ann")(vtime, VY, vfwf, FY, cfignm=cdiag+'_fwf_'+CONFRUN, dt_year=ittic,
                           cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
 
     if l_rnf:
@@ -183,7 +188,10 @@ if idfig == 'fwf':
         bp.plot("1d_mon_ann")(vtime, VY, vrnf, FY, cfignm=cdiag+'_rnf_'+CONFRUN, dt_year=ittic,
                               cyunit=cyu, ctitle = CONFRUN+': '+cln2, ymin=ym, ymax=yp)
 
-
+    if l_emp:
+        VY, FY = bt.monthly_2_annual(vtime, vemp)
+        bp.plot("1d_mon_ann")(vtime, VY, vemp, FY, cfignm=cdiag+'_emp_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln3, ymin=ym, ymax=yp)
 
 
 

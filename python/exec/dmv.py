@@ -11,7 +11,7 @@
 # Brodeau & Koenigk 2015.
 #
 # Rectangular boxes must be defined in a file which name is known as the global
-# environment variable "FILE_DEF_BOXES"
+# environment variable "FILE_DMV_BOXES"
 #  => template: data/def_boxes_convection_ORCA1.txt
 #
 ### Reference:
@@ -26,7 +26,7 @@
 #  * ORCA   : global ORCA grid you use (ex: "ORCA1.L75")
 #  * RUN    : name of your NEMO experiment
 #  * DIAG_D : full path to the directory where the diagnostics (here a netcdf file) are saved
-#  * FILE_DEF_BOXES: full path to the ASCII file containing definition of convection boxes
+#  * FILE_DMV_BOXES: full path to the ASCII file containing definition of convection boxes
 #                    => template: data/def_boxes_convection_ORCA1.txt
 #  * MM_FILE : full path to the "mesh_mask.nc" file relevent to your ORCA !
 #  * NN_MLD  : name of the Mixed-Layer Depth variable inside the *_grid_T.nc files of your NEMO experiment
@@ -34,6 +34,10 @@
 #              => ex:  MLD_CRIT="2000,1500,1000,725,500"
 #
 ###########################################################################################
+
+import sys
+import numpy as nmp
+from netCDF4 import Dataset
 
 import barakuda_tool as bt
 import barakuda_ncio as bnc
@@ -43,13 +47,13 @@ rdiv = 1000. ; # => result in 10^3 km^3   (DMV divided 4 times by rdiv)
 
 
 # Getting all required environment variables needed inside dictionary vdic:
-venv_needed = {'ORCA','RUN','DIAG_D','FILE_DEF_BOXES','MM_FILE','NN_MLD','MLD_CRIT'}
+venv_needed = {'ORCA','RUN','DIAG_D','FILE_DMV_BOXES','MM_FILE','NN_MLD','MLD_CRIT'}
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
 
 CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 
-cname_script = basename(sys.argv[0])
+cname_script = sys.argv[0]
 
 if len(sys.argv) != 3:
     print 'Usage : '+cname_script+' <ORCA1_RUN_grid_T.nc> <year>'
@@ -68,9 +72,9 @@ print "\n All the z_crit to use:", vMLD_crit[:]
 
 
 
-# First will read name and coordinates of rectangular boxes to treat into file FILE_DEF_BOXES
+# First will read name and coordinates of rectangular boxes to treat into file FILE_DMV_BOXES
 ##############################################################################################
-vboxes, vi1, vj1, vi2, vj2 = bt.read_box_coordinates_in_ascii(vdic['FILE_DEF_BOXES'])
+vboxes, vi1, vj1, vi2, vj2 = bt.read_box_coordinates_in_ascii(vdic['FILE_DMV_BOXES'])
 nbb = len(vboxes)
 print ''
 
@@ -98,9 +102,9 @@ print 'nt, nj, ni =', nt, nj, ni
 
 # Loop along depth crtiteria:
 
-for rMLD_crit in vMLD_crit:
+for z_crit in vMLD_crit:
 
-    czcrit = str(int(rMLD_crit))
+    czcrit = str(int(z_crit))
 
     # Loop along convection boxes:
     for jb in range(nbb):
@@ -160,8 +164,8 @@ for rMLD_crit in vMLD_crit:
             xtmp[:,:] = 0.
             xtmp[:,:] = zmask_orca[j1:j2,i1:i2]
             
-            # Excluding points where MLD < rMLD_crit
-            idx1 = nmp.where(xmld[jm,:,:] < rMLD_crit)
+            # Excluding points where MLD < z_crit
+            idx1 = nmp.where(xmld[jm,:,:] < z_crit)
             xtmp[idx1] = 0
             msk_deep[jm,:,:] = xtmp[:,:]
         
@@ -185,7 +189,7 @@ for rMLD_crit in vMLD_crit:
         jc=-1
         for jm in vinter:
             jc=jc+1
-            VDMV[jc] = nmp.sum((xmld[jm,:,:]-rMLD_crit)*xtmp[:,:]*msk_deep[jm,:,:])/(rdiv*rdiv)
+            VDMV[jc] = nmp.sum((xmld[jm,:,:] - z_crit)*xtmp[:,:]*msk_deep[jm,:,:])/(rdiv*rdiv)
             
         
         rc_WINT = nmp.mean(VDMV)
@@ -210,7 +214,7 @@ for rMLD_crit in vMLD_crit:
         long_name4 = 'Mean MLD in '+ccold_ln+' where MLD > '+czcrit+'m on box '+cbox
 
 
-        bnc.wrt_appnd_1d_series([float(jy)], [VDMV[2]], cf_out, cv_dmv_m,  cu_t='year', cu_d='10^3 km^3', cln_d=long_name1,
+        bnc.wrt_appnd_1d_series([float(jyear)], [VDMV[2]], cf_out, cv_dmv_m,  cu_t='year', cu_d='10^3 km^3', cln_d=long_name1,
                                 vd2=[rc_WINT],       cvar2=cv_dmv_jfm,     cln_d2=long_name2,
                                 vd3=[rML_max],       cvar3='ML_max',       cln_d3=long_name3,
                                 vd4=[rML_deep_mean], cvar4='ML_deep_mean', cln_d4=long_name4)
