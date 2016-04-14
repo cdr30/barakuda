@@ -1,115 +1,82 @@
 #!/usr/bin/env python
 
-# Computes the DMV (Deep Mixed Volume) in deep-convective mixing regions of your
-# choice with the method of Brodeau et al. 2015.
-
-# The rectangular boxes (1 per region of deep convection in your model) must be
-# defined as global environment variable "FILE_DEF_BOXES"
-# => ex: data/def_boxes_convection_ORCA1.txt
-
-## Reference:
-# L. Brodeau and T. Koenigk. Extinction of the northern oceanic deep convection in
-# an ensemble of climate model simulations of the 20th and 21st centuries. Climate
-# Dynamics, Online, 2015.
-# DOI: 10.1007/s00382-015-2736-5
-
-
-# L. Brodeau 2015
-
-
-import sys
-import os
-import numpy as nmp
-from netCDF4 import Dataset
-from os.path import basename
+#       B a r a K u d a
+#
+#     Generate 2D plots and maps of the Mixed layer depth
+#
+#       L. Brodeau, 2014
+#
+# Computes the DMV (Deep Mixed Volume) in user-defined deep-convective mixing
+# regions (rectangle defined by 2 grid points) according to the method by
+# Brodeau & Koenigk 2015.
+#
+# Rectangular boxes must be defined in a file which name is known as the global
+# environment variable "FILE_DEF_BOXES"
+#  => template: data/def_boxes_convection_ORCA1.txt
+#
+### Reference:
+#  L. Brodeau and T. Koenigk. Extinction of the northern oceanic deep convection in
+#  an ensemble of climate model simulations of the 20th and 21st centuries. Climate
+#  Dynamics, Online, 2015.
+#  DOI: 10.1007/s00382-015-2736-5
+#
+#
+# List of environement variables that should be "known/set" when launching this script:
+#
+#  * ORCA   : global ORCA grid you use (ex: "ORCA1.L75")
+#  * RUN    : name of your NEMO experiment
+#  * DIAG_D : full path to the directory where the diagnostics (here a netcdf file) are saved
+#  * FILE_DEF_BOXES: full path to the ASCII file containing definition of convection boxes
+#                    => template: data/def_boxes_convection_ORCA1.txt
+#  * MM_FILE : full path to the "mesh_mask.nc" file relevent to your ORCA !
+#  * NN_MLD  : name of the Mixed-Layer Depth variable inside the *_grid_T.nc files of your NEMO experiment
+#  * MLD_CRIT:  contains a list of all the "depth criterion to use" (wil be used for each box)
+#              => ex:  MLD_CRIT="2000,1500,1000,725,500"
+#
+###########################################################################################
 
 import barakuda_tool as bt
-
+import barakuda_ncio as bnc
 
 
 rdiv = 1000. ; # => result in 10^3 km^3   (DMV divided 4 times by rdiv)
 
-FILE_DEF_BOXES = os.getenv('FILE_DEF_BOXES')
-if FILE_DEF_BOXES == None: print 'The FILE_DEF_BOXES environement variable is no set'; sys.exit(0)
 
-CONF = os.getenv('CONF')
-if CONF == None: print 'The CONF environement variable is no set'; sys.exit(0)
-
-RUN = os.getenv('RUN')
-if RUN == None: print 'The RUN environement variable is no set'; sys.exit(0)
-CONFRUN = CONF+'-'+RUN
-
-CPREF = os.getenv('CPREF')
-if CPREF == None: print 'The CPREF environement variable is no set'; sys.exit(0)
-
-MLD_CRIT = os.getenv('MLD_CRIT')
-if MLD_CRIT == None:
-    print 'WARNING: the MLD_CRIT environement variable is no set!';
-    print '   => setting to 1000m!'; MLD_CRIT='1000,500'
-
-NN_MLD = os.getenv('NN_MLD')
-if NN_MLD == None:
-    print 'The NN_MLD environement variable is no set!'; sys.exit(0)
-
-DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
-
-I_MLD_FIG = os.getenv('I_MLD_FIG')
-if I_MLD_FIG == None:
-    print 'WARNING: The I_MLD_FIG environement variable was no set, forcing to 0 ...\n'
-    i_figures = 0
-else:
-    i_figures = int(I_MLD_FIG)
+# Getting all required environment variables needed inside dictionary vdic:
+venv_needed = {'ORCA','RUN','DIAG_D','FILE_DEF_BOXES','MM_FILE','NN_MLD','MLD_CRIT'}
+vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
 
-print '\n '+sys.argv[0]+':'
-print ' CONF = '+CONF;
-print ' RUN = '+RUN; print ' CONFRUN = '+CONFRUN; print ' CPREF = '+CPREF
-print ' i_figures = ', i_figures
-print ' NN_MLD = ', NN_MLD,'\n'
-
-path_fig='./'
-
-# Image type? eps, png, jpg...
-FIG_FORM = os.getenv('FIG_FORM')
-if FIG_FORM == None: FIG_FORM='png'
-
+CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 
 cname_script = basename(sys.argv[0])
-print '\n'+cname_script
 
+if len(sys.argv) != 3:
+    print 'Usage : '+cname_script+' <ORCA1_RUN_grid_T.nc> <year>'
+    sys.exit(0)
+cf_in  = sys.argv[1]
+cyear  = sys.argv[2] ; jyear = int(cyear); cyear = '%4.4i'%jyear
 
-narg = len(sys.argv)
-if narg < 2: print 'Usage: '+sys.argv[0]+' <year>'; sys.exit(0)
-cy = sys.argv[1] ; jy=int(cy)
-
-cf_in = CPREF+cy+'0101_'+cy+'1231_grid_T.nc'
-
-cf_mesh_mask = './mesh_mask.nc'
-
-
+print 'Current year is '+cyear+' !\n'
 
 # Vector containing the different z_crit:
 vMLD_crit = []
-vv = MLD_CRIT.split(',')
+vv = vdic['MLD_CRIT'].split(',')
 for cv in vv: vMLD_crit.append(float(cv))
 print "\n All the z_crit to use:", vMLD_crit[:]
 
 
 
 
-
-
-
 # First will read name and coordinates of rectangular boxes to treat into file FILE_DEF_BOXES
 ##############################################################################################
-vboxes, vi1, vj1, vi2, vj2 = bt.read_box_coordinates_in_ascii(FILE_DEF_BOXES)
+vboxes, vi1, vj1, vi2, vj2 = bt.read_box_coordinates_in_ascii(vdic['FILE_DEF_BOXES'])
 nbb = len(vboxes)
 print ''
 
 
-bt.chck4f(cf_mesh_mask)
-id_mm = Dataset(cf_mesh_mask)
+bt.chck4f(vdic['MM_FILE'])
+id_mm = Dataset(vdic['MM_FILE'])
 zmask_orca = id_mm.variables['tmask'][0,0,:,:]
 ze1t_orca  = id_mm.variables['e1t']    [0,:,:]
 ze2t_orca  = id_mm.variables['e2t']    [0,:,:]
@@ -118,17 +85,14 @@ id_mm.close()
 
 bt.chck4f(cf_in)
 id_in = Dataset(cf_in)
-Xmld_orca  = id_in.variables[NN_MLD][:,:,:]
+Xmld_orca  = id_in.variables[vdic['NN_MLD']][:,:,:]
 print '(has ',Xmld_orca.shape[0],' time snapshots)\n'
-#vdepth = id_in.variables['deptht'][:]
 xlat   = id_in.variables['nav_lat'][:,:]
 id_in.close()
 
 
 [ nt, nj, ni ] = Xmld_orca.shape
 print 'nt, nj, ni =', nt, nj, ni
-
-
 
 
 
@@ -229,70 +193,30 @@ for rMLD_crit in vMLD_crit:
         
     
     
-        ########################
-        # Writing in output file
-        ########################
-    
+        ##########################################
+        # Writing/Appending in output netcdf file
+        ##########################################
+
+        # Appending only 1 record for 1 year into the netcdf file!
+        
+        cf_out =  vdic['DIAG_D']+'/DMV_'+czcrit+'_box_'+cbox+'_'+CONFRUN+'.nc'
+
         cv_dmv_m   = 'DMV_'+czcrit+'_'+ccold
         cv_dmv_jfm = 'DMV_'+czcrit+'_'+cvinter
-        
-        cf_out =  DIAG_D+'/DMV_'+czcrit+'_box_'+cbox+'_'+CONFRUN+'.nc'
-    
-        l_nc_is_new = not os.path.exists(cf_out)
-        
-        # Creating/Opening output Netcdf file:
-        if l_nc_is_new:
-            f_out = Dataset(cf_out, 'w', format='NETCDF3_CLASSIC')
-        else:
-            f_out = Dataset(cf_out, 'a', format='NETCDF3_CLASSIC')
-        
-        if l_nc_is_new:
-            jrec2write = 0
-            
-            # Creating Dimensions:
-            f_out.createDimension('time', None)
-        
-            # Creating variables:
-            id_t = f_out.createVariable('time','f4',('time',)) ;      id_t.units = 'year'
-    
-            id_v01 = f_out.createVariable(cv_dmv_m,  'f4',('time',))
-            id_v01.unit = '10^3 km^3'; id_v01.long_name = 'Deep Mixed Volume (crit = '+czcrit+'m) for '+ccold_ln+' on box '+cbox
-            id_v02 = f_out.createVariable(cv_dmv_jfm,  'f4',('time',))
-            id_v02.unit = '10^3 km^3'; id_v02.long_name = 'Deep Mixed Volume (crit = '+czcrit+'m) for '+cvinter+' on box '+cbox
-    
-            id_v03 = f_out.createVariable('ML_max',  'f4',('time',))
-            id_v03.unit = '10^3 km^3'; id_v03.long_name = 'Deepest ML point in '+ccold_ln+' on box '+cbox
-    
-            id_v04 = f_out.createVariable('ML_deep_mean',  'f4',('time',))
-            id_v04.unit = '10^3 km^3'; id_v04.long_name = 'Mean MLD in '+ccold_ln+' where MLD > '+czcrit+'m on box '+cbox
-    
-            id_t[jrec2write]   = float(jy)
-            id_v01[jrec2write] = VDMV[2]
-            id_v02[jrec2write] = rc_WINT        
-            id_v03[jrec2write] = rML_max
-            id_v04[jrec2write] = rML_deep_mean
-            
-            f_out.box_coordinates = cbox+' => '+str(i1)+','+str(j1)+' -> '+str(i2-1)+','+str(j2-1)
-            f_out.box_file        = FILE_DEF_BOXES
-            f_out.Author          = 'L. Brodeau ('+cname_script+' of Barakuda)'
-        
-        else:
-            vt  = f_out.variables['time']
-            jrec2write = len(vt)
-            v01 = f_out.variables[cv_dmv_m]
-            v02 = f_out.variables[cv_dmv_jfm]
-            v03 = f_out.variables['ML_max']
-            v04 = f_out.variables['ML_deep_mean']
-            
-            vt [jrec2write] = float(jy)
-            v01[jrec2write] = VDMV[2]
-            v02[jrec2write] = rc_WINT
-            v03[jrec2write] = rML_max
-            v04[jrec2write] = rML_deep_mean
-                
-        f_out.close()
-        
-        print cf_out+' written!\n'
+
+        long_name1 = 'Deep Mixed Volume (crit = '+czcrit+'m) for '+ccold_ln+' on box '+cbox
+        long_name2 = 'Deep Mixed Volume (crit = '+czcrit+'m) for '+cvinter+' on box '+cbox
+        long_name3 = 'Deepest ML point in '+ccold_ln+' on box '+cbox
+        long_name4 = 'Mean MLD in '+ccold_ln+' where MLD > '+czcrit+'m on box '+cbox
+
+
+        bnc.wrt_appnd_1d_series([float(jy)], [VDMV[2]], cf_out, cv_dmv_m,  cu_t='year', cu_d='10^3 km^3', cln_d=long_name1,
+                                vd2=[rc_WINT],       cvar2=cv_dmv_jfm,     cln_d2=long_name2,
+                                vd3=[rML_max],       cvar3='ML_max',       cln_d3=long_name3,
+                                vd4=[rML_deep_mean], cvar4='ML_deep_mean', cln_d4=long_name4)
+
+
+
 
     print '\n Z_crit '+str(int(czcrit))+'m done!\n\n'
 
