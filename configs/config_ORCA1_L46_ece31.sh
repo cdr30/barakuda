@@ -22,6 +22,8 @@ export STORE_DIR="/proj/bolinc/users/x_laubr"
 # Is it an ec-earth run?
 export ece_run=1 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
 #                  # where YYY starts from '001' to
+export Y_INI_EC=1000 ;    # initial year if ec-earth run...
+
 
 # List of suffixed of files that have been saved by NEMO:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod icemoa"

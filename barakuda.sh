@@ -85,7 +85,7 @@ done
 
 if [ "${CONFIG}" = "" -o "${RUN}" = "" ]; then usage ; exit ; fi
 
-if [ "${RUNREF}" != "" -a ${ISTAGE} -eq 1 ]; then    
+if [ "${RUNREF}" != "" -a ${ISTAGE} -eq 1 ]; then
     echo; echo " WARNING: option '-c' only makes sense when '-e' or '-E' are specified !"
     sleep 2; echo
 fi
@@ -194,12 +194,12 @@ export DIAG_D=${DIAG_DIR}/${CONFRUN}
 if [ ${ISTAGE} -eq 1 ]; then
     # We need a scratch/temporary directory to copy these files to and gunzip them:
     if [ "${SLURM_JOBID}" = "" -a `hostname` = "triolith1" ]; then
-        # Likely to be running interactively on triolith         
+        # Likely to be running interactively on triolith
         export SCRATCH=${HOME}/tmp
         export TMP_DIR=${SCRATCH}/${RUN}_tmp
     else
         # Normal case:
-        SCRATCH=`echo ${SCRATCH} | sed -e "s|<JOB_ID>|${SLURM_JOBID}|g"` 
+        SCRATCH=`echo ${SCRATCH} | sed -e "s|<JOB_ID>|${SLURM_JOBID}|g"`
         export TMP_DIR=${SCRATCH}/${RUN}
     fi
     echo " IMPORTANT the SCRATCH work directory is set to:" ; echo " ${SCRATCH}"
@@ -236,7 +236,7 @@ export CPREF=`echo ${NEMO_FILE_PREFIX} | sed -e "s|<ORCA>|${ORCA}|g" -e "s|<RUN>
 cd ${NEMO_OUT_D}/
 
 if [ ${ISTAGE} -eq 1 ]; then
-    
+
     if [ ${ece_run} -eq 1 ]; then
         if [ ! -d 001 ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory 001 in:"; echo " ${NEMO_OUT_D}"; exit ; fi
         nby_ece=`ls -d */ | wc -l` ; echo " ${nby_ece} years have been completed..."
@@ -253,7 +253,7 @@ if [ ${ISTAGE} -eq 1 ]; then
             echo "      => use the -y <YEAR> switch to force the initial year!"; exit
         fi
         echo " Initial year guessed from stored files => ${YEAR_INI}"; echo
-        YEAR_INI=`expr ${YEAR_INI} + 0`  ; # example: 1 instead of 0001...        
+        YEAR_INI=`expr ${YEAR_INI} + 0`  ; # example: 1 instead of 0001...
         #Y2=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/""/g | head -1 | cut -c10-13`
         #YIr=`expr ${YEAR_INI} + 0`; Y2r=`expr ${Y2} + 0`
         #if [ ${Y2r} -gt ${YIr} ]; then IFREQ_SAV_YEARS=$((${Y2r}-${YIr}+1)); fi
@@ -282,12 +282,12 @@ if [ ${ISTAGE} -eq 1 ]; then
     echo " Last year guessed from stored files => ${YEAR_END}"; echo
 
 
-    
+
     echo ${IFREQ_SAV_YEARS} > ${DIAG_D}/numb_year_per_file.info
     echo ${YEAR_INI}        > ${DIAG_D}/first_year.info
-    
+
 else
-    
+
     for fc in "first_year" "numb_year_per_file" "last_year_done"; do
         ff=${DIAG_D}/${fc}.info
         if [ ! -f ${ff} ]; then echo "ERROR: file ${ff} is missing!"; exit; fi
@@ -297,7 +297,7 @@ else
     export YEAR_INI=`cat ${DIAG_D}/first_year.info`
     export YEAR_END=`cat ${DIAG_D}/last_year_done.info`
     export IFREQ_SAV_YEARS=`cat ${DIAG_D}/numb_year_per_file.info`
-    
+
 fi
 
 
@@ -371,7 +371,7 @@ if ${LFORCEDIAG}; then lcontinue=false; fi
 
 while ${lcontinue}; do
 
-    cyear=`printf "%04d" ${jyear}`
+    export cyear=`printf "%04d" ${jyear}`
 
     cpf=""
     if [ ${ece_run} -eq 1 ]; then
@@ -398,7 +398,7 @@ while ${lcontinue}; do
         TTAG=${cy1}0101_${cy2}1231 # calendar-related part of the file name
 
         # Testing if the current year-group has been done
-        for ft in ${NEMO_SAVED_FILES}; do            
+        for ft in ${NEMO_SAVED_FILES}; do
             ftst=${NEMO_OUT_D}/${cpf}${CPREF}${TTAG}_${ft} ;  cfxt="0"
             for ca in "nc" "nc.gz" "nc4"; do
                 if [ -f ${ftst}.${ca} ]; then cfxt="${ca}"; fi
@@ -408,7 +408,7 @@ while ${lcontinue}; do
                 lcontinue=false
             fi
         done
-        
+
     fi ; # if [ $((${jyear}%${IFREQ_SAV_YEARS})) -eq 0 ]
 
 
@@ -450,13 +450,13 @@ while ${lcontinue}; do
                 for gt in ${NEMO_SAVED_FILES}; do
 
                     f2i=${CRTM}_${gt}.nc ;   sgz=""
-                    
+
                     for ca in ".gz" "4"; do
                         if [ -f ${NEMO_OUT_D}/${cpf}${f2i}${ca} ]; then sgz="${ca}"; fi
                     done
-                    
+
                     check_if_file ${NEMO_OUT_D}/${cpf}${f2i}${sgz}
-                    
+
                     if [ ! -f ./${f2i} ]; then
                         echo "Importing ${f2i}${sgz} ..."
                         echo "rsync -L ${NEMO_OUT_D}/${cpf}${f2i}${sgz} `pwd`/"
@@ -547,6 +547,16 @@ while ${lcontinue}; do
         fvt=${CRT1}_VT.nc
 
 
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # If EC-Earth simu, attempting to compute ocean-averaged fluxes from IFS too (E, P, E-P)
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if [ ${ece_run} -eq 1 -a ${CONFIG} = "ORCA1_L75_ece32b_uwe_bi" ]; then
+            echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
+            echo "CALLING: ./scripts/do_fwf_series_ifs.sh"
+            ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh
+            echo
+        fi
+
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Computing time-series of spatially-averaged variables
@@ -582,7 +592,7 @@ while ${lcontinue}; do
             echo "CALLING: ssx_boxes ${ft} ${jyear} ${NN_SST} ${NN_SSS}"
             ${PYTH} ${PYBRKD_EXEC_PATH}/ssx_boxes.py ${ft} ${jyear} ${NN_SST} ${NN_SSS}
         fi
-        
+
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #  AMOC  ( Max of Atlantic MOC for several latitude bands )
@@ -637,12 +647,12 @@ while ${lcontinue}; do
                 echo " *** doing: ./cdftransportiz.x ${CPREF}${TTAG_ann} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV} ${jyear} ${DIAG_D} ${z1_trsp} ${z2_trsp}"
                 ./cdftransportiz.x ${CPREF}${TTAG_ann} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV} ${jyear} ${DIAG_D} ${z1_trsp} ${z2_trsp}
                 echo "Done!"; echo; echo
-                
+
                 rm -f *.tmp broken_line_*
             fi
         fi   ; # ${i_do_trsp} -gt 0
-        
-        
+
+
 
 
 
@@ -802,7 +812,7 @@ while ${lcontinue}; do
                 ncks  -A -v ${NN_ICET} ${fg} -o tmp_ice.nc
                 ncrename -v ${NN_ICET},ice_thic tmp_ice.nc
             fi
-            
+
             echo " *** doing: ./cdficediags.x tmp_ice.nc ${jyear} ${DIAG_D} ${coic}"
             ./cdficediags.x tmp_ice.nc ${jyear} ${DIAG_D} ${coic}
             echo "Done!"; echo; echo; echo
@@ -1017,7 +1027,7 @@ l_pclim=false
 if [ ${ISTAGE} -eq 2 ]; then
 
     rm -rf ${DIAG_D}/${RUN}
-    
+
     if [ ${IFREQ_SAV_YEARS} -gt 1 ]; then
         fnamelist=namelist.${cy1m}-${cy2m}
     else
@@ -1094,7 +1104,7 @@ if [ ${ISTAGE} -eq 2 ]; then
         echo "CALLING: enso.py Nino34_${CONFRUN}.dat"
         ${PYTH} ${PYBRKD_EXEC_PATH}/plot_enso.py Nino34_${CONFRUN}.nc
         echo; echo; echo
-        
+
         # Hovmuller of temperature and salinity
         echo "CALLING: hovm_tz.py ${YEAR_INI} ${YEAR_END} ${NBL}"
         ${PYTH} ${PYBRKD_EXEC_PATH}/plot_hovm_tz.py
@@ -1179,7 +1189,7 @@ if [ ${ISTAGE} -eq 2 ]; then
             echo; echo
             check_if_file ${F_T_CLIM_3D_12} "name:F_T_CLIM_3D_12"
             check_if_file ${F_S_CLIM_3D_12} "name:F_S_CLIM_3D_12"
-            check_if_file ${SST_CLIM_12}    "name:SST_CLIM_12"            
+            check_if_file ${SST_CLIM_12}    "name:SST_CLIM_12"
             if [ ${i_do_ice}  -gt 0 ]; then check_if_file ${ICE_CLIM_12}    "name:ICE_CLIM_12" ; fi
             echo; echo
 
@@ -1354,25 +1364,25 @@ if [ ${ISTAGE} -eq 2 ]; then
 
 
 
-    
-    
-    
-    
+
+
+
+
     echo; echo; echo ; echo "Creating HTML file!"
-    
+
     cd ${DIAG_D}/
-    
+
     inmlst=0
     if [ -f ${NEMO_OUT_D}/${fnamelist} ]; then inmlst=1; fi
-    
+
     rm -f index.php
-    
+
     if [ "${JTITLE}" = "" ]; then
         echo "Problem, variable JTITLE is not set!" ; exit
     else
         TITLE="Ocean diagnostics, run ${RUN}, conf ${ORCA}, ${JTITLE}"
     fi
-    
+
 
     sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" \
         ${BARAKUDA_ROOT}/scripts/html/index_skel_header.html > index.php
@@ -1382,9 +1392,9 @@ if [ ${ISTAGE} -eq 2 ]; then
         cat >> index.php <<EOF
         <big> <a href="./namelist.html"> Last namelist </a> </big>
         <br><br><br>
-EOF
+        EOF
     fi
-    
+
     # Climato section
     if ${l_pclim}; then
         cat >> index.php <<EOF
@@ -1394,21 +1404,21 @@ EOF
         <big> <a href="./sea_ice/index.php">  Arctic and Antarctic sea-ice extent vs CLIM </a> </big> <br><br><br>
         <big> <a href="./mld/index.php">  Mixed Layer depth in relevent regions </a> </big>           <br><br><br>
         <big> <a href="./moc/index.php">  Meridional Overturning Circulation </a> </big>              <br><br><br>
-EOF
+        EOF
         if ${lcomp_to_run}; then
             cat >> index.php <<EOF
         <br><big><big> Comparison with run ${RUNREF}, climatology (2004-2007) </big></big><br><br>
         <big> <a href="./temp_sal/index_${RUNREF}.html"> Temperature and Salinity vs ${RUNREF}</a> </big>             <br><br><br>
-<!--        <big> <a href="./ssh/index_${RUNREF}.html">  Sea Surface Height </a> </big>                              <br><br><br>
+        <!--        <big> <a href="./ssh/index_${RUNREF}.html">  Sea Surface Height </a> </big>                              <br><br><br>
         <big> <a href="./sea_ice/index_${RUNREF}.html">  Arctic and Antarctic sea-ice extent vs ${RUNREF} </a> </big> <br><br><br>
         <big> <a href="./mld/index_${RUNREF}.html">  Mixed Layer depth in relevent regions </a> </big>           <br><br><br>
         <big> <a href="./moc/index_${RUNREF}.html">  Meridional Overturning Circulation </a> </big>              <br><br><br>
--->
-EOF
+        -->
+        EOF
         fi
     fi
 
-    # Temperature section     
+    # Temperature section
     cat >> index.php <<EOF
         <br><br><br><big><big> Temperature time-series </big></big><br><br>
         <img style="border: 0px solid" alt="" src="3d_thetao_${CONFRUN}.png"> <br><br>
@@ -1420,10 +1430,10 @@ EOF
         <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_atlantic.png"> <br><br>
         <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_pacific.png"> <br><br>
         <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_indian.png"> <br><br><br><br>
-EOF
+        EOF
 
-    # Salinity section     
-    cat >> index.php <<EOF
+    # Salinity section
+cat >> index.php <<EOF
         <br><br><br><big><big> Salinity time-series </big></big><br><br>
         <img style="border: 0px solid" alt="" src="3d_so_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="mean_sos_${CONFRUN}.png"> <br><br>
@@ -1435,157 +1445,157 @@ EOF
         <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_indian.png"> <br><br> <br><br>
 EOF
 
-    # MISC section     
-    cat >> index.php <<EOF
+    # MISC section
+cat >> index.php <<EOF
         <br><br><br><big><big> Misc. time-series </big></big><br><br>
         <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="mean_fwf_fwf_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="mean_fwf_emp_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.png"> <br><br> <br><br> 
+        <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.png"> <br><br> <br><br>
 EOF
 
-    # Sea-ice section     
-    if [ ${i_do_ice}  -gt 0 ]; then
-        cat >> index.php <<EOF
+    # Sea-ice section
+if [ ${i_do_ice}  -gt 0 ]; then
+    cat >> index.php <<EOF
         <br><br><br><big><big> Arctic/Antarctic sea-ice time-series</big></big><br><br>
         <img style="border: 0px solid" alt="" src="seaice_extent_winter_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="seaice_extent_summer_${CONFRUN}.png"> <br><br><br>
         <img style="border: 0px solid" alt="" src="seaice_volume_winter_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="seaice_volume_summer_${CONFRUN}.png"> <br><br><br><br>
 EOF
-    fi
+fi
 
-    if [ ${i_do_trsp} -gt 0 ]; then
+if [ ${i_do_trsp} -gt 0 ]; then
         # Adding transport section part:
-        echo "<br><br><br><big><big> Transport through sections</big></big><br><br>" >> index.php
-        list_section=`cat ${TRANSPORT_SECTION_FILE} | grep '-'`
-        for cs in ${list_section}; do
-            echo ${cs}
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_vol_${cs}_${CONFRUN}.png\"> <br>"  >> index.php
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_heat_${cs}_${CONFRUN}.png\"> <br><br>" >> index.php
+    echo "<br><br><br><big><big> Transport through sections</big></big><br><br>" >> index.php
+    list_section=`cat ${TRANSPORT_SECTION_FILE} | grep '-'`
+    for cs in ${list_section}; do
+        echo ${cs}
+        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_vol_${cs}_${CONFRUN}.png\"> <br>"  >> index.php
+        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_heat_${cs}_${CONFRUN}.png\"> <br><br>" >> index.php
+        echo "<br><br>" >> index.php
+    done
+fi
+
+    # Checking if figures with time-series of MLD in specified boxes are here and adding them:
+if [ ${i_do_mean} -eq 1 ]; then
+    list_mld_figs=`\ls mean_mldr10_1_${CONFRUN}*.png`
+    if [ ! "${list_mld_figs}" = "" ]; then
+        echo "<br><br><br><big><big> Horizontally-averaged Mixed-Layer Depth in different regions</big></big><br><br>" >> index.php
+        for fmld in ${list_mld_figs}; do
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"${fmld}\"> <br>"  >> index.php
             echo "<br><br>" >> index.php
         done
     fi
-        
-    # Checking if figures with time-series of MLD in specified boxes are here and adding them:
-    if [ ${i_do_mean} -eq 1 ]; then
-        list_mld_figs=`\ls mean_mldr10_1_${CONFRUN}*.png`
-        if [ ! "${list_mld_figs}" = "" ]; then
-            echo "<br><br><br><big><big> Horizontally-averaged Mixed-Layer Depth in different regions</big></big><br><br>" >> index.php
-            for fmld in ${list_mld_figs}; do
-                echo "<img style=\"border: 0px solid\" alt=\"\" src=\"${fmld}\"> <br>"  >> index.php
-                echo "<br><br>" >> index.php
-            done
-        fi
-    fi
+fi
 
-    if [ ${i_do_sigt} -eq 1 ]; then
+if [ ${i_do_sigt} -eq 1 ]; then
         # Adding transport by sigma class section part:
-        echo "<br><br><br><big><big> Transport by sigma class at Nordic sills</big></big><br><br>" >> index.php
-        list_section=`cat ${DENSITY_SECTION_FILE} | grep '_'`
-        for cs in ${list_section}; do
-            echo ${cs}
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_sigma_class_${cs}_${CONFRUN}.png\"> <br>"  >> index.php
-        done
-        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"tr_sigma_gt278_${CONFRUN}.png\"> <br>"  >> index.php
-        echo "<br><br>" >> index.php
-    fi
-    
-    if [ ${i_do_mht} -eq 1 ]; then
-        # Adding meridional heat transport:
-        echo "<br><br><br><big><big> Meridional transports</big></big><br><br>"  >> index.php
-        for coce in "global" "atlantic" "pacific" "indian"; do
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MHT_${CONFRUN}_${coce}.png\"> <br>"     >> index.php
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MST_${CONFRUN}_${coce}.png\"> <br><br>" >> index.php
-        done
-        echo "<br><br>" >> index.php
-    fi
+    echo "<br><br><br><big><big> Transport by sigma class at Nordic sills</big></big><br><br>" >> index.php
+    list_section=`cat ${DENSITY_SECTION_FILE} | grep '_'`
+    for cs in ${list_section}; do
+        echo ${cs}
+        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_sigma_class_${cs}_${CONFRUN}.png\"> <br>"  >> index.php
+    done
+    echo "<img style=\"border: 0px solid\" alt=\"\" src=\"tr_sigma_gt278_${CONFRUN}.png\"> <br>"  >> index.php
+    echo "<br><br>" >> index.php
+fi
 
-    cat ${BARAKUDA_ROOT}/scripts/html/index_skel_footer.html >> index.php ; # Closing HTML file...
+if [ ${i_do_mht} -eq 1 ]; then
+        # Adding meridional heat transport:
+    echo "<br><br><br><big><big> Meridional transports</big></big><br><br>"  >> index.php
+    for coce in "global" "atlantic" "pacific" "indian"; do
+        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MHT_${CONFRUN}_${coce}.png\"> <br>"     >> index.php
+        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MST_${CONFRUN}_${coce}.png\"> <br><br>" >> index.php
+    done
+    echo "<br><br>" >> index.php
+fi
+
+cat ${BARAKUDA_ROOT}/scripts/html/index_skel_footer.html >> index.php ; # Closing HTML file...
 
 
 
     # If climatology built, sub 2D html pages
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    if ${l_pclim}; then
+if ${l_pclim}; then
 
        # T, S, SSH and ice HTML page:
-        for cdiag in ${DIRS_2_EXP}; do
-            sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|CLIM|g" \
-                ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html > ${cdiag}/index.php
+    for cdiag in ${DIRS_2_EXP}; do
+        sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|CLIM|g" \
+            ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html > ${cdiag}/index.php
+    done
+    for var in "sst" "sss" "sections_ts" "ts_100m" "ts_1000m" "ts_3000m"; do
+        sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|CLIM|g" \
+            ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html > temp_sal/${var}_CLIM.php
+    done
+
+    if ${lcomp_to_run}; then
+        for cdiag in ${DIRS_2_EXP_RREF}; do
+            sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${RUNREF}|g" \
+                ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html > ${cdiag}/index_${RUNREF}.php
         done
         for var in "sst" "sss" "sections_ts" "ts_100m" "ts_1000m" "ts_3000m"; do
-            sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|CLIM|g" \
-                ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html > temp_sal/${var}_CLIM.php
+            sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${RUNREF}|g" \
+                ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html > temp_sal/${var}_${RUNREF}.php
         done
-        
-        if ${lcomp_to_run}; then
-            for cdiag in ${DIRS_2_EXP_RREF}; do
-                sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${RUNREF}|g" \
-                    ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html > ${cdiag}/index_${RUNREF}.php
-            done
-            for var in "sst" "sss" "sections_ts" "ts_100m" "ts_1000m" "ts_3000m"; do
-                sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${RUNREF}|g" \
-                    ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html > temp_sal/${var}_${RUNREF}.php
-            done
-        fi
-                
+    fi
+
         # Surface fluxes HTML page:
-        if [ ${i_do_flx} -eq 1 ]; then
+    if [ ${i_do_flx} -eq 1 ]; then
+        sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${COMP2D}|g" \
+            ${BARAKUDA_ROOT}/scripts/html/surf_fluxes/index_fluxes.html > surf_fluxes/index.php
+        for flx in "Qsw" "Qlw" "Qla" "Qse"; do
             sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${COMP2D}|g" \
-                ${BARAKUDA_ROOT}/scripts/html/surf_fluxes/index_fluxes.html > surf_fluxes/index.php
-            for flx in "Qsw" "Qlw" "Qla" "Qse"; do
-                sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${COMP2D}|g" \
-                    ${BARAKUDA_ROOT}/scripts/html/surf_fluxes/${flx}.html > surf_fluxes/${flx}.php
-            done
-        fi
-
+                ${BARAKUDA_ROOT}/scripts/html/surf_fluxes/${flx}.html > surf_fluxes/${flx}.php
+        done
     fi
 
-    echo "Done!"; echo; echo
+fi
 
-    echo; echo; echo
+echo "Done!"; echo; echo
 
-    if [ ${ihttp} -eq 1 ]; then
-        echo "Preparing to export to remote host!"; echo
-        mkdir ${RUN}
+echo; echo; echo
 
-        cp -r ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
-        mv -f index.php ${RUN}/
-        mv -f *.png      ${RUN}/ >/dev/null 2>/dev/null
-        mv -f ./merid_transport/*.png ${RUN}/ >/dev/null 2>/dev/null
-        mv -f *.svg      ${RUN}/ >/dev/null 2>/dev/null
+if [ ${ihttp} -eq 1 ]; then
+    echo "Preparing to export to remote host!"; echo
+    mkdir ${RUN}
 
-        if [ ${inmlst} -eq 1 ]; then cp ${NEMO_OUT_D}/${fnamelist} ${RUN}/; fi
+    cp -r ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
+    mv -f index.php ${RUN}/
+    mv -f *.png      ${RUN}/ >/dev/null 2>/dev/null
+    mv -f ./merid_transport/*.png ${RUN}/ >/dev/null 2>/dev/null
+    mv -f *.svg      ${RUN}/ >/dev/null 2>/dev/null
 
-        cp -r ${DIRS_2_EXP} ${RUN}/ >/dev/null 2>/dev/null
+    if [ ${inmlst} -eq 1 ]; then cp ${NEMO_OUT_D}/${fnamelist} ${RUN}/; fi
 
-        tar cvf ${RUN}.tar ${RUN}
-        ssh ${RUSER}@${RHOST} "mkdir -p ${RWWWD}"
-        scp ${RUN}.tar ${RUSER}@${RHOST}:${RWWWD}/
-        ssh ${RUSER}@${RHOST} "cd ${RWWWD}/; rm -rf ${RUN}; tar xf ${RUN}.tar 2>/dev/null; rm -f ${RUN}.tar; \
-            chmod -R a+r ${RUN}; cd ${RUN}/; source-highlight -i ${fnamelist} -s fortran -o namelist.html"
-        echo; echo
-        echo "Diagnostic page installed on  http://${RHOST}${RWWWD}/${RUN}/ !"
-        echo "( Also browsable on local host in ${DIAG_D}/${RUN} )"
-        rm -f ${RUN}.tar
+    cp -r ${DIRS_2_EXP} ${RUN}/ >/dev/null 2>/dev/null
 
-    else
-
-        if [ ${ihttp} -eq 0 ]; then
-            echo "Diagnostic page installed in ${DIAG_D}/"
-            echo " => view this directory with a web browser..."
-        else
-            echo "Error: \"ihttp\" is either 0 or 1 !"
-        fi
-
-    fi
-
+    tar cvf ${RUN}.tar ${RUN}
+    ssh ${RUSER}@${RHOST} "mkdir -p ${RWWWD}"
+    scp ${RUN}.tar ${RUSER}@${RHOST}:${RWWWD}/
+    ssh ${RUSER}@${RHOST} "cd ${RWWWD}/; rm -rf ${RUN}; tar xf ${RUN}.tar 2>/dev/null; rm -f ${RUN}.tar; \
+        chmod -R a+r ${RUN}; cd ${RUN}/; source-highlight -i ${fnamelist} -s fortran -o namelist.html"
     echo; echo
+    echo "Diagnostic page installed on  http://${RHOST}${RWWWD}/${RUN}/ !"
+    echo "( Also browsable on local host in ${DIAG_D}/${RUN} )"
+    rm -f ${RUN}.tar
 
-    rm -rf *.eps
+else
+
+    if [ ${ihttp} -eq 0 ]; then
+        echo "Diagnostic page installed in ${DIAG_D}/"
+        echo " => view this directory with a web browser..."
+    else
+        echo "Error: \"ihttp\" is either 0 or 1 !"
+    fi
+
+fi
+
+echo; echo
+
+rm -rf *.eps
 
 
 else
