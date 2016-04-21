@@ -18,15 +18,11 @@
 #             and the Global Water Cycle, Oceanography, Vol.23, No.4
 #
 
-
-
 #RUN=32bG
 #Y_INI_EC=1990
-
 #cyear=2038
 #NEMO_OUT_D=/nobackup/rossby15/sm_uflad/run/${RUN}/output/nemo
-#DIAG_D=/proj/bolinc/users/x_laubr/tmp/barakuda/ORCA1.L75_ece32b/ORCA1.L75-${RUN}
-
+#DIAG_D=.
 
 cmsg="ERROR: $0 => global variable"
 if [ -z ${RUN} ]; then echo "${cmsg} RUN is unknown!"; exit ; fi
@@ -85,121 +81,75 @@ ncrename -d record,time ifs_area_masked.nc
 
 
 for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
-    
+
     echo
     echo " do_fwf_series_ifs.sh => ${cyear}/${cm}"
 
-    fgrb=ICMGG${RUN}+${cyear}${cm}
-    
-    rsync -avP -L ${dir_ece}/${fgrb} .
-    
+    fgrb=${dir_ece}/ICMGG${RUN}+${cyear}${cm}
+
+    if [ "${cm}" = "01" ]; then
+        pptime=$(cdo showtime -seltimestep,1,2 ${fgrb} | tr -s ' ' ':' | awk -F: '{print ($5-$2)*3600+($6-$3)*60+($7-$4)}' )
+        if [ $pptime -le 0 ]; then
+            pptime=21600 # default 6-hr output timestep
+        fi
+        echo " pptime = ${pptime} seconds !"
+    fi
+
+    FALL=ALL_${RUN}_${cyear}${cm}.nc
+
+    # Extracting variables of interest and converting to netcdf at the same time (keep gaussian-reduced grid!!!)
+    echo "cdo -t ecmwf -f nc -selvar,E,LSP,CP ${fgrb} ${FALL}"
+    cdo -t ecmwf -f nc -selvar,E,LSP,CP ${fgrb} ${FALL}
+    echo "done"; echo
+
+    #echo "ncrename -h -O -d rgrid,x ${FALL}"
+    ncrename -h -O -d rgrid,x ${FALL}
+    #echo "done"; echo
+
+
     icpt=0
-
     for VAR in  "e" "lsp" "cp"; do
-    
+
         icpt=`expr ${icpt} + 1`
-        
+
         ftreat=${VAR}_${RUN}_${cyear}${cm}
-
-        grib_copy -w shortName=${VAR} ${fgrb} ${ftreat}.grb
-
 
         BVAR=`echo ${VAR}| tr '[:lower:]' '[:upper:]'`
 
-
-#  post-processing timestep in seconds
-        if [ "${cm}" = "01" -a ${icpt} -eq 1 ]; then
-            pptime=$(cdo showtime -seltimestep,1,2 ${ftreat}.grb | tr -s ' ' ':' | awk -F: '{print ($5-$2)*3600+($6-$3)*60+($7-$4)}' )
-            if [ $pptime -le 0 ]; then
-                pptime=21600 # default 6-hr output timestep
-            fi
-            echo " pptime = ${pptime} seconds !"
-        fi
-
-
-
-    # To netcdf but as a vector not 2D array as when using "-R":
-        cdo -t ecmwf -f nc copy ${ftreat}.grb ${ftreat}.nc  ; rm -f ${ftreat}.grb
-        ncrename -h -O -v ${BVAR},${VAR} ${ftreat}.nc
-        ncrename -h -O -d rgrid,x ${ftreat}.nc
-
-    # To m/s
-        ncap2 -h -A -s "${VAR}=${VAR}/${pptime}" ${ftreat}.nc -o ${ftreat}.nc
+        # To netcdf monthly:
+        echo "ncra -h -O -v ${BVAR} ${FALL} -O ${ftreat}_m.nc"
+        ncra -h -O -v ${BVAR} ${FALL} -O ${ftreat}_m.nc
+        
+        # To m/s:
+        echo "ncap2 -h -A -s ${VAR}=${BVAR}/${pptime} ${ftreat}_m.nc -o ${ftreat}.nc"
+        ncap2 -h -A -s "${VAR}=${BVAR}/${pptime}" ${ftreat}_m.nc -o ${ftreat}.nc ; rm ${ftreat}_m.nc
         ncatted -O -a units,${VAR},o,c,'m of water / s' ${ftreat}.nc
 
-
-    # To netcdf monthly:
-        ncra -h -O ${ftreat}.nc -O ${ftreat}_m.nc
-        mv -f ${ftreat}_m.nc ${ftreat}.nc
-
-
-
-
-
-
-
-
-#    cdo -t ecmwf -f nc shifttime,-1month -timmean -selvar,${BVAR} ${ftreat}.grb ${ftreat}.nc
-#    ncrename -h -O -d rgrid,x ${ftreat}.nc
-#ncwa -h -O -a time ${ftreat}.nc -o ${ftreat}.nc
-#ncks -h -O -C -x -v time ${ftreat}.nc -o ${ftreat}.nc
-
-# NUmber of time steps for current month:
-#    nbrec=`grib_ls ${ftreat}.grb | tail -1 | cut -d ' ' -f1`
-#    echo "nbrec = ${nbrec}"
-
-#    rm -f ${ftreat}.grb
-#
-#    tot_time=`expr ${nbrec} \* ${pptime}`
-#
-#    echo "Total time in seconds for this month: ${tot_time}" ; echo
-
-
-
-
-# Ok to kg/m2/s == mm/s:
-#ncap2 -h -A -s "${VAR}=${BVAR}*1000./${pptime}" ${ftreat}.nc -o ${ftreat}.nc
-#ncatted -O -a units,${VAR},o,c,'kg/m^2/s' ${ftreat}.nc
-#ncks -h -O -C -x -v ${BVAR} ${ftreat}.nc -o ${ftreat}.nc
-#OR:
-#    ncrename -h -O -v ${BVAR},${VAR} ${ftreat}.nc
-
-
-# Convert from a height of water to a flux of water (dependant on the output freq.):
-# precip and evap in kg m-2 s-1
-
-
-#cdo -t $ecearth_table setparam,228.128 -expr,"totp=1000*(lsp+cp)/$pptime" \
-#    icmgg_${year}.grb tmp_totp.grb
-#cdo -R -t $ecearth_table setreftime,$reftime tmp_totp.grb ${out}_totp.nc
-#cdo -R -t $ecearth_table splitvar -setreftime,$reftime \
-#    -mulc,1000 -divc,$pptime -selvar,e,lsp,cp icmgg_${year}.grb ${out}_
-#cdo -R -t $ecearth_table setparam,80.128 -fldmean \
-#    -expr,"totp=1000*(lsp+cp+e)/$pptime" icmgg_${year}.grb tmp_pme.grb
-#cdo -t $ecearth_table setreftime,$reftime tmp_pme.grb ${out}_pme.nc
-
-
-# divide fluxes by PP timestep
-#cdo -R -t $ecearth_table splitvar -setreftime,$reftime -divc,$pptime \
-#    -selvar,ssr,str,sshf,slhf,tsr,ttr,ewss,nsss,ssrc,strc,tsrc,ttrc,ssrd,strd \
-#    icmgg_${year}.grb ${out}_
-
-
+        # Append ocean mask surface into the file:
+        #echo "ncks -h -A -v ifs_area_masked ifs_area_masked.nc -o ${ftreat}.nc"
         ncks -h -A -v ifs_area_masked ifs_area_masked.nc -o ${ftreat}.nc
+        #echo "done"; echo
 
 
         isign=1
         if [ "${VAR}" = "e" ]; then isign=-1; fi
 
-    # Multiplying ${VAR} and ifs_area_masked:
+        # Multiplying ${VAR} and ifs_area_masked:
+        #echo "ncap2 -h -A -s ${VAR}2d=(${isign}*ifs_area_masked*${VAR}) ${ftreat}.nc -o ${ftreat}.nc"
         ncap2 -h -A -s "${VAR}2d=(${isign}*ifs_area_masked*${VAR})" ${ftreat}.nc -o ${ftreat}.nc
+        #echo "done"; echo
 
 
-    # Total volume evaporated over ocean during the current month:
+        # Total volume evaporated over ocean during the current month:
+
+        #echo "ncap2 -h -A -s flx_${VAR}_sv=${VAR}2d.total(\$x)*1.E-6 ${ftreat}.nc -o ${ftreat}.nc"
         ncap2 -h -A -s "flx_${VAR}_sv=${VAR}2d.total(\$x)*1.E-6" ${ftreat}.nc -o ${ftreat}.nc
+        #echo "done"; echo
         ncatted -O -a units,flx_${VAR}_sv,o,c,'Sv' ${ftreat}.nc
-        
+
+        #echo "ncks -h -A -v flx_${VAR}_sv ${ftreat}.nc -o final_${cm}.nc"
         ncks -h -A -v flx_${VAR}_sv ${ftreat}.nc -o final_${cm}.nc
+        #echo "done"; echo
 
         # Checking surface of the ocean to be sure...
         if [ ${icpt} -eq 1 ]; then
@@ -210,18 +160,18 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
 
         rm -f ${ftreat}.nc
 
-#cdo output –div –fldsum –mul ifs_area_masked E –fldsum ifs_area_masked ${ftreat}.nc tamere.nc
-
         # End loop variables
-    done 
+    done
 
+    rm -f ${FALL}
 
-    rm -f ${fgrb}
-    
-    echo; echo
-    # End loop months
+    echo " *** month ${cm} done!"
+    echo
+
 done
 
+
+echo "ncrcat -O final_*.nc -o final.nc"
 ncrcat -O final_*.nc -o final.nc
 
 ncap2 -h -O -s "time=array(${cyear}.0416667,0.08333333,\$time)" final.nc -o final.nc
