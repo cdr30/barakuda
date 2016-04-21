@@ -36,7 +36,7 @@ b_gre = '#3A783E' ; # b_gre = '#42BD82'
 b_prp = '#8C008C'
 b_org = '#ED7C4C'
 
-v_dflt_colors = [b_blu, b_red, b_gre, b_org, b_prp, 'pink', 'r', 'b', 'g', 'brown', 'orange' ]  ; # extend if more...
+v_dflt_colors = [b_blu, b_red, b_gre, b_org, b_prp, 'pink', '0.5', 'b', 'g', 'brown', 'orange' ]  ; # extend if more...
 
 # Some projections to use with BaseMap:
 #

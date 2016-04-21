@@ -1445,13 +1445,23 @@ cat >> index.php <<EOF
         <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_indian.png"> <br><br> <br><br>
 EOF
 
-    # MISC section
 cat >> index.php <<EOF
-        <br><br><br><big><big> Misc. time-series </big></big><br><br>
-        <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.png"> <br><br>
+        <br><br><br><big><big> Freshwater-flux-related time-series </big></big><br><br>
+        <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.png">     <br><br>
         <img style="border: 0px solid" alt="" src="mean_fwf_fwf_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="mean_fwf_emp_${CONFRUN}.png"> <br><br>
+        <img style="border: 0px solid" alt="" src="mean_fwf_prc_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.png"> <br><br>
+EOF
+if [ ${ece_run} -eq 1 ]; then
+    cat >> index.php <<EOF
+        <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.png"> <br><br>
+        <img style="border: 0px solid" alt="" src="mean_fwf_prc_IFS_${CONFRUN}.png"> <br><br>
+EOF
+fi
+
+cat >> index.php <<EOF
+        <br><br><br><big><big> Atlantic Meridional Overturning Circulation </big></big><br><br>
         <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.png"> <br><br>
         <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.png"> <br><br> <br><br>
 EOF

@@ -78,9 +78,11 @@ ncrename -d record,time ifs_area_masked.nc
 
 
 
-
+icpt=0
 for VAR in  "e" "lsp" "cp"; do
     
+    icpt=`expr ${icpt} + 1`
+
     for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
 
         ftreat=${VAR}_${RUN}_${cyear}${cm}
@@ -111,7 +113,6 @@ for VAR in  "e" "lsp" "cp"; do
         ncap2 -h -A -s "${VAR}=${VAR}/${pptime}" ${ftreat}.nc -o ${ftreat}.nc
         ncatted -O -a units,${VAR},o,c,'m of water / s' ${ftreat}.nc
 
-        echo
 
     # To netcdf monthly:
         ncra -h -O ${ftreat}.nc -O ${ftreat}_m.nc
@@ -170,12 +171,7 @@ for VAR in  "e" "lsp" "cp"; do
 #    icmgg_${year}.grb ${out}_
 
 
-
-
-
-        echo
         ncks -h -A -v ifs_area_masked ifs_area_masked.nc -o ${ftreat}.nc
-        echo
 
 
         isign=1
@@ -188,8 +184,15 @@ for VAR in  "e" "lsp" "cp"; do
     # Total volume evaporated over ocean during the current month:
         ncap2 -h -A -s "flx_${VAR}_sv=${VAR}2d.total(\$x)*1.E-6" ${ftreat}.nc -o ${ftreat}.nc
         ncatted -O -a units,flx_${VAR}_sv,o,c,'Sv' ${ftreat}.nc
-
+        
         ncks -h -A -v flx_${VAR}_sv ${ftreat}.nc -o final_${cm}.nc
+
+        # Checking surface of the ocean to be sure...
+        if [ ${icpt} -eq 1 ]; then
+            ncap2 -h -A -s "srf_ocean=ifs_area_masked.total(\$x)*1.E-12" ${ftreat}.nc -o ${ftreat}.nc
+            ncatted -O -a units,srf_ocean,o,c,'10^6 km^2' ${ftreat}.nc
+            ncks -h -A -v srf_ocean ${ftreat}.nc -o final_${cm}.nc
+        fi
 
         rm -f ${ftreat}.nc
 

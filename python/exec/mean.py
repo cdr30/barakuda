@@ -84,7 +84,6 @@ if cfe_sflx in vdic['NEMO_SAVED_FILES']:
     l_fwf = True
     cf_F_in = replace(cf_T_in, 'grid_T', cfe_sflx)
 
-
 Xe1t = nmp.zeros((nk, nj, ni))
 Xe2t = nmp.zeros((nk, nj, ni))
 for jk in range(nk):
