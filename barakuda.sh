@@ -552,8 +552,8 @@ while ${lcontinue}; do
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if [ ${ece_run} -eq 1 -a ${CONFIG} = "ORCA1_L75_ece32b_uwe_bi" ]; then
             echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
-            echo "CALLING: ./scripts/do_fwf_series_ifs.sh"
-            ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh
+            echo "LAUNCHING: ./scripts/do_fwf_series_ifs.sh in the background!"
+            ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh &
             echo
         fi
 
@@ -956,65 +956,20 @@ while ${lcontinue}; do
         if [ ${jyear} -eq ${YEARN} ]; then lcontinue=false; fi
     fi
 
+    echo
+    echo " Waiting for backround jobs for current year (${jyear}) !"
+    wait
+    echo "  Done waiting!"
+    echo
+
     jyear=`expr ${jyear} + 1`
-
-
+    
 
 # end loop years...
 done ; # while ${lcontinue}; do
 
 
 
-
-
-
-
-# Combining files that need to be combined!
-
-
-#yr1=`cat ${DIAG_D}/${CPREF}progression.dat | grep -v '\#' | head -1 | cut -c1-4`
-#yr2=`cat ${DIAG_D}/${CPREF}progression.dat | grep -v '\#' | tail -1 | cut -c1-4`
-#echo; echo; echo "yr1, yr2 = ${yr1} and ${yr2}"; echo
-
-
-#if [ ${i_do_amo} -eq 1 ]; then
-#    # Combining all the sigma files into 1 big file!
-#    diro=${DIAG_D}/amo
-#    l0=`\ls ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc 2>/dev/null`
-#    if [ ! "${l0}" = "" ]; then
-#        rm -f ${DIAG_D}/AMO_SST_Atl_*.nc
-#        echo
-#        echo "ncrcat -h -O ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc -o \
-#            ${DIAG_D}/AMO_SST_Atl_${CONFRUN}_${yr1}0101-${yr2}1231.nc"
-#        ncrcat -h -O ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc -o \
-#            ${DIAG_D}/AMO_SST_Atl_${CONFRUN}_${yr1}0101-${yr2}1231.nc
-#        echo; echo
-#        rm -f ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc
-#    fi
-#fi
-
-
-
-
-
-#if [ ${i_do_sect} -eq 1 ]; then
-#    # Combining all the section files into 1 big file!
-#    diro=${DIAG_D}/sections
-#    for cs in ${VSECT_NM[*]}; do
-#        l0=`\ls ${diro}/section_*_grid_T_${cs}.nc 2>/dev/null`
-#        if [ ! "${l0}" = "" ]; then
-#            rm -f ${DIAG_D}/section_*_grid_T_${cs}.nc
-#            echo "ncrcat -h -O ${diro}/section_*_grid_T_${cs}.nc -o \
-#                ${DIAG_D}/section_${CONFRUN}_${yr1}0101-${yr2}1231_grid_T_${cs}.nc"
-#            ncrcat -h -O ${diro}/section_*_grid_T_${cs}.nc -o \
-#                ${DIAG_D}/section_${CONFRUN}_${yr1}0101-${yr2}1231_grid_T_${cs}.nc
-#            rm -f ${diro}/section_*_grid_T_${cs}.nc
-#            echo
-#        fi
-#    done
-#    echo
-#
-#fi
 
 
 

@@ -14,8 +14,8 @@
 # range of the estimates is quite large and unlikely to be significantly
 # improved in the near future.
 #
-# References:
-#    Lagerloef, G., Schmitt, R., Schanze, J. Kao, H-Y, 2010, The Ocean and the Global Water Cycle, Oceanography, Vol.23, No.4
+# References: Lagerloef, G., Schmitt, R., Schanze, J. Kao, H-Y, 2010, The Ocean
+#             and the Global Water Cycle, Oceanography, Vol.23, No.4
 #
 
 
@@ -61,6 +61,10 @@ echo ${F_AREA} ; ls -l ${F_AREA}
 echo ${F_MASK} ; ls -l ${F_MASK}
 
 
+mkdir -p ./IFS
+
+cd ./IFS/
+
 #rm -f *.grb *.nc *.tmp
 
 
@@ -78,23 +82,33 @@ ncrename -d record,time ifs_area_masked.nc
 
 
 
-icpt=0
-for VAR in  "e" "lsp" "cp"; do
+
+
+for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
     
-    icpt=`expr ${icpt} + 1`
+    echo
+    echo " do_fwf_series_ifs.sh => ${cyear}/${cm}"
 
-    for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
+    fgrb=ICMGG${RUN}+${cyear}${cm}
+    
+    rsync -avP -L ${dir_ece}/${fgrb} .
+    
+    icpt=0
 
+    for VAR in  "e" "lsp" "cp"; do
+    
+        icpt=`expr ${icpt} + 1`
+        
         ftreat=${VAR}_${RUN}_${cyear}${cm}
 
-        grib_copy -w shortName=${VAR} ${dir_ece}/ICMGG${RUN}+${cyear}${cm} ${ftreat}.grb
+        grib_copy -w shortName=${VAR} ${fgrb} ${ftreat}.grb
 
 
         BVAR=`echo ${VAR}| tr '[:lower:]' '[:upper:]'`
 
 
 #  post-processing timestep in seconds
-        if [ "${cm}" = "01" ]; then
+        if [ "${cm}" = "01" -a ${icpt} -eq 1 ]; then
             pptime=$(cdo showtime -seltimestep,1,2 ${ftreat}.grb | tr -s ' ' ':' | awk -F: '{print ($5-$2)*3600+($6-$3)*60+($7-$4)}' )
             if [ $pptime -le 0 ]; then
                 pptime=21600 # default 6-hr output timestep
@@ -198,8 +212,14 @@ for VAR in  "e" "lsp" "cp"; do
 
 #cdo output –div –fldsum –mul ifs_area_masked E –fldsum ifs_area_masked ${ftreat}.nc tamere.nc
 
-    done
+        # End loop variables
+    done 
+
+
+    rm -f ${fgrb}
     
+    echo; echo
+    # End loop months
 done
 
 ncrcat -O final_*.nc -o final.nc
@@ -221,4 +241,4 @@ else
 fi
 rm -f final.nc
 
-
+exit
