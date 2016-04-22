@@ -1531,6 +1531,8 @@ EOF
         mkdir ${RUN}
 
         cp -r ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
+        cp -r ${BARAKUDA_ROOT}/scripts/html/*.png       ${RUN}/
+
         mv -f index.php ${RUN}/
         mv -f *.png      ${RUN}/ >/dev/null 2>/dev/null
         mv -f ./merid_transport/*.png ${RUN}/ >/dev/null 2>/dev/null
