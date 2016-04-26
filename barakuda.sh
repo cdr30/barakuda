@@ -1413,6 +1413,7 @@ EOF
     if [ ${ece_run} -eq 1 ]; then
         cat >> index.php <<EOF
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_${CONFRUN}.png"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_prc_IFS_${CONFRUN}.png"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_ALL_IFS_${CONFRUN}.png"> <br><br>
 EOF

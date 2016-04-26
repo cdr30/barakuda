@@ -187,9 +187,13 @@ if idfig == 'fwf':
         vemp_ifs = id_IFS_in.variables['flx_emp_sv'][:]
         ve_ifs   = id_IFS_in.variables['flx_e_sv'][:]
         vp_ifs   = id_IFS_in.variables['flx_p_sv'][:]
+        vemp_glb_ifs = id_IFS_in.variables['flx_emp_glb_sv'][:]
+        ve_glb_ifs   = id_IFS_in.variables['flx_e_glb_sv'][:]
+        vp_glb_ifs   = id_IFS_in.variables['flx_p_glb_sv'][:]
         id_IFS_in.close()
         if len(vemp_ifs) != nbm:
             print 'ERROR: plot_time_series.py => length of E-P of IFS in '+cf_IFS_in+' does not agree with its NEMO counterpart!'
+            print '       =>', len(vemp_ifs), nbm
             sys.exit(0)
         l_fwf_ifs = True
 
@@ -223,19 +227,35 @@ if idfig == 'fwf':
 
     if l_fwf_ifs and l_emp:
         # Only E-P for NEMO and IFS:
-        Xplt = nmp.zeros((2,nbm))
+        Xplt = nmp.zeros((3,nbm))
         Xplt[0,:] = vemp[:]
         Xplt[1,:] = vemp_ifs[:]
-        bp.plot("1d_multi")(vtime, Xplt, ['E-P NEMO','E-P IFS'], cfignm=cdiag+'_emp_IFS_'+CONFRUN, dt_year=ittic,
+        Xplt[2,:] = vemp_glb_ifs[:]
+        bp.plot("1d_multi")(vtime, Xplt, ['E-P NEMO','E-P IFS (oceans)','E-P IFS (global)'], cfignm=cdiag+'_emp_IFS_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': E-P over global ocean', ymin=ym, ymax=yp)
+
+
+    if l_fwf_ifs and l_rnf:
+        # Runoff of NEMO compares to ( E-P global - E-P ocean ) of IFS: #lulu
+        Xplt = nmp.zeros((2,nbm))
+        Xplt[0,:] = vrnf[:]
+        Xplt[1,:] = - ( vemp_glb_ifs[:] - vemp_ifs[:] )
+        bp.plot("1d_multi")(vtime, Xplt, ['R NEMO','-(Global[E-P]-Oceans[E-P]) IFS'], cfignm=cdiag+'_rnf_IFS_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': R over global ocean', loc_legend='upper center', ymin=ym, ymax=yp)
+
+
 
     if l_fwf_ifs and l_prc:
         # Only P for NEMO and IFS:
-        Xplt = nmp.zeros((2,nbm))
+        Xplt = nmp.zeros((3,nbm))
         Xplt[0,:] = vprc[:]
         Xplt[1,:] = vp_ifs[:]
-        bp.plot("1d_multi")(vtime, Xplt, ['P NEMO','P IFS'], cfignm=cdiag+'_prc_IFS_'+CONFRUN, dt_year=ittic,
+        Xplt[2,:] = vp_glb_ifs[:]
+        bp.plot("1d_multi")(vtime, Xplt, ['P NEMO','P IFS (oceans)','P IFS (global)'], cfignm=cdiag+'_prc_IFS_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': E-P over global ocean', ymin=ym, ymax=yp)
+
+
+
 
         # Everything possible
         Xplt = nmp.zeros((7,nbm))
@@ -247,6 +267,7 @@ if idfig == 'fwf':
         Xplt[4,:] = ve_ifs[:]    ; vlab.append('E IFS')
         Xplt[5,:] = vprc[:]      ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
         Xplt[6,:] = vp_ifs[:]    ; vlab.append('P IFS')
+
 
         bp.plot("1d_multi")(vtime, Xplt, vlab,
                             cfignm=cdiag+'_emp_ALL_IFS_'+CONFRUN, dt_year=ittic,
