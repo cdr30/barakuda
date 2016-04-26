@@ -23,6 +23,8 @@
 #cyear=2038
 #NEMO_OUT_D=/nobackup/rossby15/sm_uflad/run/${RUN}/output/nemo
 #DIAG_D=.
+#HERE=`pwd`
+
 
 cmsg="ERROR: $0 => global variable"
 if [ -z ${RUN} ]; then echo "${cmsg} RUN is unknown!"; exit ; fi
@@ -66,17 +68,21 @@ cd ./IFS/
 
 # Create ifs_area_masked:
 echo
-CMD="cdo setmisstoc,0 -ifthen -eqc,0 -selvar,A128.msk ${F_MASK} -selvar,A128.srf ${F_AREA} ifs_area_masked.nc"
-echo $CMD
-${CMD}
+echo "cdo setmisstoc,0 -ifthen -eqc,0 -selvar,A128.msk ${F_MASK} -selvar,A128.srf ${F_AREA} ifs_area_masked.nc"
+cdo setmisstoc,0 -ifthen -eqc,0 -selvar,A128.msk ${F_MASK} -selvar,A128.srf ${F_AREA} ifs_area_masked.nc
 echo
-ncrename -O -v A128.srf,ifs_area_masked ifs_area_masked.nc -o ifs_area_masked.nc
+
+ncrename -O -v A128.srf,ifs_area_masked ifs_area_masked.nc
+
+# Also appending ifs_area:
+ncks -A -v A128.srf ${F_AREA}                       -o ifs_area_masked.nc
+ncrename -O -v A128.srf,ifs_area ifs_area_masked.nc
+
 ncwa -O -a y ifs_area_masked.nc ifs_area_masked.nc # remove y of length !
+
 # Add degenerate time record to masks and appends it to ftreat:
 ncecat -O ifs_area_masked.nc -o ifs_area_masked.nc
 ncrename -d record,time ifs_area_masked.nc
-
-
 
 
 
@@ -128,6 +134,7 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
         # Append ocean mask surface into the file:
         #echo "ncks -h -A -v ifs_area_masked ifs_area_masked.nc -o ${ftreat}.nc"
         ncks -h -A -v ifs_area_masked ifs_area_masked.nc -o ${ftreat}.nc
+        ncks -h -A -v ifs_area        ifs_area_masked.nc -o ${ftreat}.nc
         #echo "done"; echo
 
 
@@ -135,21 +142,18 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
         if [ "${VAR}" = "e" ]; then isign=-1; fi
 
         # Multiplying ${VAR} and ifs_area_masked:
-        #echo "ncap2 -h -A -s ${VAR}2d=(${isign}*ifs_area_masked*${VAR}) ${ftreat}.nc -o ${ftreat}.nc"
         ncap2 -h -A -s "${VAR}2d=(${isign}*ifs_area_masked*${VAR})" ${ftreat}.nc -o ${ftreat}.nc
-        #echo "done"; echo
-
+        ncap2 -h -A -s "${VAR}2d_glb=(${isign}*ifs_area*${VAR})"    ${ftreat}.nc -o ${ftreat}.nc
 
         # Total volume evaporated over ocean during the current month:
 
-        #echo "ncap2 -h -A -s flx_${VAR}_sv=${VAR}2d.total(\$x)*1.E-6 ${ftreat}.nc -o ${ftreat}.nc"
-        ncap2 -h -A -s "flx_${VAR}_sv=${VAR}2d.total(\$x)*1.E-6" ${ftreat}.nc -o ${ftreat}.nc
-        #echo "done"; echo
-        ncatted -O -a units,flx_${VAR}_sv,o,c,'Sv' ${ftreat}.nc
+        ncap2 -h -A -s "flx_${VAR}_sv=${VAR}2d.total(\$x)*1.E-6"         ${ftreat}.nc -o ${ftreat}.nc
+        ncap2 -h -A -s "flx_${VAR}_glb_sv=${VAR}2d_glb.total(\$x)*1.E-6" ${ftreat}.nc -o ${ftreat}.nc
+        ncatted -O -a units,flx_${VAR}_sv,o,c,'Sv'     ${ftreat}.nc
+        ncatted -O -a units,flx_${VAR}_glb_sv,o,c,'Sv' ${ftreat}.nc
 
-        #echo "ncks -h -A -v flx_${VAR}_sv ${ftreat}.nc -o final_${cm}.nc"
-        ncks -h -A -v flx_${VAR}_sv ${ftreat}.nc -o final_${cm}.nc
-        #echo "done"; echo
+        ncks -h -A -v flx_${VAR}_sv     ${ftreat}.nc -o final_${cm}.nc
+        ncks -h -A -v flx_${VAR}_glb_sv ${ftreat}.nc -o final_${cm}.nc
 
         # Checking surface of the ocean to be sure...
         if [ ${icpt} -eq 1 ]; then
@@ -179,6 +183,10 @@ ncatted -O -a units,time,o,c,'years' final.nc
 
 ncap2 -h -A -s "flx_p_sv=flx_cp_sv+flx_lsp_sv" final.nc
 ncap2 -h -A -s "flx_emp_sv=flx_e_sv-flx_p_sv"  final.nc
+
+ncap2 -h -A -s "flx_p_glb_sv=flx_cp_glb_sv+flx_lsp_glb_sv" final.nc
+ncap2 -h -A -s "flx_emp_glb_sv=flx_e_glb_sv-flx_p_glb_sv"  final.nc
+
 
 rm -f ifs_area_masked.nc final_*.nc
 
