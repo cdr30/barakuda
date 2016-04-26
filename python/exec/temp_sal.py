@@ -36,8 +36,8 @@ CC = vdic['COMP2D']
 
 # Bounds and increment for comparison maps:
 if CC == 'CLIM':
-    tmin=-3.  ;  tmax=3.  ; dtemp = 0.25
-    smin=-1.5 ;  smax=1.5 ; dsali = 0.1
+    tmin=-5.  ;  tmax=5.  ; dtemp = 0.5
+    smin=-2.5 ;  smax=2.5 ; dsali = 0.25
 else:
     tmin=-1.  ;  tmax=1. ;  dtemp = 0.05
     smin=-0.5 ;  smax=.5 ;  dsali = 0.025
@@ -123,7 +123,7 @@ if vdic['NN_SST'] == 'thetao':
     SSTnemo = id_nemo_mnmc.variables[vdic['NN_SST']][:,0,:,:]
 else:
     SSTnemo = id_nemo_mnmc.variables[vdic['NN_SST']][:,:,:]
-    
+
 Tnemo  = id_nemo_mnmc.variables[vdic['NN_T']][:,:,:,:]
 print '(has ',Tnemo.shape[0],' time snapshots)\n'
 Snemo  = id_nemo_mnmc.variables[vdic['NN_S']][:,:,:,:]
@@ -137,7 +137,7 @@ if nk != nk0 or nj != nj0 or ni != ni0:
     print '       NEMO => '+str(ni)+', '+str(nj)+', '+str(nk)
     sys.exit(0)
 
-    
+
 
 
 # Saving some array to avoid to call 'nmp.mean' all the time:
@@ -223,7 +223,7 @@ vlat = nmp.zeros(nj) ; vlat[:] = xlat[:,ji_lat0]
 
 
 
-# Time for figures:       
+# Time for figures:
 # -----------------
 
 if lfig0:
@@ -253,27 +253,27 @@ if lfig0:
 
 
 if lfig1:
-    
+
     #                    SST / Reynolds
     # JFM
     bp.plot("2d")(vlon, vlat, SSTnemo_JFM[:,:] - SSTclim_JFM[:,:],
                   imask[0,:,:], tmin, tmax, dtemp,
-                  corca=vdic['ORCA'], lkcont=False, cpal='bbr', cfignm=path_fig+'dsst_JFM_'+CONFRUN+'_-_'+CC,
-                  cbunit='K', cfig_type=fig_type, 
+                  corca=vdic['ORCA'], lkcont=False, cpal='RdBu_r', cfignm=path_fig+'dsst_JFM_'+CONFRUN+'_-_'+CC,
+                  cbunit='K', cfig_type=fig_type,
                   ctitle='SST difference to '+CC+', JFM, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                   lforce_lim=True)
     # JAS
     bp.plot("2d")(vlon, vlat, SSTnemo_JAS[:,:] - SSTclim_JAS[:,:],
                   imask[0,:,:], tmin, tmax, dtemp,
-                  corca=vdic['ORCA'], lkcont=False, cpal='bbr', cfignm=path_fig+'dsst_JAS_'+CONFRUN+'_-_'+CC,
-                  cbunit='K', cfig_type=fig_type, 
+                  corca=vdic['ORCA'], lkcont=False, cpal='RdBu_r', cfignm=path_fig+'dsst_JAS_'+CONFRUN+'_-_'+CC,
+                  cbunit='K', cfig_type=fig_type,
                   ctitle='SST difference to '+CC+', JAS, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                   lforce_lim=True)
-            
+
     # Annual
     bp.plot("2d")(vlon, vlat, SSTnemo_annual[:,:] - SSTclim_annual[:,:],
                   imask[0,:,:],  tmin, tmax, dtemp,
-                  corca=vdic['ORCA'], lkcont=False, cpal='bbr', cfignm=path_fig+'dsst_annual_'+CONFRUN+'_-_'+CC,
+                  corca=vdic['ORCA'], lkcont=False, cpal='RdBu_r', cfignm=path_fig+'dsst_annual_'+CONFRUN+'_-_'+CC,
                   cbunit='K', cfig_type=fig_type,
                   ctitle='SST difference to '+CC+', '+CONFRUN+' ('+cy1+'-'+cy2+')',
                   lforce_lim=True)
@@ -283,34 +283,34 @@ if lfig1:
 
 
     # Temperature 100m, 1000m... / climatology
-    
+
     for jd in range(nmp.size(tdj)):
         jdepth = tdj[jd] ; cdepth = tdd[jd] ; cdepth_true = tdd_true[jd]
 
         print '\n Treating depth '+str(vdepth[jdepth])+' !!!'
 
-                
+
         if jd < 1:
-            # JFM          
+            # JFM
             bp.plot("2d")(vlon, vlat, Tnemo_JFM[jdepth,:,:] - Tclim_JFM[jdepth,:,:],
                           imask[jdepth,:,:], tmin, tmax, dtemp,
-                          corca=vdic['ORCA'], lkcont=False, cpal='bbr', cfignm=path_fig+'dT_JFM_'+cdepth+'_'+CONFRUN+'_-_'+CC,
-                          cbunit='K', cfig_type=fig_type, 
+                          corca=vdic['ORCA'], lkcont=False, cpal='RdBu_r', cfignm=path_fig+'dT_JFM_'+cdepth+'_'+CONFRUN+'_-_'+CC,
+                          cbunit='K', cfig_type=fig_type,
                           ctitle='Temperature diff. to '+CC+' at '+cdepth_true+', JFM, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                           lforce_lim=True)
             # JAS
             bp.plot("2d")(vlon, vlat, Tnemo_JAS[jdepth,:,:] - Tclim_JAS[jdepth,:,:],
                           imask[jdepth,:,:], tmin, tmax, dtemp,
-                          corca=vdic['ORCA'], lkcont=False, cpal='bbr', cfignm=path_fig+'dT_JAS_'+cdepth+'_'+CONFRUN+'_-_'+CC,
-                          cbunit='K', cfig_type=fig_type, 
+                          corca=vdic['ORCA'], lkcont=False, cpal='RdBu_r', cfignm=path_fig+'dT_JAS_'+cdepth+'_'+CONFRUN+'_-_'+CC,
+                          cbunit='K', cfig_type=fig_type,
                           ctitle='Temperature diff. to '+CC+' at '+cdepth_true+', JAS, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                           lforce_lim=True)
 
         # Annual
         bp.plot("2d")(vlon, vlat, Tnemo_annual[jdepth,:,:] - Tclim_annual[jdepth,:,:],
                       imask[jdepth,:,:], tmin, tmax, dtemp,
-                      corca=vdic['ORCA'], lkcont=False, cpal='bbr', cfignm=path_fig+'dT_annual_'+cdepth+'_'+CONFRUN+'_-_'+CC,
-                      cbunit='K', cfig_type=fig_type, 
+                      corca=vdic['ORCA'], lkcont=False, cpal='RdBu_r', cfignm=path_fig+'dT_annual_'+cdepth+'_'+CONFRUN+'_-_'+CC,
+                      cbunit='K', cfig_type=fig_type,
                       ctitle='Temperature diff. to '+CC+' at '+cdepth_true+', '+CONFRUN+' ('+cy1+'-'+cy2+')',
                       lforce_lim=True)
 
@@ -322,21 +322,21 @@ if lfig1:
     #                   S S S
     # JFM
     bp.plot("2d")(vlon, vlat, Snemo_JFM[0,:,:] - Sclim_JFM[0,:,:],
-                  imask[0,:,:], smin, smax, dsali,
+                  imask[0,:,:], smin, smax, dsali, cpal='PiYG_r',
                   corca=vdic['ORCA'], lkcont=False, cfignm=path_fig+'dsss_JFM_'+CONFRUN+'_-_'+CC,
-                  cbunit='PSU', cfig_type=fig_type, 
+                  cbunit='PSU', cfig_type=fig_type,
                   ctitle='SSS difference to '+CC+', JFM, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                   lforce_lim=True)
     # JAS
     bp.plot("2d")(vlon, vlat, Snemo_JAS[0,:,:] - Sclim_JAS[0,:,:],
-                  imask[0,:,:], smin, smax, dsali,
+                  imask[0,:,:], smin, smax, dsali, cpal='PiYG_r',
                   corca=vdic['ORCA'], lkcont=False, cfignm=path_fig+'dsss_JAS_'+CONFRUN+'_-_'+CC,
-                  cbunit='PSU', cfig_type=fig_type, 
+                  cbunit='PSU', cfig_type=fig_type,
                   ctitle='SSS difference to '+CC+', JAS, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                   lforce_lim=True)
     # Annual
     bp.plot("2d")(vlon, vlat, Snemo_annual[0,:,:] - Sclim_annual[0,:,:],
-                  imask[0,:,:], smin, smax, dsali,
+                  imask[0,:,:], smin, smax, dsali, cpal='PiYG_r',
                   corca=vdic['ORCA'], lkcont=False, cfignm=path_fig+'dsss_annual_'+CONFRUN+'_-_'+CC,
                   cbunit='PSU', cfig_type=fig_type,
                   ctitle='SSS difference to '+CC+', '+CONFRUN+' ('+cy1+'-'+cy2+')',
@@ -350,28 +350,28 @@ if lfig1:
     #                   Salinity 100m / climatology
     for jd in range(nmp.size(tdj)):
         jdepth = tdj[jd] ; cdepth = tdd[jd] ; cdepth_true = tdd_true[jd]
-        
+
         if jd < 1:
-            # JFM          
+            # JFM
             bp.plot("2d")(vlon, vlat, Snemo_JFM[jdepth,:,:] - Sclim_JFM[jdepth,:,:],
-                          imask[jdepth,:,:], smin, smax, dsali,
+                          imask[jdepth,:,:], smin, smax, dsali, cpal='PiYG_r',
                           corca=vdic['ORCA'], lkcont=False, cfignm=path_fig+'dS_JFM_'+cdepth+'_'+CONFRUN+'_-_'+CC,
-                          cbunit='PSU', cfig_type=fig_type, 
+                          cbunit='PSU', cfig_type=fig_type,
                           ctitle='Salinity diff. to '+CC+' at '+cdepth_true+', JFM, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                           lforce_lim=True)
             # JAS
             bp.plot("2d")(vlon, vlat, Tnemo_JAS[jdepth,:,:] - Tclim_JAS[jdepth,:,:],
-                          imask[jdepth,:,:], smin, smax, dsali,
+                          imask[jdepth,:,:], smin, smax, dsali, cpal='PiYG_r',
                           corca=vdic['ORCA'], lkcont=False, cfignm=path_fig+'dS_JAS_'+cdepth+'_'+CONFRUN+'_-_'+CC,
-                          cbunit='PSU', cfig_type=fig_type, 
+                          cbunit='PSU', cfig_type=fig_type,
                           ctitle='Salinity diff. to '+CC+' at '+cdepth_true+', JAS, '+CONFRUN+' ('+cy1+'-'+cy2+')',
                           lforce_lim=True)
-        
+
         # Annual
         bp.plot("2d")(vlon, vlat, Tnemo_annual[jdepth,:,:] - Tclim_annual[jdepth,:,:],
-                      imask[jdepth,:,:], smin, smax, dsali,
+                      imask[jdepth,:,:], smin, smax, dsali, cpal='PiYG_r',
                       corca=vdic['ORCA'], lkcont=False, cfignm=path_fig+'dS_annual_'+cdepth+'_'+CONFRUN+'_-_'+CC,
-                      cbunit='PSU', cfig_type=fig_type, 
+                      cbunit='PSU', cfig_type=fig_type,
                       ctitle='Salinity diff. to '+CC+' at '+cdepth_true+', '+CONFRUN+' ('+cy1+'-'+cy2+')',
                       lforce_lim=True)
 
@@ -397,8 +397,8 @@ if lfig2: # Temperature and salinity vertical sections:
                             cfignm=path_fig+'section_sali_'+CONFRUN, cbunit='PSU', cxunit=r'Latitude ($^{\circ}$N)',
                             czunit='Depth (m)', ctitle='Salinity, ('+cy1+'-'+cy2+'), '+CONFRUN+', lon = 30W',
                             cfig_type=fig_type, lforce_lim=True)
-    
-    
+
+
     #
     #  L E V I T U S
     #  ~~~~~~~~~~~~~
