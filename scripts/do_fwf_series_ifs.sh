@@ -67,22 +67,39 @@ cd ./IFS/
 
 
 # Create ifs_area_masked:
-echo
-echo "cdo setmisstoc,0 -ifthen -eqc,0 -selvar,A128.msk ${F_MASK} -selvar,A128.srf ${F_AREA} ifs_area_masked.nc"
-cdo setmisstoc,0 -ifthen -eqc,0 -selvar,A128.msk ${F_MASK} -selvar,A128.srf ${F_AREA} ifs_area_masked.nc
-echo
+#echo
+#echo "cdo setmisstoc,0 -ifthen -eqc,0 -selvar,A128.msk ${F_MASK} -selvar,A128.srf ${F_AREA} metrics.nc"
+#cdo setmisstoc,0 -ifthen -eqc,0 -selvar,A128.msk ${F_MASK} -selvar,A128.srf ${F_AREA} metrics.nc
+#echo
+ 
+ncks -O -h -v A128.msk ${F_MASK} -o metrics.nc
+ncrename -h -v A128.msk,mask  metrics.nc
 
-ncrename -O -v A128.srf,ifs_area_masked ifs_area_masked.nc
+ncks -A -h -v A128.srf ${F_AREA} -o metrics.nc
+ncrename -h -v A128.srf,ifs_area_glob metrics.nc
 
-# Also appending ifs_area:
-ncks -A -v A128.srf ${F_AREA}                       -o ifs_area_masked.nc
-ncrename -O -v A128.srf,ifs_area ifs_area_masked.nc
+ncwa -h -O -a y metrics.nc -o metrics.nc # remove y of length !
 
-ncwa -O -a y ifs_area_masked.nc ifs_area_masked.nc # remove y of length !
+ncap2 -h -A -s "ifs_area_land=mask*ifs_area_glob"      metrics.nc -o metrics.nc
+ncap2 -h -A -s "ifs_area_ocean=(1-mask)*ifs_area_glob" metrics.nc -o metrics.nc
 
-# Add degenerate time record to masks and appends it to ftreat:
-ncecat -O ifs_area_masked.nc -o ifs_area_masked.nc
-ncrename -d record,time ifs_area_masked.nc
+# Checking surface of the ocean and continents to be sure...
+ncap2 -h -A -s "srf_glob=ifs_area_glob.total(\$x)*1.E-12" metrics.nc -o metrics.nc
+ncatted -h -O -a units,srf_glob,o,c,'10^6 km^2' metrics.nc
+ncap2 -h -A -s "srf_ocean=ifs_area_ocean.total(\$x)*1.E-12" metrics.nc -o metrics.nc
+ncatted -h -O -a units,srf_ocean,o,c,'10^6 km^2' metrics.nc
+ncap2 -h -A -s "srf_land=ifs_area_land.total(\$x)*1.E-12" metrics.nc -o metrics.nc
+ncatted -h -O -a units,srf_land,o,c,'10^6 km^2' metrics.nc
+
+
+
+# Add degenerate time record:
+ncecat   -h -O metrics.nc -o metrics.nc
+ncrename -h -d record,time metrics.nc
+
+
+#mv -f metrics.nc ${HERE}/
+#exit
 
 
 
@@ -108,9 +125,7 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
     cdo -t ecmwf -f nc -selvar,E,LSP,CP ${fgrb} ${FALL}
     echo "done"; echo
 
-    #echo "ncrename -h -O -d rgrid,x ${FALL}"
     ncrename -h -O -d rgrid,x ${FALL}
-    #echo "done"; echo
 
 
     icpt=0
@@ -132,35 +147,40 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
         ncatted -O -a units,${VAR},o,c,'m of water / s' ${ftreat}.nc
 
         # Append ocean mask surface into the file:
-        #echo "ncks -h -A -v ifs_area_masked ifs_area_masked.nc -o ${ftreat}.nc"
-        ncks -h -A -v ifs_area_masked ifs_area_masked.nc -o ${ftreat}.nc
-        ncks -h -A -v ifs_area        ifs_area_masked.nc -o ${ftreat}.nc
-        #echo "done"; echo
+        ncks -h -A -v ifs_area_glob  metrics.nc -o ${ftreat}.nc
+        ncks -h -A -v ifs_area_ocean metrics.nc -o ${ftreat}.nc
+        ncks -h -A -v ifs_area_land  metrics.nc -o ${ftreat}.nc
+
+
 
 
         isign=1
         if [ "${VAR}" = "e" ]; then isign=-1; fi
 
         # Multiplying ${VAR} and ifs_area_masked:
-        ncap2 -h -A -s "${VAR}2d=(${isign}*ifs_area_masked*${VAR})" ${ftreat}.nc -o ${ftreat}.nc
-        ncap2 -h -A -s "${VAR}2d_glb=(${isign}*ifs_area*${VAR})"    ${ftreat}.nc -o ${ftreat}.nc
+        ncap2 -h -A -s "${VAR}2d=(${isign}*ifs_area_ocean*${VAR})"     ${ftreat}.nc -o ${ftreat}.nc
+        ncap2 -h -A -s "${VAR}2d_glb=(${isign}*ifs_area_glob*${VAR})"  ${ftreat}.nc -o ${ftreat}.nc
+        ncap2 -h -A -s "${VAR}2d_land=(${isign}*ifs_area_land*${VAR})" ${ftreat}.nc -o ${ftreat}.nc
 
         # Total volume evaporated over ocean during the current month:
 
         ncap2 -h -A -s "flx_${VAR}_sv=${VAR}2d.total(\$x)*1.E-6"         ${ftreat}.nc -o ${ftreat}.nc
         ncap2 -h -A -s "flx_${VAR}_glb_sv=${VAR}2d_glb.total(\$x)*1.E-6" ${ftreat}.nc -o ${ftreat}.nc
+        ncap2 -h -A -s "flx_${VAR}_land_sv=${VAR}2d_land.total(\$x)*1.E-6" ${ftreat}.nc -o ${ftreat}.nc
         ncatted -O -a units,flx_${VAR}_sv,o,c,'Sv'     ${ftreat}.nc
         ncatted -O -a units,flx_${VAR}_glb_sv,o,c,'Sv' ${ftreat}.nc
+        ncatted -O -a units,flx_${VAR}_land_sv,o,c,'Sv' ${ftreat}.nc
 
         ncks -h -A -v flx_${VAR}_sv     ${ftreat}.nc -o final_${cm}.nc
         ncks -h -A -v flx_${VAR}_glb_sv ${ftreat}.nc -o final_${cm}.nc
+        ncks -h -A -v flx_${VAR}_land_sv ${ftreat}.nc -o final_${cm}.nc
 
         # Checking surface of the ocean to be sure...
-        if [ ${icpt} -eq 1 ]; then
-            ncap2 -h -A -s "srf_ocean=ifs_area_masked.total(\$x)*1.E-12" ${ftreat}.nc -o ${ftreat}.nc
-            ncatted -O -a units,srf_ocean,o,c,'10^6 km^2' ${ftreat}.nc
-            ncks -h -A -v srf_ocean ${ftreat}.nc -o final_${cm}.nc
-        fi
+        #if [ ${icpt} -eq 1 ]; then
+        #    ncap2 -h -A -s "srf_ocean=ifs_area_ocean.total(\$x)*1.E-12" ${ftreat}.nc -o ${ftreat}.nc
+        #    ncatted -O -a units,srf_ocean,o,c,'10^6 km^2' ${ftreat}.nc
+        #    ncks -h -A -v srf_ocean ${ftreat}.nc -o final_${cm}.nc
+        #fi
 
         rm -f ${ftreat}.nc
 
@@ -171,6 +191,7 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
 
     echo " *** month ${cm} done!"
     echo
+
 
 done
 
@@ -187,8 +208,15 @@ ncap2 -h -A -s "flx_emp_sv=flx_e_sv-flx_p_sv"  final.nc
 ncap2 -h -A -s "flx_p_glb_sv=flx_cp_glb_sv+flx_lsp_glb_sv" final.nc
 ncap2 -h -A -s "flx_emp_glb_sv=flx_e_glb_sv-flx_p_glb_sv"  final.nc
 
+ncap2 -h -A -s "flx_p_land_sv=flx_cp_land_sv+flx_lsp_land_sv" final.nc
+ncap2 -h -A -s "flx_emp_land_sv=flx_e_land_sv-flx_p_land_sv"  final.nc
 
-rm -f ifs_area_masked.nc final_*.nc
+
+rm -f metrics.nc final_*.nc
+
+
+#mv -f final.nc ${HERE}/ ; exit
+
 
 fout=${DIAG_D}/mean_fwf_IFS_32bI_global.nc
 

@@ -424,8 +424,11 @@ while ${lcontinue}; do
             exit
         fi
 
-        echo; echo; echo "Run ${RUN}: Generating diagnostic data for ${cyear}..."; echo
-
+        echo; echo; echo; echo
+        echo "*********************************************************************"
+        echo "  Run ${RUN}: Will generate diagnostics and data for year ${cyear}..."
+        echo "*********************************************************************"
+        echo ; echo
 
         # On what file type to test file presence:
         cgrid_test=`echo ${NEMO_SAVED_FILES} | cut -d ' ' -f2`
@@ -1414,6 +1417,7 @@ EOF
         cat >> index.php <<EOF
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.png"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_annual_${CONFRUN}.png"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_prc_IFS_${CONFRUN}.png"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_ALL_IFS_${CONFRUN}.png"> <br><br>
 EOF
