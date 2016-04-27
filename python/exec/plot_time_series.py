@@ -187,7 +187,7 @@ if idfig == 'fwf':
         vemp_ifs = id_IFS_in.variables['flx_emp_sv'][:]
         ve_ifs   = id_IFS_in.variables['flx_e_sv'][:]
         vp_ifs   = id_IFS_in.variables['flx_p_sv'][:]
-        #vemp_glb_ifs = id_IFS_in.variables['flx_emp_glb_sv'][:]
+        vemp_glb_ifs = id_IFS_in.variables['flx_emp_glb_sv'][:]
         #ve_glb_ifs   = id_IFS_in.variables['flx_e_glb_sv'][:]
         #vp_glb_ifs   = id_IFS_in.variables['flx_p_glb_sv'][:]
         vemp_land_ifs = id_IFS_in.variables['flx_emp_land_sv'][:]
@@ -234,8 +234,20 @@ if idfig == 'fwf':
         Xplt[0,:] = vemp[:]
         Xplt[1,:] = vemp_ifs[:]
         Xplt[2,:] = vemp_land_ifs[:]
-        bp.plot("1d_multi")(vtime, Xplt, ['E-P NEMO','E-P IFS (oceans)','E-P IFS (land)'], cfignm=cdiag+'_emp_IFS_'+CONFRUN, dt_year=ittic,
-                            cyunit=cyu, ctitle = CONFRUN+': E-P', ymin=ym, ymax=yp)
+        bp.plot("1d_multi")(vtime, Xplt, ['E-P NEMO','E-P IFS (oceans)','E-P IFS (land)'],
+                            cfignm=cdiag+'_emp_IFS_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': E-P (monthly)', ymin=ym, ymax=yp)
+
+        # Same but annual:
+        nby = nbm/12
+        Xplt = nmp.zeros((2,nby))
+        VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vemp[:])
+        VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], vemp_ifs[:])
+        bp.plot("1d_multi")(VY, Xplt, ['E-P NEMO','E-P IFS'],
+                            cfignm=cdiag+'_emp_IFS_annual_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': E-P over oceans (annual)', loc_legend='upper center', ymin=ym, ymax=yp)
+        
+
 
 
     if l_fwf_ifs and l_rnf:
@@ -251,6 +263,7 @@ if idfig == 'fwf':
         Xplt = nmp.zeros((2,nby))
         VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:])
         VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], -vemp_land_ifs[:])
+        #VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], -(vemp_glb_ifs[:]-vemp_ifs[:])) ; # ,'-(Global(E-P)-Oceans(E-P) IFS'
         bp.plot("1d_multi")(VY, Xplt, ['R NEMO','-(E-P) over land IFS'], cfignm=cdiag+'_rnf_IFS_annual_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (annual)', loc_legend='upper center', ymin=ym, ymax=yp)
 
