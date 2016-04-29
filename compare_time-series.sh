@@ -214,10 +214,8 @@ done
 cat ${BARAKUDA_ROOT}/scripts/html/index_skel_footer.html >> index.php ; # Closing HTML file...
 
 cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html .
-
+cp ${BARAKUDA_ROOT}/scripts/html/logo.png    .
 echo; echo
-
-cp -r ${BARAKUDA_ROOT}/scripts/html/conf ${BASE_NAME}/
 
 
 if [ ${ihttp} -eq 0 ]; then
