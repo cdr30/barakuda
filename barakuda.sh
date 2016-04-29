@@ -553,14 +553,14 @@ while ${lcontinue}; do
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # If EC-Earth simu, attempting to compute ocean-averaged fluxes from IFS too (E, P, E-P)
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if [ ${ece_run} -eq 1 -a ${CONFIG} = "ORCA1_L75_ece32b_uwe_bi" ]; then
+        if [ ${ece_run} -eq 1 ]; then
             echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
             echo "LAUNCHING: ./scripts/do_fwf_series_ifs.sh in the background!"
             ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh &
             echo
         fi
-
-
+        
+        
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Computing time-series of spatially-averaged variables
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -1412,7 +1412,6 @@ EOF
     <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.png"> <br><br>
 EOF
 
-#lulu
     if [ ${ece_run} -eq 1 ]; then
         cat >> index.php <<EOF
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.png"> <br><br>
@@ -1422,7 +1421,7 @@ EOF
     <img style="border: 0px solid" alt="" src="mean_fwf_prc_IFS_${CONFRUN}.png"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_ALL_IFS_${CONFRUN}.png"> <br><br>
 EOF
-fi
+    fi
     
     cat >> index.php <<EOF
     <br><br><br><big><big> Atlantic Meridional Overturning Circulation </big></big><br><br>

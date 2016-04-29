@@ -181,6 +181,7 @@ if idfig == 'fwf':
     # Checking if there a potential file for IFS:
     l_fwf_ifs = False
     cf_IFS_in = cdiag+'_IFS_'+vdic['RUN']+'_global.nc'
+    print '  *** Checking for the existence of '+cf_IFS_in
     if os.path.exists(cf_IFS_in):
         print "  *** IFS FWF files found!"
         id_IFS_in = Dataset(cf_IFS_in)
@@ -199,6 +200,8 @@ if idfig == 'fwf':
             print '       =>', len(vemp_ifs), nbm
             sys.exit(0)
         l_fwf_ifs = True
+    else:
+        print '       => Nope!\n'
 
 
     if nbm%12 != 0:

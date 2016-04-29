@@ -218,7 +218,7 @@ rm -f metrics.nc final_*.nc
 #mv -f final.nc ${HERE}/ ; exit
 
 
-fout=${DIAG_D}/mean_fwf_IFS_32bI_global.nc
+fout=${DIAG_D}/mean_fwf_IFS_${RUN}_global.nc
 
 if [ ! -f ${fout} ]; then
     mv final.nc ${fout}
