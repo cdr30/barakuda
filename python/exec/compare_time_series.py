@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-# L. Brodeau, november 2013
+#       B a r a K u d a
+#
+#     Compare time-series between some runs!
+#
+#       L. Brodeau, 2013
 
 import sys
 import os
@@ -23,31 +27,12 @@ iice   = 1
 itrsp = 1
 
 
-LIST_RUNS = os.getenv('LIST_RUNS')
-if LIST_RUNS == None: print 'The LIST_RUNS environement variable is no set'; sys.exit(0)
+venv_needed = {'LIST_RUNS','DIAG_DIR','CONF','FIG_FORMAT', \
+               'NN_SST','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'\
+               'TRANSPORT_SECTION_FILE','LMOCLAT'}
 
-DIAG_DIR = os.getenv('DIAG_DIR')
-if DIAG_DIR == None: print 'The DIAG_DIR environement variable is no set'; sys.exit(0)
-
-CONF = os.getenv('CONF')
-if CONF == None: print 'The CONF environement variable is no set'; sys.exit(0)
-
-FIG_FORMAT = os.getenv('FIG_FORMAT')
-if FIG_FORMAT == None: print 'The FIG_FORMAT environement variable is no set'; sys.exit(0)
-
-NN_SST = os.getenv('NN_SST')
-if NN_SST == None: print 'The NN_SST environement variable is no set'; sys.exit(0)
-NN_SSS = os.getenv('NN_SSS')
-if NN_SSS == None: print 'The NN_SSS environement variable is no set'; sys.exit(0)
-NN_SSH = os.getenv('NN_SSH')
-if NN_SSH == None: print 'The NN_SSH environement variable is no set'; sys.exit(0)
-NN_T = os.getenv('NN_T')
-if NN_T == None: print 'The NN_T environement variable is no set'; sys.exit(0)
-NN_S = os.getenv('NN_S')
-if NN_S == None: print 'The NN_S environement variable is no set'; sys.exit(0)
-NN_MLD = os.getenv('NN_MLD')
-if NN_MLD == None: print 'The NN_MLD environement variable is no set'; sys.exit(0)
-
+cd_diag = vdic['DIAG_DIR']
+cffig   = vdic['FIG_FORMAT']
 
 
 narg = len(sys.argv)
@@ -58,14 +43,14 @@ cy2 = sys.argv[2] ; y2 = int(cy2)
 nb_years = y2 - y1 + 1
 
 
-clist_runs = LIST_RUNS.split()
+clist_runs = vdic['LIST_RUNS'].split()
 clist_confruns = []
 
 for crun in clist_runs:
-    clist_confruns.append(CONF+'-'+crun)
+    clist_confruns.append(vdic['CONF']+'-'+crun)
 
 print sys.argv[0]+': will compare following runs: '; print clist_confruns
-print ' ... saved into '+DIAG_DIR+'\n'
+print ' ... saved into '+cd_diag+'\n'
 
 nbrun = len(clist_confruns)
 
@@ -74,7 +59,7 @@ nbrun = len(clist_confruns)
 ittic = bt.iaxe_tick(nb_years)
 
 vtime = nmp.zeros(nb_years)
-Xf = nmp.zeros(nbrun*nb_years) ; Xf.shape = [ nbrun, nb_years ]
+Xf = nmp.zeros((nbrun, nb_years))
 
 
 
@@ -92,7 +77,7 @@ Xf = nmp.zeros(nbrun*nb_years) ; Xf.shape = [ nbrun, nb_years ]
 
 if i2dfl == 1:
 
-    vvar  = [  NN_SSH, NN_SSS,          NN_SST    ]
+    vvar  = [ vdic['NN_SSH'], vdic['NN_SSS'], vdic['NN_SST'] ]
     vname = [ 'SSH'     ,  'SSS'      , 'SST'     ]
     vunit = [ r'm'    ,  r'PSU'   , r'$^{\circ}$C']
 
@@ -106,7 +91,7 @@ if i2dfl == 1:
             Xf[:,:] = 0. ; jrun = 0
             for confrun in clist_confruns:
 
-                cf_in = DIAG_DIR+'/'+confrun+'/'+cdiag+'_'+confrun+'_'+cocean+'.nc'
+                cf_in = cd_diag+'/'+confrun+'/'+cdiag+'_'+confrun+'_'+cocean+'.nc'
                 vt0, vd0 = bn.read_1d_series(cf_in, cvar, cv_t='time', l_return_time=True)
                 nbm = len(vt0) ; print ' *** nmb =', nbm
                 if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
@@ -116,7 +101,7 @@ if i2dfl == 1:
                 Xf[jrun,:nbm/12] = FY[:] ; Xf[jrun,nbm/12:] = -999.
                 jrun = jrun + 1
     
-            bp.plot("1d_multi")(vtime[:], Xf[:,:], clist_confruns, cfig_type=FIG_FORMAT,
+            bp.plot("1d_multi")(vtime[:], Xf[:,:], clist_confruns, cfig_type=cffig,
                                 cfignm=cdiag+'_comparison_'+cocean, dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                                 cyunit=vunit[jvar], ctitle = vname[jvar]+', '+cocean, ymin=0, ymax=0)
     
@@ -134,7 +119,7 @@ if i2dfl == 1:
 
 if imld == 1:
 
-    cvar  = NN_MLD
+    cvar  = vdic['NN_MLD']
     cdiag = 'mean_'+cvar
     vname = [ r'Mixed layer depth' ]
     lplot = True
@@ -145,7 +130,7 @@ if imld == 1:
     for cbox in bo.cname_mld_boxes:
         jrun = 0
         for confrun in clist_confruns:
-            cf_in = DIAG_DIR+'/'+confrun+'/'+cdiag+'_'+confrun+'_'+cbox+'.nc'
+            cf_in = cd_diag+'/'+confrun+'/'+cdiag+'_'+confrun+'_'+cbox+'.nc'
             if os.path.exists(cf_in):
                 vt0, vd0 = bn.read_1d_series(cf_in, cvar, cv_t='time', l_return_time=True)
                 nbm = len(vt0)
@@ -158,7 +143,7 @@ if imld == 1:
             jrun = jrun + 1
     
         if lplot:
-            bp.plot("1d_multi")(vtime[:], Xf[:,:], clist_confruns, cfig_type=FIG_FORMAT,
+            bp.plot("1d_multi")(vtime[:], Xf[:,:], clist_confruns, cfig_type=cffig,
                                 cfignm=cdiag+'_'+cbox+'_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                                 cyunit='m', ctitle = 'Mixed layer depth, '+bo.clgnm_mld_boxes[jbox], ymin=0, ymax=0)
         jbox = jbox+1
@@ -178,7 +163,7 @@ if imld == 1:
 
 if i3dfl == 1:
 
-    vvar  = [ NN_S       ,      NN_T ]
+    vvar  = [ vdic['NN_S'],     vdic['NN_T'] ]
     vname = [ 'Salinity' , 'Potential Temperature' ]
     vunit = [ r'PSU'     ,  r'$^{\circ}$C' ]
     
@@ -200,7 +185,7 @@ if i3dfl == 1:
                 jrun = 0
                 for confrun in clist_confruns:
                     
-                    cf_in = DIAG_DIR+'/'+confrun+'/'+cdiag+'_'+confrun+'_'+cocean+'.nc'
+                    cf_in = cd_diag+'/'+confrun+'/'+cdiag+'_'+confrun+'_'+cocean+'.nc'
                     vt0, vd0 = bn.read_1d_series(cf_in, cvar+'_'+cdif, cv_t='time', l_return_time=True)
                     nbm = len(vt0)
                     if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
@@ -210,7 +195,7 @@ if i3dfl == 1:
                     Xf[jrun,:nbm/12] = FY[:]  ; Xf[jrun,nbm/12:] = -999.
                     jrun = jrun + 1
     
-                bp.plot("1d_multi")(vtime[:], Xf[:,:], clist_confruns, cfig_type=FIG_FORMAT,
+                bp.plot("1d_multi")(vtime[:], Xf[:,:], clist_confruns, cfig_type=cffig,
                                     cfignm=cdiag+'_comparison_'+cocean+'_'+cdepth, dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                                     cyunit=vunit[jdiag], ctitle = vname[jdiag]+', '+cocean+', depth range = '+cdepth, ymin=0, ymax=0)
     
@@ -252,7 +237,7 @@ if iice == 1:
                 Xf[:,:] = 0.
                 jrun = 0
                 for confrun in clist_confruns:
-                    cf_in = DIAG_DIR+'/'+confrun+'/seaice_diags.nc'                
+                    cf_in = cd_diag+'/'+confrun+'/seaice_diags.nc'                
                     vt0, vd0 = bn.read_1d_series(cf_in, cvar+'_'+vlab[ipole], cv_t='time', l_return_time=True)
                     nbm = len(vt0)
                     if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
@@ -263,7 +248,7 @@ if iice == 1:
 
                 cdiag = 'seaice_'+cvar
                 cmnth = '%2.2i'%(vmnth[jdiag]+1)
-                bp.plot("1d_multi")(vtime, Xf, clist_confruns, cfig_type=FIG_FORMAT,
+                bp.plot("1d_multi")(vtime, Xf, clist_confruns, cfig_type=cffig,
                                     cfignm=cdiag+'_m'+str(cmnth)+'_comparison_'+cpole, dt_year=ittic, loc_legend='upper center',
                                     cyunit=vunit[jdiag], ctitle = vname[jdiag]+', '+cpole, ymin=0, ymax=0)
     
@@ -283,11 +268,8 @@ if iice == 1:
 
 if itrsp == 1:
 
-    TRANSPORT_SECTION_FILE = os.getenv('TRANSPORT_SECTION_FILE')
-    if TRANSPORT_SECTION_FILE == None: print 'The TRANSPORT_SECTION_FILE environement variable is no set'; sys.exit(0)
-
-    print '\nUsing TRANSPORT_SECTION_FILE = '+TRANSPORT_SECTION_FILE
-    list_sections = bo.get_sections_names_from_file(TRANSPORT_SECTION_FILE)
+    print '\nUsing TRANSPORT_SECTION_FILE = '+vdic['TRANSPORT_SECTION_FILE']
+    list_sections = bo.get_sections_names_from_file(vdic['TRANSPORT_SECTION_FILE'])
     print 'List of sections to treat: ', list_sections
     nbsect = len(list_sections)
         
@@ -302,13 +284,13 @@ if itrsp == 1:
         for csect in list_sections:
             print '\n Treating transports through '+csect
 
-            cf_in = DIAG_DIR+'/'+confrun+'/transport_sect_'+csect+'.nc' ; bt.chck4f(cf_in, script_name='compare_time_series.py')
+            cf_in = cd_diag+'/'+confrun+'/transport_sect_'+csect+'.nc' ; bt.chck4f(cf_in, script_name='compare_time_series.py')
             id_in = Dataset(cf_in)
             if jsect == 0:
                 if jrun == 0:
                     vtime = nmp.zeros(nb_years*12)
                     vyear = nmp.zeros(nb_years)
-                    Xtrsp   = nmp.zeros(nbrun*nb_years*3*nbsect) ; Xtrsp.shape = [ nbrun, nbsect , 3, nb_years ]
+                    Xtrsp = nmp.zeros((nbrun,nbsect,3,nb_years))
                 
                 vtime_t = id_in.variables['time'][:] ; nbm = len(vtime_t) ; nby = nbm/12
                 if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
@@ -334,7 +316,7 @@ if itrsp == 1:
         jstuff = 0
         for cstuff in vstuff:
 
-            bp.plot("1d_multi")(vyear[:], Xtrsp[:,jsect,jstuff,:], clist_confruns, cfig_type=FIG_FORMAT,
+            bp.plot("1d_multi")(vyear[:], Xtrsp[:,jsect,jstuff,:], clist_confruns, cfig_type=cffig,
                                 cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic, loc_legend='upper left',
                                 cyunit=vunit[jstuff], ctitle = 'Transport of '+cstuff+' through section '+csect,
                                 ymin=0, ymax=0)
@@ -351,10 +333,7 @@ if itrsp == 1:
 # AMOC
 if iamoc == 1:
 
-    LMOCLAT = os.getenv('LMOCLAT')
-    if LMOCLAT == None: print 'The LMOCLAT environement variable is no set'; sys.exit(0)
-    
-    list_lat = LMOCLAT.split() ; nblat = len(list_lat)
+    list_lat = vdic['LMOCLAT'].split() ; nblat = len(list_lat)
     print '\n AMOC: '+str(nblat)+' latitude bands!'
 
     nbm_prev = 0
@@ -364,14 +343,14 @@ if iamoc == 1:
         jl = 0
         for clr in list_lat:
             [ c1, c2 ] = clr.split('-') ; clat_info = '+'+c1+'N+'+c2+'N'
-            cf_in = DIAG_DIR+'/'+confrun+'/max_moc_atl_'+clat_info+'.nc' ; bt.chck4f(cf_in, script_name='compare_time_series.py')
+            cf_in = cd_diag+'/'+confrun+'/max_moc_atl_'+clat_info+'.nc' ; bt.chck4f(cf_in, script_name='compare_time_series.py')
             
             id_in = Dataset(cf_in)
             if jl == 0:
                 if jrun == 0:
                     vtime = nmp.zeros(nb_years*12)
                     vyear = nmp.zeros(nb_years)
-                    Xamoc = nmp.zeros(nbrun*nb_years*nblat) ; Xamoc.shape = [ nbrun, nblat, nb_years ]
+                    Xamoc = nmp.zeros((nbrun, nblat, nb_years))
                 vtime_t = id_in.variables['time'][:] ; nbm = len(vtime_t) ; nby = nbm/12
                 if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
                 if nby > nb_years: print 'ERROR: compare_time_series.py => PROBLEM#2. diag ='+cdiag, nby, nb_years ; sys.exit(0)
@@ -389,7 +368,7 @@ if iamoc == 1:
     jl = 0
     for clr in list_lat:
 
-        bp.plot("1d_multi")(vyear[:], Xamoc[:,jl,:], clist_confruns, cfig_type=FIG_FORMAT,
+        bp.plot("1d_multi")(vyear[:], Xamoc[:,jl,:], clist_confruns, cfig_type=cffig,
                             cfignm='AMOC_'+clr+'_comparison', loc_legend='lower left',
                             dt_year=ittic, cyunit='Sv', ctitle = 'AMOC ('+clr+')', ymin=0, ymax=0)
     
