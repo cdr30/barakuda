@@ -75,7 +75,7 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO ORCA1 L42 EC-Earth CMIP5 experiment"
+export JTITLE="NEMO v2.X ${CONF}_LIM2 / EC-Earth 2.2"
 
 # Land-sea mask and basins files:
 export MM_FILE="${STORE_DIR}/${CONF}/${CONF}-I/mesh_mask_ORCA1_ecearth2_42l_NoCaspian.nc4"
@@ -128,28 +128,28 @@ RWWWD=/data/www/barakuda/CMIP5 ; # directory of the local or remote host to send
 
 
 # Basic 3D and surface averages:
-i_do_mean=1
+i_do_mean=0
 
 # AMOC:
-i_do_amoc=1
+i_do_amoc=0
 export LMOCLAT="20-23 30-33 40-43 45-48 50-53" ; # List of latitude bands to look in for max of AMOC
 
 
 # Transport of mass, heat and salt through specified sections (into TRANSPORT_SECTION_FILE):
-i_do_trsp=2  ; # transport of mass, heat and salt through specified sections
+i_do_trsp=0  ; # transport of mass, heat and salt through specified sections
 #              # i_do_trsp=2 => treat also different depths range!
 z1_trsp=100  ; # first  depth: i_do_trsp must be set to 2
 z2_trsp=1000 ; # second depth: i_do_trsp must be set to 2
 
 
 # meridional heat/salt transport (advective)
-i_do_mht=1
+i_do_mht=0
 
 # Transport by sigma class
-i_do_sigt=1
+i_do_sigt=0
 
 # sea-ice diags
-i_do_ice=1  ; # Sea-ice diags
+i_do_ice=0  ; # Sea-ice diags
 
 
 i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!
@@ -168,7 +168,7 @@ i_do_box_TS_z=0 ; # do sigma vert. profiles on given boxes... # 1 => no figures,
 
 #
 # Deep Mixed volume in prescribed boxes:
-i_do_dmv=1
+i_do_dmv=0
 export MLD_CRIT="4000,3000,2000,1500,1000,725,500"
 
 

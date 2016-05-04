@@ -553,7 +553,7 @@ while ${lcontinue}; do
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # If EC-Earth simu, attempting to compute ocean-averaged fluxes from IFS too (E, P, E-P)
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if [ ${ece_run} -eq 1 ]; then
+        if [ ${ece_run} -eq 1 -a ${NBL} -eq 75 ]; then
             echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
             echo "LAUNCHING: ./scripts/do_fwf_series_ifs.sh in the background!"
             ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh &

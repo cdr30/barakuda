@@ -1,24 +1,19 @@
 #!/usr/bin/env python
 
-# L. Brodeau, May 2014
-
-# TO DO: test for the presence of variables like fluxes to know if treat them
-#   put real sst and sss
-# rename SST and SSS and ... to surf_theta, surf_s, ....
-
+#       B a r a K u d a
+#
+#     Budget and other stuffs on rectangular boxes!
+#
+#       L. Brodeau, 2013
 
 import sys
-import os
 import numpy as nmp
 from netCDF4 import Dataset
 from os.path import basename
 
-
-# Laurent's:
 import barakuda_tool as bt
-#import barakuda_plot as bp
+import barakuda_ncio as bnc
 from barakuda_physics import sigma0
-
 
 
 #next = 10
@@ -35,38 +30,16 @@ rCp  = 4000.  ; # 3850 J/kg/deg.C  => to stay consistent with cdftransportiz.f90
 l_plot_debug = False
 
 
-CONF = os.getenv('CONF')
-if CONF == None: print 'The CONF environement variable is no set'; sys.exit(0)
 
-RUN = os.getenv('RUN')
-if RUN == None: print 'The RUN environement variable is no set'; sys.exit(0)
-CONFRUN = CONF+'-'+RUN
 
-CPREF = os.getenv('CPREF')
-if CPREF == None: print 'The CPREF environement variable is no set'; sys.exit(0)
+venv_needed = {'ORCA','RUN','CPREF','DIAG_D','MM_FILE','FILE_DEF_BOXES','NN_T','NN_S', \
+               'NN_SST','NN_SSS','NN_SSH'}
 
-MM_FILE = os.getenv('MM_FILE')
-if MM_FILE == None: print 'The MM_FILE environement variable is no set'; sys.exit(0)
+vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
-DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
+corca = vdic['ORCA']
 
-FILE_DEF_BOXES = os.getenv('FILE_DEF_BOXES')
-if FILE_DEF_BOXES == None: print 'The FILE_DEF_BOXES environement variable is no set'; sys.exit(0)
-
-# Name for salinity and pot. temperature:
-NN_T = os.getenv('NN_T')
-if NN_T == None: print 'The NN_T environement variable is no set'; sys.exit(0)
-NN_S = os.getenv('NN_S')
-if NN_S == None: print 'The NN_S environement variable is no set'; sys.exit(0)
-
-NN_SST = os.getenv('NN_SST')
-if NN_SST == None: print 'The NN_SST environement variable is no set'; sys.exit(0)
-NN_SSS = os.getenv('NN_SSS')
-if NN_SSS == None: print 'The NN_SSS environement variable is no set'; sys.exit(0)
-NN_SSH = os.getenv('NN_SSH')
-if NN_SSH == None: print 'The NN_SSH environement variable is no set'; sys.exit(0)
-
+CONFRUN = corca+'-'+vdic['RUN']
 
 
 
@@ -89,20 +62,12 @@ czs= sys.argv[2] ; zs = float(int(czs))
 luv = False
 if narg == 4 and sys.argv[3] == 'uv':
     luv = True
-    NN_TAUX = os.getenv('NN_TAUX')
-    if NN_TAUX == None: print 'The NN_TAUX environement variable is no set'; sys.exit(0)
-    NN_TAUY = os.getenv('NN_TAUY')
-    if NN_TAUY == None: print 'The NN_TAUY environement variable is no set'; sys.exit(0)
+    venv_uv = {'NN_TAUX','NN_TAUY'}
+    vdic_uv = bt.check_env_var(sys.argv[0], venv_uv)
 
 
 
-
-
-print ' RUN = '+RUN; print ' CONFRUN = '+CONFRUN
-print ' CPREF = '+CPREF
-print ' DIAG_D = '+DIAG_D
-
-path_fig = DIAG_D+'/'
+path_fig = vdic['DIAG_D']+'/'
 
 # Image type? eps, png, jpg...
 #FIG_FORM = 'pdf'
@@ -112,7 +77,7 @@ FIG_FORM = 'png'
 
 # First will read name and coordinates of rectangular boxes to treat into file FILE_DEF_BOXES
 ##############################################################################################
-vboxes, vi1, vj1, vi2, vj2 = bt.read_box_coordinates_in_ascii(FILE_DEF_BOXES)
+vboxes, vi1, vj1, vi2, vj2 = bt.read_box_coordinates_in_ascii(vdic['FILE_DEF_BOXES'])
 nbb = len(vboxes)
 print ''
 
@@ -121,7 +86,7 @@ print ''
 
 
 # Checking presence of NEMO files:
-cfroot = CPREF+cy+'0101_'+cy+'1231'
+cfroot  = vdic['CPREF']+cy+'0101_'+cy+'1231'
 cf_in_T = cfroot+'_grid_T.nc'; bt.chck4f(cf_in_T, script_name=cname_script)
 if luv:
     cf_in_U = cfroot+'_grid_U.nc'; bt.chck4f(cf_in_U, script_name=cname_script)
@@ -129,8 +94,8 @@ if luv:
     
 
 # Coordinates, mask and metrics:
-bt.chck4f(MM_FILE, script_name=cname_script)
-id_mm = Dataset(MM_FILE)
+bt.chck4f(vdic['MM_FILE'], script_name=cname_script)
+id_mm = Dataset(vdic['MM_FILE'])
 Xmask = id_mm.variables['tmask']   [0,:,:,:]
 ze1t  = id_mm.variables['e1t']     [0,:,:]
 ze2t  = id_mm.variables['e2t']     [0,:,:]
@@ -155,20 +120,20 @@ list_variables = id_in_T.variables.keys()
 
 Vtime = id_in_T.variables['time_counter'][:]
 
-if NN_SST == 'thetao':
-    Zsst  = id_in_T.variables[NN_SST][:,0,:,:]
+if vdic['NN_SST'] == 'thetao':
+    Zsst  = id_in_T.variables[vdic['NN_SST']][:,0,:,:]
 else:
-    Zsst  = id_in_T.variables[NN_SST][:,:,:]
+    Zsst  = id_in_T.variables[vdic['NN_SST']][:,:,:]
     
-if NN_SSS == 'so':
-    Zsss  = id_in_T.variables[NN_SSS][:,0,:,:]
+if vdic['NN_SSS'] == 'so':
+    Zsss  = id_in_T.variables[vdic['NN_SSS']][:,0,:,:]
 else:
-    Zsss  = id_in_T.variables[NN_SSS][:,:,:]
+    Zsss  = id_in_T.variables[vdic['NN_SSS']][:,:,:]
     
-Zssh  = id_in_T.variables[NN_SSH][:,:,:]
+Zssh  = id_in_T.variables[vdic['NN_SSH']][:,:,:]
 
-Xtemp = id_in_T.variables[NN_T][:,:,:,:]
-Xsali = id_in_T.variables[NN_S][:,:,:,:]
+Xtemp = id_in_T.variables[vdic['NN_T']][:,:,:,:]
+Xsali = id_in_T.variables[vdic['NN_S']][:,:,:,:]
 
 if 'sohefldo' in list_variables[:]:
     Zqnet = id_in_T.variables['sohefldo']  [:,:,:] ; # Net Downward Heat Flux
@@ -214,20 +179,20 @@ if len(ve3t[:]) != nk: print 'Problem with nk!!!'; sys.exit(0)
 if luv:
     id_in_U = Dataset(cf_in_U)
     list_variables = id_in_U.variables.keys()
-    if NN_TAUX in list_variables[:]:
-        Ztaux = id_in_U.variables[NN_TAUX][:,:,:] ; # Net Downward Heat Flux
+    if vdic_uv['NN_TAUX'] in list_variables[:]:
+        Ztaux = id_in_U.variables[vdic_uv['NN_TAUX']][:,:,:] ; # Net Downward Heat Flux
         ltau = True
-        print NN_TAUX+' found in '+cf_in_U
+        print vdic_uv['NN_TAUX']+' found in '+cf_in_U
     else:
-        print NN_TAUX+' NOT found in '+cf_in_U
+        print vdic_uv['NN_TAUX']+' NOT found in '+cf_in_U
     id_in_U.close()
     id_in_V = Dataset(cf_in_V)
     list_variables = id_in_V.variables.keys()
-    if ltau and NN_TAUY in list_variables[:]:
-        Ztauy = id_in_V.variables[NN_TAUY][:,:,:] ; # Net Downward Heat Flux
-        print NN_TAUY+' found in '+cf_in_V+'\n'
+    if ltau and vdic_uv['NN_TAUY'] in list_variables[:]:
+        Ztauy = id_in_V.variables[vdic_uv['NN_TAUY']][:,:,:] ; # Net Downward Heat Flux
+        print vdic_uv['NN_TAUY']+' found in '+cf_in_V+'\n'
     else:
-        print NN_TAUY+' NOT found in '+cf_in_V
+        print vdic_uv['NN_TAUY']+' NOT found in '+cf_in_V
         ltau = False
     id_in_V.close()
 
@@ -435,177 +400,34 @@ for jb in range(nbb):
             print 'Surface freshwater flux (Sv) = ', PmE_m[jm], '\n'        
             print 'Volume associated with SSH (km^3) = ', Vol_m[jm], '\n'
     
-    
-    
-    
-    
-    
-    
-    # NETCDF:
-    
-    cf_out = DIAG_D+'/budget_'+CONFRUN+'_box_'+cbox+'.nc'
-    
-    l_nc_is_new = not os.path.exists(cf_out)
-    
-    # Creating/Opening output Netcdf file:
-    if l_nc_is_new:
-        f_out = Dataset(cf_out, 'w', format='NETCDF3_CLASSIC')
-    else:
-        f_out = Dataset(cf_out, 'a', format='NETCDF3_CLASSIC')
-    
-    if l_nc_is_new:
-        jrec2write = 0
-        
-        # Creating Dimensions:
-        f_out.createDimension('time', None)
-    
-        # Creating variables:
-        id_t = f_out.createVariable('time','f4',('time',)) ;      id_t.units = 'year'
 
 
-        id_v01 = f_out.createVariable('ssh',    'f4',('time',))
-        id_v01.unit = 'm'; id_v01.long_name = 'Box-averaged sea surface height'
-        
-        id_v02 = f_out.createVariable('sst',    'f4',('time',))
-        id_v02.unit = 'deg.C'; id_v02.long_name = 'Box-averaged sea surface temperature'
-        
-        id_v03 = f_out.createVariable('sss',    'f4',('time',))
-        id_v03.unit = 'PSU'; id_v03.long_name = 'Box-averaged sea surface salinity'
-        
+    Vtime = nmp.zeros(Nt)
+    for jm in range(Nt): Vtime[jm] = float(jy) + (float(jm)+0.5)/12.
     
-        id_v04 = f_out.createVariable('surf_T',  'f4',('time',))
-        id_v04.unit = 'deg.C'; id_v04.long_name = 'Box-averaged Temperature (first '+czs+'m)'
+    cc = 'Box-averaged '
+    cf_out = vdic['DIAG_D']+'/budget_'+CONFRUN+'_box_'+cbox+'.nc'
     
-        id_v05 = f_out.createVariable('theta','f4',('time',))
-        id_v05.unit = 'deg.C'; id_v05.long_name = 'Box-averaged potential temperature'
+    bnc.wrt_appnd_1d_series(Vtime, ssh_m, cf_out, 'ssh',  cu_t='year', cu_d='m', cln_d=cc+'sea surface height',
+                            vd2=sst_m,    cvar2='sst',      cln_d2=cc+'sea surface temperature',      cun2='deg.C',
+                            vd3=sss_m,    cvar3='sss',      cln_d3=cc+'sea surface salinity',         cun3='PSU',
+                            vd4=surf_T_m, cvar4='surf_T',   cln_d4=cc+'Temperature (first '+czs+'m)', cun4='deg.C',
+                            vd5=T_m, cvar5='theta',    cln_d5=cc+'potential temperature',        cun5='deg.C',
+                            vd6=H_m, cvar6='HC',       cln_d6=cc+'heat content',                 cun6='PJ',
+                            vd7=surf_S_m, cvar7='surf_S',   cln_d7=cc+'salinity (first '+czs+'m)',    cun7='PSU',
+                            vd8=S_m, cvar8='S',        cln_d8=cc+'salinity',                     cun8='PSU',                    
+                            vd9=ss0_m, cvar9='SSs0',     cln_d9=cc+'sea surface sigma0 (sst&sss)', cun9='',
+                            vd10=surf_s0_m,cvar10='surf_s0', cln_d10=cc+'surface sigma0 (first '+czs+'m)', cun10=''
+                            )
     
-        id_v06 = f_out.createVariable('H',    'f4',('time',))
-        id_v06.unit = 'PJ'; id_v06.long_name = 'Box-averaged heat content'
 
-
-        id_v07 = f_out.createVariable('surf_S',  'f4',('time',))
-        id_v07.unit = 'PSU'; id_v07.long_name = 'Box-averaged salinity (first '+czs+'m)'
+    cf_out = vdic['DIAG_D']+'/budget_srf_flx_'+CONFRUN+'_box_'+cbox+'.nc'
     
-        id_v08 = f_out.createVariable('s',    'f4',('time',))
-        id_v08.unit = 'PSU'; id_v08.long_name = 'Box-averaged salinity'
-        
+    bnc.wrt_appnd_1d_series(Vtime, Qnet_m, cf_out, 'Qnet',  cu_t='year', cu_d='W/m^2', cln_d=cc+'net heat flux',
+                            vd2=Qnet_x_S_m,    cvar2='Qnet_x_S',      cln_d2=cc+'net heat flux x Surface',      cun2='PW',
+                            vd3=Qsw_m,    cvar3='Qsw',      cln_d3=cc+'solar radiation',         cun3='W/m^2',
+                            vd4=Qsw_x_S_m, cvar4='Qsw_x_S',   cln_d4=cc+'solar radiation x Surface', cun4='PW',
+                            vd5=PmE_m, cvar5='PmE',    cln_d5=cc+'net freshwater flux',        cun5='Sv',
+                            vd6=Tau_m, cvar6='Tau',       cln_d6=cc+'wind stress module',                 cun6='N/m^2'
+                            )
 
-        id_v09 = f_out.createVariable('SSsigma0',  'f4',('time',))
-        id_v09.unit = ''; id_v09.long_name = 'Box-averaged sea surface sigma0 (from sst and sss)'
-
-        id_v09b = f_out.createVariable('surf_sigma0',  'f4',('time',))
-        id_v09b.unit = ''; id_v09b.long_name = 'Box-averaged surface sigma0 (first '+czs+'m)'
-
-        if lqnet:
-            id_v10 = f_out.createVariable('Qnet',    'f4',('time',))
-            id_v10.unit = 'W/m^2'; id_v10.long_name = 'Box-averaged net heat flux'
-            id_v10b = f_out.createVariable('Qnet_x_S',    'f4',('time',))
-            id_v10b.unit = 'PW'; id_v10b.long_name = 'Box-averaged net heat flux x Surface'
-        
-        if lqsw:
-            id_v11 = f_out.createVariable('Qsw',    'f4',('time',))
-            id_v11.unit = 'W/m^2'; id_v11.long_name = 'Box-averaged solar radiation'        
-            id_v11b = f_out.createVariable('Qsw_x_S',    'f4',('time',))
-            id_v11b.unit = 'PW'; id_v11b.long_name = 'Box-averaged solar radiation x Surface'
-        
-        if lpme:
-            id_v12 = f_out.createVariable('PmE',    'f4',('time',))
-            id_v12.unit = 'Sv'; id_v12.long_name = 'Box-averaged net freshwater flux'
-        
-        if ltau:
-            id_v13 = f_out.createVariable('Tau',    'f4',('time',))
-            id_v13.unit = 'N/m^2'; id_v13.long_name = 'Box-averaged wind stress module'
-    
-    
-    
-        for jm in range(Nt):
-            id_t[jrec2write+jm] = float(jy) + (float(jm)+0.5)/12.
-            id_v01[jrec2write+jm] =  ssh_m[jm]
-            id_v02[jrec2write+jm] =  sst_m[jm]
-            id_v03[jrec2write+jm] =  sss_m[jm]            
-            
-            id_v04[jrec2write+jm] =  surf_T_m[jm]
-            id_v05[jrec2write+jm] =    T_m[jm]
-            id_v06[jrec2write+jm] =    H_m[jm]
-
-            id_v07[jrec2write+jm] =  surf_S_m[jm]
-            id_v08[jrec2write+jm] =    S_m[jm]
-            
-            id_v09[jrec2write+jm] =  ss0_m[jm]
-            id_v09b[jrec2write+jm] =  surf_s0_m[jm]
-
-            if lqnet:
-                id_v10[jrec2write+jm] = Qnet_m[jm]
-                id_v10b[jrec2write+jm] = Qnet_x_S_m[jm]            
-            if lqsw:
-                id_v11[jrec2write+jm] =  Qsw_m[jm]
-                id_v11b[jrec2write+jm] =  Qsw_x_S_m[jm]
-                
-            if lpme:  id_v12[jrec2write+jm] = PmE_m[jm]
-            if ltau: id_v13[jrec2write+jm] = Tau_m[jm]            
-
-
-        f_out.box_coordinates = cbox+' => '+str(i1)+','+str(j1)+' -> '+str(i2-1)+','+str(j2-1)
-        f_out.box_area = str(Tot_area*1.E-6)+' (km^2) = (10^6 m^2)'
-        f_out.box_file        = FILE_DEF_BOXES            
-        f_out.Author = 'L. Brodeau ('+cname_script+' of Barakuda)'
-    
-    else:
-        vt = f_out.variables['time']
-        jrec2write = len(vt)
-        v01 = f_out.variables['ssh']
-        v02 = f_out.variables['sst']
-        v03 = f_out.variables['sss']
-        
-        v04 = f_out.variables['surf_T']
-        v05 = f_out.variables['theta']
-        v06 = f_out.variables['H']
-        
-        v07 = f_out.variables['surf_S']
-        v08 = f_out.variables['s']        
-
-        v09 = f_out.variables['SSsigma0']
-        v09b = f_out.variables['surf_sigma0']
-
-        if lqnet:
-            v10 = f_out.variables['Qnet']
-            v10b = f_out.variables['Qnet_x_S']
-        if lqsw:
-            v11 = f_out.variables['Qsw']
-            v11b = f_out.variables['Qsw_x_S']
-            
-        if lpme:  v12 = f_out.variables['PmE']
-        if ltau: v13 = f_out.variables['Tau']
-
-        
-        for jm in range(Nt):
-            vt [jrec2write+jm] = float(jy) + (float(jm)+0.5)/12.
-            v01[jrec2write+jm] =  ssh_m[jm]            
-            v02[jrec2write+jm] =  sst_m[jm]
-            v03[jrec2write+jm] =  sss_m[jm]
-            
-            v04[jrec2write+jm] =  surf_T_m[jm]
-            v05[jrec2write+jm] =    T_m[jm]
-            v06[jrec2write+jm] =    H_m[jm]
-
-            v07[jrec2write+jm] =  surf_S_m[jm]            
-            v08[jrec2write+jm] =    S_m[jm]
-
-            v09[jrec2write+jm] =  ss0_m[jm]
-            v09b[jrec2write+jm] =  surf_s0_m[jm]
-
-            if lqnet:
-                v10[jrec2write+jm] = Qnet_m[jm]
-                v10b[jrec2write+jm] = Qnet_x_S_m[jm]
-            if lqsw:
-                v11[jrec2write+jm] =  Qsw_m[jm]
-                v11b[jrec2write+jm] =  Qsw_x_S_m[jm]
-                
-            if lpme:  v12[jrec2write+jm] = PmE_m[jm]
-            if ltau: v13[jrec2write+jm] = Tau_m[jm]
-            
-            
-    f_out.close()
-    
-    print cf_out+' written!'
-    
