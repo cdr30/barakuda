@@ -1,41 +1,28 @@
 #!/usr/bin/env python
+
+#       B a r a K u d a
 #
-# L. Brodeau, January 2013
+#     Generate time-series of volume trasnport by sigma0 class
+#
+#       L. Brodeau, 2013
 #
 
 import sys
-import os
 import numpy as nmp
 
 from netCDF4 import Dataset
 
-import matplotlib
-matplotlib.use("Agg")
-from   matplotlib.pylab import *
-import matplotlib.colors as colors
-
-
+import barakuda_tool as bt
 import barakuda_orca as bo
 import barakuda_plot as bp
-import barakuda_tool as bt
 import barakuda_physics as bphy
 
 
-print '\n plot_trsp_sigma.py'
+venv_needed = {'ORCA','RUN','DIAG_D','DENSITY_SECTION_FILE'}
 
+vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
-CONF = os.getenv('CONF')
-if CONF == None: print 'The CONF environement variable is no set'; sys.exit(0)
-
-RUN = os.getenv('RUN')
-if RUN == None: print 'The RUN environement variable is no set'; sys.exit(0)
-
-DIAG_D = os.getenv('DIAG_D')
-if DIAG_D == None: print 'The DIAG_D environement variable is no set'; sys.exit(0)
-
-DENSITY_SECTION_FILE = os.getenv('DENSITY_SECTION_FILE')
-if DENSITY_SECTION_FILE == None: print 'The DENSITY_SECTION_FILE environement variable is no set'; sys.exit(0)
-
+CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 
 rsigdense0 = bphy.rsigma_dense
 
@@ -43,18 +30,17 @@ l_force_lim = True
 
 cfig_type = 'png'
 
-path_fig = DIAG_D+'/'
+path_fig =  vdic['DIAG_D']+'/'
 
-CONFRUN = CONF+'-'+RUN
-
-print '  Using DENSITY_SECTION_FILE = '+DENSITY_SECTION_FILE
-list_sections = bo.get_sections_names_from_file(DENSITY_SECTION_FILE)
+cf_dens_sect =  vdic['DENSITY_SECTION_FILE']
+print '  Using cf_dens_sect = '+cf_dens_sect
+list_sections = bo.get_sections_names_from_file(cf_dens_sect)
 print 'List of sections to treat: ', list_sections
 nbsec = len(list_sections)
 
 
 
-cf_in = DIAG_D+'/transport_by_sigma_class.nc' ; bt.chck4f(cf_in)
+cf_in =  vdic['DIAG_D']+'/transport_by_sigma_class.nc' ; bt.chck4f(cf_in)
 
 
 
@@ -109,7 +95,6 @@ for csec in list_sections:
                               lforce_lim=False, vcont_spec1 = [], i_cb_subsamp=2)
     
 
-    #           __vert_section(self,VX, VZ, XF, XMSK, rmin, rmax
     #bp.plot("vert_section")(vtime_ann, vsigma_bounds, Xst_ann, Xst_ann*0.+1., rmin, rmax, dc,
     #                        lkcont=True, cpal='bbr2_r', xmin=nmp.min(vtime_ann), xmax=nmp.max(vtime_ann), dx=ittic,
     #                        cfignm='transport_sigma_class_'+csec+'_'+CONFRUN,

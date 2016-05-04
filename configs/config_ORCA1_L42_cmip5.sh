@@ -18,6 +18,11 @@ export NBL=42         ; # number of levels
 # Root directory where NEMO output files are stored:
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
+
+# Is it an ec-earth run?
+export ece_run=0 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
+#                  # where YYY starts from '001' to
+
 # List of suffixed of files that have been saved by NEMO:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod"
 
@@ -54,8 +59,15 @@ export NN_V_EIV="0" ; # ignore
 export NN_TAUX="sozotaux"
 export NN_TAUY="sometauy"
 
+export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction and volume?
 export NN_ICEF="ileadfra" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
-export NN_ICET="iicethic" ; # ice thickness but 'sit' is only in icemod file !!!
+export NN_ICET="iicethic" ; # ice thickness or rather volume...
+
+export FILE_FLX_SUFFIX="grid_T" ; # in what file to find surface fluxes ?
+export NN_FWF="sowaflup"       ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
+export NN_EMP="sowaflep"   ; # name of E-P in "FILE_FLX_SUFFIX" file...
+export NN_P="XXX"   ; # name of P in "FILE_FLX_SUFFIX" file...
+export NN_RNF="sorunoff"   # name for continental runoff in "FILE_FLX_SUFFIX" file...
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
@@ -94,6 +106,7 @@ export DIAG_DIR="${STORE_DIR}/tmp/barakuda/cmip5"
 
 # Files with the list of rectangular boxes to look at more closely:
 export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
+export FILE_DMV_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 
 
 
@@ -115,32 +128,31 @@ RWWWD=/data/www/barakuda/CMIP5 ; # directory of the local or remote host to send
 
 
 # Basic 3D and surface averages:
-i_do_mean=0
+i_do_mean=1
 
 # AMOC:
-i_do_amoc=0
+i_do_amoc=1
 export LMOCLAT="20-23 30-33 40-43 45-48 50-53" ; # List of latitude bands to look in for max of AMOC
 
 
 # Transport of mass, heat and salt through specified sections (into TRANSPORT_SECTION_FILE):
-i_do_trsp=0  ; # transport of mass, heat and salt through specified sections
+i_do_trsp=2  ; # transport of mass, heat and salt through specified sections
 #              # i_do_trsp=2 => treat also different depths range!
 z1_trsp=100  ; # first  depth: i_do_trsp must be set to 2
 z2_trsp=1000 ; # second depth: i_do_trsp must be set to 2
 
 
 # meridional heat/salt transport (advective)
-i_do_mht=0
+i_do_mht=1
 
 # Transport by sigma class
-i_do_sigt=0
+i_do_sigt=1
 
 # sea-ice diags
-i_do_ice=0  ; # Sea-ice diags
-export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction NN_ICEF? => "icemod" or "grid_T"
+i_do_ice=1  ; # Sea-ice diags
 
 
-i_do_bb=0   ; # Budget and other stuffs on a given rectangular box!
+i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!
 #             # => needs file FILE_DEF_BOXES !!!
 # => produces time-series f(t)  (mean of 2D fields)
 

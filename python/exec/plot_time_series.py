@@ -48,6 +48,21 @@ elif cdiag == 'mean_sos':
     cyu   = r'PSU'
     ym = yp = 0.
 
+elif cdiag == 'mean_fwf':
+    venv_ndd = {'NN_FWF','NN_EMP','NN_RNF','NN_P'}
+    vdic_fwf = bt.check_env_var(sys.argv[0], venv_ndd)
+    idfig = 'fwf'
+    cvar  = 'EmPmR'
+    clnm  = 'Globally-averaged upward net freshwater flux (E-P-R)'
+    cvr2  = 'R'
+    cln2  = 'Globally-averaged continental runoffs + ice calving (R)'
+    cvr3  = 'EmP'
+    cln3  = 'Globally-averaged Evaporation - Precipitation (E-P)'
+    cvr4  = 'P'
+    cln4  = 'Globally-averaged Precipitation (P)'
+    cyu   = r'Sv'
+    ym = yp = 0.
+
 elif cdiag == 'mean_zos':
     cvar  = vdic['NN_SSH']
     idfig = 'simple'
@@ -128,7 +143,7 @@ if idfig == 'simple':
     id_in.close()
 
     if nbm%12 != 0:
-        print 'ERROR: plot_time_series.py => '+cvar+', numberof records not a multiple of 12!'
+        print 'ERROR: plot_time_series.py => '+cvar+', number of records not a multiple of 12!'
         sys.exit(0)
 
     # Annual data
@@ -140,6 +155,149 @@ if idfig == 'simple':
     bp.plot("1d_mon_ann")(vtime, VY, vvar, FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
                           cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
 
+
+
+
+if idfig == 'fwf':
+
+    l_rnf = False ; l_emp = False ; l_prc = False
+
+    cf_in = cdiag+'_'+CONFRUN+'_global.nc' ;  bt.chck4f(cf_in, script_name='plot_time_series.py')
+    id_in = Dataset(cf_in)
+    list_var = id_in.variables.keys()
+    vtime = id_in.variables['time'][:] ; nbm = len(vtime)
+    vfwf  = id_in.variables[cvar][:]
+    if cvr2 in list_var[:]:
+        l_rnf = True
+        vrnf  = id_in.variables[cvr2][:]
+    if cvr3 in list_var[:]:
+        l_emp = True
+        vemp  = id_in.variables[cvr3][:]
+    if cvr4 in list_var[:]:
+        l_prc = True
+        vprc  = id_in.variables[cvr3][:]
+    id_in.close()
+
+    # Checking if there a potential file for IFS:
+    l_fwf_ifs = False
+    cf_IFS_in = cdiag+'_IFS_'+vdic['RUN']+'_global.nc'
+    print '  *** Checking for the existence of '+cf_IFS_in
+    if os.path.exists(cf_IFS_in):
+        print "  *** IFS FWF files found!"
+        id_IFS_in = Dataset(cf_IFS_in)
+        vemp_ifs = id_IFS_in.variables['flx_emp_sv'][:]
+        ve_ifs   = id_IFS_in.variables['flx_e_sv'][:]
+        vp_ifs   = id_IFS_in.variables['flx_p_sv'][:]
+        vemp_glb_ifs = id_IFS_in.variables['flx_emp_glb_sv'][:]
+        #ve_glb_ifs   = id_IFS_in.variables['flx_e_glb_sv'][:]
+        #vp_glb_ifs   = id_IFS_in.variables['flx_p_glb_sv'][:]
+        vemp_land_ifs = id_IFS_in.variables['flx_emp_land_sv'][:]
+        ve_land_ifs   = id_IFS_in.variables['flx_e_land_sv'][:]
+        vp_land_ifs   = id_IFS_in.variables['flx_p_land_sv'][:]
+        id_IFS_in.close()
+        if len(vemp_ifs) != nbm:
+            print 'ERROR: plot_time_series.py => length of E-P of IFS in '+cf_IFS_in+' does not agree with its NEMO counterpart!'
+            print '       =>', len(vemp_ifs), nbm
+            sys.exit(0)
+        l_fwf_ifs = True
+    else:
+        print '       => Nope!\n'
+
+
+    if nbm%12 != 0:
+        print 'ERROR: plot_time_series.py => '+cvar+', number of records not a multiple of 12!'
+        sys.exit(0)
+
+    ittic = bt.iaxe_tick(nbm/12)
+
+    # Annual data
+    VY, FY = bt.monthly_2_annual(vtime, vfwf)
+    # Time to plot
+    bp.plot("1d_mon_ann")(vtime, VY, vfwf, FY, cfignm=cdiag+'_fwf_'+CONFRUN, dt_year=ittic,
+                          cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
+
+    if l_rnf:
+        VY, FY = bt.monthly_2_annual(vtime, vrnf)
+        bp.plot("1d_mon_ann")(vtime, VY, vrnf, FY, cfignm=cdiag+'_rnf_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln2, ymin=ym, ymax=yp)
+
+    if l_emp:
+        VY, FY = bt.monthly_2_annual(vtime, vemp)
+        bp.plot("1d_mon_ann")(vtime, VY, vemp, FY, cfignm=cdiag+'_emp_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln3, ymin=ym, ymax=yp)
+
+    if l_prc:
+        VY, FY = bt.monthly_2_annual(vtime, vprc)
+        bp.plot("1d_mon_ann")(vtime, VY, vprc, FY, cfignm=cdiag+'_prc_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln4, ymin=ym, ymax=yp)
+
+    if l_fwf_ifs and l_emp:
+        # Only E-P for NEMO and IFS:
+        Xplt = nmp.zeros((3,nbm))
+        Xplt[0,:] = vemp[:]
+        Xplt[1,:] = vemp_ifs[:]
+        Xplt[2,:] = vemp_land_ifs[:]
+        bp.plot("1d_multi")(vtime, Xplt, ['E-P NEMO','E-P IFS (oceans)','E-P IFS (land)'],
+                            cfignm=cdiag+'_emp_IFS_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': E-P (monthly)', ymin=ym, ymax=yp)
+
+        # Same but annual:
+        nby = nbm/12
+        Xplt = nmp.zeros((2,nby))
+        VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vemp[:])
+        VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], vemp_ifs[:])
+        bp.plot("1d_multi")(VY, Xplt, ['E-P NEMO','E-P IFS'],
+                            cfignm=cdiag+'_emp_IFS_annual_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': E-P over oceans (annual)', loc_legend='upper center', ymin=ym, ymax=yp)
+        
+
+
+
+    if l_fwf_ifs and l_rnf:
+        # Runoff of NEMO compares to ( E-P global - E-P ocean ) of IFS: #lulu
+        Xplt = nmp.zeros((2,nbm))
+        Xplt[0,:] = vrnf[:]
+        Xplt[1,:] = -vemp_land_ifs[:]
+        bp.plot("1d_multi")(vtime, Xplt, ['R NEMO','-(E-P) over land IFS'], cfignm=cdiag+'_rnf_IFS_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (monthly)', loc_legend='upper center', ymin=ym, ymax=yp)
+
+        # Same but annual:
+        nby = nbm/12
+        Xplt = nmp.zeros((2,nby))
+        VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:])
+        VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], -vemp_land_ifs[:])
+        #VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], -(vemp_glb_ifs[:]-vemp_ifs[:])) ; # ,'-(Global(E-P)-Oceans(E-P) IFS'
+        bp.plot("1d_multi")(VY, Xplt, ['R NEMO','-(E-P) over land IFS'], cfignm=cdiag+'_rnf_IFS_annual_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (annual)', loc_legend='upper center', ymin=ym, ymax=yp)
+
+    if l_fwf_ifs and l_prc:
+        # Only P for NEMO and IFS:
+        Xplt = nmp.zeros((3,nbm))
+        Xplt[0,:] = vprc[:]
+        Xplt[1,:] = vp_ifs[:]
+        Xplt[2,:] = vp_land_ifs[:]
+        bp.plot("1d_multi")(vtime, Xplt, ['P NEMO','P IFS (oceans)','P IFS (land)'], cfignm=cdiag+'_prc_IFS_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Precip', ymin=ym, ymax=yp)
+
+
+        # Everything possible
+        Xplt = nmp.zeros((7,nbm))
+        vlab = []
+        Xplt[0,:] = vemp[:]      ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
+        Xplt[1,:] = vemp_ifs[:]  ; vlab.append('E-P IFS')
+        Xplt[2,:] = vfwf[:]      ; vlab.append('E-P-R NEMO ('+vdic_fwf['NN_FWF']+')')
+        Xplt[3,:] = vrnf[:]      ; vlab.append('R NEMO ('+vdic_fwf['NN_RNF']+')')
+        Xplt[4,:] = ve_ifs[:]    ; vlab.append('E IFS')
+        Xplt[5,:] = vprc[:]      ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
+        Xplt[6,:] = vp_ifs[:]    ; vlab.append('P IFS')
+
+
+        bp.plot("1d_multi")(vtime, Xplt, vlab,
+                            cfignm=cdiag+'_emp_ALL_IFS_'+CONFRUN, dt_year=ittic,
+                            loc_legend='center', cyunit=cyu,
+                            ctitle = CONFRUN+': fresh-water budgets', ymin=ym, ymax=yp)
+
+        #lulu
 
 
 
@@ -159,8 +317,7 @@ if idfig == 'ts3d':
         jz = 0
         for czr in vzrange:
             if not joce and not jz:
-                FM = nmp.zeros(nbm*nbzrange*nb_oce)
-                FM.shape = [ nb_oce, nbzrange, nbm ]
+                FM = nmp.zeros((nb_oce, nbzrange, nbm))
             print '   * reading '+cvar+'_'+czr+' in '+cf_in
             FM[joce,jz,:]  = id_in.variables[cvar+'_'+czr][:]
             jz = jz + 1
@@ -169,7 +326,7 @@ if idfig == 'ts3d':
         # Annual data:
         if not joce:
             nby = nbm/12
-            FY = nmp.zeros(nby*4*nb_oce) ; FY.shape = [ nb_oce, 4, nby ]
+            FY = nmp.zeros((nb_oce, 4, nby))
         VY, FY[joce,:,:] = bt.monthly_2_annual(vtime[:], FM[joce,:,:])
 
         print ' *** '+coce+' done...\n'
@@ -215,7 +372,7 @@ if idfig == 'amoc':
         if not jl:
             vtime = id_in.variables['time'][:] ; nbm = len(vtime)
             vlabels = nmp.zeros(nblat, dtype = nmp.dtype('a8'))
-            Xamoc   = nmp.zeros(nbm*(nblat)) ; Xamoc.shape = [ nblat , nbm ]
+            Xamoc   = nmp.zeros((nblat , nbm))
         vlabels[jl] = clat_info
         Xamoc[jl,:] = id_in.variables['moc_atl'][:]
         id_in.close()
@@ -223,7 +380,7 @@ if idfig == 'amoc':
         jl = jl + 1
 
     if nbm%12 != 0:
-        print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!'
+        print 'ERROR: plot_time_series.py => '+cdiag+', number of records not a multiple of 12!'
         sys.exit(0)
     VY, FY = bt.monthly_2_annual(vtime, Xamoc[i45,:])
 
@@ -265,14 +422,14 @@ if idfig == 'ice':
     cyuv = r'10$^3$km$^3$'
 
     if nbm%12 != 0:
-        print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!'
+        print 'ERROR: plot_time_series.py => '+cdiag+', number of records not a multiple of 12!'
         sys.exit(0)
     nby = nbm/12
 
     ittic = bt.iaxe_tick(nby)
 
     vtime_y = nmp.zeros(nby)
-    Xplt = nmp.zeros(2*nby) ; Xplt.shape = [2 , nby]
+    Xplt = nmp.zeros((2 , nby))
 
     vtime_y, FY = bt.monthly_2_annual(vtime[:], vvolu_n[:])
 
@@ -313,14 +470,14 @@ if idfig == 'transport':
         if js == 0:
             vtime = id_in.variables['time'][:]
             nbm = len(vtime)
-        Xtrsp   = nmp.zeros(nbm*3) ; Xtrsp.shape = [ 3 , nbm ] ; # time + 3 types of transport
+        Xtrsp   = nmp.zeros((3 , nbm)) ; # time + 3 types of transport
         Xtrsp[0,:] = id_in.variables['trsp_volu'][:]
         Xtrsp[1,:] = id_in.variables['trsp_heat'][:]
         Xtrsp[2,:] = id_in.variables['trsp_salt'][:]
         id_in.close()
 
 
-        if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cdiag+', numberof records not a multiple of 12!', sys.exit(0)
+        if nbm%12 != 0: print 'ERROR: plot_time_series.py => '+cdiag+', number of records not a multiple of 12!', sys.exit(0)
         VY, FY  = bt.monthly_2_annual(vtime, Xtrsp[:,:])
 
         ittic = bt.iaxe_tick(nbm/12)

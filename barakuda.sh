@@ -119,7 +119,7 @@ done
 
 if [ "${CONFIG}" = "" -o "${RUN}" = "" ]; then usage ; exit ; fi
 
-if [ "${RUNREF}" != "" -a ${ISTAGE} -eq 1 ]; then    
+if [ "${RUNREF}" != "" -a ${ISTAGE} -eq 1 ]; then
     echo; echo " WARNING: option '-c' only makes sense when '-e' or '-E' are specified !"
     sleep 2; echo
 fi
@@ -189,20 +189,6 @@ echo ; echo " *** NN_T=${NN_T}, NN_S=${NN_S}, NN_U=${NN_U} and NN_V=${NN_V} "; e
 
 
 
-# What grid-type files to work with:
-GRID_IMP=""
-
-if [ ${i_do_mean} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T"; fi
-if [ ${i_do_trsp} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T grid_U grid_V"; fi
-if [ ${i_do_mht}  -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T grid_U grid_V"; fi
-if [ ${i_do_sigt} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T grid_U grid_V"; fi
-if [ ${i_do_amoc} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_V" ; fi
-if [ ${i_do_ice}  -gt 0 ]; then GRID_IMP="${GRID_IMP} ${FILE_ICE_SUFFIX}"; fi
-if [ ${i_do_ssx_box} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T"; fi
-if [ ${i_do_bb} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T grid_U grid_V"; fi
-if [ ${i_do_box_TS_z} -gt 0 ]; then GRID_IMP="${GRID_IMP} grid_T"; fi
-if [ ${i_do_dmv} -gt 0 ];      then GRID_IMP="${GRID_IMP} grid_T"; fi
-if [ ${i_do_zcrit} -gt 0 ];    then GRID_IMP="${GRID_IMP} grid_T"; fi
 
 # Not fully supported yet:
 ca=" => diagnostic totally beta and not fully supported yet!"
@@ -217,27 +203,9 @@ if [ "${NEMO_SAVED_FILES}" = "" ]; then
     echo "Please specify which NEMO files are saved (file suffixes, grid_T, ..., icemod) ?"
     echo " => set the variable NEMO_SAVED_FILES in your config_${CONFIG}.sh file!"; exit
 fi
-VAF=( "grid_T" "grid_U" "grid_V" "icemod" "SBC" )
-js=0 ; gimp_new=""
-for sf in ${VAF[*]}; do
-    echo "Checking ${sf}..."
-    ca=`echo "${NEMO_SAVED_FILES}" | grep ${sf}`; #if [ "${ca}" = "" ]; then VOK[${js}]=0; fi
-    cb=`echo "${GRID_IMP}"         | grep ${sf}`
-    if [ "${ca}" = "" ]; then
-        if [ "${cb}" != "" ]; then
-            echo "PROBLEM! The diags you specified say you need ${sf} files"
-            echo "     => but you have not specified ${sf} in NEMO_SAVED_FILES !"; exit
-        fi
-    else
-        gimp_new="${sf} ${gimp_new}"
-    fi
-    js=`expr ${js} + 1`
-done
-GRID_IMP=${gimp_new}
+echo; echo "File types to import (NEMO_SAVED_FILES) : ${NEMO_SAVED_FILES}"; echo; echo
 
-echo; echo "File types to import: ${GRID_IMP}"; echo; echo
 
-boo="EOF"
 
 
 if [ ${ISTAGE} -eq 1 ]; then
@@ -262,13 +230,13 @@ export DIAG_D=${DIAG_DIR}/${CONFRUN}
 if [ ${ISTAGE} -eq 1 ]; then
     # We need a scratch/temporary directory to copy these files to and gunzip them:
     if [ "${SLURM_JOBID}" = "" -a `hostname` = "triolith1" ]; then
-        # Likely to be running interactively on triolith         
+        # Likely to be running interactively on triolith
         export SCRATCH=${HOME}/tmp
         export TMP_DIR=${SCRATCH}/${RUN}_tmp
     else
         # Normal case:
-        SCRATCH=`echo ${SCRATCH} | sed -e "s|<JOB_ID>|${SLURM_JOBID}|g"` 
-        export TMP_DIR=${SCRATCH}${RUN}
+        SCRATCH=`echo ${SCRATCH} | sed -e "s|<JOB_ID>|${SLURM_JOBID}|g"`
+        export TMP_DIR=${SCRATCH}/${RUN}
     fi
     echo " IMPORTANT the SCRATCH work directory is set to:" ; echo " ${SCRATCH}"
 else
@@ -304,7 +272,7 @@ export CPREF=`echo ${NEMO_FILE_PREFIX} | sed -e "s|<ORCA>|${ORCA}|g" -e "s|<RUN>
 cd ${NEMO_OUT_D}/
 
 if [ ${ISTAGE} -eq 1 ]; then
-    
+
     if [ ${ece_run} -eq 1 ]; then
         if [ ! -d 001 ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory 001 in:"; echo " ${NEMO_OUT_D}"; exit ; fi
         nby_ece=`ls -d */ | wc -l` ; echo " ${nby_ece} years have been completed..."
@@ -321,7 +289,7 @@ if [ ${ISTAGE} -eq 1 ]; then
             echo "      => use the -y <YEAR> switch to force the initial year!"; exit
         fi
         echo " Initial year guessed from stored files => ${YEAR_INI}"; echo
-        YEAR_INI=`expr ${YEAR_INI} + 0`  ; # example: 1 instead of 0001...        
+        YEAR_INI=`expr ${YEAR_INI} + 0`  ; # example: 1 instead of 0001...
         #Y2=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/""/g | head -1 | cut -c10-13`
         #YIr=`expr ${YEAR_INI} + 0`; Y2r=`expr ${Y2} + 0`
         #if [ ${Y2r} -gt ${YIr} ]; then IFREQ_SAV_YEARS=$((${Y2r}-${YIr}+1)); fi
@@ -350,12 +318,12 @@ if [ ${ISTAGE} -eq 1 ]; then
     echo " Last year guessed from stored files => ${YEAR_END}"; echo
 
 
-    
+
     echo ${IFREQ_SAV_YEARS} > ${DIAG_D}/numb_year_per_file.info
     echo ${YEAR_INI}        > ${DIAG_D}/first_year.info
-    
+
 else
-    
+
     for fc in "first_year" "numb_year_per_file" "last_year_done"; do
         ff=${DIAG_D}/${fc}.info
         if [ ! -f ${ff} ]; then echo "ERROR: file ${ff} is missing!"; exit; fi
@@ -365,7 +333,7 @@ else
     export YEAR_INI=`cat ${DIAG_D}/first_year.info`
     export YEAR_END=`cat ${DIAG_D}/last_year_done.info`
     export IFREQ_SAV_YEARS=`cat ${DIAG_D}/numb_year_per_file.info`
-    
+
 fi
 
 
@@ -439,9 +407,8 @@ if ${LFORCEDIAG}; then lcontinue=false; fi
 
 while ${lcontinue}; do
 
-    cyear=`printf "%04d" ${jyear}`
+    export cyear=`printf "%04d" ${jyear}`
 
-    #lolo
     cpf=""
     if [ ${ece_run} -eq 1 ]; then
         iy=`expr ${jyear} - ${YEAR_INI} + 1` ; dir_ece=`printf "%03d" ${iy}`
@@ -467,7 +434,7 @@ while ${lcontinue}; do
         TTAG=${cy1}0101_${cy2}1231 # calendar-related part of the file name
 
         # Testing if the current year-group has been done
-        for ft in ${GRID_IMP}; do            
+        for ft in ${NEMO_SAVED_FILES}; do
             ftst=${NEMO_OUT_D}/${cpf}${CPREF}${TTAG}_${ft} ;  cfxt="0"
             for ca in "nc" "nc.gz" "nc4"; do
                 if [ -f ${ftst}.${ca} ]; then cfxt="${ca}"; fi
@@ -477,7 +444,7 @@ while ${lcontinue}; do
                 lcontinue=false
             fi
         done
-        
+
     fi ; # if [ $((${jyear}%${IFREQ_SAV_YEARS})) -eq 0 ]
 
 
@@ -493,11 +460,14 @@ while ${lcontinue}; do
             exit
         fi
 
-        echo; echo; echo "Run ${RUN}: Generating diagnostic data for ${cyear}..."; echo
-
+        echo; echo; echo; echo
+        echo "*********************************************************************"
+        echo "  Run ${RUN}: Will generate diagnostics and data for year ${cyear}..."
+        echo "*********************************************************************"
+        echo ; echo
 
         # On what file type to test file presence:
-        cgrid_test=`echo ${GRID_IMP} | cut -d ' ' -f2`
+        cgrid_test=`echo ${NEMO_SAVED_FILES} | cut -d ' ' -f2`
         echo " *** testing on files \"${cgrid_test}\" !"; echo
 
 
@@ -516,16 +486,16 @@ while ${lcontinue}; do
                 echo " => gonna get ${CRTM}_* files..."
 
                 # Importing required files to tmp dir and unzipping:
-                for gt in ${GRID_IMP}; do
+                for gt in ${NEMO_SAVED_FILES}; do
 
                     f2i=${CRTM}_${gt}.nc ;   sgz=""
-                    
+
                     for ca in ".gz" "4"; do
                         if [ -f ${NEMO_OUT_D}/${cpf}${f2i}${ca} ]; then sgz="${ca}"; fi
                     done
-                    
+
                     check_if_file ${NEMO_OUT_D}/${cpf}${f2i}${sgz}
-                    
+
                     if [ ! -f ./${f2i} ]; then
                         echo "Importing ${f2i}${sgz} ..."
                         echo "rsync -L ${NEMO_OUT_D}/${cpf}${f2i}${sgz} `pwd`/"
@@ -550,7 +520,7 @@ while ${lcontinue}; do
 
                 # Need to create annual files if more than 1 year in 1 once NEMO file
                 if [ ${IFREQ_SAV_YEARS} -gt 1 ]; then
-                    for gt in ${GRID_IMP}; do
+                    for gt in ${NEMO_SAVED_FILES}; do
                         ftd=./${CRTM}_${gt}.nc ; # file to divide!
                         if [ -f ${ftd} ]; then
                             jy=0
@@ -600,7 +570,7 @@ while ${lcontinue}; do
 
 
         # Testing if ALL required files are present now:
-        for gt in ${GRID_IMP}; do
+        for gt in ${NEMO_SAVED_FILES}; do
             ftt="./${CRT1}_${gt}.nc" ;  check_if_file ${ftt}
         done
 
@@ -616,6 +586,27 @@ while ${lcontinue}; do
         fvt=${CRT1}_VT.nc
 
 
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # If EC-Earth simu, attempting to compute ocean-averaged fluxes from IFS too (E, P, E-P)
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if [ ${ece_run} -eq 1 ]; then
+            echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
+            echo "LAUNCHING: ./scripts/do_fwf_series_ifs.sh in the background!"
+            ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh &
+            echo
+        fi
+        
+        
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # Computing time-series of spatially-averaged variables
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if [ ${i_do_mean} -eq 1 ]; then
+            echo; echo; echo "Global monthly values"
+            echo "CALLING: mean.py ${ft} ${jyear}"
+            ${PYTH} ${PYBRKD_EXEC_PATH}/mean.py ${ft} ${jyear}
+        fi
+
+
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Creating VT file if needed
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -628,14 +619,6 @@ while ${lcontinue}; do
         fi
 
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # Computing time-series of spatially-averaged variables
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if [ ${i_do_mean} -eq 1 ]; then
-            echo; echo; echo "Global monthly values"
-            echo "CALLING: mean.py ${ft} ${jyear}"
-            ${PYTH} ${PYBRKD_EXEC_PATH}/mean.py ${ft} ${jyear}
-        fi
 
 
 
@@ -648,7 +631,7 @@ while ${lcontinue}; do
             echo "CALLING: ssx_boxes ${ft} ${jyear} ${NN_SST} ${NN_SSS}"
             ${PYTH} ${PYBRKD_EXEC_PATH}/ssx_boxes.py ${ft} ${jyear} ${NN_SST} ${NN_SSS}
         fi
-        
+
 
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #  AMOC  ( Max of Atlantic MOC for several latitude bands )
@@ -703,12 +686,12 @@ while ${lcontinue}; do
                 echo " *** doing: ./cdftransportiz.x ${CPREF}${TTAG_ann} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV} ${jyear} ${DIAG_D} ${z1_trsp} ${z2_trsp}"
                 ./cdftransportiz.x ${CPREF}${TTAG_ann} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV} ${jyear} ${DIAG_D} ${z1_trsp} ${z2_trsp}
                 echo "Done!"; echo; echo
-                
+
                 rm -f *.tmp broken_line_*
             fi
         fi   ; # ${i_do_trsp} -gt 0
-        
-        
+
+
 
 
 
@@ -868,7 +851,7 @@ while ${lcontinue}; do
                 ncks  -A -v ${NN_ICET} ${fg} -o tmp_ice.nc
                 ncrename -v ${NN_ICET},ice_thic tmp_ice.nc
             fi
-            
+
             echo " *** doing: ./cdficediags.x tmp_ice.nc ${jyear} ${DIAG_D} ${coic}"
             ./cdficediags.x tmp_ice.nc ${jyear} ${DIAG_D} ${coic}
             echo "Done!"; echo; echo; echo
@@ -914,8 +897,8 @@ while ${lcontinue}; do
                 echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
             fi
 
-            echo "CALLING: dmv.py ${cyear}"
-            ${PYTH} ${PYBRKD_EXEC_PATH}/dmv.py ${cyear}
+            echo "CALLING: dmv.py ${ft} ${cyear}"
+            ${PYTH} ${PYBRKD_EXEC_PATH}/dmv.py ${ft} ${cyear}
             echo;echo
 
         fi
@@ -1012,65 +995,20 @@ while ${lcontinue}; do
         if [ ${jyear} -eq ${YEARN} ]; then lcontinue=false; fi
     fi
 
+    echo
+    echo " Waiting for backround jobs for current year (${jyear}) !"
+    wait
+    echo "  Done waiting!"
+    echo
+
     jyear=`expr ${jyear} + 1`
-
-
+    
 
 # end loop years...
 done ; # while ${lcontinue}; do
 
 
 
-
-
-
-
-# Combining files that need to be combined!
-
-
-#yr1=`cat ${DIAG_D}/${CPREF}progression.dat | grep -v '\#' | head -1 | cut -c1-4`
-#yr2=`cat ${DIAG_D}/${CPREF}progression.dat | grep -v '\#' | tail -1 | cut -c1-4`
-#echo; echo; echo "yr1, yr2 = ${yr1} and ${yr2}"; echo
-
-
-#if [ ${i_do_amo} -eq 1 ]; then
-#    # Combining all the sigma files into 1 big file!
-#    diro=${DIAG_D}/amo
-#    l0=`\ls ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc 2>/dev/null`
-#    if [ ! "${l0}" = "" ]; then
-#        rm -f ${DIAG_D}/AMO_SST_Atl_*.nc
-#        echo
-#        echo "ncrcat -h -O ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc -o \
-#            ${DIAG_D}/AMO_SST_Atl_${CONFRUN}_${yr1}0101-${yr2}1231.nc"
-#        ncrcat -h -O ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc -o \
-#            ${DIAG_D}/AMO_SST_Atl_${CONFRUN}_${yr1}0101-${yr2}1231.nc
-#        echo; echo
-#        rm -f ${diro}/AMO_SST_Atl_${CONFRUN}_*.nc
-#    fi
-#fi
-
-
-
-
-
-#if [ ${i_do_sect} -eq 1 ]; then
-#    # Combining all the section files into 1 big file!
-#    diro=${DIAG_D}/sections
-#    for cs in ${VSECT_NM[*]}; do
-#        l0=`\ls ${diro}/section_*_grid_T_${cs}.nc 2>/dev/null`
-#        if [ ! "${l0}" = "" ]; then
-#            rm -f ${DIAG_D}/section_*_grid_T_${cs}.nc
-#            echo "ncrcat -h -O ${diro}/section_*_grid_T_${cs}.nc -o \
-#                ${DIAG_D}/section_${CONFRUN}_${yr1}0101-${yr2}1231_grid_T_${cs}.nc"
-#            ncrcat -h -O ${diro}/section_*_grid_T_${cs}.nc -o \
-#                ${DIAG_D}/section_${CONFRUN}_${yr1}0101-${yr2}1231_grid_T_${cs}.nc
-#            rm -f ${diro}/section_*_grid_T_${cs}.nc
-#            echo
-#        fi
-#    done
-#    echo
-#
-#fi
 
 
 
@@ -1083,7 +1021,7 @@ l_pclim=false
 if [ ${ISTAGE} -eq 2 ]; then
 
     rm -rf ${DIAG_D}/${RUN}
-    
+
     if [ ${IFREQ_SAV_YEARS} -gt 1 ]; then
         fnamelist=namelist.${cy1m}-${cy2m}
     else
@@ -1126,7 +1064,7 @@ if [ ${ISTAGE} -eq 2 ]; then
     DIAG_1D_LIST=""
 
     if [ ${i_do_mean} -eq 1 ]; then
-        DIAG_1D_LIST="${DIAG_1D_LIST} 3d_so mean_sos 3d_thetao mean_tos mean_zos mean_mldr10_1"
+        DIAG_1D_LIST="${DIAG_1D_LIST} 3d_so mean_sos 3d_thetao mean_tos mean_zos mean_fwf mean_mldr10_1"
     fi
     if [ ${i_do_amoc} -eq 1 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} amoc";        fi
     if [ ${i_do_trsp} -gt 0 ]; then
@@ -1160,7 +1098,7 @@ if [ ${ISTAGE} -eq 2 ]; then
         echo "CALLING: enso.py Nino34_${CONFRUN}.dat"
         ${PYTH} ${PYBRKD_EXEC_PATH}/plot_enso.py Nino34_${CONFRUN}.nc
         echo; echo; echo
-        
+
         # Hovmuller of temperature and salinity
         echo "CALLING: hovm_tz.py ${YEAR_INI} ${YEAR_END} ${NBL}"
         ${PYTH} ${PYBRKD_EXEC_PATH}/plot_hovm_tz.py
@@ -1245,7 +1183,7 @@ if [ ${ISTAGE} -eq 2 ]; then
             echo; echo
             check_if_file ${F_T_CLIM_3D_12} "name:F_T_CLIM_3D_12"
             check_if_file ${F_S_CLIM_3D_12} "name:F_S_CLIM_3D_12"
-            check_if_file ${SST_CLIM_12}    "name:SST_CLIM_12"            
+            check_if_file ${SST_CLIM_12}    "name:SST_CLIM_12"
             if [ ${i_do_ice}  -gt 0 ]; then check_if_file ${ICE_CLIM_12}    "name:ICE_CLIM_12" ; fi
             echo; echo
 
@@ -1420,25 +1358,25 @@ if [ ${ISTAGE} -eq 2 ]; then
 
 
 
-    
-    
-    
-    
+
+
+
+
     echo; echo; echo ; echo "Creating HTML file!"
-    
+
     cd ${DIAG_D}/
-    
+
     inmlst=0
     if [ -f ${NEMO_OUT_D}/${fnamelist} ]; then inmlst=1; fi
-    
+
     rm -f index.php
-    
+
     if [ "${JTITLE}" = "" ]; then
         echo "Problem, variable JTITLE is not set!" ; exit
     else
         TITLE="Ocean diagnostics, run ${RUN}, conf ${ORCA}, ${JTITLE}"
     fi
-    
+
 
     sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" \
         ${BARAKUDA_ROOT}/scripts/html/index_skel_header.html > index.php
@@ -1450,7 +1388,7 @@ if [ ${ISTAGE} -eq 2 ]; then
         <br><br><br>
 EOF
     fi
-    
+
     # Climato section
     if ${l_pclim}; then
         cat >> index.php <<EOF
@@ -1463,53 +1401,71 @@ EOF
 EOF
         if ${lcomp_to_run}; then
             cat >> index.php <<EOF
-        <br><big><big> Comparison with run ${RUNREF}, climatology (2004-2007) </big></big><br><br>
-        <big> <a href="./temp_sal/index_${RUNREF}.html"> Temperature and Salinity vs ${RUNREF}</a> </big>             <br><br><br>
-<!--        <big> <a href="./ssh/index_${RUNREF}.html">  Sea Surface Height </a> </big>                              <br><br><br>
-        <big> <a href="./sea_ice/index_${RUNREF}.html">  Arctic and Antarctic sea-ice extent vs ${RUNREF} </a> </big> <br><br><br>
-        <big> <a href="./mld/index_${RUNREF}.html">  Mixed Layer depth in relevent regions </a> </big>           <br><br><br>
-        <big> <a href="./moc/index_${RUNREF}.html">  Meridional Overturning Circulation </a> </big>              <br><br><br>
--->
+            <br><big><big> Comparison with run ${RUNREF}, climatology (2004-2007) </big></big><br><br>
+            <big> <a href="./temp_sal/index_${RUNREF}.html"> Temperature and Salinity vs ${RUNREF}</a> </big>             <br><br><br>
+            <!--        <big> <a href="./ssh/index_${RUNREF}.html">  Sea Surface Height </a> </big>                              <br><br><br>
+            <big> <a href="./sea_ice/index_${RUNREF}.html">  Arctic and Antarctic sea-ice extent vs ${RUNREF} </a> </big> <br><br><br>
+            <big> <a href="./mld/index_${RUNREF}.html">  Mixed Layer depth in relevent regions </a> </big>           <br><br><br>
+            <big> <a href="./moc/index_${RUNREF}.html">  Meridional Overturning Circulation </a> </big>              <br><br><br>
+            -->
 EOF
         fi
     fi
 
-    # Temperature section     
+    # Temperature section
     cat >> index.php <<EOF
-        <br><br><br><big><big> Temperature time-series </big></big><br><br>
-        <img style="border: 0px solid" alt="" src="3d_thetao_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="mean_tos_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="3d_thetao_lev_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="3d_thetao_basins_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="Nino34_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_global.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_atlantic.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_pacific.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_indian.png"> <br><br><br><br>
+    <br><br><br><big><big> Temperature time-series </big></big><br><br>
+    <img style="border: 0px solid" alt="" src="3d_thetao_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_tos_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_thetao_lev_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_thetao_basins_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="Nino34_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_global.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_atlantic.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_pacific.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_indian.png"> <br><br><br><br>
 EOF
 
-    # Salinity section     
+    # Salinity section
     cat >> index.php <<EOF
-        <br><br><br><big><big> Salinity time-series </big></big><br><br>
-        <img style="border: 0px solid" alt="" src="3d_so_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="mean_sos_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="3d_so_lev_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="3d_so_basins_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_global.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_atlantic.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_pacific.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_indian.png"> <br><br> <br><br>
+    <br><br><br><big><big> Salinity time-series </big></big><br><br>
+    <img style="border: 0px solid" alt="" src="3d_so_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_sos_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_so_lev_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_so_basins_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_global.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_atlantic.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_pacific.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_indian.png"> <br><br> <br><br>
 EOF
 
-    # MISC section     
     cat >> index.php <<EOF
-        <br><br><br><big><big> Misc. time-series </big></big><br><br>
-        <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.png"> <br><br> <br><br> 
+    <br><br><br><big><big> Freshwater-flux-related time-series </big></big><br><br>
+    <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.png">     <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_fwf_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_prc_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.png"> <br><br>
 EOF
 
-    # Sea-ice section     
+    if [ ${ece_run} -eq 1 ]; then
+        cat >> index.php <<EOF
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_annual_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_annual_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_prc_IFS_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_ALL_IFS_${CONFRUN}.png"> <br><br>
+EOF
+    fi
+    
+    cat >> index.php <<EOF
+    <br><br><br><big><big> Atlantic Meridional Overturning Circulation </big></big><br><br>
+    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.png"> <br><br> <br><br>
+EOF
+
+    # Sea-ice section
     if [ ${i_do_ice}  -gt 0 ]; then
         cat >> index.php <<EOF
         <br><br><br><big><big> Arctic/Antarctic sea-ice time-series</big></big><br><br>
@@ -1531,7 +1487,7 @@ EOF
             echo "<br><br>" >> index.php
         done
     fi
-        
+
     # Checking if figures with time-series of MLD in specified boxes are here and adding them:
     if [ ${i_do_mean} -eq 1 ]; then
         list_mld_figs=`\ls mean_mldr10_1_${CONFRUN}*.png`
@@ -1555,7 +1511,7 @@ EOF
         echo "<img style=\"border: 0px solid\" alt=\"\" src=\"tr_sigma_gt278_${CONFRUN}.png\"> <br>"  >> index.php
         echo "<br><br>" >> index.php
     fi
-    
+
     if [ ${i_do_mht} -eq 1 ]; then
         # Adding meridional heat transport:
         echo "<br><br><br><big><big> Meridional transports</big></big><br><br>"  >> index.php
@@ -1578,12 +1534,13 @@ EOF
         for cdiag in ${DIRS_2_EXP}; do
             sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|CLIM|g" \
                 ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html > ${cdiag}/index.php
+            cd ${cdiag}/ ; ln -sf ../logo.png . ; cd ../
         done
         for var in "sst" "sss" "sections_ts" "ts_100m" "ts_1000m" "ts_3000m"; do
             sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|CLIM|g" \
                 ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html > temp_sal/${var}_CLIM.php
         done
-        
+
         if ${lcomp_to_run}; then
             for cdiag in ${DIRS_2_EXP_RREF}; do
                 sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${RUNREF}|g" \
@@ -1594,7 +1551,7 @@ EOF
                     ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html > temp_sal/${var}_${RUNREF}.php
             done
         fi
-                
+
         # Surface fluxes HTML page:
         if [ ${i_do_flx} -eq 1 ]; then
             sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${COMP2D}|g" \
@@ -1616,6 +1573,8 @@ EOF
         mkdir ${RUN}
 
         cp -r ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
+        cp -r ${BARAKUDA_ROOT}/scripts/html/*.png       ${RUN}/
+
         mv -f index.php ${RUN}/
         mv -f *.png      ${RUN}/ >/dev/null 2>/dev/null
         mv -f ./merid_transport/*.png ${RUN}/ >/dev/null 2>/dev/null

@@ -18,7 +18,9 @@ venv_needed = {'ORCA','RUN','DIAG_D','COMP2D','MM_FILE','NN_MLD','NN_S_CLIM','NN
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
-CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
+corca = vdic['ORCA']
+
+CONFRUN = corca+'-'+vdic['RUN']
 ldebug = False
 
 zmax_mld_atl = 1600. ; dz_mld = 100.
@@ -26,14 +28,14 @@ zmax_mld_atl = 1600. ; dz_mld = 100.
 
 
 
-if 'ORCA2' in vdic['ORCA']:
+if 'ORCA2' in corca:
     ji_lat0 = 132
 elif 'eORCA1' in vdic['ORCA']:
     ji_lat0 = 265
 elif 'ORCA1' in vdic['ORCA']:
     ji_lat0 = 265
 else:
-    print 'FIX ME!!! ssh.py => dont know ji_lat0 for conf '+vdic['ORCA']+' !!!'; sys.exit(0)
+    print 'FIX ME!!! ssh.py => dont know ji_lat0 for conf '+corca+' !!!'; sys.exit(0)
 
 
 l_obs_mld = False

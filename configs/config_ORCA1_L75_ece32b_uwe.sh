@@ -22,8 +22,10 @@ export STORE_DIR="/proj/bolinc/users/x_laubr"
 # Is it an ec-earth run?
 export ece_run=1 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
 #                  # where YYY starts from '001' to
+export Y_INI_EC=1990 ;    # initial year if ec-earth run...
 
-# List of suffixed of files that have been saved by NEMO:
+
+# List of suffixed of files that have been saved by NEMO and that are needed for the diags:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
 
 
@@ -64,6 +66,11 @@ export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction and volume
 export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
 export NN_ICET="sivolu" ; # ice thickness or rather volume...
 
+export FILE_FLX_SUFFIX="SBC" ; # in what file to find surface fluxes ?
+export NN_FWF="wfo"          ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
+export NN_EMP="emp_oce"      ; # name of E-P in "FILE_FLX_SUFFIX" file...
+export NN_P="precip"         ; # name of P in "FILE_FLX_SUFFIX" file...
+export NN_RNF="XXX"          ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
@@ -71,7 +78,7 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / EC-Earth 3.2_beta"
+export JTITLE="NEMO v3.6 ${CONF}-L${NBL}_LIM3 / EC-Earth 3.2b"
 
 # Land-sea mask and basins files:
 #export MM_FILE="${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/mesh_mask_LB_20160223.nc"
@@ -104,6 +111,7 @@ export DIAG_DIR="${STORE_DIR}/tmp/barakuda/${CONF}_ece32b"
 
 # Files with the list of rectangular boxes to look at more closely:
 export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
+export FILE_DMV_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 
 
 
@@ -126,6 +134,9 @@ RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host
 
 # Basic 3D and surface averages:
 i_do_mean=1
+
+# FreshWater fluxes at the surface spatially averaged over the ocean, E-P-R, E-P, R, P, ...
+#i_do_fwf=1
 
 # AMOC:
 i_do_amoc=1

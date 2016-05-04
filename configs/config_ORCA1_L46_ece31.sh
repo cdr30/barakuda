@@ -22,6 +22,8 @@ export STORE_DIR="/proj/bolinc/users/x_laubr"
 # Is it an ec-earth run?
 export ece_run=1 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
 #                  # where YYY starts from '001' to
+export Y_INI_EC=1000 ;    # initial year if ec-earth run...
+
 
 # List of suffixed of files that have been saved by NEMO:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod icemoa"
@@ -65,6 +67,13 @@ export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction and volume
 export NN_ICEF="iiceconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
 export NN_ICET="iicethic" ; # ice thickness or rather volume...
 
+export FILE_FLX_SUFFIX="grid_T" ; # in what file to find surface fluxes ?
+export NN_FWF="sowaflup"       ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
+export NN_EMP="XXX"   ; # name of E-P in "FILE_FLX_SUFFIX" file...
+export NN_P="XXX"   ; # name of P in "FILE_FLX_SUFFIX" file...
+export NN_RNF="XXX"   ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
+
+
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
 
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
@@ -101,6 +110,7 @@ export DIAG_DIR="/proj/bolinc/users/x_laubr/tmp/barakuda/${CONF}_ece31"
 
 # Files with the list of rectangular boxes to look at more closely:
 export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
+export FILE_DMV_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 
 
 
