@@ -184,7 +184,9 @@ class plot :
         if i_lat_lon == 1:
             [ny, nx] = nmp.shape(XF0)
             dlong  = abs(VX[11] - VX[10])
-            VX0 = nmp.arange(0.,nx,dlong) + dlong/2. ; #lolo:
+            #VX0 = nmp.arange(0.,nx,dlong) + dlong/2. ; #lolo:
+            VX0 = nmp.arange(0.,nx)
+            VX0 = VX0*dlong + dlong/2.
 
         if i_lat_lon == 1:
             vert_rat = (lat_max - lat_min)/(75. + 75.)
