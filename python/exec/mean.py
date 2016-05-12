@@ -234,14 +234,18 @@ if l_mld:
         rx1 = bo.r_lon_p1_mld[ib] ; rx2 = bo.r_lon_p2_mld[ib] ; ry1 = bo.r_lat_p1_mld[ib] ; ry2 = bo.r_lat_p2_mld[ib]
 
         # Need to itterate because ORCA grid disytorded in the North...
-        vold = [ 0, 0, 0, 0 ] ;  itt = 0
+        vold = [ -999, -999, -999, -999 ] ;  itt = 0
         while [ i1, i2, j1, j2 ] != vold and itt < 10 :
             itt = itt+1
+            #print ' .... itt =', itt
             vold = [ i1, i2, j1, j2 ]
+            #print 'seraching for rx1, rx2, ry1, ry2 = ', rx1, rx2, ry1, ry2
             if rx1 > -900.: i1 = bt.find_index_from_value( rx1, rlon[j1,:] )
             if rx2 > -900.: i2 = bt.find_index_from_value( rx2, rlon[j2,:] )
             if ry1 > -900.: j1 = bt.find_index_from_value( ry1, rlat[:,i1] )
             if ry2 > -900.: j2 = bt.find_index_from_value( ry2, rlat[:,i2] )
+            #print '   => i1, i2, j1, j2 =>', i1, i2, j1, j2, '\n'
+
 
 
         mask2d[:,:] = 0.
