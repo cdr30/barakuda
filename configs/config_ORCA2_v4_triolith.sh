@@ -4,7 +4,7 @@
 #
 #         Configuration file for
 #
-# OCEAN MONITORING for NEMO v3.6 ORCA2 on 31 levels
+# OCEAN MONITORING for NEMO v4.0 ORCA2 on 31 levels
 #
 #            HPC: triolith
 #
@@ -27,6 +27,8 @@ export Y_INI_EC=1990 ;    # initial year if ec-earth run...
 # List of suffixed of files that have been saved by NEMO and that are needed for the diags:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
 
+# Configuration-input files directory:
+CONF_INI_DIR=""
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
 export NEMO_OUT_STRCT="${STORE_DIR}/<ORCA>/<ORCA>-<RUN>-S"
@@ -76,11 +78,11 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / ocean-only experiment"
+export JTITLE="NEMO v4.0 ${CONF} (L${NBL}) - LIM3 / ocean-only experiment"
 
 # Land-sea mask and basins files:
-export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask_${CONF}_20151014.nc"
-export BM_FILE="/proj/bolinc/users/x_laubr/${CONF}/basin_mask_${CONF}.nc"
+export MM_FILE="${STORE_DIR}/ORCA2/mesh_mask_v4.nc"
+export BM_FILE="${STORE_DIR}/${CONF}/basin_mask_${CONF}.nc"
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
 export F_T_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/data_1m_potential_temperature_nomask_${CONF}.nc
@@ -103,7 +105,7 @@ export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_${CONF}.dat"
 
 
 # In what directory of the local machine to save the diagnostics:
-export DIAG_DIR="/proj/bolinc/users/x_laubr/tmp/barakuda/${CONF}_v36"
+export DIAG_DIR="${STORE_DIR}/tmp/barakuda/${CONF}_v4"
 
 
 # Files with the list of rectangular boxes to look at more closely:
