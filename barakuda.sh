@@ -1379,64 +1379,64 @@ EOF
     # Temperature section
     cat >> index.php <<EOF
     <br><br><br><big><big> Temperature time-series </big></big><br><br>
-    <img style="border: 0px solid" alt="" src="3d_thetao_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_tos_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="3d_thetao_lev_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="3d_thetao_basins_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="Nino34_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_global.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_atlantic.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_pacific.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_indian.png"> <br><br><br><br>
+    <img style="border: 0px solid" alt="" src="3d_thetao_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_tos_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_thetao_lev_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_thetao_basins_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="Nino34_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_global.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_atlantic.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_pacific.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_indian.${FIG_FORM}"> <br><br><br><br>
 EOF
 
     # Salinity section
     cat >> index.php <<EOF
     <br><br><br><big><big> Salinity time-series </big></big><br><br>
-    <img style="border: 0px solid" alt="" src="3d_so_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_sos_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="3d_so_lev_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="3d_so_basins_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_global.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_atlantic.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_pacific.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_indian.png"> <br><br> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_so_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_sos_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_so_lev_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_so_basins_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_global.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_atlantic.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_pacific.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_indian.${FIG_FORM}"> <br><br> <br><br>
 EOF
 
     cat >> index.php <<EOF
     <br><br><br><big><big> Freshwater-flux-related time-series </big></big><br><br>
-    <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.png">     <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_fwf_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_emp_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_prc_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.${FIG_FORM}">     <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_fwf_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_prc_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.${FIG_FORM}"> <br><br>
 EOF
 
     if [ ${ece_run} -eq 1 ]; then
         cat >> index.php <<EOF
-    <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_annual_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_annual_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_prc_IFS_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_emp_ALL_IFS_${CONFRUN}.png"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_prc_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_ALL_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
 EOF
     fi
     
     cat >> index.php <<EOF
     <br><br><br><big><big> Atlantic Meridional Overturning Circulation </big></big><br><br>
-    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.png"> <br><br>
-    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.png"> <br><br> <br><br>
+    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.${FIG_FORM}"> <br><br> <br><br>
 EOF
 
     # Sea-ice section
     if [ ${i_do_ice}  -gt 0 ]; then
         cat >> index.php <<EOF
         <br><br><br><big><big> Arctic/Antarctic sea-ice time-series</big></big><br><br>
-        <img style="border: 0px solid" alt="" src="seaice_extent_winter_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="seaice_extent_summer_${CONFRUN}.png"> <br><br><br>
-        <img style="border: 0px solid" alt="" src="seaice_volume_winter_${CONFRUN}.png"> <br><br>
-        <img style="border: 0px solid" alt="" src="seaice_volume_summer_${CONFRUN}.png"> <br><br><br><br>
+        <img style="border: 0px solid" alt="" src="seaice_extent_winter_${CONFRUN}.${FIG_FORM}"> <br><br>
+        <img style="border: 0px solid" alt="" src="seaice_extent_summer_${CONFRUN}.${FIG_FORM}"> <br><br><br>
+        <img style="border: 0px solid" alt="" src="seaice_volume_winter_${CONFRUN}.${FIG_FORM}"> <br><br>
+        <img style="border: 0px solid" alt="" src="seaice_volume_summer_${CONFRUN}.${FIG_FORM}"> <br><br><br><br>
 EOF
     fi
 
@@ -1446,15 +1446,15 @@ EOF
         list_section=`cat ${TRANSPORT_SECTION_FILE} | grep '-'`
         for cs in ${list_section}; do
             echo ${cs}
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_vol_${cs}_${CONFRUN}.png\"> <br>"  >> index.php
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_heat_${cs}_${CONFRUN}.png\"> <br><br>" >> index.php
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_vol_${cs}_${CONFRUN}.${FIG_FORM}\"> <br>"  >> index.php
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_heat_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>" >> index.php
             echo "<br><br>" >> index.php
         done
     fi
 
     # Checking if figures with time-series of MLD in specified boxes are here and adding them:
     if [ ${i_do_mean} -eq 1 ]; then
-        list_mld_figs=`\ls mean_mldr10_1_${CONFRUN}*.png`
+        list_mld_figs=`\ls mean_mldr10_1_${CONFRUN}*.${FIG_FORM}`
         if [ ! "${list_mld_figs}" = "" ]; then
             echo "<br><br><br><big><big> Horizontally-averaged Mixed-Layer Depth in different regions</big></big><br><br>" >> index.php
             for fmld in ${list_mld_figs}; do
@@ -1470,9 +1470,9 @@ EOF
         list_section=`cat ${DENSITY_SECTION_FILE} | grep '_'`
         for cs in ${list_section}; do
             echo ${cs}
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_sigma_class_${cs}_${CONFRUN}.png\"> <br>"  >> index.php
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_sigma_class_${cs}_${CONFRUN}.${FIG_FORM}\"> <br>"  >> index.php
         done
-        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"tr_sigma_gt278_${CONFRUN}.png\"> <br>"  >> index.php
+        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"tr_sigma_gt278_${CONFRUN}.${FIG_FORM}\"> <br>"  >> index.php
         echo "<br><br>" >> index.php
     fi
 
@@ -1480,8 +1480,8 @@ EOF
         # Adding meridional heat transport:
         echo "<br><br><br><big><big> Meridional transports</big></big><br><br>"  >> index.php
         for coce in "global" "atlantic" "pacific" "indian"; do
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MHT_${CONFRUN}_${coce}.png\"> <br>"     >> index.php
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MST_${CONFRUN}_${coce}.png\"> <br><br>" >> index.php
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MHT_${CONFRUN}_${coce}.${FIG_FORM}\"> <br>"     >> index.php
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MST_${CONFRUN}_${coce}.${FIG_FORM}\"> <br><br>" >> index.php
         done
         echo "<br><br>" >> index.php
     fi
@@ -1537,11 +1537,11 @@ EOF
         mkdir ${RUN}
 
         cp -r ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
-        cp -r ${BARAKUDA_ROOT}/scripts/html/*.png       ${RUN}/
+        cp -r ${BARAKUDA_ROOT}/scripts/html/*.${FIG_FORM}       ${RUN}/
 
         mv -f index.php ${RUN}/
-        mv -f *.png      ${RUN}/ >/dev/null 2>/dev/null
-        mv -f ./merid_transport/*.png ${RUN}/ >/dev/null 2>/dev/null
+        mv -f *.${FIG_FORM}      ${RUN}/ >/dev/null 2>/dev/null
+        mv -f ./merid_transport/*.${FIG_FORM} ${RUN}/ >/dev/null 2>/dev/null
         mv -f *.svg      ${RUN}/ >/dev/null 2>/dev/null
 
         if [ ${inmlst} -eq 1 ]; then cp ${NEMO_OUT_D}/${fnamelist} ${RUN}/; fi

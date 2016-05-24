@@ -125,7 +125,8 @@ RWWWD=/data/www/barakuda/${CONF} ; # directory of the local or remote host to se
 # Diags to be performed #
 #########################
 
-
+# In what format should figures be produced:
+export FIG_FORM="png"
 
 
 

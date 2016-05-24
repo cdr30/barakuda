@@ -97,8 +97,8 @@ export NN_ICEF_CLIM="ice_cover"
 
 
 # A text file where the vertical hydraugraphical sections of interest are defined :
-#export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_${CONF}_light.dat"
-export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_${CONF}_all.dat"
+export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA2.dat"
+#export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA2_all.dat"
 
 # For transport by sigma-class:
 export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_${CONF}.dat"
@@ -126,7 +126,8 @@ RWWWD=/data/www/barakuda/${CONF} ; # directory of the local or remote host to se
 # Diags to be performed #
 #########################
 
-
+# In what format should figures be produced:                                                                 
+export FIG_FORM="png"
 
 
 

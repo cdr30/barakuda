@@ -128,7 +128,8 @@ RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host
 # Diags to be performed #
 #########################
 
-
+# In what format should figures be produced:
+export FIG_FORM="png"
 
 
 
