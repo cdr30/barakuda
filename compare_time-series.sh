@@ -236,7 +236,7 @@ else
 
         tar cvf ${BASE_NAME}.tar ${BASE_NAME}
         scp ${BASE_NAME}.tar ${RUSER}@${RHOST}:${RWWWD}/
-        ssh ${RUSER}@${RHOST} "cd ${RWWWD}/; rm -rf ${BASE_NAME}; tar xf ${BASE_NAME}.tar 2>/dev/null; rm -f ${BASE_NAME}.tar"
+        ssh ${RUSER}@${RHOST} "cd ${RWWWD}/; rm -rf ${BASE_NAME}; tar xf ${BASE_NAME}.tar 2>/dev/null; rm -f ${BASE_NAME}.tar; chmod -R a+r ${BASE_NAME}"
         rm -f ${BASE_NAME}.tar
         
         echo; echo
