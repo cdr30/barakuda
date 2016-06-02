@@ -186,7 +186,7 @@ done
 
 echo
 echo " Global YEAR_INI = ${YEAR_INI}"
-echo " Gloabl YEAR_END = ${YEAR_END}"
+echo " Global YEAR_END = ${YEAR_END}"
 echo
 
 
