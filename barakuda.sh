@@ -1410,6 +1410,7 @@ EOF
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_${CONFRUN}.${FIG_FORM}"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_prc_${CONFRUN}.${FIG_FORM}"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_clv_${CONFRUN}.${FIG_FORM}"> <br><br>
 EOF
 
     if [ ${ece_run} -eq 1 ]; then

@@ -23,7 +23,7 @@ lat1_nino = -5.
 lon2_nino = 360. - 120.  ; # east
 lat2_nino = 5.
 
-venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_P','NN_RNF','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
+venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_P','NN_RNF','NN_CLV','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
@@ -124,6 +124,7 @@ if l_fwf:
     cv_emp = vdic['NN_EMP']
     cv_prc = vdic['NN_P']
     cv_rnf = vdic['NN_RNF']
+    cv_clv = vdic['NN_CLV']
 
     id_in = Dataset(cf_F_in)
     list_variables = id_in.variables.keys()
@@ -146,7 +147,13 @@ if l_fwf:
     if  cv_rnf in list_variables[:]:
         l_rnf = True
         RNF_m = id_in.variables[cv_rnf][:,:,:]
-        print '   *** P ('+cv_rnf+') read!'
+        print '   *** Runoffs ('+cv_rnf+') read!'
+
+    l_clv = False
+    if  cv_clv in list_variables[:]:
+        l_clv = True
+        CLV_m = id_in.variables[cv_clv][:,:,:]
+        print '   *** Calving ('+cv_clv+') read!'
 
     id_in.close()
 
@@ -163,10 +170,11 @@ if l_fwf:
 
     vfwf = nmp.zeros(nt)
     
-    vemp = [] ; vrnf = [] ; vprc = []
+    vemp = [] ; vrnf = [] ; vprc = [] ; vclv = []
     if l_emp: vemp = nmp.zeros(nt)
     if l_rnf: vrnf = nmp.zeros(nt)
     if l_prc: vprc = nmp.zeros(nt)
+    if l_clv: vclv = nmp.zeros(nt)
 
 
     for jt in range(nt):
@@ -174,14 +182,16 @@ if l_fwf:
         if l_emp: vemp[jt] = nmp.sum( EMP_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
         if l_rnf: vrnf[jt] = nmp.sum( RNF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
         if l_prc: vprc[jt] = nmp.sum( PRC_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
+        if l_clv: vclv[jt] = nmp.sum( CLV_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
 
     cf_out   = vdic['DIAG_D']+'/mean_fwf_'+CONFRUN+'_global.nc'
 
     bnc.wrt_appnd_1d_series(vtime, vfwf, cf_out, 'EmPmR',
-                            cu_t='year', cu_d='Sv', cln_d ='Globally averaged net freshwater flux (nemo:'+cv_fwf+')',
-                            vd2=vemp, cvar2='EmP',  cln_d2='Globally averaged Evap - Precip (nemo:'+cv_emp+')',
-                            vd3=vrnf, cvar3='R',    cln_d3='Globally averaged continental runoffs',
-                            vd4=vprc, cvar4='P',    cln_d4='Globally averaged total precip (nemo:'+cv_prc+')',)
+                            cu_t='year', cu_d='Sv',  cln_d ='Globally averaged net freshwater flux (nemo:'+cv_fwf+')',
+                            vd2=vemp, cvar2='EmP',   cln_d2='Globally averaged Evap - Precip (nemo:'+cv_emp+')',
+                            vd3=vrnf, cvar3='R',     cln_d3='Globally averaged continental runoffs',
+                            vd4=vprc, cvar4='P',     cln_d4='Globally averaged total precip (nemo:'+cv_prc+')',
+                            vd5=vclv, cvar5='ICalv', cln_d5='Globally averaged ice calving from icebergs (nemo:'+cv_clv+')')
 
 
 

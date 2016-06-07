@@ -51,17 +51,19 @@ elif cdiag == 'mean_sos':
     ym = yp = 0.
 
 elif cdiag == 'mean_fwf':
-    venv_ndd = {'NN_FWF','NN_EMP','NN_RNF','NN_P'}
+    venv_ndd = {'NN_FWF','NN_EMP','NN_RNF','NN_P','NN_CLV'}
     vdic_fwf = bt.check_env_var(sys.argv[0], venv_ndd)
     idfig = 'fwf'
     cvar  = 'EmPmR'
     clnm  = 'Globally-averaged upward net freshwater flux (E-P-R)'
     cvr2  = 'R'
-    cln2  = 'Globally-averaged continental runoffs + ice calving (R)'
+    cln2  = 'Globally-averaged continental runoffs (R)'
     cvr3  = 'EmP'
     cln3  = 'Globally-averaged Evaporation - Precipitation (E-P)'
     cvr4  = 'P'
     cln4  = 'Globally-averaged Precipitation (P)'
+    cvr5  = 'ICalv'
+    cln5  = 'Globally-averaged ice calving from icebergs (ICalv)'
     cyu   = r'Sv'
     ym = yp = 0.
 
@@ -162,7 +164,7 @@ if idfig == 'simple':
 
 if idfig == 'fwf':
 
-    l_rnf = False ; l_emp = False ; l_prc = False
+    l_rnf = False ; l_emp = False ; l_prc = False ; l_clv = False
 
     cf_in = cdiag+'_'+CONFRUN+'_global.nc' ;  bt.chck4f(cf_in, script_name='plot_time_series.py')
     id_in = Dataset(cf_in)
@@ -177,7 +179,10 @@ if idfig == 'fwf':
         vemp  = id_in.variables[cvr3][:]
     if cvr4 in list_var[:]:
         l_prc = True
-        vprc  = id_in.variables[cvr3][:]
+        vprc  = id_in.variables[cvr4][:]
+    if cvr5 in list_var[:]:
+        l_clv = True
+        vclv  = id_in.variables[cvr5][:]
     id_in.close()
 
     # Checking if there a potential file for IFS:
@@ -233,6 +238,11 @@ if idfig == 'fwf':
         bp.plot("1d_mon_ann")(vtime, VY, vprc, FY, cfignm=cdiag+'_prc_'+CONFRUN, dt_year=ittic,
                               cyunit=cyu, ctitle = CONFRUN+': '+cln4, ymin=ym, ymax=yp, cfig_type=ff)
 
+    if l_clv:
+        VY, FY = bt.monthly_2_annual(vtime, vclv)
+        bp.plot("1d_mon_ann")(vtime, VY, vclv, FY, cfignm=cdiag+'_clv_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln5, ymin=ym, ymax=yp, cfig_type=ff)
+
     if l_fwf_ifs and l_emp:
         # Only E-P for NEMO and IFS:
         Xplt = nmp.zeros((3,nbm))
@@ -253,11 +263,8 @@ if idfig == 'fwf':
                             cyunit=cyu, ctitle = CONFRUN+': E-P over oceans (annual)',
                             loc_legend='upper center', ymin=ym, ymax=yp, cfig_type=ff)
         
-
-
-
     if l_fwf_ifs and l_rnf:
-        # Runoff of NEMO compares to ( E-P global - E-P ocean ) of IFS: #lulu
+        # Runoff of NEMO compares to ( E-P global - E-P ocean ) of IFS:
         Xplt = nmp.zeros((2,nbm))
         Xplt[0,:] = vrnf[:]
         Xplt[1,:] = -vemp_land_ifs[:]
@@ -276,17 +283,27 @@ if idfig == 'fwf':
                             ymin=ym, ymax=yp, cfig_type=ff)
 
     if l_fwf_ifs and l_prc:
-        # Only P for NEMO and IFS:
-        Xplt = nmp.zeros((3,nbm))
-        Xplt[0,:] = vprc[:]
-        Xplt[1,:] = vp_ifs[:]
-        Xplt[2,:] = vp_land_ifs[:]
-        bp.plot("1d_multi")(vtime, Xplt, ['P NEMO','P IFS (oceans)','P IFS (land)'], cfignm=cdiag+'_prc_IFS_'+CONFRUN, dt_year=ittic,
-                            cyunit=cyu, ctitle = CONFRUN+': Precip', ymin=ym, ymax=yp, cfig_type=ff)
+        # Only P for NEMO and IFS, and RNF NEMO: lulu
+        vlab = [] ; nbd = 3
+        if l_rnf: nbd = 4
+        if l_rnf and l_clv: nbd = 5
+        Xplt = nmp.zeros((nbd,nbm))
+        Xplt[0,:] = vprc[:]        ; vlab.append('P NEMO')
+        Xplt[1,:] = vp_ifs[:]      ; vlab.append('P IFS (oceans)')
+        Xplt[2,:] = vp_land_ifs[:] ; vlab.append('P IFS (land)')
+        if l_rnf:
+            Xplt[3,:] = vrnf[:]    ; vlab.append('R NEMO')
+        if l_rnf and l_clv:
+            Xplt[4,:] = vclv[:]    ; vlab.append('Calving NEMO')
+            
+        bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_prc_IFS_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Precip', ymin=ym, ymax=yp, cfig_type=ff,
+                            loc_legend='center')
+
 
 
         # Everything possible
-        Xplt = nmp.zeros((7,nbm))
+        Xplt = nmp.zeros((8,nbm))
         vlab = []
         Xplt[0,:] = vemp[:]      ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
         Xplt[1,:] = vemp_ifs[:]  ; vlab.append('E-P IFS')
@@ -295,6 +312,7 @@ if idfig == 'fwf':
         Xplt[4,:] = ve_ifs[:]    ; vlab.append('E IFS')
         Xplt[5,:] = vprc[:]      ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
         Xplt[6,:] = vp_ifs[:]    ; vlab.append('P IFS')
+        Xplt[7,:] = vclv[:]      ; vlab.append('Calving NEMO ('+vdic_fwf['NN_CLV']+')')
 
 
         bp.plot("1d_multi")(vtime, Xplt, vlab,
