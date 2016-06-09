@@ -201,7 +201,7 @@ if l_fwf:
                             vd3=vrnf, cvar3='R',     cln_d3='Globally averaged continental runoffs',
                             vd4=vprc, cvar4='P',     cln_d4='Globally averaged total precip (nemo:'+cv_prc+')',
                             vd5=vclv, cvar5='ICalv', cln_d5='Globally averaged ice calving from icebergs (nemo:'+cv_clv+')',
-                            vd6=vevp, cvar6='ICalv', cln_d6='Globally averaged ice calving from icebergs (nemo:'+cv_evp+')'
+                            vd6=vevp, cvar6='E',     cln_d6='Globally averaged evaporation (nemo:'+cv_evp+')'
                             )
 
 
