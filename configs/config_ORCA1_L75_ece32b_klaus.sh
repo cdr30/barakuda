@@ -30,7 +30,8 @@ export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
 
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
-export NEMO_OUT_STRCT="/accumulus/rossby15/rossby/joint_exp/ecearth/sm_wyser/ece-run/<RUN>/output/nemo"
+#export NEMO_OUT_STRCT="/accumulus/rossby15/rossby/joint_exp/ecearth/sm_wyser/ece-run/<RUN>/output/nemo"
+export NEMO_OUT_STRCT="/nobackup/rossby15/rossby/joint_exp/ecearth/sm_wyser/ece-run/<RUN>/output/nemo"
 
 export TSTAMP="1m"   ; # output time-frequency stamp as in NEMO output files...
 
@@ -70,7 +71,8 @@ export FILE_FLX_SUFFIX="SBC" ; # in what file to find surface fluxes ?
 export NN_FWF="wfo"          ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
 export NN_EMP="emp_oce"      ; # name of E-P in "FILE_FLX_SUFFIX" file...
 export NN_P="precip"         ; # name of P in "FILE_FLX_SUFFIX" file...
-export NN_RNF="XXX"          ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
+export NN_RNF="runoffs"      ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
+export NN_CLV="calving_cea"  ; # calving from icebergs in "FILE_FLX_SUFFIX" file...
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
@@ -81,8 +83,8 @@ export L_RENAME=false ; # set to true if your ORCA output has old name conventio
 export JTITLE="NEMO v3.6 ${CONF}-L${NBL}_LIM3 / EC-Earth 3.2b"
 
 # Land-sea mask and basins files:
-export MM_FILE=${STORE_DIR}/ORCA1.L75/mesh_mask.nc
-export BM_FILE=${STORE_DIR}/ORCA1.L75/new_maskglo.nc
+export MM_FILE=/proj/bolinc/users/x_laubr/klaus/mesh_mask.nc
+export BM_FILE=/proj/bolinc/users/x_laubr/klaus/basin_mask.nc
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
 export F_T_CLIM_3D_12=${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc

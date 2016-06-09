@@ -29,18 +29,21 @@ export NEMO_SAVED_FILES="grid_T grid_U grid_V"; # icemod SBC"
 
 
 # Configuration-input files directory:
-CONF_INI_DIR=/proj/bolinc/users/x_filfr/NEMO/ORCA_PISCES/ADD_NEMO_2
+#CONF_INI_DIR=/proj/bolinc/users/x_filfr/NEMO/ORCA_PISCES/ADD_NEMO_2
+CONF_INI_DIR=/proj/bolinc/users/x_filfr/NEMO/ORCA_PISCES/ADD_NEMO
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
 #export NEMO_OUT_STRCT="${STORE_DIR}/<ORCA>/<ORCA>-<RUN>-S"
-export NEMO_OUT_STRCT="/proj/bolinc/users/x_filfr/NEMO/ORCA_PISCES/EXP13/IO"
+#export NEMO_OUT_STRCT="/proj/bolinc/users/x_filfr/NEMO/ORCA_PISCES/EXP13/IO"
+export NEMO_OUT_STRCT="/proj/bolinc/users/x_filfr/NEMO/ORCA2_LIM3/<RUN>/IO"
 
 export TSTAMP="1m"   ; # output time-frequency stamp as in NEMO output files...
 
 # How does the nemo files prefix looks like
 # Everything before "<year_related_info>_grid_<X>" or "<year_related_info>_icemod"
 # use <ORCA>, <RUN> and <TSTAMP>=>  Ex: export NEMO_FILE_PREFIX="<ORCA>-<RUN>_<TSTAMP>_"
-export NEMO_FILE_PREFIX="<ORCA>-<RUN>_<TSTAMP>_"
+#export NEMO_FILE_PREFIX="<ORCA>-<RUN>_<TSTAMP>_"
+export NEMO_FILE_PREFIX="<RUN>_<TSTAMP>_"
 # => should get rid of TSTAMP actually...
 
 # Temporary file system (scratch) on which to perform the job you can use <JOB_ID> if scracth depends on JOB ID:
@@ -83,7 +86,8 @@ export L_RENAME=false ; # set to true if your ORCA output has old name conventio
 export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / ocean-only experiment"
 
 # Land-sea mask and basins files:
-export MM_FILE="${CONF_INI_DIR}/mesh_mask.nc"
+#export MM_FILE="${CONF_INI_DIR}/mesh_mask.nc"
+export MM_FILE="/proj/bolinc/users/x_filfr/NEMO/ORCA2_LIM3/mesh_mask.nc"
 export BM_FILE="/proj/bolinc/users/x_laubr/ORCA2/ORCA2-I/subbasins_laurent.nc"
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
