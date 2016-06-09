@@ -23,7 +23,7 @@ lat1_nino = -5.
 lon2_nino = 360. - 120.  ; # east
 lat2_nino = 5.
 
-venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_P','NN_RNF','NN_CLV','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
+venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_P','NN_RNF','NN_CLV','NN_E','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
@@ -125,6 +125,7 @@ if l_fwf:
     cv_prc = vdic['NN_P']
     cv_rnf = vdic['NN_RNF']
     cv_clv = vdic['NN_CLV']
+    cv_evp = vdic['NN_E']
 
     id_in = Dataset(cf_F_in)
     list_variables = id_in.variables.keys()
@@ -155,6 +156,12 @@ if l_fwf:
         CLV_m = id_in.variables[cv_clv][:,:,:]
         print '   *** Calving ('+cv_clv+') read!'
 
+    l_evp = False
+    if  cv_evp in list_variables[:]:
+        l_evp = True
+        EVP_m = id_in.variables[cv_evp][:,:,:]
+        print '   *** Calving ('+cv_evp+') read!'
+
     id_in.close()
 
                
@@ -170,11 +177,12 @@ if l_fwf:
 
     vfwf = nmp.zeros(nt)
     
-    vemp = [] ; vrnf = [] ; vprc = [] ; vclv = []
+    vemp = [] ; vrnf = [] ; vprc = [] ; vclv = [] ; vevp = []
     if l_emp: vemp = nmp.zeros(nt)
     if l_rnf: vrnf = nmp.zeros(nt)
     if l_prc: vprc = nmp.zeros(nt)
     if l_clv: vclv = nmp.zeros(nt)
+    if l_evp: vevp = nmp.zeros(nt)
 
 
     for jt in range(nt):
@@ -183,6 +191,7 @@ if l_fwf:
         if l_rnf: vrnf[jt] = nmp.sum( RNF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
         if l_prc: vprc[jt] = nmp.sum( PRC_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
         if l_clv: vclv[jt] = nmp.sum( CLV_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
+        if l_evp: vevp[jt] = nmp.sum( EVP_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
 
     cf_out   = vdic['DIAG_D']+'/mean_fwf_'+CONFRUN+'_global.nc'
 
@@ -191,7 +200,9 @@ if l_fwf:
                             vd2=vemp, cvar2='EmP',   cln_d2='Globally averaged Evap - Precip (nemo:'+cv_emp+')',
                             vd3=vrnf, cvar3='R',     cln_d3='Globally averaged continental runoffs',
                             vd4=vprc, cvar4='P',     cln_d4='Globally averaged total precip (nemo:'+cv_prc+')',
-                            vd5=vclv, cvar5='ICalv', cln_d5='Globally averaged ice calving from icebergs (nemo:'+cv_clv+')')
+                            vd5=vclv, cvar5='ICalv', cln_d5='Globally averaged ice calving from icebergs (nemo:'+cv_clv+')',
+                            vd6=vevp, cvar6='ICalv', cln_d6='Globally averaged ice calving from icebergs (nemo:'+cv_evp+')'
+                            )
 
 
 

@@ -51,19 +51,21 @@ elif cdiag == 'mean_sos':
     ym = yp = 0.
 
 elif cdiag == 'mean_fwf':
-    venv_ndd = {'NN_FWF','NN_EMP','NN_RNF','NN_P','NN_CLV'}
+    venv_ndd = {'NN_FWF','NN_EMP','NN_RNF','NN_P','NN_CLV','NN_E'}
     vdic_fwf = bt.check_env_var(sys.argv[0], venv_ndd)
     idfig = 'fwf'
     cvar  = 'EmPmR'
-    clnm  = 'Globally-averaged upward net freshwater flux (E-P-R)'
+    clnm  = 'Globally-averaged upward net freshwater flux (E-P-R = '+vdic_fwf['NN_FWF']+')'
     cvr2  = 'R'
-    cln2  = 'Globally-averaged continental runoffs (R)'
+    cln2  = 'Globally-averaged continental runoffs (R = '+vdic_fwf['NN_RNF']+')'
     cvr3  = 'EmP'
-    cln3  = 'Globally-averaged Evaporation - Precipitation (E-P)'
+    cln3  = 'Globally-averaged Evaporation - Precipitation (E-P = '+vdic_fwf['NN_EMP']+')'
     cvr4  = 'P'
-    cln4  = 'Globally-averaged Precipitation (P)'
+    cln4  = 'Globally-averaged Precipitation (P = '+vdic_fwf['NN_P']+')'
     cvr5  = 'ICalv'
-    cln5  = 'Globally-averaged ice calving from icebergs (ICalv)'
+    cln5  = 'Globally-averaged ice calving from icebergs (ICalv = '+vdic_fwf['NN_CLV']+')'
+    cvr6  = 'E'
+    cln6  = 'Globally-averaged evaporation (E = '+vdic_fwf['NN_E']+')'
     cyu   = r'Sv'
     ym = yp = 0.
 
@@ -164,7 +166,7 @@ if idfig == 'simple':
 
 if idfig == 'fwf':
 
-    l_rnf = False ; l_emp = False ; l_prc = False ; l_clv = False
+    l_rnf = False ; l_emp = False ; l_prc = False ; l_clv = False ; l_evp = False
 
     cf_in = cdiag+'_'+CONFRUN+'_global.nc' ;  bt.chck4f(cf_in, script_name='plot_time_series.py')
     id_in = Dataset(cf_in)
@@ -183,6 +185,9 @@ if idfig == 'fwf':
     if cvr5 in list_var[:]:
         l_clv = True
         vclv  = id_in.variables[cvr5][:]
+    if cvr6 in list_var[:]:
+        l_evp = True
+        vevp  = id_in.variables[cvr6][:]
     id_in.close()
 
     # Checking if there a potential file for IFS:
@@ -232,16 +237,26 @@ if idfig == 'fwf':
         VY, FY = bt.monthly_2_annual(vtime, vemp)
         bp.plot("1d_mon_ann")(vtime, VY, vemp, FY, cfignm=cdiag+'_emp_'+CONFRUN, dt_year=ittic,
                               cyunit=cyu, ctitle = CONFRUN+': '+cln3, ymin=ym, ymax=yp, cfig_type=ff)
-
+    if l_evp:
+        VY, FY = bt.monthly_2_annual(vtime, vevp)
+        bp.plot("1d_mon_ann")(vtime, VY, vevp, FY, cfignm=cdiag+'_evp_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln6, ymin=ym, ymax=yp, cfig_type=ff)
     if l_prc:
         VY, FY = bt.monthly_2_annual(vtime, vprc)
         bp.plot("1d_mon_ann")(vtime, VY, vprc, FY, cfignm=cdiag+'_prc_'+CONFRUN, dt_year=ittic,
                               cyunit=cyu, ctitle = CONFRUN+': '+cln4, ymin=ym, ymax=yp, cfig_type=ff)
 
+    if l_evp and l_prc:
+        VY, FY = bt.monthly_2_annual(vtime, vevp-vprc)
+        bp.plot("1d_mon_ann")(vtime, VY, vprc, FY, cfignm=cdiag+'_prc_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': E-P as E-P !', ymin=ym, ymax=yp, cfig_type=ff)
+
+
     if l_clv:
         VY, FY = bt.monthly_2_annual(vtime, vclv)
         bp.plot("1d_mon_ann")(vtime, VY, vclv, FY, cfignm=cdiag+'_clv_'+CONFRUN, dt_year=ittic,
                               cyunit=cyu, ctitle = CONFRUN+': '+cln5, ymin=ym, ymax=yp, cfig_type=ff)
+
 
     if l_fwf_ifs and l_emp:
         # Only E-P for NEMO and IFS:
@@ -265,22 +280,31 @@ if idfig == 'fwf':
         
     if l_fwf_ifs and l_rnf:
         # Runoff of NEMO compares to ( E-P global - E-P ocean ) of IFS:
-        Xplt = nmp.zeros((2,nbm))
-        Xplt[0,:] = vrnf[:]
-        Xplt[1,:] = -vemp_land_ifs[:]
-        bp.plot("1d_multi")(vtime, Xplt, ['R NEMO','-(E-P) over land IFS'], cfignm=cdiag+'_rnf_IFS_'+CONFRUN, dt_year=ittic,
+        vlab = []
+        Xplt = nmp.zeros((2,nbm)) 
+        if l_clv:
+            Xplt[0,:] = vrnf[:] + vclv[:] ; vlab.append('R + calving NEMO')
+        else:
+            Xplt[0,:] = vrnf[:]           ; vlab.append('R NEMO')
+        Xplt[1,:] = -vemp_land_ifs[:] ; vlab.append('-(E-P) over land IFS')
+        #
+        bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_rnf_IFS_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (monthly)', loc_legend='upper center',
                             ymin=ym, ymax=yp, cfig_type=ff)
-
+        #
         # Same but annual:
         nby = nbm/12
         Xplt = nmp.zeros((2,nby))
-        VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:])
+        if l_clv:
+            VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:] + vclv[:])
+        else:
+            VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:])
         VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], -vemp_land_ifs[:])
-        #VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], -(vemp_glb_ifs[:]-vemp_ifs[:])) ; # ,'-(Global(E-P)-Oceans(E-P) IFS'
-        bp.plot("1d_multi")(VY, Xplt, ['R NEMO','-(E-P) over land IFS'], cfignm=cdiag+'_rnf_IFS_annual_'+CONFRUN, dt_year=ittic,
+
+        bp.plot("1d_multi")(VY, Xplt, vlab, cfignm=cdiag+'_rnf_IFS_annual_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (annual)', loc_legend='upper center',
                             ymin=ym, ymax=yp, cfig_type=ff)
+
 
     if l_fwf_ifs and l_prc:
         # Only P for NEMO and IFS, and RNF NEMO: lulu
@@ -303,24 +327,24 @@ if idfig == 'fwf':
 
 
         # Everything possible
-        Xplt = nmp.zeros((8,nbm))
+        # l_rnf = False ; l_emp = False ; l_prc = False ; l_clv = False ; l_evp = False
+        Xplt = nmp.zeros((9,nbm))
         vlab = []
-        Xplt[0,:] = vemp[:]      ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
-        Xplt[1,:] = vemp_ifs[:]  ; vlab.append('E-P IFS')
-        Xplt[2,:] = vfwf[:]      ; vlab.append('E-P-R NEMO ('+vdic_fwf['NN_FWF']+')')
-        Xplt[3,:] = vrnf[:]      ; vlab.append('R NEMO ('+vdic_fwf['NN_RNF']+')')
-        Xplt[4,:] = ve_ifs[:]    ; vlab.append('E IFS')
-        Xplt[5,:] = vprc[:]      ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
-        Xplt[6,:] = vp_ifs[:]    ; vlab.append('P IFS')
-        Xplt[7,:] = vclv[:]      ; vlab.append('Calving NEMO ('+vdic_fwf['NN_CLV']+')')
+        if l_emp:     Xplt[0,:] = vemp[:]     ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
+        if l_fwf_ifs: Xplt[1,:] = vemp_ifs[:] ; vlab.append('E-P IFS')
+        if l_emp:     Xplt[2,:] = vfwf[:]     ; vlab.append('E-P-R NEMO ('+vdic_fwf['NN_FWF']+')')
+        if l_rnf:     Xplt[3,:] = vrnf[:]     ; vlab.append('R NEMO ('+vdic_fwf['NN_RNF']+')')
+        if l_fwf_ifs: Xplt[4,:] = ve_ifs[:]   ; vlab.append('E IFS')
+        if l_prc:     Xplt[5,:] = vprc[:]     ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
+        if l_fwf_ifs: Xplt[6,:] = vp_ifs[:]   ; vlab.append('P IFS')
+        if l_clv:     Xplt[7,:] = vclv[:]     ; vlab.append('Calving NEMO ('+vdic_fwf['NN_CLV']+')')
+        if l_evp:     Xplt[8,:] = vevp[:]     ; vlab.append('E NEMO ('+vdic_fwf['NN_E']+')')
 
-
+        # lulu
         bp.plot("1d_multi")(vtime, Xplt, vlab,
                             cfignm=cdiag+'_emp_ALL_IFS_'+CONFRUN, dt_year=ittic,
                             loc_legend='center', cyunit=cyu,
                             ctitle = CONFRUN+': fresh-water budgets', ymin=ym, ymax=yp, cfig_type=ff)
-
-        #lulu
 
 
 

@@ -31,7 +31,7 @@ export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
 #export NEMO_OUT_STRCT="/accumulus/rossby15/rossby/joint_exp/ecearth/sm_wyser/ece-run/<RUN>/output/nemo"
-export NEMO_OUT_STRCT="/nobackup/rossby15/rossby/joint_exp/ecearth/sm_wyser/ece-run/<RUN>/output/nemo"
+#export NEMO_OUT_STRCT="/nobackup/rossby15/rossby/joint_exp/ecearth/sm_wyser/ece-run/<RUN>/output/nemo"
 
 export TSTAMP="1m"   ; # output time-frequency stamp as in NEMO output files...
 

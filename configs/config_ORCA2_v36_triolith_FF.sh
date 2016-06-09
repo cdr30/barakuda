@@ -25,7 +25,7 @@ export ece_run=0 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/
 export Y_INI_EC=1990 ;    # initial year if ec-earth run...
 
 # List of suffixed of files that have been saved by NEMO and that are needed for the diags:
-export NEMO_SAVED_FILES="grid_T grid_U grid_V"; # icemod SBC"
+export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod" ; # SBC !!!
 
 
 # Configuration-input files directory:
@@ -162,7 +162,7 @@ i_do_mht=1
 i_do_sigt=1
 
 # sea-ice diags
-i_do_ice=0  ; # Sea-ice diags
+i_do_ice=1  ; # Sea-ice diags
 
 
 i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!
