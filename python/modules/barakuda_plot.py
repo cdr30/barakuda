@@ -287,7 +287,8 @@ class plot :
     def __2d_reg(self,VX, VY, XF, XMSK, rmin, rmax, dc, lkcont=False, cpal='jet',
                  cfignm='fig', cfig_type='pdf', cbunit=' ', ctitle='',
                  cb_orient='vertical', lat_min=-77., lat_max=77., i_cb_subsamp=1,
-                 lpix=False, l_continent_pixel=True, colorbar_fs=14):
+                 lpix=False, l_continent_pixel=True, colorbar_fs=14,
+                 col_min='k', col_max='k'):
 
 
         import barakuda_tool   as bt
@@ -345,8 +346,8 @@ class plot :
         else:
             cf = plt.contourf(VXe, VY, XFe, vc, cmap = cpal, norm = pal_norm, extend="both")
             for c in cf.collections: c.set_zorder(0.15)
-            cf.cmap.set_under('k')
-            cf.cmap.set_over('k')
+            cf.cmap.set_under(col_min)
+            cf.cmap.set_over(col_max)
 
         if lkcont:
             cfk = plt.contour(VXe, VY, XFe, vc, colors='k', linewidths = 0.2)
