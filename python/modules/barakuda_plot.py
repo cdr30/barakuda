@@ -505,7 +505,7 @@ class plot :
 
         if lnarrow:
             fig = plt.figure(num = 1, figsize=(6.,5.), dpi=None)
-            ax = plt.axes([0.173 , 0.12, 0.81, 0.82])   #, axisbg = 'gray')
+            ax = plt.axes([0.18 , 0.12, 0.81, 0.82])   #, axisbg = 'gray')
         else:
             fig = plt.figure(num = 1, figsize=(12.,6.4), dpi=None)
             ax = plt.axes([0.08, 0.11, 0.9, 0.82])   #, axisbg = 'gray')
