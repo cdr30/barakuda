@@ -268,19 +268,26 @@ if idfig == 'fwf':
 
     if l_fwf_ifs and l_emp:
         # Only E-P for NEMO and IFS:
-        Xplt = nmp.zeros((3,nbm))
-        Xplt[0,:] = vemp[:]
-        Xplt[1,:] = vemp_ifs[:]
-        Xplt[2,:] = vemp_land_ifs[:]
-        bp.plot("1d_multi")(vtime, Xplt, ['E-P NEMO','E-P IFS (oceans)','E-P IFS (land)'],
+        vlab = [] ; nbd = 3
+        if l_prc and l_evp: nbd = 4
+        Xplt = nmp.zeros((nbd,nbm))
+        Xplt[0,:] = vemp[:]             ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
+        Xplt[1,:] = vemp_ifs[:]         ; vlab.append('E-P IFS (oceans)')
+        Xplt[2,:] = vemp_land_ifs[:]    ; vlab.append('E-P IFS (land)')
+        if l_prc and l_evp :
+            Xplt[3,:] = vevp[:]-vprc[:] ; vlab.append('E-P NEMO ('+vdic_fwf['NN_E']+'-'+vdic_fwf['NN_P']+')')
+        bp.plot("1d_multi")(vtime, Xplt, vlab,
                             cfignm=cdiag+'_emp_IFS_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': E-P (monthly)', ymin=ym, ymax=yp, cfig_type=ff)
         # Same but annual:
         nby = nbm/12
-        Xplt = nmp.zeros((2,nby))
+        Xplt = nmp.zeros((nbd,nby))
         VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vemp[:])
         VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], vemp_ifs[:])
-        bp.plot("1d_multi")(VY, Xplt, ['E-P NEMO','E-P IFS'],
+        VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], vemp_land_ifs[:])
+        if l_prc and l_evp:
+            VY, Xplt[3,:] = bt.monthly_2_annual(vtime[:], evp[:]-vprc[:])
+        bp.plot("1d_multi")(VY, Xplt, vlab,
                             cfignm=cdiag+'_emp_IFS_annual_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': E-P over oceans (annual)',
                             loc_legend='upper center', ymin=ym, ymax=yp, cfig_type=ff)
