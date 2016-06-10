@@ -18,6 +18,8 @@ import barakuda_ncio as bn
 import barakuda_orca as bo
 import barakuda_plot as bp
 
+cv_evb = 'evap_ao_cea' ; # debug evap in ec-earth...
+
 DEFAULT_LEGEND_LOC = 'lower left'
 
 venv_needed = {'ORCA','RUN','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD','LMOCLAT','TRANSPORT_SECTION_FILE','FIG_FORM'}
@@ -66,6 +68,9 @@ elif cdiag == 'mean_fwf':
     cln5  = 'Globally-averaged ice calving from icebergs (ICalv = '+vdic_fwf['NN_CLV']+')'
     cvr6  = 'E'
     cln6  = 'Globally-averaged evaporation (E = '+vdic_fwf['NN_E']+')'
+    cvr7  = 'Eb'
+    cln7  = 'Globally-averaged evap. t.i.a sea-ice (E = '+cv_evb+')'
+    
     cyu   = r'Sv'
     ym = yp = 0.
 
@@ -166,7 +171,7 @@ if idfig == 'simple':
 
 if idfig == 'fwf':
 
-    l_rnf = False ; l_emp = False ; l_prc = False ; l_clv = False ; l_evp = False
+    l_rnf = False ; l_emp = False ; l_prc = False ; l_clv = False ; l_evp = False ; l_evb = False
 
     cf_in = cdiag+'_'+CONFRUN+'_global.nc' ;  bt.chck4f(cf_in, script_name='plot_time_series.py')
     id_in = Dataset(cf_in)
@@ -188,6 +193,9 @@ if idfig == 'fwf':
     if cvr6 in list_var[:]:
         l_evp = True
         vevp  = id_in.variables[cvr6][:]
+    if cvr7 in list_var[:]:
+        l_evb = True
+        vevb  = id_in.variables[cvr7][:]
     id_in.close()
 
     # Checking if there a potential file for IFS:
@@ -267,7 +275,6 @@ if idfig == 'fwf':
         bp.plot("1d_multi")(vtime, Xplt, ['E-P NEMO','E-P IFS (oceans)','E-P IFS (land)'],
                             cfignm=cdiag+'_emp_IFS_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': E-P (monthly)', ymin=ym, ymax=yp, cfig_type=ff)
-
         # Same but annual:
         nby = nbm/12
         Xplt = nmp.zeros((2,nby))
@@ -324,6 +331,28 @@ if idfig == 'fwf':
                             cyunit=cyu, ctitle = CONFRUN+': Precip', ymin=ym, ymax=yp, cfig_type=ff,
                             loc_legend='center')
 
+
+    if l_fwf_ifs and l_evp:
+        # Only Evaporations
+        vlab = [] ; nbd = 2
+        if l_evb :  nbd = 3
+        Xplt = nmp.zeros((nbd,nbm))
+        Xplt[0,:] = vevp[:]           ; vlab.append('E NEMO ('+vdic_fwf['NN_E']+')')
+        Xplt[1,:] = ve_ifs[:]         ; vlab.append('E IFS')
+        if l_evb: Xplt[2,:] = vevb[:] ; vlab.append('E NEMO ('+cv_evb+')')            
+        bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_evp_IFS_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Evaporation', ymin=ym, ymax=yp, cfig_type=ff,
+                            loc_legend='center')
+        # Same but annual:
+        nby = nbm/12
+        Xplt = nmp.zeros((nbd,nby))
+        VY, Xplt[0,:] =       bt.monthly_2_annual(vtime[:], vevp[:])
+        VY, Xplt[1,:] =       bt.monthly_2_annual(vtime[:], ve_ifs[:])
+        if l_evb: Xplt[2,:] = bt.monthly_2_annual(vtime[:], vevb[:])
+        bp.plot("1d_multi")(VY, Xplt, vlab,
+                            cfignm=cdiag+'_evp_IFS_annual_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Evaporation (annual)',
+                            loc_legend='upper center', ymin=ym, ymax=yp, cfig_type=ff)
 
 
         # Everything possible
