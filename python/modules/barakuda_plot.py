@@ -506,7 +506,7 @@ class plot :
 
         if lnarrow:
             fig = plt.figure(num = 1, figsize=(6.,5.), dpi=None)
-            ax = plt.axes([0.18 , 0.12, 0.81, 0.82])   #, axisbg = 'gray')
+            ax  = plt.axes([0.14 , 0.12, 0.85, 0.82])   #, axisbg = 'gray')
         else:
             fig = plt.figure(num = 1, figsize=(12.,6.4), dpi=None)
             ax = plt.axes([0.08, 0.11, 0.9, 0.82])   #, axisbg = 'gray')
@@ -1835,7 +1835,11 @@ def __subsample_axis__(plt_hndl, cax, i_sbsmp, icpt=1):
     cpt = icpt # with ipct = 1: tick priting will start at y1+dt_year on x axis rather than y1
     for rr in locs:
         if cpt % i_sbsmp == 0:
-            ax_lab.append(str(rr))
+            if rr%1.0 == 0.:
+                cr = str(int(rr))  # it's something like 22.0, we want 22 !!!
+            else:
+                cr = str(rr)
+            ax_lab.append(cr)
         else:
             ax_lab.append(' ')
         cpt = cpt + 1
@@ -1848,12 +1852,12 @@ def __subsample_axis__(plt_hndl, cax, i_sbsmp, icpt=1):
 def __nice_x_axis__(ax_hndl, plt_hndl, x_0, x_L, dx, i_sbsmp=1, cunit=None, cfont=None):
     plt_hndl.xticks( nmp.arange(x_0, x_L+dx, dx) )
     locs, labels = plt_hndl.xticks()
-    jl=0
-    xlabs = []
-    for ll in locs:
-        xlabs.append(str(int(locs[jl])))
-        jl=jl+1
-    plt_hndl.xticks(locs,xlabs)
+    #jl=0
+    #xlabs = []
+    #for ll in locs:
+    #    xlabs.append(str(int(locs[jl])))
+    #    jl=jl+1
+    #plt_hndl.xticks(locs,xlabs)
 
     if i_sbsmp > 1: __subsample_axis__( plt, 'x', i_sbsmp)
 
@@ -1868,7 +1872,7 @@ def __nice_x_axis__(ax_hndl, plt_hndl, x_0, x_L, dx, i_sbsmp=1, cunit=None, cfon
     # Prevents from using scientific notations in axess ticks numbering:
     #ax_hndl.get_xaxis().get_major_formatter().set_useOffset(False)
 
-    del xlabs
+    #del xlabs
 
 
 def __nice_z_axis__(ax_hndl, plt_hndl, z0, zK, dz, i_sbsmp=1, cunit=None, cfont=None):
