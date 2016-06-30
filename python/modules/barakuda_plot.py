@@ -288,9 +288,8 @@ class plot :
                  cfignm='fig', cfig_type='pdf', cbunit=' ', ctitle='',
                  cb_orient='vertical', lat_min=-77., lat_max=77., i_cb_subsamp=1,
                  lpix=False, l_continent_pixel=True, colorbar_fs=14,
-                 col_min='k', col_max='k'):
-
-
+                 col_min='k', col_max='k', vcont_spec = []):
+        
         import barakuda_tool   as bt
         import barakuda_colmap as bcm
 
@@ -349,6 +348,12 @@ class plot :
             cf.cmap.set_under(col_min)
             cf.cmap.set_over(col_max)
 
+        # contour for specific values on the ploted field: #lulu
+        if len(vcont_spec) >= 1:
+            cfs = plt.contour(VXe, VY, XFe, vcont_spec, colors='w', linewidths = 1.)
+            #plt.clabel(cfs, inline=1, fmt='%4.1f', fontsize=12)
+
+
         if lkcont:
             cfk = plt.contour(VXe, VY, XFe, vc, colors='k', linewidths = 0.2)
             for c in cfk.collections: c.set_zorder(0.25)
@@ -365,12 +370,10 @@ class plot :
             XFe = nmp.ma.masked_where(XMSKe[:,:] > 0.5, XFe)
             XFe[idx_land] = 1000.
             cf0 = plt.pcolor(VXe, VY, XFe, cmap = bcm.chose_palette("mask"))
-            #plt.contour(VXe, VY, XMSKe, [ 0.5 ], colors='k', linewidths = 1.)
         else:
-            #print 'poo'
             # Masking with contour rather than pixel:
             cf0 = plt.contourf(VXe, VY, XMSKe, [ 0., 0.1 ], cmap = bcm.chose_palette("mask"))
-            # for c in cf0.collections: c.set_zorder(0.95)
+            for c in cf0.collections: c.set_zorder(5)
             plt.contour(VXe, VY, XMSKe, [ 0.25 ], colors='k', linewidths = 1.)
 
 
