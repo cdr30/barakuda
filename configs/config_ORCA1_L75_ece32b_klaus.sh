@@ -177,7 +177,7 @@ i_do_box_TS_z=1 ; # do sigma vert. profiles on given boxes... # 1 => no figures,
 
 #
 # Deep Mixed volume in prescribed boxes:
-i_do_dmv=1
+i_do_dmv=0
 export MLD_CRIT="1000,725,500"
 
 
