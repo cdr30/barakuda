@@ -15,9 +15,11 @@
 export CONF=ORCA1.L75 ; # horizontal global configuration
 export NBL=75     ; # number of levels
 
-# File system where NEMO config and output files are stored:
+# Path to directory containing NEMO output files:
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
+# Path to directory containing some 2D and 3D climatologies on the relevant ORCA grid:
+export CONF_INI_DIR=/proj/bolinc/users/x_laubr/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b
 
 # Is it an ec-earth run?
 export ece_run=1 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
@@ -27,7 +29,6 @@ export Y_INI_EC=1990 ;    # initial year if ec-earth run...
 
 # List of suffixed of files that have been saved by NEMO and that are needed for the diags:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
-
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
 export NEMO_OUT_STRCT="${STORE_DIR}/ecrundir/<RUN>/output/nemo"
@@ -88,14 +89,14 @@ export MM_FILE=/proj/bolinc/users/x_laubr/ecrundir/mesh_mask_L320.nc
 export BM_FILE=/proj/bolinc/users/x_laubr/ecrundir/basin_mask_L320.nc
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
-export F_T_CLIM_3D_12=${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc
-export F_S_CLIM_3D_12=${STORE_DIR}/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b/so_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc
-export SST_CLIM_12=${STORE_DIR}/ORCA1.L75/ORCA1.L75-I/tos_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc
+export F_T_CLIM_3D_12=${CONF_INI_DIR}/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc
+export F_S_CLIM_3D_12=${CONF_INI_DIR}/so_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc
+export SST_CLIM_12=${CONF_INI_DIR}/tos_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc
 export NN_T_CLIM="thetao"
 export NN_S_CLIM="so"
 export NN_SST_CLIM="tos"
 
-export ICE_CLIM_12=${STORE_DIR}/ORCA1.L75/ORCA1.L75-I/ice_cover_180x360-ORCA1_Hurrell_monthly_mean1980-1999.nc4
+export ICE_CLIM_12=${CONF_INI_DIR}/ice_cover_180x360-ORCA1_Hurrell_monthly_mean1980-1999.nc4
 export NN_ICEF_CLIM="ice_cover"
 
 
