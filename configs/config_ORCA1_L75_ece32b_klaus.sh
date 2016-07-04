@@ -30,8 +30,7 @@ export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
 
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
-#export NEMO_OUT_STRCT="/accumulus/rossby15/rossby/joint_exp/ecearth/sm_wyser/ece-run/<RUN>/output/nemo"
-#export NEMO_OUT_STRCT="/nobackup/rossby15/rossby/joint_exp/ecearth/sm_wyser/ece-run/<RUN>/output/nemo"
+export NEMO_OUT_STRCT="/nobackup/rossby15/sm_wyser/run/<RUN>/output/nemo"
 
 export TSTAMP="1m"   ; # output time-frequency stamp as in NEMO output files...
 
@@ -53,7 +52,6 @@ export NN_SSH="zos"
 export NN_T="thetao"
 export NN_S="so"
 export NN_MLD="mldr10_1"
-export NN_RNF="runoffs"
 export NN_U="uo"
 export NN_V="vo"
 #export NN_U_EIV="vozoeivu"
@@ -73,6 +71,7 @@ export NN_EMP="emp_oce"      ; # name of E-P in "FILE_FLX_SUFFIX" file...
 export NN_P="precip"         ; # name of P in "FILE_FLX_SUFFIX" file...
 export NN_RNF="runoffs"      ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
 export NN_CLV="calving_cea"  ; # calving from icebergs in "FILE_FLX_SUFFIX" file...
+export NN_E="evap"           ; # evaporation in "FILE_FLX_SUFFIX" file...
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!

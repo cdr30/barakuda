@@ -286,11 +286,11 @@ if idfig == 'fwf':
         VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], vemp_ifs[:])
         VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], vemp_land_ifs[:])
         if l_prc and l_evp:
-            VY, Xplt[3,:] = bt.monthly_2_annual(vtime[:], evp[:]-vprc[:])
+            VY, Xplt[3,:] = bt.monthly_2_annual(vtime[:], vevp[:]-vprc[:])
         bp.plot("1d_multi")(VY, Xplt, vlab,
                             cfignm=cdiag+'_emp_IFS_annual_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': E-P over oceans (annual)',
-                            loc_legend='upper center', ymin=ym, ymax=yp, cfig_type=ff)
+                            loc_legend='center', ymin=ym, ymax=yp, cfig_type=ff)
         
     if l_fwf_ifs and l_rnf:
         # Runoff of NEMO compares to ( E-P global - E-P ocean ) of IFS:
