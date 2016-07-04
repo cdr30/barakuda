@@ -363,7 +363,6 @@ if idfig == 'fwf':
 
 
         # Everything possible
-        # l_rnf = False ; l_emp = False ; l_prc = False ; l_clv = False ; l_evp = False
         Xplt = nmp.zeros((9,nbm))
         vlab = []
         if l_emp:     Xplt[0,:] = vemp[:]     ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
@@ -376,7 +375,6 @@ if idfig == 'fwf':
         if l_clv:     Xplt[7,:] = vclv[:]     ; vlab.append('Calving NEMO ('+vdic_fwf['NN_CLV']+')')
         if l_evp:     Xplt[8,:] = vevp[:]     ; vlab.append('E NEMO ('+vdic_fwf['NN_E']+')')
 
-        # lulu
         bp.plot("1d_multi")(vtime, Xplt, vlab,
                             cfignm=cdiag+'_emp_ALL_IFS_'+CONFRUN, dt_year=ittic,
                             loc_legend='center', cyunit=cyu,
