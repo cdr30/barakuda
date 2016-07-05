@@ -107,7 +107,7 @@ class plot :
 
         font_ttl, font_xylb, font_clb = __font_unity__()
 
-        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
+        zVZ = __prepare_z_log_axis__(l_zlog, VZ)
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
@@ -115,8 +115,8 @@ class plot :
         XF = nmp.ma.masked_where(XMSK == 0, XF)
 
         fig = plt.figure(num = 1, figsize=(WDTH_TS,5.), dpi=None, facecolor='w', edgecolor='k')
-        ax = plt.axes([0.08, 0.12, 0.98, 0.82], axisbg = 'gray')
-        vc = __vcontour__(rmin, rmax, dc)
+        ax  = plt.axes([0.08, 0.06, 0.98, 0.88], axisbg = 'gray')
+        vc  = __vcontour__(rmin, rmax, dc)
 
         # Colormap:
         palette = bcm.chose_palette(cpal)
@@ -764,7 +764,7 @@ class plot :
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
+        zVZ = __prepare_z_log_axis__(l_zlog, VZ)
 
         Xamoc = nmp.ma.masked_where(XMSK == 0, Xamoc)
 
@@ -988,7 +988,7 @@ class plot :
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
+        zVZ = __prepare_z_log_axis__(l_zlog, VZ)
 
         XF = nmp.ma.masked_where(XMSK == 0, XF)
 
@@ -1047,7 +1047,7 @@ class plot :
 
         font_ttl, font_xylb, font_clb = __font_unity__()
 
-        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
+        zVZ = __prepare_z_log_axis__(l_zlog, VZ)
 
         XF = nmp.ma.masked_where(XMSK == 0, XF)
 
@@ -1899,7 +1899,7 @@ def __nice_z_axis__(ax_hndl, plt_hndl, z0, zK, dz, i_sbsmp=1, cunit=None, cfont=
 
 
 
-def __prepare_z_log_axis__(l_log, z0, zK, vz):
+def __prepare_z_log_axis__(l_log, vz):
 
     import math
 
@@ -1907,27 +1907,34 @@ def __prepare_z_log_axis__(l_log, z0, zK, vz):
     zvz = nmp.zeros(nk)
 
     if l_log:
-        z0 = math.log10(z0)
-        zK = math.log10(zK)
         for jk in range(nk):
             zvz[jk] = math.log10(vz[jk])
     else:
         zvz= vz
 
-    return z0, zK, zvz
+    return zvz
 
 
 def __fix_z_axis__(ax_hndl, plt_hndl, z0, zK, l_log=False, l_z_inc=True):
 
     if l_log:
-        # Correcting ticks for log
-        locs, labels = plt_hndl.yticks() ; # print 'locs =', locs
-        cny = []
-        for jl in range(len(locs[:])):
-            cny.append(str(int(10.**locs[jl])))
-        plt_hndl.yticks(locs,cny)
+        y_log_ofs = 10.
+        vyview_list = [ 3. , 10. , 25., 50. , 100. , 250. , 500. , 1000. , 2500.,  5000. ]
+        nd = len(vyview_list)
+        vyview      = nmp.zeros(nd)
+        for jn in range(nd): vyview[jn] = vyview_list[jn]
+        vyview_log = nmp.log10(vyview + y_log_ofs)
+        ylab = []
+        for rr in vyview_list: ylab.append(str(int(rr)))
+        z0 = nmp.log10(z0+y_log_ofs)
+        zK = nmp.log10(zK+y_log_ofs)
+        ax_hndl.set_yticks(vyview_log)
+        ax_hndl.get_yaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
+        ax_hndl.set_yticklabels(ylab)
 
     if l_z_inc:
         ax_hndl.set_ylim(z0,zK)
     else:
         ax_hndl.set_ylim(zK+(zK-z0)/50. , z0)
+
+    ax_hndl.grid(color='k', linestyle='-', linewidth=0.5)
