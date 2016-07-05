@@ -18,24 +18,29 @@ export NBL=31     ; # number of levels
 # File system where NEMO config and output files are stored:
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
+# Path to directory containing some 2D and 3D climatologies on the relevant ORCA grid:
+export CONF_INI_DIR="/proj/bolinc/users/x_laubr/ORCA2/ORCA2-I"
+
+# In what directory of the local machine to save the diagnostics:
+export DIAG_DIR="/proj/bolinc/users/x_filfr/tmp/barakuda/${CONF}_v36"
+
+
 
 # Is it an ec-earth run?
 export ece_run=0 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
 #                  # where YYY starts from '001' to
 export Y_INI_EC=1990 ;    # initial year if ec-earth run...
 
+
 # List of suffixed of files that have been saved by NEMO and that are needed for the diags:
-export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod" ; # SBC !!!
+export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC" ; # SBC !!!
 
 
 # Configuration-input files directory:
-#CONF_INI_DIR=/proj/bolinc/users/x_filfr/NEMO/ORCA_PISCES/ADD_NEMO_2
 CONF_INI_DIR=/proj/bolinc/users/x_filfr/NEMO/ORCA_PISCES/ADD_NEMO
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
-#export NEMO_OUT_STRCT="${STORE_DIR}/<ORCA>/<ORCA>-<RUN>-S"
-#export NEMO_OUT_STRCT="/proj/bolinc/users/x_filfr/NEMO/ORCA_PISCES/EXP13/IO"
-export NEMO_OUT_STRCT="/proj/bolinc/users/x_filfr/NEMO/ORCA2_LIM3/<RUN>/IO"
+export NEMO_OUT_STRCT="/proj/bolinc/users/x_filfr/NEMO/ORCA2_LIM2/<RUN>/IO"
 
 export TSTAMP="1m"   ; # output time-frequency stamp as in NEMO output files...
 
@@ -85,7 +90,7 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / ocean-only experiment"
+export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM2 / ocean-only experiment"
 
 # Land-sea mask and basins files:
 #export MM_FILE="${CONF_INI_DIR}/mesh_mask.nc"
@@ -93,14 +98,14 @@ export MM_FILE="/proj/bolinc/users/x_filfr/NEMO/ORCA2_LIM3/mesh_mask.nc"
 export BM_FILE="/proj/bolinc/users/x_laubr/ORCA2/ORCA2-I/subbasins_laurent.nc"
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
-export F_T_CLIM_3D_12=/proj/bolinc/users/x_laubr/ORCA2/ORCA2-I/data_1m_potential_temperature_nomask_${CONF}.nc # 
-export F_S_CLIM_3D_12=/proj/bolinc/users/x_laubr/ORCA2/ORCA2-I/data_1m_salinity_nomask_${CONF}.nc
-export SST_CLIM_12=/proj/bolinc/users/x_laubr/ORCA2/ORCA2-I/sst_data_${CONF}.nc
+export F_T_CLIM_3D_12=${CONF_INI_DIR}/data_1m_potential_temperature_nomask_${CONF}.nc # 
+export F_S_CLIM_3D_12=${CONF_INI_DIR}/data_1m_salinity_nomask_${CONF}.nc
+export SST_CLIM_12=${CONF_INI_DIR}/sst_data_${CONF}.nc
 export NN_T_CLIM="votemper"
 export NN_S_CLIM="vosaline"
 export NN_SST_CLIM="sst"
 
-export ICE_CLIM_12="/proj/bolinc/users/x_laubr/ORCA2/ORCA2-I/ice_cover_180x360-ORCA2_Hurrell_monthly_mean1980-1999.nc4"
+export ICE_CLIM_12="${CONF_INI_DIR}/ice_cover_180x360-ORCA2_Hurrell_monthly_mean1980-1999.nc4"
 export NN_ICEF_CLIM="ice_cover"
 
 
@@ -112,13 +117,10 @@ export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_${CONF}_all.dat
 export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_${CONF}.dat"
 
 
-# In what directory of the local machine to save the diagnostics:
-export DIAG_DIR="/proj/bolinc/users/x_laubr/tmp/barakuda/${CONF}_v36"
 
 
 # Files with the list of rectangular boxes to look at more closely:
 export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_${CONF}.txt"
-
 
 
 # About remote HOST to install HTML pages to:
