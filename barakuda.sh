@@ -1333,7 +1333,7 @@ if [ ${ISTAGE} -eq 2 ]; then
     inmlst=0
     if [ -f ${NEMO_OUT_D}/${fnamelist} ]; then inmlst=1; fi
 
-    rm -f index.php
+    rm -f index.html
 
     if [ "${JTITLE}" = "" ]; then
         echo "Problem, variable JTITLE is not set!" ; exit
@@ -1343,11 +1343,11 @@ if [ ${ISTAGE} -eq 2 ]; then
 
 
     sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" \
-        ${BARAKUDA_ROOT}/scripts/html/index_skel_header.html > index.php
+        ${BARAKUDA_ROOT}/scripts/html/index_skel_header.html > index.html
 
     # Namelist section
     if [ ${inmlst} -eq 1 ]; then
-        cat >> index.php <<EOF
+        cat >> index.html <<EOF
         <big> <a href="./namelist.html"> Last namelist </a> </big>
         <br><br><br>
 EOF
@@ -1355,16 +1355,16 @@ EOF
 
     # Climato section
     if ${l_pclim}; then
-        cat >> index.php <<EOF
+        cat >> index.html <<EOF
         <br><big><big> Diags from climatology (${CLIM_PER}) </big></big><br><br>
-        <big> <a href="./temp_sal/index.php"> Temperature and Salinity vs CLIM</a> </big>             <br><br><br>
-        <big> <a href="./ssh/index.php">  Sea Surface Height </a> </big>                              <br><br><br>
-        <big> <a href="./sea_ice/index.php">  Arctic and Antarctic sea-ice extent vs CLIM </a> </big> <br><br><br>
-        <big> <a href="./mld/index.php">  Mixed Layer depth in relevent regions </a> </big>           <br><br><br>
-        <big> <a href="./moc/index.php">  Meridional Overturning Circulation </a> </big>              <br><br><br>
+        <big> <a href="./temp_sal/index.html"> Temperature and Salinity vs CLIM</a> </big>             <br><br><br>
+        <big> <a href="./ssh/index.html">  Sea Surface Height </a> </big>                              <br><br><br>
+        <big> <a href="./sea_ice/index.html">  Arctic and Antarctic sea-ice extent vs CLIM </a> </big> <br><br><br>
+        <big> <a href="./mld/index.html">  Mixed Layer depth in relevent regions </a> </big>           <br><br><br>
+        <big> <a href="./moc/index.html">  Meridional Overturning Circulation </a> </big>              <br><br><br>
 EOF
         if ${lcomp_to_run}; then
-            cat >> index.php <<EOF
+            cat >> index.html <<EOF
             <br><big><big> Comparison with run ${RUNREF}, climatology (2004-2007) </big></big><br><br>
             <big> <a href="./temp_sal/index_${RUNREF}.html"> Temperature and Salinity vs ${RUNREF}</a> </big>             <br><br><br>
             <!--        <big> <a href="./ssh/index_${RUNREF}.html">  Sea Surface Height </a> </big>                              <br><br><br>
@@ -1377,7 +1377,7 @@ EOF
     fi
 
     # Temperature section
-    cat >> index.php <<EOF
+    cat >> index.html <<EOF
     <br><br><br><big><big> Temperature time-series </big></big><br><br>
     <img style="border: 0px solid" alt="" src="3d_thetao_${CONFRUN}.${FIG_FORM}"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_tos_${CONFRUN}.${FIG_FORM}"> <br><br>
@@ -1391,7 +1391,7 @@ EOF
 EOF
 
     # Salinity section
-    cat >> index.php <<EOF
+    cat >> index.html <<EOF
     <br><br><br><big><big> Salinity time-series </big></big><br><br>
     <img style="border: 0px solid" alt="" src="3d_so_${CONFRUN}.${FIG_FORM}"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_sos_${CONFRUN}.${FIG_FORM}"> <br><br>
@@ -1403,7 +1403,7 @@ EOF
     <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_indian.${FIG_FORM}"> <br><br> <br><br>
 EOF
 
-    cat >> index.php <<EOF
+    cat >> index.html <<EOF
     <br><br><br><big><big> Freshwater-flux-related time-series </big></big><br><br>
     <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.${FIG_FORM}">     <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_fwf_${CONFRUN}.${FIG_FORM}"> <br><br>
@@ -1414,7 +1414,7 @@ EOF
 EOF
 
     if [ ${ece_run} -eq 1 ]; then
-        cat >> index.php <<EOF
+        cat >> index.html <<EOF
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_evp_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
@@ -1426,7 +1426,7 @@ EOF
 EOF
     fi
     
-    cat >> index.php <<EOF
+    cat >> index.html <<EOF
     <br><br><br><big><big> Atlantic Meridional Overturning Circulation </big></big><br><br>
     <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.${FIG_FORM}"> <br><br>
     <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.${FIG_FORM}"> <br><br> <br><br>
@@ -1434,7 +1434,7 @@ EOF
 
     # Sea-ice section
     if [ ${i_do_ice}  -gt 0 ]; then
-        cat >> index.php <<EOF
+        cat >> index.html <<EOF
         <br><br><br><big><big> Arctic/Antarctic sea-ice time-series</big></big><br><br>
         <img style="border: 0px solid" alt="" src="seaice_extent_winter_${CONFRUN}.${FIG_FORM}"> <br><br>
         <img style="border: 0px solid" alt="" src="seaice_extent_summer_${CONFRUN}.${FIG_FORM}"> <br><br><br>
@@ -1445,13 +1445,13 @@ EOF
 
     if [ ${i_do_trsp} -gt 0 ]; then
         # Adding transport section part:
-        echo "<br><br><br><big><big> Transport through sections</big></big><br><br>" >> index.php
+        echo "<br><br><br><big><big> Transport through sections</big></big><br><br>" >> index.html
         list_section=`cat ${TRANSPORT_SECTION_FILE} | grep '-'`
         for cs in ${list_section}; do
             echo ${cs}
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_vol_${cs}_${CONFRUN}.${FIG_FORM}\"> <br>"  >> index.php
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_heat_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>" >> index.php
-            echo "<br><br>" >> index.php
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_vol_${cs}_${CONFRUN}.${FIG_FORM}\"> <br>"  >> index.html
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_heat_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>" >> index.html
+            echo "<br><br>" >> index.html
         done
     fi
 
@@ -1459,37 +1459,37 @@ EOF
     if [ ${i_do_mean} -eq 1 ]; then
         list_mld_figs=`\ls mean_mldr10_1_${CONFRUN}*.${FIG_FORM}`
         if [ ! "${list_mld_figs}" = "" ]; then
-            echo "<br><br><br><big><big> Horizontally-averaged Mixed-Layer Depth in different regions</big></big><br><br>" >> index.php
+            echo "<br><br><br><big><big> Horizontally-averaged Mixed-Layer Depth in different regions</big></big><br><br>" >> index.html
             for fmld in ${list_mld_figs}; do
-                echo "<img style=\"border: 0px solid\" alt=\"\" src=\"${fmld}\"> <br>"  >> index.php
-                echo "<br><br>" >> index.php
+                echo "<img style=\"border: 0px solid\" alt=\"\" src=\"${fmld}\"> <br>"  >> index.html
+                echo "<br><br>" >> index.html
             done
         fi
     fi
 
     if [ ${i_do_sigt} -eq 1 ]; then
         # Adding transport by sigma class section part:
-        echo "<br><br><br><big><big> Transport by sigma class at Nordic sills</big></big><br><br>" >> index.php
+        echo "<br><br><br><big><big> Transport by sigma class at Nordic sills</big></big><br><br>" >> index.html
         list_section=`cat ${DENSITY_SECTION_FILE} | grep '_'`
         for cs in ${list_section}; do
             echo ${cs}
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_sigma_class_${cs}_${CONFRUN}.${FIG_FORM}\"> <br>"  >> index.php
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_sigma_class_${cs}_${CONFRUN}.${FIG_FORM}\"> <br>"  >> index.html
         done
-        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"tr_sigma_gt278_${CONFRUN}.${FIG_FORM}\"> <br>"  >> index.php
-        echo "<br><br>" >> index.php
+        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"tr_sigma_gt278_${CONFRUN}.${FIG_FORM}\"> <br>"  >> index.html
+        echo "<br><br>" >> index.html
     fi
 
     if [ ${i_do_mht} -eq 1 ]; then
         # Adding meridional heat transport:
-        echo "<br><br><br><big><big> Meridional transports</big></big><br><br>"  >> index.php
+        echo "<br><br><br><big><big> Meridional transports</big></big><br><br>"  >> index.html
         for coce in "global" "atlantic" "pacific" "indian"; do
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MHT_${CONFRUN}_${coce}.${FIG_FORM}\"> <br>"     >> index.php
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MST_${CONFRUN}_${coce}.${FIG_FORM}\"> <br><br>" >> index.php
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MHT_${CONFRUN}_${coce}.${FIG_FORM}\"> <br>"     >> index.html
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MST_${CONFRUN}_${coce}.${FIG_FORM}\"> <br><br>" >> index.html
         done
-        echo "<br><br>" >> index.php
+        echo "<br><br>" >> index.html
     fi
 
-    cat ${BARAKUDA_ROOT}/scripts/html/index_skel_footer.html >> index.php ; # Closing HTML file...
+    cat ${BARAKUDA_ROOT}/scripts/html/index_skel_footer.html >> index.html ; # Closing HTML file...
 
 
 
@@ -1500,32 +1500,32 @@ EOF
        # T, S, SSH and ice HTML page:
         for cdiag in ${DIRS_2_EXP}; do
             sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|CLIM|g" \
-                ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html > ${cdiag}/index.php
+                ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html > ${cdiag}/index.html
             cd ${cdiag}/ ; ln -sf ../logo.png . ; cd ../
         done
         for var in "sst" "sss" "sections_ts" "ts_100m" "ts_1000m" "ts_3000m"; do
             sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|CLIM|g" \
-                ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html > temp_sal/${var}_CLIM.php
+                ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html > temp_sal/${var}_CLIM.html
         done
 
         if ${lcomp_to_run}; then
             for cdiag in ${DIRS_2_EXP_RREF}; do
                 sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${RUNREF}|g" \
-                    ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html > ${cdiag}/index_${RUNREF}.php
+                    ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html > ${cdiag}/index_${RUNREF}.html
             done
             for var in "sst" "sss" "sections_ts" "ts_100m" "ts_1000m" "ts_3000m"; do
                 sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${RUNREF}|g" \
-                    ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html > temp_sal/${var}_${RUNREF}.php
+                    ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html > temp_sal/${var}_${RUNREF}.html
             done
         fi
 
         # Surface fluxes HTML page:
         if [ ${i_do_flx} -eq 1 ]; then
             sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${COMP2D}|g" \
-                ${BARAKUDA_ROOT}/scripts/html/surf_fluxes/index_fluxes.html > surf_fluxes/index.php
+                ${BARAKUDA_ROOT}/scripts/html/surf_fluxes/index_fluxes.html > surf_fluxes/index.html
             for flx in "Qsw" "Qlw" "Qla" "Qse"; do
                 sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${COMP2D}|g" \
-                    ${BARAKUDA_ROOT}/scripts/html/surf_fluxes/${flx}.html > surf_fluxes/${flx}.php
+                    ${BARAKUDA_ROOT}/scripts/html/surf_fluxes/${flx}.html > surf_fluxes/${flx}.html
             done
         fi
 
@@ -1542,7 +1542,7 @@ EOF
         cp -r ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
         cp -r ${BARAKUDA_ROOT}/scripts/html/*.${FIG_FORM}       ${RUN}/
 
-        mv -f index.php ${RUN}/
+        mv -f index.html ${RUN}/
         mv -f *.${FIG_FORM}      ${RUN}/ >/dev/null 2>/dev/null
         mv -f ./merid_transport/*.${FIG_FORM} ${RUN}/ >/dev/null 2>/dev/null
         mv -f *.svg      ${RUN}/ >/dev/null 2>/dev/null
