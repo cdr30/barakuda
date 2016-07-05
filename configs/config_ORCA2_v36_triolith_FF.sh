@@ -15,14 +15,15 @@
 export CONF=ORCA2 ; # horizontal global configuration
 export NBL=31     ; # number of levels
 
-# File system where NEMO config and output files are stored:
+# Path to directory containing NEMO output files:
+#export STORE_DIR="/proj/bolinc/users/x_filfr"
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
 # Path to directory containing some 2D and 3D climatologies on the relevant ORCA grid:
 export CONF_INI_DIR="/proj/bolinc/users/x_laubr/ORCA2/ORCA2-I"
 
 # In what directory of the local machine to save the diagnostics:
-export DIAG_DIR="/proj/bolinc/users/x_filfr/tmp/barakuda/${CONF}_v36"
+export DIAG_DIR="${STORE_DIR}/tmp/barakuda/${CONF}_v36"
 
 
 
@@ -98,14 +99,14 @@ export MM_FILE="/proj/bolinc/users/x_filfr/NEMO/ORCA2_LIM3/mesh_mask.nc"
 export BM_FILE="/proj/bolinc/users/x_laubr/ORCA2/ORCA2-I/subbasins_laurent.nc"
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
-export F_T_CLIM_3D_12=${CONF_INI_DIR}/data_1m_potential_temperature_nomask_${CONF}.nc # 
-export F_S_CLIM_3D_12=${CONF_INI_DIR}/data_1m_salinity_nomask_${CONF}.nc
-export SST_CLIM_12=${CONF_INI_DIR}/sst_data_${CONF}.nc
+export F_T_CLIM_3D_12=${CONF_INI_DIR}/data_1m_potential_temperature_nomask.nc
+export F_S_CLIM_3D_12=${CONF_INI_DIR}/data_1m_salinity_nomask.nc
+export SST_CLIM_12=${CONF_INI_DIR}/sst_data.nc
 export NN_T_CLIM="votemper"
 export NN_S_CLIM="vosaline"
 export NN_SST_CLIM="sst"
 
-export ICE_CLIM_12="${CONF_INI_DIR}/ice_cover_180x360-ORCA2_Hurrell_monthly_mean1980-1999.nc4"
+export ICE_CLIM_12="/proj/bolinc/users/x_laubr/ORCA2/ORCA2-I/ice_cover_180x360-ORCA2_Hurrell_monthly_mean1980-1999.nc4"
 export NN_ICEF_CLIM="ice_cover"
 
 
@@ -126,8 +127,8 @@ export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_${CONF}.txt"
 # About remote HOST to install HTML pages to:
 ihttp=1 ; # do we export on a remote http server (1) or keep on the local machine (0)
 RHOST=misu228.misu.su.se ; # remote host to send diagnostic page to///
-RUSER=laurent ; # username associated to remote host (for file export)
-RWWWD=/data/www/barakuda/${CONF} ; # directory of the local or remote host to send the diagnostic page to
+RUSER=filippa ; # username associated to remote host (for file export)
+RWWWD=/data/www/filippa/barakuda/${CONF} ; # directory of the local or remote host to send the diagnostic page to
 
 
 
