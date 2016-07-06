@@ -66,7 +66,7 @@ while getopts C:R:y:feh option ; do
         f) IFORCENEW=1;;
         e) IPREPHTML=1;;
         h)  usage;;
-        \?) usage ;; 
+        \?) usage ;;
     esac
 done
 
@@ -142,27 +142,27 @@ YEAR_INI=4000
 YEAR_END=0
 
 # just that they become righ arrays...
-VRUNS=( ${LRUNS} ) ;  VCONFRUNS=( ${LRUNS} ) ; VDIAGS=( ${LRUNS} ) ; 
+VRUNS=( ${LRUNS} ) ;  VCONFRUNS=( ${LRUNS} ) ; VDIAGS=( ${LRUNS} ) ;
 
 jr=0
 
 for run in ${LRUNS}; do
-    
+
     echo; echo " RUN ${run} "
     RUN="${run}"
-    
+
     echo "   => ORCA = ${ORCA}"
-    
+
     CONFRUN=${ORCA}-${RUN}
     echo "   => CONFRUN = ${CONFRUN}"
     VCONFRUNS[${jr}]=${CONFRUN}
-    
+
 
     DIAG_D="${DIAG_DIR}/${CONFRUN}"
     VDIAGS[${jr}]=${DIAG_D}
     echo "   => DIAG_D = ${DIAG_D} "; echo ; echo
 
-    
+
     if [ ! -d ${DIAG_D} ]; then
         echo "PROBLEM: ${DIAG_D} does not exist!"
         echo "    =>  you must run barakuda for ${run} prior to comparison!"
@@ -171,7 +171,7 @@ for run in ${LRUNS}; do
 
 
     # Guessing initial and last year:
-    
+
     check_if_file ${DIAG_D}/first_year.info
     iy=`cat ${DIAG_D}/first_year.info`
     if [ ${iy} -lt ${YEAR_INI} ]; then export YEAR_INI=${iy}; fi
@@ -179,7 +179,7 @@ for run in ${LRUNS}; do
     check_if_file ${DIAG_D}/last_year_done.info
     iy=`cat ${DIAG_D}/last_year_done.info`
     if [ ${iy} -gt ${YEAR_END} ]; then export YEAR_END=${iy}; fi
-    
+
     jr=`expr ${jr} + 1`
 done
 
@@ -196,12 +196,11 @@ cd ${DIAG_COMP_DIR}/
 ${PYTH} ${PYBRKD_EXEC_PATH}/compare_time_series.py ${YEAR_INI} ${YEAR_END}
 
 
-
-# Configuring HTML display file:
-sed -e "s|{TITLE}|Ocean, ${JTITLE}: comparing ${VRUNS[*]}|g" \
+# Starting to configure HTML index file:
+sed -e "s|{CONFRUN}|Comparison ${NRUNS}|g" \
+    -e "s|{TITLE}|Ocean, ${JTITLE}: comparing ${VRUNS[*]}|g" \
     -e "s|{NRUNS}|${NRUNS}|g" -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" \
-    ${BARAKUDA_ROOT}/scripts/html/index_comp_skel.html > index.html
-
+    ${BARAKUDA_ROOT}/scripts/html/conf_start.html >  index.html
 
 list_figs=`\ls *.${FIG_FORMAT}`
 
@@ -211,43 +210,42 @@ for ff in ${list_figs}; do
 
 done
 
-cat ${BARAKUDA_ROOT}/scripts/html/index_skel_footer.html >> index.html ; # Closing HTML file...
+cat ${BARAKUDA_ROOT}/scripts/html/conf_end.html >> index.html ; # Closing HTML file...
 
 cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html  .
 cp ${BARAKUDA_ROOT}/scripts/html/logo.png     .
-cp ${BARAKUDA_ROOT}/scripts/html/dot_htaccess .htaccess
 echo; echo
 
 
 if [ ${ihttp} -eq 0 ]; then
-    
+
     echo "Diagnostic page installed in `pwd`"
     echo " => view this directory with a web browser (index.html)..."
-    
+
 else
-    
+
     RWWWD=${RWWWD}/COMPARISONS_time_series
     ssh ${RUSER}@${RHOST} "mkdir -p ${RWWWD}"
-    
+
     if [ ${ihttp} -eq 1 ]; then
-        
+
         echo "Preparing to export to remote host!"; echo
-        
+
         cd ../
 
         tar cvf ${BASE_NAME}.tar ${BASE_NAME}
         scp ${BASE_NAME}.tar ${RUSER}@${RHOST}:${RWWWD}/
         ssh ${RUSER}@${RHOST} "cd ${RWWWD}/; rm -rf ${BASE_NAME}; tar xf ${BASE_NAME}.tar 2>/dev/null; rm -f ${BASE_NAME}.tar; chmod -R a+r ${BASE_NAME}"
         rm -f ${BASE_NAME}.tar
-        
+
         echo; echo
         echo "Diagnostic page installed on remote host ${RHOST} in ${RWWWD}/${BASE_NAME}!"
         echo "( Also browsable on local host in `pwd` )"
-        
-        else
+
+    else
 
         echo "Error: \"ihttp\" is either 0 or 1 !"
-        
+
     fi
 
 fi

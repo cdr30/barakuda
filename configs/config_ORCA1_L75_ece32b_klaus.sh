@@ -19,7 +19,12 @@ export NBL=75     ; # number of levels
 export STORE_DIR="/proj/bolinc/users/x_laubr"
 
 # Path to directory containing some 2D and 3D climatologies on the relevant ORCA grid:
-export CONF_INI_DIR=/proj/bolinc/users/x_laubr/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b
+export CONF_INI_DIR="/proj/bolinc/users/x_laubr/INPUTS_ORCA1_LIM3_PISCES_V7_ecearth32b"
+
+# In what directory of the local machine to save the diagnostics:
+export DIAG_DIR="${STORE_DIR}/tmp/barakuda/${CONF}_ece32b"
+
+
 
 # Is it an ec-earth run?
 export ece_run=1 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
@@ -104,9 +109,6 @@ export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1.dat"
 # For transport by sigma-class:
 export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_ORCA1.dat"
 
-
-# In what directory of the local machine to save the diagnostics:
-export DIAG_DIR="${STORE_DIR}/tmp/barakuda/${CONF}_ece32b"
 
 
 # Files with the list of rectangular boxes to look at more closely:

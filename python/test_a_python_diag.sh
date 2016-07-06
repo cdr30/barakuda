@@ -2,10 +2,10 @@
 
 issh=0
 irnf=0
-iice=0
+iice=1
 iemp=0
 icmip5=0
-ihov=1
+ihov=0
 
 
 
@@ -111,24 +111,23 @@ if [ ${irnf} -eq 1 ]; then
 fi
 
 if [ ${iice} -eq 1 ]; then
-
-
-    export CONF="ORCA1.L46"
-    export ORCA="ORCA1.L46"
-    export RUN="LCM2"
-    export DIAG_D="/proj/bolinc/users/x_laubr/tmp/barakuda/ORCA1.L46_ece31/ORCA1.L46-LCM2"
+    export RUN=cp70
+    export ORCA=ORCA1.L75
+    export DIAG_D=/proj/bolinc/users/x_laubr/tmp/barakuda/ORCA1.L75_ece32b/ORCA1.L75-${RUN}
+    export MM_FILE=/proj/bolinc/users/x_laubr/klaus/mesh_mask.nc
+    export BM_FILE=/proj/bolinc/users/x_laubr/klaus/basin_mask.nc
 
     export COMP2D="CLIM"
     export FILE_ICE_SUFFIX="icemod"
-    export NN_ICEF="iiceconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
-    export NN_ICET="iicethic" ; # ice thickness but 'sit' is only in icemod file !!!
+    export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...                                
+    export NN_ICET="sivolu" ; # ice thickness or rather volume...
+    #export NN_ICEF="iiceconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
+    #export NN_ICET="iicethic" ; # ice thickness but 'sit' is only in icemod file !!!
 
     export ICE_CLIM_12=${STORE_DIR}/ORCA1.L75/ORCA1.L75-I/ice_cover_180x360-ORCA1_Hurrell_monthly_mean1980-1999.nc4
     export NN_ICEF_CLIM="ice_cover"
 
-    export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask.nc"
-
-    python exec/ice.py 1024 1028
+    python exec/ice.py 1996 2000
 
 fi
 
