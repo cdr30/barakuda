@@ -1539,8 +1539,9 @@ EOF
         echo "Preparing to export to remote host!"; echo
         mkdir ${RUN}
 
-        cp -r ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
-        cp -r ${BARAKUDA_ROOT}/scripts/html/*.${FIG_FORM}       ${RUN}/
+        cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html   ${RUN}/
+        cp ${BARAKUDA_ROOT}/scripts/html/*.${FIG_FORM} ${RUN}/
+        cp ${BARAKUDA_ROOT}/scripts/html/dot_htaccess  ${RUN}/.htaccess ; # so that .html are interpreted as .php !
 
         mv -f index.html ${RUN}/
         mv -f *.${FIG_FORM}      ${RUN}/ >/dev/null 2>/dev/null
