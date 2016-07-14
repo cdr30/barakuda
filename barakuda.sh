@@ -1561,8 +1561,8 @@ EOF
         echo "Preparing to export to remote host!"; echo
         mkdir ${RUN}
 
-        cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html   ${RUN}/
-        cp ${BARAKUDA_ROOT}/scripts/html/*.${FIG_FORM} ${RUN}/
+        cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
+        cp ${BARAKUDA_ROOT}/scripts/html/logo.png    ${RUN}/
 
         mv -f index.html ${RUN}/
         mv -f *.${FIG_FORM}      ${RUN}/ >/dev/null 2>/dev/null
