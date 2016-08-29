@@ -21,14 +21,14 @@
 #PBS -l walltime=12:00:00
 # You may need to comment this on other clusters than voima.
 #cd $PBS_O_WORKDIR
-CONFIG=eORCA1_L75_v36_voima
-#CONFIG=ORCA1_L75_v36_voima
+#CONFIG=eORCA1_L75_v36_voima
+CONFIG=ORCA1_L75_v36_voima
 #CONFIG=ORCA1_L46_v36_voima
 #CONFIG=ORCA1_L75_v36_LIM2_voima
-RUN=eO1L7501
-#RUN=O1L7514
-YEAR0=1958
-YEARN=1971
+RUN=EE02
+#RUN=O1L7512
+YEAR0=1990
+YEARN=1998
 LFORCE_YEAR1=true
 LFORCE_END=true
 
