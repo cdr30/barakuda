@@ -70,7 +70,8 @@ export FILE_FLX_SUFFIX="SBC" ; # in what file to find surface fluxes ?
 export NN_FWF="wfo"          ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
 export NN_EMP="emp_oce"      ; # name of E-P in "FILE_FLX_SUFFIX" file...
 export NN_P="precip"         ; # name of P in "FILE_FLX_SUFFIX" file...
-export NN_RNF="XXX"          ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
+export NN_RNF="runoffs"      ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
+export NN_CLV="calving_cea"  ; # calving from icebergs in "FILE_FLX_SUFFIX" file...
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
@@ -128,7 +129,8 @@ RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host
 # Diags to be performed #
 #########################
 
-
+# In what format should figures be produced:
+export FIG_FORM="png"
 
 
 

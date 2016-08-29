@@ -23,7 +23,10 @@ lat1_nino = -5.
 lon2_nino = 360. - 120.  ; # east
 lat2_nino = 5.
 
-venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_P','NN_RNF','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
+
+cv_evb = 'evap_ao_cea' ; # debug evap in ec-earth...
+
+venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_P','NN_RNF','NN_CLV','NN_E','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
@@ -124,7 +127,11 @@ if l_fwf:
     cv_emp = vdic['NN_EMP']
     cv_prc = vdic['NN_P']
     cv_rnf = vdic['NN_RNF']
+    cv_clv = vdic['NN_CLV']
+    cv_evp = vdic['NN_E']
+    # cv_evb (top of file...)
 
+    
     id_in = Dataset(cf_F_in)
     list_variables = id_in.variables.keys()
     FWF_m = id_in.variables[cv_fwf][:,:,:]
@@ -146,7 +153,25 @@ if l_fwf:
     if  cv_rnf in list_variables[:]:
         l_rnf = True
         RNF_m = id_in.variables[cv_rnf][:,:,:]
-        print '   *** P ('+cv_rnf+') read!'
+        print '   *** Runoffs ('+cv_rnf+') read!'
+
+    l_clv = False
+    if  cv_clv in list_variables[:]:
+        l_clv = True
+        CLV_m = id_in.variables[cv_clv][:,:,:]
+        print '   *** Calving ('+cv_clv+') read!'
+
+    l_evp = False
+    if  cv_evp in list_variables[:]:
+        l_evp = True
+        EVP_m = id_in.variables[cv_evp][:,:,:]
+        print '   *** Calving ('+cv_evp+') read!'
+
+    l_evb = False
+    if  cv_evb in list_variables[:]:
+        l_evb = True
+        EVB_m = id_in.variables[cv_evb][:,:,:]
+        print '   *** Calving ('+cv_evb+') read!'
 
     id_in.close()
 
@@ -163,10 +188,13 @@ if l_fwf:
 
     vfwf = nmp.zeros(nt)
     
-    vemp = [] ; vrnf = [] ; vprc = []
+    vemp = [] ; vrnf = [] ; vprc = [] ; vclv = [] ; vevp = [] ; vevb = []
     if l_emp: vemp = nmp.zeros(nt)
     if l_rnf: vrnf = nmp.zeros(nt)
     if l_prc: vprc = nmp.zeros(nt)
+    if l_clv: vclv = nmp.zeros(nt)
+    if l_evp: vevp = nmp.zeros(nt)
+    if l_evb: vevb = nmp.zeros(nt)
 
 
     for jt in range(nt):
@@ -174,14 +202,21 @@ if l_fwf:
         if l_emp: vemp[jt] = nmp.sum( EMP_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
         if l_rnf: vrnf[jt] = nmp.sum( RNF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
         if l_prc: vprc[jt] = nmp.sum( PRC_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
+        if l_clv: vclv[jt] = nmp.sum( CLV_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
+        if l_evp: vevp[jt] = nmp.sum( EVP_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
+        if l_evb: vevb[jt] = nmp.sum( EVB_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
 
     cf_out   = vdic['DIAG_D']+'/mean_fwf_'+CONFRUN+'_global.nc'
 
     bnc.wrt_appnd_1d_series(vtime, vfwf, cf_out, 'EmPmR',
-                            cu_t='year', cu_d='Sv', cln_d ='Globally averaged net freshwater flux (nemo:'+cv_fwf+')',
-                            vd2=vemp, cvar2='EmP',  cln_d2='Globally averaged Evap - Precip (nemo:'+cv_emp+')',
-                            vd3=vrnf, cvar3='R',    cln_d3='Globally averaged continental runoffs',
-                            vd4=vprc, cvar4='P',    cln_d4='Globally averaged total precip (nemo:'+cv_prc+')',)
+                            cu_t='year', cu_d='Sv',  cln_d ='Globally averaged net freshwater flux (nemo:'+cv_fwf+')',
+                            vd2=vemp, cvar2='EmP',   cln_d2='Globally averaged Evap - Precip (nemo:'+cv_emp+')',
+                            vd3=vrnf, cvar3='R',     cln_d3='Globally averaged continental runoffs',
+                            vd4=vprc, cvar4='P',     cln_d4='Globally averaged total precip (nemo:'+cv_prc+')',
+                            vd5=vclv, cvar5='ICalv', cln_d5='Globally averaged ice calving from icebergs (nemo:'+cv_clv+')',
+                            vd6=vevp, cvar6='E',     cln_d6='Globally averaged evaporation (nemo:'+cv_evp+')',
+                            vd7=vevb, cvar7='Eb',    cln_d7='Globally averaged evaporation with sea-ice consideration (nemo:'+cv_evb+')'
+                            )
 
 
 
@@ -234,14 +269,18 @@ if l_mld:
         rx1 = bo.r_lon_p1_mld[ib] ; rx2 = bo.r_lon_p2_mld[ib] ; ry1 = bo.r_lat_p1_mld[ib] ; ry2 = bo.r_lat_p2_mld[ib]
 
         # Need to itterate because ORCA grid disytorded in the North...
-        vold = [ 0, 0, 0, 0 ] ;  itt = 0
+        vold = [ -999, -999, -999, -999 ] ;  itt = 0
         while [ i1, i2, j1, j2 ] != vold and itt < 10 :
             itt = itt+1
+            #print ' .... itt =', itt
             vold = [ i1, i2, j1, j2 ]
+            #print 'seraching for rx1, rx2, ry1, ry2 = ', rx1, rx2, ry1, ry2
             if rx1 > -900.: i1 = bt.find_index_from_value( rx1, rlon[j1,:] )
             if rx2 > -900.: i2 = bt.find_index_from_value( rx2, rlon[j2,:] )
             if ry1 > -900.: j1 = bt.find_index_from_value( ry1, rlat[:,i1] )
             if ry2 > -900.: j2 = bt.find_index_from_value( ry2, rlat[:,i2] )
+            #print '   => i1, i2, j1, j2 =>', i1, i2, j1, j2, '\n'
+
 
 
         mask2d[:,:] = 0.

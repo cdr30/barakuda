@@ -23,11 +23,12 @@ import matplotlib.colors as colors
 import barakuda_orca as bo
 
 
-# For time-series:
-WDTH_TS     = 13.2
-FIG_SIZE_TS = (WDTH_TS,4.2)
-DPI_TS      = 120
-AXES_TS     = [0.1, 0.082, 0.87, 0.84]
+# Some defaults:
+WDTH_DEF     = 10.
+HGHT_DEF     =  4.
+FIG_SIZE_DEF = ( WDTH_DEF , HGHT_DEF )
+DPI_DEF      = 120
+AXES_DEF     = [0.1, 0.082, 0.87, 0.84]
 
 # Colors for line:    (https://www.daftlogic.com/projects-hex-colour-tester.htm)
 b_blu = '#2C558A'
@@ -106,16 +107,16 @@ class plot :
 
         font_ttl, font_xylb, font_clb = __font_unity__()
 
-        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
+        zVZ = __prepare_z_log_axis__(l_zlog, VZ)
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
         # Masking where mask is zero!
         XF = nmp.ma.masked_where(XMSK == 0, XF)
 
-        fig = plt.figure(num = 1, figsize=(WDTH_TS,5.), dpi=None, facecolor='w', edgecolor='k')
-        ax = plt.axes([0.08, 0.12, 0.98, 0.82], axisbg = 'gray')
-        vc = __vcontour__(rmin, rmax, dc)
+        fig = plt.figure(num = 1, figsize=(WDTH_DEF,5.), dpi=None, facecolor='w', edgecolor='k') ; #vert_section
+        ax  = plt.axes([0.085, 0.06, 0.98, 0.88], axisbg = 'gray')
+        vc  = __vcontour__(rmin, rmax, dc)
 
         # Colormap:
         palette = bcm.chose_palette(cpal)
@@ -138,7 +139,7 @@ class plot :
         __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog, l_z_inc=l_z_increase)
 
         plt.title(ctitle, **font_ttl)
-        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_TS, orientation='portrait', transparent=False)
+        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_DEF, orientation='portrait', transparent=False) ; #vert_section
         print cfignm+'.'+cfig_type+' created!\n'
         plt.close(1)
 
@@ -188,13 +189,15 @@ class plot :
         if i_lat_lon == 1:
             [ny, nx] = nmp.shape(XF0)
             dlong  = abs(VX[11] - VX[10])
-            VX0 = nmp.arange(0.,nx,dlong) + dlong/2. ; #lolo:
+            #VX0 = nmp.arange(0.,nx,dlong) + dlong/2. ; #lolo:
+            VX0 = nmp.arange(0.,nx)
+            VX0 = VX0*dlong + dlong/2.
 
         if i_lat_lon == 1:
             vert_rat = (lat_max - lat_min)/(75. + 75.)
-            fig_size = (14.,6.4*vert_rat)
+            fig_size = (WDTH_DEF,4.8*vert_rat)    ; #2d  lulu
         else:
-            fig_size = (float(nx)/25. , float(ny)/29.)
+            fig_size = (WDTH_DEF , float(nx)/float(ny)*5.) ; #2d
 
 
         # FIGURE
@@ -261,7 +264,7 @@ class plot :
             cf0 = plt.pcolor(XF0, cmap = bcm.chose_palette("mask"))
 
         # Colorbar:
-        ifsize = 16
+        ifsize = 14
         if i_lat_lon == 1: ifsize = int(ifsize*vert_rat); ifsize=max(ifsize,6)
         __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cb_or=cb_orient, cunit=cbunit, cfont=font_clb, fontsize=ifsize)
 
@@ -276,7 +279,7 @@ class plot :
 
         plt.title(ctitle, **font_ttl)
 
-        plt.savefig(cfignm+'.'+cfig_type, dpi=110, orientation='portrait', transparent=False)
+        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_DEF, orientation='portrait', transparent=False) ; #2d
 
         print cfignm+'.'+cfig_type+' created!\n'
         plt.close(1)
@@ -289,9 +292,9 @@ class plot :
     def __2d_reg(self,VX, VY, XF, XMSK, rmin, rmax, dc, lkcont=False, cpal='jet',
                  cfignm='fig', cfig_type='pdf', cbunit=' ', ctitle='',
                  cb_orient='vertical', lat_min=-77., lat_max=77., i_cb_subsamp=1,
-                 lpix=False, l_continent_pixel=True, colorbar_fs=14):
-
-
+                 lpix=False, l_continent_pixel=True, colorbar_fs=14,
+                 col_min='k', col_max='k', vcont_spec = []):
+        
         import barakuda_tool   as bt
         import barakuda_colmap as bcm
 
@@ -347,8 +350,14 @@ class plot :
         else:
             cf = plt.contourf(VXe, VY, XFe, vc, cmap = cpal, norm = pal_norm, extend="both")
             for c in cf.collections: c.set_zorder(0.15)
-            cf.cmap.set_under('k')
-            cf.cmap.set_over('k')
+            cf.cmap.set_under(col_min)
+            cf.cmap.set_over(col_max)
+
+        # contour for specific values on the ploted field:
+        if len(vcont_spec) >= 1:
+            cfs = plt.contour(VXe, VY, XFe, vcont_spec, colors='w', linewidths = 1.)
+            #plt.clabel(cfs, inline=1, fmt='%4.1f', fontsize=12)
+
 
         if lkcont:
             cfk = plt.contour(VXe, VY, XFe, vc, colors='k', linewidths = 0.2)
@@ -366,12 +375,10 @@ class plot :
             XFe = nmp.ma.masked_where(XMSKe[:,:] > 0.5, XFe)
             XFe[idx_land] = 1000.
             cf0 = plt.pcolor(VXe, VY, XFe, cmap = bcm.chose_palette("mask"))
-            #plt.contour(VXe, VY, XMSKe, [ 0.5 ], colors='k', linewidths = 1.)
         else:
-            #print 'poo'
             # Masking with contour rather than pixel:
             cf0 = plt.contourf(VXe, VY, XMSKe, [ 0., 0.1 ], cmap = bcm.chose_palette("mask"))
-            # for c in cf0.collections: c.set_zorder(0.95)
+            for c in cf0.collections: c.set_zorder(5)
             plt.contour(VXe, VY, XMSKe, [ 0.25 ], colors='k', linewidths = 1.)
 
 
@@ -506,10 +513,10 @@ class plot :
         if len(VZ3) == ny: lp3=True
 
         if lnarrow:
-            fig = plt.figure(num = 1, figsize=(6.,5.), dpi=None)
-            ax = plt.axes([0.173 , 0.12, 0.81, 0.82])   #, axisbg = 'gray')
+            fig = plt.figure(num = 1, figsize=(WDTH_DEF/2.,4.), dpi=None)  ; #zonal
+            ax  = plt.axes([0.14 , 0.12, 0.85, 0.82])   #, axisbg = 'gray')
         else:
-            fig = plt.figure(num = 1, figsize=(12.,6.4), dpi=None)
+            fig = plt.figure(num = 1, figsize=(WDTH_DEF,6.), dpi=None)  ; #zonal
             ax = plt.axes([0.08, 0.11, 0.9, 0.82])   #, axisbg = 'gray')
 
         plt.plot(VY, VZn*0.0, 'k', linewidth=1) ; plt.hold(True)
@@ -533,7 +540,7 @@ class plot :
         # Prevents from using scientific notations in axess ticks numbering:
         #lolo: ax.get_xaxis().get_major_formatter().set_useOffset(False)
 
-        plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
+        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_DEF, orientation='portrait', transparent=False)  ; #zonal
 
         plt.close(1)
 
@@ -548,7 +555,7 @@ class plot :
     def __nproj(self,czone, rmin, rmax, dc, xlon, xlat, XF,
                 cfignm='fig', lkcont=False, cpal='jet', cbunit=' ',
                 cfig_type='pdf', ctitle=' ', lforce_lim=False,
-                cb_orient='vertical', i_cb_subsamp=1, dpi_fig=140, lpcont=True):
+                cb_orient='vertical', i_cb_subsamp=1, dpi_fig=DPI_DEF, lpcont=True):
 
         # Plot projection with basemap...
 
@@ -610,13 +617,14 @@ class plot :
 
         else:
             # Vertical color bar on the rhs
-            vfig_size = [ 7., 7. ]; vsporg = [0.1, 0.1, 0.85, 0.85]
-            if czone == 'nseas':   vfig_size = [ 7., 5.4 ]; vsporg = [0.085,  0.03, 0.9, 0.94]
-            if czone == 'natarct': vfig_size = [ 7.35, 7. ]; vsporg = [0.065,  0.04, 0.95, 0.92]
-            if czone == 'spstere': vfig_size = [ 7., 5.8 ]; vsporg = [0.07, 0.05, 0.94, 0.89]
-            if czone == 'npol2':   vfig_size = [ 7., 7.1 ]; vsporg = [0.082, 0.03, 0.91, 0.94]
+            rw = WDTH_DEF/2
+            vfig_size                        = [ rw, rw ];        vsporg = [0.1, 0.1, 0.85, 0.85]
+            if czone == 'nseas':   vfig_size = [ rw , rw ];       vsporg = [0.085,  0.03, 0.9, 0.94]
+            if czone == 'natarct': vfig_size = [ rw , rw ];       vsporg = [0.065,  0.04, 0.95, 0.92]
+            if czone == 'spstere': vfig_size = [ rw , 0.81*rw ];  vsporg = [0.05, 0.05, 0.94, 0.89]
+            if czone == 'npol2':   vfig_size = [ rw , 0.96*rw ] ; vsporg = [0.1,  0.05, 0.86, 0.9]
             #if czone == 'kav7':    vfig_size = [ 7., 5.  ]; vsporg = [0.085, 0.03, 0.91, 0.94]
-
+            #lulu
 
 
         fig = plt.figure(num = 1, figsize=(vfig_size), dpi=None, facecolor='w', edgecolor='k')
@@ -696,6 +704,8 @@ class plot :
 
         plt.close(1)
 
+        print ' *** created figure '+cfignm+'.'+cfig_type+'\n'
+
         del LON_2D, LAT_2D, XFtmp
 
         return
@@ -762,7 +772,7 @@ class plot :
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
+        zVZ = __prepare_z_log_axis__(l_zlog, VZ)
 
         Xamoc = nmp.ma.masked_where(XMSK == 0, Xamoc)
 
@@ -770,7 +780,7 @@ class plot :
 
         font_ttl, font_xylb, font_clb = __font_unity__()
 
-        fig = plt.figure(num = 1, figsize=(12,7.2), facecolor='w', edgecolor='k')
+        fig = plt.figure(num = 1, figsize=(WDTH_DEF,6.), facecolor='w', edgecolor='k')  ; #amoc_lat_depth
         ax  = plt.axes([0.1,  0.1,  0.94, 0.85], axisbg = 'gray')
 
         vc = __vcontour__(rmin, rmax, dc)
@@ -794,7 +804,7 @@ class plot :
 
         plt.title(ctitle, **font_ttl)
 
-        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_TS, orientation='portrait', transparent=False)
+        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_DEF, orientation='portrait', transparent=False)  ; #amoc_lat_depth
         print cfignm+'.'+cfig_type+' created!\n'
 
         plt.close(1)
@@ -922,7 +932,7 @@ class plot :
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
-        fig = plt.figure(num = 1, figsize=(WDTH_TS,7.2), dpi=None, facecolor='w', edgecolor='k')
+        fig = plt.figure(num = 1, figsize=(WDTH_DEF,6.), dpi=None, facecolor='w', edgecolor='k') ; #trsp_sig_class
         ax = plt.axes([0.055,  -0.025, 0.92, 0.98], axisbg = 'white')
 
 
@@ -962,7 +972,7 @@ class plot :
         plt.ylabel(r'$\sigma_0$', **label_big)
 
         plt.title(ctitle, **font_ttl)
-        plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=True)
+        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_DEF, orientation='portrait', transparent=True) ; #trsp_sig_class
         print cfignm+'.'+cfig_type+' created!\n'
         plt.close(1)
 
@@ -986,7 +996,7 @@ class plot :
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
+        zVZ = __prepare_z_log_axis__(l_zlog, VZ)
 
         XF = nmp.ma.masked_where(XMSK == 0, XF)
 
@@ -1035,24 +1045,24 @@ class plot :
 
 
     def __time_depth_hovm(self,VT, VZ, XF, XMSK, rmin, rmax, dc, lkcont=True, cpal='jet',
-                             tmin=0., tmax=100., dt=5.,
-                             cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
-                             cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, i_cb_subsamp=1,
-                             vcont_spec1 = [], col_cont_spec1='w'):
+                          tmin=0., tmax=100., dt=5.,
+                          cfignm='fig', cbunit='', cxunit=' ', zmin = 0., zmax = 5000., l_zlog=False,
+                          cfig_type='pdf', czunit=' ', ctitle=' ', lforce_lim=False, i_cb_subsamp=1,
+                          vcont_spec1 = [], col_cont_spec1='w'):
 
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
         font_ttl, font_xylb, font_clb = __font_unity__()
 
-        zmin, zmax, zVZ = __prepare_z_log_axis__(l_zlog, zmin, zmax, VZ)
+        zVZ = __prepare_z_log_axis__(l_zlog, VZ)
 
         XF = nmp.ma.masked_where(XMSK == 0, XF)
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
 
-        fig = plt.figure(num = 1, figsize=(12.,7.), dpi=None, facecolor='w', edgecolor='k')
+        fig = plt.figure(num = 1, figsize=(WDTH_DEF,6.), dpi=None, facecolor='w', edgecolor='k') ; #time_depth_hovm
         ax = plt.axes([0.07,  0.08,   1., 0.82], axisbg = 'gray')
 
 
@@ -1089,7 +1099,7 @@ class plot :
         __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog, l_z_inc=False)
 
         plt.title(ctitle, **font_ttl)
-        plt.savefig(cfignm+'.'+cfig_type, dpi=100, orientation='portrait', transparent=False)
+        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_DEF, orientation='portrait', transparent=False) ; #time_depth_hovm
         print cfignm+'.'+cfig_type+' created!\n'
         plt.close(1)
 
@@ -1164,8 +1174,8 @@ class plot :
         y1 = int(min(VT))
         y2 = int(max(VT)+0.25)
 
-        fig = plt.figure(num = 2, figsize=FIG_SIZE_TS, facecolor='w', edgecolor='k')
-        ax = plt.axes(AXES_TS)
+        fig = plt.figure(num = 2, figsize=FIG_SIZE_DEF, facecolor='w', edgecolor='k') ; #enso
+        ax = plt.axes(AXES_DEF)
 
         xnino[:,0] =  0.4 ; plt.plot(VT, xnino[:,0], 'r--', linewidth=1.5)
         xnino[:,0] = -0.4 ; plt.plot(VT, xnino[:,0], 'b--', linewidth=1.5)
@@ -1184,7 +1194,7 @@ class plot :
         plt.ylabel(r'SST anomaly ($^{\circ}$C)', **font_xylb)
         plt.title('SST anomaly on Nino region 3.4', **font_ttl)
         cf_fig = cfignm+'.png'
-        plt.savefig(cf_fig, dpi=DPI_TS, orientation='portrait', transparent=True)
+        plt.savefig(cf_fig, dpi=DPI_DEF, orientation='portrait', transparent=True) ; #enso
 
         plt.close(2)
 
@@ -1203,7 +1213,7 @@ class plot :
 
     def __1d_mon_ann(self,VTm, VTy, VDm, VDy, cfignm='fig', dt_year=5, cyunit='', ctitle='',
                         ymin=0, ymax=0, dy=0, i_y_jump=1, mnth_col='b', plt_m03=False, plt_m09=False,
-                        cfig_type='png', l_tranparent_bg=True, fig_size=FIG_SIZE_TS):
+                        cfig_type='png', l_tranparent_bg=True, fig_size=FIG_SIZE_DEF):
 
         # if you specify ymin and ymax you can also specify y increment (for y grid) as dy
         #
@@ -1219,7 +1229,7 @@ class plot :
 
         fig = plt.figure(num = 1, figsize=fig_size, facecolor='w', edgecolor='k')
 
-        ax = plt.axes(AXES_TS)
+        ax = plt.axes(AXES_DEF) ; #1d_mon_ann
 
         if mnth_col == 'g': mnth_col = b_gre
         if mnth_col == 'b': mnth_col = b_blu
@@ -1264,7 +1274,7 @@ class plot :
 
         cf_fig = cfignm+'.'+cfig_type
 
-        plt.savefig(cf_fig, dpi=DPI_TS, orientation='portrait', transparent=l_tranparent_bg)
+        plt.savefig(cf_fig, dpi=DPI_DEF, orientation='portrait', transparent=l_tranparent_bg) ; #1d_mon_ann
 
         plt.close(1)
 
@@ -1277,7 +1287,7 @@ class plot :
 
     def __1d_multi(self,vt, XD, vlabels, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='', ctitle='',
                    cfig_type='png', ymin=0, ymax=0, lzonal=False, xmin=0, xmax=0,
-                   loc_legend='lower center', line_styles=[], fig_size=FIG_SIZE_TS,
+                   loc_legend='lower center', line_styles=[], fig_size=FIG_SIZE_DEF,
                    l_tranparent_bg=True, cxunit='', lmask=True):
 
         # lzonal => zonally averaged curves...
@@ -1307,7 +1317,7 @@ class plot :
             ax = plt.axes([0.08, 0.11, 0.88, 0.83])
         else:
             fig = plt.figure(num = 1, figsize=fig_size, facecolor='w', edgecolor='k')
-            ax = plt.axes(AXES_TS)
+            ax = plt.axes(AXES_DEF) ; #1d_multi
 
         if lzonal: plt.plot(vt[:], XD[0,:]*0., 'k', linewidth=1)
 
@@ -1360,7 +1370,7 @@ class plot :
 
         cf_fig = cfignm+'.'+cfig_type
 
-        plt.savefig(cf_fig, dpi=DPI_TS, orientation='portrait', transparent=l_tranparent_bg)
+        plt.savefig(cf_fig, dpi=DPI_DEF, orientation='portrait', transparent=l_tranparent_bg) ; #1d_multi
 
         plt.close(1)
         print '   => Multi figure "'+cf_fig+'" created!'
@@ -1376,7 +1386,7 @@ class plot :
 
     def __1d(self,vt, VF, cfignm='fig', dt_year=5, i_t_jump=1, cyunit='', ctitle='',
                 cfig_type='png', ymin=0, ymax=0, xmin=0, xmax=0,
-                loc_legend='lower center', line_styles='-', fig_size=FIG_SIZE_TS,
+                loc_legend='lower center', line_styles='-', fig_size=FIG_SIZE_DEF,
                 l_tranparent_bg=False, cxunit='', lmask=True):
 
         font_ttl, font_xylb, font_clb = __font_unity__()
@@ -1391,7 +1401,7 @@ class plot :
         if lmask: VF = nmp.ma.masked_where(VF < -900., VF)
 
         fig = plt.figure(num = 1, figsize=fig_size, facecolor='w', edgecolor='k')
-        ax = plt.axes(AXES_TS)
+        ax = plt.axes(AXES_DEF) ; #1d
 
         plt.plot(vt[:], VF[:], line_styles, linewidth=2)
 
@@ -1426,7 +1436,7 @@ class plot :
 
         cf_fig = cfignm+'.'+cfig_type
 
-        plt.savefig(cf_fig, dpi=DPI_TS, orientation='portrait', transparent=l_tranparent_bg)
+        plt.savefig(cf_fig, dpi=DPI_DEF, orientation='portrait', transparent=l_tranparent_bg) ; #1d
 
         plt.close(1)
         print '   => Multi figure "'+cf_fig+'" created!'
@@ -1720,17 +1730,17 @@ def __font_unity__(size='normal'):
     if size == 'big': rat = 1.25
 
     params = { 'font.family':'Trebuchet MS',
-               'font.size':       int(16.*rat),
+               'font.size':       int(14.*rat),
                'legend.fontsize': int(14.*rat),
-               'xtick.labelsize': int(16.*rat),
-               'ytick.labelsize': int(16.*rat),
-               'axes.labelsize':  int(16.*rat) }
+               'xtick.labelsize': int(14.*rat),
+               'ytick.labelsize': int(14.*rat),
+               'axes.labelsize':  int(14.*rat) }
 
     mpl.rcParams.update(params)
 
-    title_fonts    = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':int(18.*rat) }
-    label_fonts    = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(17.*rat) }
-    colorbar_fonts = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(16.*rat) }
+    title_fonts    = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':int(16.*rat) }
+    label_fonts    = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(15.*rat) }
+    colorbar_fonts = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(14.*rat) }
 
     return title_fonts, label_fonts, colorbar_fonts
 
@@ -1835,7 +1845,11 @@ def __subsample_axis__(plt_hndl, cax, i_sbsmp, icpt=1):
     cpt = icpt # with ipct = 1: tick priting will start at y1+dt_year on x axis rather than y1
     for rr in locs:
         if cpt % i_sbsmp == 0:
-            ax_lab.append(str(rr))
+            if rr%1.0 == 0.:
+                cr = str(int(rr))  # it's something like 22.0, we want 22 !!!
+            else:
+                cr = str(rr)
+            ax_lab.append(cr)
         else:
             ax_lab.append(' ')
         cpt = cpt + 1
@@ -1848,12 +1862,12 @@ def __subsample_axis__(plt_hndl, cax, i_sbsmp, icpt=1):
 def __nice_x_axis__(ax_hndl, plt_hndl, x_0, x_L, dx, i_sbsmp=1, cunit=None, cfont=None):
     plt_hndl.xticks( nmp.arange(x_0, x_L+dx, dx) )
     locs, labels = plt_hndl.xticks()
-    jl=0
-    xlabs = []
-    for ll in locs:
-        xlabs.append(str(int(locs[jl])))
-        jl=jl+1
-    plt_hndl.xticks(locs,xlabs)
+    #jl=0
+    #xlabs = []
+    #for ll in locs:
+    #    xlabs.append(str(int(locs[jl])))
+    #    jl=jl+1
+    #plt_hndl.xticks(locs,xlabs)
 
     if i_sbsmp > 1: __subsample_axis__( plt, 'x', i_sbsmp)
 
@@ -1868,7 +1882,7 @@ def __nice_x_axis__(ax_hndl, plt_hndl, x_0, x_L, dx, i_sbsmp=1, cunit=None, cfon
     # Prevents from using scientific notations in axess ticks numbering:
     #ax_hndl.get_xaxis().get_major_formatter().set_useOffset(False)
 
-    del xlabs
+    #del xlabs
 
 
 def __nice_z_axis__(ax_hndl, plt_hndl, z0, zK, dz, i_sbsmp=1, cunit=None, cfont=None):
@@ -1892,7 +1906,7 @@ def __nice_z_axis__(ax_hndl, plt_hndl, z0, zK, dz, i_sbsmp=1, cunit=None, cfont=
 
 
 
-def __prepare_z_log_axis__(l_log, z0, zK, vz):
+def __prepare_z_log_axis__(l_log, vz):
 
     import math
 
@@ -1900,27 +1914,34 @@ def __prepare_z_log_axis__(l_log, z0, zK, vz):
     zvz = nmp.zeros(nk)
 
     if l_log:
-        z0 = math.log10(z0)
-        zK = math.log10(zK)
         for jk in range(nk):
             zvz[jk] = math.log10(vz[jk])
     else:
         zvz= vz
 
-    return z0, zK, zvz
+    return zvz
 
 
 def __fix_z_axis__(ax_hndl, plt_hndl, z0, zK, l_log=False, l_z_inc=True):
 
     if l_log:
-        # Correcting ticks for log
-        locs, labels = plt_hndl.yticks() ; # print 'locs =', locs
-        cny = []
-        for jl in range(len(locs[:])):
-            cny.append(str(int(10.**locs[jl])))
-        plt_hndl.yticks(locs,cny)
+        y_log_ofs = 10.
+        vyview_list = [ 3. , 10. , 25., 50. , 100. , 250. , 500. , 1000. , 2500.,  5000. ]
+        nd = len(vyview_list)
+        vyview      = nmp.zeros(nd)
+        for jn in range(nd): vyview[jn] = vyview_list[jn]
+        vyview_log = nmp.log10(vyview + y_log_ofs)
+        ylab = []
+        for rr in vyview_list: ylab.append(str(int(rr)))
+        z0 = nmp.log10(z0+y_log_ofs)
+        zK = nmp.log10(zK+y_log_ofs)
+        ax_hndl.set_yticks(vyview_log)
+        ax_hndl.get_yaxis().set_major_formatter(mpl.ticker.ScalarFormatter())
+        ax_hndl.set_yticklabels(ylab)
 
     if l_z_inc:
         ax_hndl.set_ylim(z0,zK)
     else:
         ax_hndl.set_ylim(zK+(zK-z0)/50. , z0)
+
+    ax_hndl.grid(color='k', linestyle='-', linewidth=0.5)

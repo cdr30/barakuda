@@ -1,13 +1,14 @@
 # Name     i1, j1,  i2, j2
 ##############################
 Labrador_old  236  222 252 235
-Labrador_new  230  230 244 249
+Labrador  230  230 244 249
 GIN       266 245  290 271
 GIN2      274 251  282 260
 Ice_Scot  255 225  282 243
 Nansen1   272 276  294 291
 Nansen2    67 273   89 289
-Weddell   274  42  297  57
+Weddel    231  15  265  43
+WedMaud   274  42  297  57
 WedExtr   257  37  276  46
 Amery       6  50   15  60
 EOF

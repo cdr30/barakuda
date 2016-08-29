@@ -22,6 +22,8 @@ export STORE_DIR="/proj/bolinc/users/x_laubr"
 # Is it an ec-earth run?
 export ece_run=0 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
 #                  # where YYY starts from '001' to
+export Y_INI_EC=1990 ;    # initial year if ec-earth run...
+
 
 # List of suffixed of files that have been saved by NEMO and that are needed for the diags:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
@@ -50,7 +52,6 @@ export NN_SSH="zos"
 export NN_T="thetao"
 export NN_S="so"
 export NN_MLD="mldr10_1"
-export NN_RNF="runoffs"
 export NN_U="uo"
 export NN_V="vo"
 #export NN_U_EIV="vozoeivu"
@@ -68,6 +69,7 @@ export FILE_FLX_SUFFIX="SBC" ; # in what file to find surface fluxes ?
 export NN_FWF="wfo"       ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
 export NN_EMP="emp_oce"   ; # name of E-P in "FILE_FLX_SUFFIX" file...
 export NN_P="precip"   ; # name of P in "FILE_FLX_SUFFIX" file...
+export NN_RNF="XXX"          ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
@@ -123,12 +125,16 @@ RWWWD=/data/www/barakuda/${CONF} ; # directory of the local or remote host to se
 # Diags to be performed #
 #########################
 
-
+# In what format should figures be produced:
+export FIG_FORM="png"
 
 
 
 # Basic 3D and surface averages:
 i_do_mean=1
+
+# FreshWater fluxes at the surface spatially averaged over the ocean, E-P-R, E-P, R, P, ...
+#i_do_fwf=1
 
 # AMOC:
 i_do_amoc=1

@@ -18,13 +18,17 @@ import barakuda_ncio as bn
 import barakuda_orca as bo
 import barakuda_plot as bp
 
+cv_evb = 'evap_ao_cea' ; # debug evap in ec-earth...
+
 DEFAULT_LEGEND_LOC = 'lower left'
 
-venv_needed = {'ORCA','RUN','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD','LMOCLAT','TRANSPORT_SECTION_FILE'}
+venv_needed = {'ORCA','RUN','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD','LMOCLAT','TRANSPORT_SECTION_FILE','FIG_FORM'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
 CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
+
+ff = vdic['FIG_FORM'] ; # format for figures (usually "png" or "svg")
 
 narg = len(sys.argv)
 if narg != 2:
@@ -49,17 +53,24 @@ elif cdiag == 'mean_sos':
     ym = yp = 0.
 
 elif cdiag == 'mean_fwf':
-    venv_ndd = {'NN_FWF','NN_EMP','NN_RNF','NN_P'}
+    venv_ndd = {'NN_FWF','NN_EMP','NN_RNF','NN_P','NN_CLV','NN_E'}
     vdic_fwf = bt.check_env_var(sys.argv[0], venv_ndd)
     idfig = 'fwf'
     cvar  = 'EmPmR'
-    clnm  = 'Globally-averaged upward net freshwater flux (E-P-R)'
+    clnm  = 'Globally-averaged upward net freshwater flux (E-P-R = '+vdic_fwf['NN_FWF']+')'
     cvr2  = 'R'
-    cln2  = 'Globally-averaged continental runoffs + ice calving (R)'
+    cln2  = 'Globally-averaged continental runoffs (R = '+vdic_fwf['NN_RNF']+')'
     cvr3  = 'EmP'
-    cln3  = 'Globally-averaged Evaporation - Precipitation (E-P)'
+    cln3  = 'Globally-averaged Evaporation - Precipitation (E-P = '+vdic_fwf['NN_EMP']+')'
     cvr4  = 'P'
-    cln4  = 'Globally-averaged Precipitation (P)'
+    cln4  = 'Globally-averaged Precipitation (P = '+vdic_fwf['NN_P']+')'
+    cvr5  = 'ICalv'
+    cln5  = 'Globally-averaged ice calving from icebergs (ICalv = '+vdic_fwf['NN_CLV']+')'
+    cvr6  = 'E'
+    cln6  = 'Globally-averaged evaporation (E = '+vdic_fwf['NN_E']+')'
+    cvr7  = 'Eb'
+    cln7  = 'Globally-averaged evap. t.i.a sea-ice (E = '+cv_evb+')'
+    
     cyu   = r'Sv'
     ym = yp = 0.
 
@@ -153,14 +164,14 @@ if idfig == 'simple':
 
     # Time to plot
     bp.plot("1d_mon_ann")(vtime, VY, vvar, FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
-                          cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
+                          cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp, cfig_type=ff)
 
 
 
 
 if idfig == 'fwf':
 
-    l_rnf = False ; l_emp = False ; l_prc = False
+    l_rnf = False ; l_emp = False ; l_prc = False ; l_clv = False ; l_evp = False ; l_evb = False
 
     cf_in = cdiag+'_'+CONFRUN+'_global.nc' ;  bt.chck4f(cf_in, script_name='plot_time_series.py')
     id_in = Dataset(cf_in)
@@ -175,7 +186,16 @@ if idfig == 'fwf':
         vemp  = id_in.variables[cvr3][:]
     if cvr4 in list_var[:]:
         l_prc = True
-        vprc  = id_in.variables[cvr3][:]
+        vprc  = id_in.variables[cvr4][:]
+    if cvr5 in list_var[:]:
+        l_clv = True
+        vclv  = id_in.variables[cvr5][:]
+    if cvr6 in list_var[:]:
+        l_evp = True
+        vevp  = id_in.variables[cvr6][:]
+    if cvr7 in list_var[:]:
+        l_evb = True
+        vevb  = id_in.variables[cvr7][:]
     id_in.close()
 
     # Checking if there a potential file for IFS:
@@ -214,90 +234,151 @@ if idfig == 'fwf':
     VY, FY = bt.monthly_2_annual(vtime, vfwf)
     # Time to plot
     bp.plot("1d_mon_ann")(vtime, VY, vfwf, FY, cfignm=cdiag+'_fwf_'+CONFRUN, dt_year=ittic,
-                          cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
+                          cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp, cfig_type=ff)
 
     if l_rnf:
         VY, FY = bt.monthly_2_annual(vtime, vrnf)
         bp.plot("1d_mon_ann")(vtime, VY, vrnf, FY, cfignm=cdiag+'_rnf_'+CONFRUN, dt_year=ittic,
-                              cyunit=cyu, ctitle = CONFRUN+': '+cln2, ymin=ym, ymax=yp)
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln2, ymin=ym, ymax=yp, cfig_type=ff)
 
     if l_emp:
         VY, FY = bt.monthly_2_annual(vtime, vemp)
         bp.plot("1d_mon_ann")(vtime, VY, vemp, FY, cfignm=cdiag+'_emp_'+CONFRUN, dt_year=ittic,
-                              cyunit=cyu, ctitle = CONFRUN+': '+cln3, ymin=ym, ymax=yp)
-
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln3, ymin=ym, ymax=yp, cfig_type=ff)
+    if l_evp:
+        VY, FY = bt.monthly_2_annual(vtime, vevp)
+        bp.plot("1d_mon_ann")(vtime, VY, vevp, FY, cfignm=cdiag+'_evp_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln6, ymin=ym, ymax=yp, cfig_type=ff)
     if l_prc:
         VY, FY = bt.monthly_2_annual(vtime, vprc)
         bp.plot("1d_mon_ann")(vtime, VY, vprc, FY, cfignm=cdiag+'_prc_'+CONFRUN, dt_year=ittic,
-                              cyunit=cyu, ctitle = CONFRUN+': '+cln4, ymin=ym, ymax=yp)
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln4, ymin=ym, ymax=yp, cfig_type=ff)
+
+    if l_evp and l_prc:
+        VY, FY = bt.monthly_2_annual(vtime, vevp-vprc)
+        bp.plot("1d_mon_ann")(vtime, VY, vprc, FY, cfignm=cdiag+'_prc_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': E-P as E-P !', ymin=ym, ymax=yp, cfig_type=ff)
+
+
+    if l_clv:
+        VY, FY = bt.monthly_2_annual(vtime, vclv)
+        bp.plot("1d_mon_ann")(vtime, VY, vclv, FY, cfignm=cdiag+'_clv_'+CONFRUN, dt_year=ittic,
+                              cyunit=cyu, ctitle = CONFRUN+': '+cln5, ymin=ym, ymax=yp, cfig_type=ff)
+
 
     if l_fwf_ifs and l_emp:
         # Only E-P for NEMO and IFS:
-        Xplt = nmp.zeros((3,nbm))
-        Xplt[0,:] = vemp[:]
-        Xplt[1,:] = vemp_ifs[:]
-        Xplt[2,:] = vemp_land_ifs[:]
-        bp.plot("1d_multi")(vtime, Xplt, ['E-P NEMO','E-P IFS (oceans)','E-P IFS (land)'],
+        vlab = [] ; nbd = 3
+        if l_prc and l_evp: nbd = 4
+        Xplt = nmp.zeros((nbd,nbm))
+        Xplt[0,:] = vemp[:]             ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
+        Xplt[1,:] = vemp_ifs[:]         ; vlab.append('E-P IFS (oceans)')
+        Xplt[2,:] = vemp_land_ifs[:]    ; vlab.append('E-P IFS (land)')
+        if l_prc and l_evp :
+            Xplt[3,:] = vevp[:]-vprc[:] ; vlab.append('E-P NEMO ('+vdic_fwf['NN_E']+'-'+vdic_fwf['NN_P']+')')
+        bp.plot("1d_multi")(vtime, Xplt, vlab,
                             cfignm=cdiag+'_emp_IFS_'+CONFRUN, dt_year=ittic,
-                            cyunit=cyu, ctitle = CONFRUN+': E-P (monthly)', ymin=ym, ymax=yp)
-
+                            cyunit=cyu, ctitle = CONFRUN+': E-P (monthly)', ymin=ym, ymax=yp, cfig_type=ff)
         # Same but annual:
         nby = nbm/12
-        Xplt = nmp.zeros((2,nby))
+        Xplt = nmp.zeros((nbd,nby))
         VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vemp[:])
         VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], vemp_ifs[:])
-        bp.plot("1d_multi")(VY, Xplt, ['E-P NEMO','E-P IFS'],
+        VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], vemp_land_ifs[:])
+        if l_prc and l_evp:
+            VY, Xplt[3,:] = bt.monthly_2_annual(vtime[:], vevp[:]-vprc[:])
+        bp.plot("1d_multi")(VY, Xplt, vlab,
                             cfignm=cdiag+'_emp_IFS_annual_'+CONFRUN, dt_year=ittic,
-                            cyunit=cyu, ctitle = CONFRUN+': E-P over oceans (annual)', loc_legend='upper center', ymin=ym, ymax=yp)
+                            cyunit=cyu, ctitle = CONFRUN+': E-P over oceans (annual)',
+                            loc_legend='center', ymin=ym, ymax=yp, cfig_type=ff)
         
-
-
-
     if l_fwf_ifs and l_rnf:
-        # Runoff of NEMO compares to ( E-P global - E-P ocean ) of IFS: #lulu
-        Xplt = nmp.zeros((2,nbm))
-        Xplt[0,:] = vrnf[:]
-        Xplt[1,:] = -vemp_land_ifs[:]
-        bp.plot("1d_multi")(vtime, Xplt, ['R NEMO','-(E-P) over land IFS'], cfignm=cdiag+'_rnf_IFS_'+CONFRUN, dt_year=ittic,
-                            cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (monthly)', loc_legend='upper center', ymin=ym, ymax=yp)
-
+        # Runoff of NEMO compares to ( E-P global - E-P ocean ) of IFS:
+        vlab = []
+        Xplt = nmp.zeros((2,nbm)) 
+        if l_clv:
+            Xplt[0,:] = vrnf[:] + vclv[:] ; vlab.append('R + calving NEMO')
+        else:
+            Xplt[0,:] = vrnf[:]           ; vlab.append('R NEMO')
+        Xplt[1,:] = -vemp_land_ifs[:] ; vlab.append('-(E-P) over land IFS')
+        #
+        bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_rnf_IFS_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (monthly)', loc_legend='upper center',
+                            ymin=ym, ymax=yp, cfig_type=ff)
+        #
         # Same but annual:
         nby = nbm/12
         Xplt = nmp.zeros((2,nby))
-        VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:])
+        if l_clv:
+            VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:] + vclv[:])
+        else:
+            VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:])
         VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], -vemp_land_ifs[:])
-        #VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], -(vemp_glb_ifs[:]-vemp_ifs[:])) ; # ,'-(Global(E-P)-Oceans(E-P) IFS'
-        bp.plot("1d_multi")(VY, Xplt, ['R NEMO','-(E-P) over land IFS'], cfignm=cdiag+'_rnf_IFS_annual_'+CONFRUN, dt_year=ittic,
-                            cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (annual)', loc_legend='upper center', ymin=ym, ymax=yp)
+
+        bp.plot("1d_multi")(VY, Xplt, vlab, cfignm=cdiag+'_rnf_IFS_annual_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (annual)', loc_legend='upper center',
+                            ymin=ym, ymax=yp, cfig_type=ff)
+
 
     if l_fwf_ifs and l_prc:
-        # Only P for NEMO and IFS:
-        Xplt = nmp.zeros((3,nbm))
-        Xplt[0,:] = vprc[:]
-        Xplt[1,:] = vp_ifs[:]
-        Xplt[2,:] = vp_land_ifs[:]
-        bp.plot("1d_multi")(vtime, Xplt, ['P NEMO','P IFS (oceans)','P IFS (land)'], cfignm=cdiag+'_prc_IFS_'+CONFRUN, dt_year=ittic,
-                            cyunit=cyu, ctitle = CONFRUN+': Precip', ymin=ym, ymax=yp)
+        # Only P for NEMO and IFS, and RNF NEMO: lulu
+        vlab = [] ; nbd = 3
+        if l_rnf: nbd = 4
+        if l_rnf and l_clv: nbd = 5
+        Xplt = nmp.zeros((nbd,nbm))
+        Xplt[0,:] = vprc[:]        ; vlab.append('P NEMO')
+        Xplt[1,:] = vp_ifs[:]      ; vlab.append('P IFS (oceans)')
+        Xplt[2,:] = vp_land_ifs[:] ; vlab.append('P IFS (land)')
+        if l_rnf:
+            Xplt[3,:] = vrnf[:]    ; vlab.append('R NEMO')
+        if l_rnf and l_clv:
+            Xplt[4,:] = vclv[:]    ; vlab.append('Calving NEMO')
+            
+        bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_prc_IFS_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Precip', ymin=ym, ymax=yp, cfig_type=ff,
+                            loc_legend='center')
+
+
+    if l_fwf_ifs and l_evp:
+        # Only Evaporations
+        vlab = [] ; nbd = 2
+        if l_evb :  nbd = 3
+        Xplt = nmp.zeros((nbd,nbm))
+        Xplt[0,:] = vevp[:]           ; vlab.append('E NEMO ('+vdic_fwf['NN_E']+')')
+        Xplt[1,:] = ve_ifs[:]         ; vlab.append('E IFS')
+        if l_evb: Xplt[2,:] = vevb[:] ; vlab.append('E NEMO ('+cv_evb+')')            
+        bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_evp_IFS_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Evaporation', ymin=ym, ymax=yp, cfig_type=ff,
+                            loc_legend='center')
+        # Same but annual:
+        nby = nbm/12
+        Xplt = nmp.zeros((nbd,nby))
+        VY, Xplt[0,:] =       bt.monthly_2_annual(vtime[:], vevp[:])
+        VY, Xplt[1,:] =       bt.monthly_2_annual(vtime[:], ve_ifs[:])
+        if l_evb: Xplt[2,:] = bt.monthly_2_annual(vtime[:], vevb[:])
+        bp.plot("1d_multi")(VY, Xplt, vlab,
+                            cfignm=cdiag+'_evp_IFS_annual_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Evaporation (annual)',
+                            loc_legend='upper center', ymin=ym, ymax=yp, cfig_type=ff)
 
 
         # Everything possible
-        Xplt = nmp.zeros((7,nbm))
+        Xplt = nmp.zeros((9,nbm))
         vlab = []
-        Xplt[0,:] = vemp[:]      ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
-        Xplt[1,:] = vemp_ifs[:]  ; vlab.append('E-P IFS')
-        Xplt[2,:] = vfwf[:]      ; vlab.append('E-P-R NEMO ('+vdic_fwf['NN_FWF']+')')
-        Xplt[3,:] = vrnf[:]      ; vlab.append('R NEMO ('+vdic_fwf['NN_RNF']+')')
-        Xplt[4,:] = ve_ifs[:]    ; vlab.append('E IFS')
-        Xplt[5,:] = vprc[:]      ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
-        Xplt[6,:] = vp_ifs[:]    ; vlab.append('P IFS')
-
+        if l_emp:     Xplt[0,:] = vemp[:]     ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
+        if l_fwf_ifs: Xplt[1,:] = vemp_ifs[:] ; vlab.append('E-P IFS')
+        if l_emp:     Xplt[2,:] = vfwf[:]     ; vlab.append('E-P-R NEMO ('+vdic_fwf['NN_FWF']+')')
+        if l_rnf:     Xplt[3,:] = vrnf[:]     ; vlab.append('R NEMO ('+vdic_fwf['NN_RNF']+')')
+        if l_fwf_ifs: Xplt[4,:] = ve_ifs[:]   ; vlab.append('E IFS')
+        if l_prc:     Xplt[5,:] = vprc[:]     ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
+        if l_fwf_ifs: Xplt[6,:] = vp_ifs[:]   ; vlab.append('P IFS')
+        if l_clv:     Xplt[7,:] = vclv[:]     ; vlab.append('Calving NEMO ('+vdic_fwf['NN_CLV']+')')
+        if l_evp:     Xplt[8,:] = vevp[:]     ; vlab.append('E NEMO ('+vdic_fwf['NN_E']+')')
 
         bp.plot("1d_multi")(vtime, Xplt, vlab,
                             cfignm=cdiag+'_emp_ALL_IFS_'+CONFRUN, dt_year=ittic,
                             loc_legend='center', cyunit=cyu,
-                            ctitle = CONFRUN+': fresh-water budgets', ymin=ym, ymax=yp)
-
-        #lulu
+                            ctitle = CONFRUN+': fresh-water budgets', ymin=ym, ymax=yp, cfig_type=ff)
 
 
 
@@ -336,17 +417,17 @@ if idfig == 'ts3d':
 
     # One plot only for global:
     bp.plot("1d_mon_ann")(vtime, VY, FM[0,0,:], FY[0,0,:], cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
-                          cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp)
+                          cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym, ymax=yp, cfig_type=ff)
 
 
     # Global for different depth:
     bp.plot("1d_multi")(vtime, FM[0,:,:], vlab[:], cfignm=cdiag+'_lev_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0)
+                        cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0, cfig_type=ff)
 
 
     # Show each ocean (All depth):
     bp.plot("1d_multi")(vtime, FM[:,0,:], bo.voce2treat, cfignm=cdiag+'_basins_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0)
+                        cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0, cfig_type=ff)
 
 
 
@@ -389,7 +470,7 @@ if idfig == 'amoc':
     # Time to plot
     bp.plot("1d_mon_ann")(vtime, VY, Xamoc[i45,:], FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
                           cyunit=cyu, ctitle = CONFRUN+': '+r'Max. of AMOC between '+vlabels[i45],
-                          ymin=ym, ymax=yp, dy=1., i_y_jump=2)
+                          ymin=ym, ymax=yp, dy=1., i_y_jump=2, cfig_type=ff)
 
     # Annual:
     VY, FY  = bt.monthly_2_annual(vtime, Xamoc[:,:])
@@ -397,7 +478,7 @@ if idfig == 'amoc':
     # Time to plot
     bp.plot("1d_multi")(VY, FY, vlabels, cfignm=cdiag+'_'+CONFRUN+'_comp', dt_year=ittic,
                         cyunit=cyu, ctitle = CONFRUN+': '+r'Max. of AMOC', ymin=0, ymax=0,
-                        loc_legend='lower left')
+                        loc_legend='lower left', cfig_type=ff)
 
 
 
@@ -437,23 +518,23 @@ if idfig == 'ice':
     Xplt[0,:] = varea_n[8::12] ; # extent Arctic september
     Xplt[1,:] = varea_s[2::12] ; # extent Antarctic march
     bp.plot("1d_multi")(vtime_y, Xplt, vlab_sum, cfignm='seaice_extent_summer_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer', ymin=0., ymax=0.)
+                        cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer', ymin=0., ymax=0., cfig_type=ff)
 
     Xplt[0,:] = vvolu_n[8::12] ; # volume Arctic september
     Xplt[1,:] = vvolu_s[2::12] ; # volume Antarctic march
     bp.plot("1d_multi")(vtime_y, Xplt, vlab_sum, cfignm='seaice_volume_summer_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer', ymin=0., ymax=0.)
+                        cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer', ymin=0., ymax=0., cfig_type=ff)
 
     # End of local winter
     Xplt[0,:] = varea_n[2::12] ; # extent Arctic march
     Xplt[1,:] = varea_s[8::12] ; # extent Antarctic september
     bp.plot("1d_multi")(vtime_y, Xplt, vlab_win, cfignm='seaice_extent_winter_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter', ymin=0., ymax=0.)
+                        cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter', ymin=0., ymax=0., cfig_type=ff)
 
     Xplt[0,:] = vvolu_n[2::12] ; # volume Arctic march
     Xplt[1,:] = vvolu_s[8::12] ; # volume Antarctic september
     bp.plot("1d_multi")(vtime_y, Xplt, vlab_win, cfignm='seaice_volume_winter_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter', ymin=0., ymax=0.)
+                        cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter', ymin=0., ymax=0., cfig_type=ff)
 
 
 
@@ -485,12 +566,12 @@ if idfig == 'transport':
         # Transport of volume:
         bp.plot("1d_mon_ann")(vtime, VY, Xtrsp[0,:], FY[0,:], cfignm='transport_vol_'+csec+'_'+CONFRUN,
                              dt_year=ittic, cyunit='Sv', ctitle = CONFRUN+': transport of volume, '+csec,
-                             ymin=0, ymax=0)
+                             ymin=0, ymax=0, cfig_type=ff)
 
         # Transport of heat:
         bp.plot("1d_mon_ann")(vtime, VY, Xtrsp[1,:], FY[1,:], cfignm='transport_heat_'+csec+'_'+CONFRUN,
                              dt_year=ittic, cyunit='PW', ctitle = CONFRUN+': transport of heat, '+csec,
-                             ymin=0, ymax=0, mnth_col='g')
+                             ymin=0, ymax=0, mnth_col='g', cfig_type=ff)
 
 
         js = js + 1
@@ -512,7 +593,8 @@ if idfig == 'mld':
             VY, FY = bt.monthly_2_annual(vt0, vd0)
             ittic = bt.iaxe_tick(nbm/12)
             bp.plot("1d_mon_ann")(vt0, VY, vd0, FY, cfignm=cdiag+'_'+CONFRUN+'_'+cbox, dt_year=ittic, cyunit=cyu,
-                                  ctitle = CONFRUN+': '+clnm+bo.clgnm_mld_boxes[jbox], ymin=ym, ymax=yp, plt_m03=True, plt_m09=True)
+                                  ctitle = CONFRUN+': '+clnm+bo.clgnm_mld_boxes[jbox], ymin=ym, ymax=yp,
+                                  plt_m03=True, plt_m09=True, cfig_type=ff)
         else:
             print 'WARNING: plot_time_series.py => MLD diag => '+cf_in_m+' not found!'
         jbox = jbox+1

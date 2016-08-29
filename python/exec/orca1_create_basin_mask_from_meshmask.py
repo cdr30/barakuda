@@ -55,7 +55,7 @@ mask_inp = nmp.zeros((nj,ni))
 mask_atl[:,:] = tmask[:,:]
 
 # Removing Southern Ocean:
-mask_atl[:95,:] = 0
+#mask_atl[:95,:] = 0
 
 # Removing Pacific and Indian
 mask_atl[0:246,0:190] = 0 # 246 => to keep Pacific side of the arctic basin...
