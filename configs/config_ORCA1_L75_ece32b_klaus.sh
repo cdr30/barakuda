@@ -27,8 +27,12 @@ export DIAG_DIR="${STORE_DIR}/tmp/barakuda/${CONF}_ece32b"
 
 
 # Is it an ec-earth run?
-export ece_run=1 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
-#                  # where YYY starts from '001' to
+export ece_run=2 ; # 0 => not an EC-Earth run, it's a "pure" ocean-only NEMO run done from traditional NEMO setup
+#                  # 1 => it's an OCEAN-ONLY EC-Earth run done from a EC-Earth setup
+#                  # 2 => it's an COUPLED  EC-Earth run
+#                  #      Both 1 and 2 imply that NEMO files are stored in something like
+#                  #       ${STORE_DIR}/<RUN>/output/nemo/<YYY>
+#                  #       where YYY starts from '001' to
 export Y_INI_EC=1990 ;    # initial year if ec-earth run...
 
 

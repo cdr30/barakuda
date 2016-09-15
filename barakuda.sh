@@ -237,7 +237,7 @@ cd ${NEMO_OUT_D}/
 
 if [ ${ISTAGE} -eq 1 ]; then
 
-    if [ ${ece_run} -eq 1 ]; then
+    if [ ${ece_run} -gt 0 ]; then
         if [ ! -d 001 ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory 001 in:"; echo " ${NEMO_OUT_D}"; exit ; fi
         nby_ece=`ls -d */ | wc -l` ; echo " ${nby_ece} years have been completed..."
         cd 001/
@@ -266,7 +266,7 @@ if [ ${ISTAGE} -eq 1 ]; then
 
     cd ${NEMO_OUT_D}/
 
-    if [ ${ece_run} -eq 1 ]; then
+    if [ ${ece_run} -gt 0 ]; then
         dir_end=`printf "%03d" ${nby_ece}`
         if [ ! -d ${dir_end} ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory ${dir_end} in:"; echo " ${NEMO_OUT_D}"; exit ; fi
         YEAR_END=`expr ${YEAR_INI} + ${nby_ece}`
@@ -374,7 +374,7 @@ while ${lcontinue}; do
     export cyear=`printf "%04d" ${jyear}`
 
     cpf=""
-    if [ ${ece_run} -eq 1 ]; then
+    if [ ${ece_run} -gt 0 ]; then
         iy=`expr ${jyear} - ${YEAR_INI} + 1` ; dir_ece=`printf "%03d" ${iy}`
         echo " *** ${cyear} => dir_ece = ${dir_ece}"
         cpf="${dir_ece}/"
@@ -551,9 +551,9 @@ while ${lcontinue}; do
 
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # If EC-Earth simu, attempting to compute ocean-averaged fluxes from IFS too (E, P, E-P)
+        # If coupled EC-Earth simu, attempting to compute ocean-averaged fluxes from IFS too (E, P, E-P)
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if [ ${ece_run} -eq 1 -a ${NBL} -eq 75 ]; then
+        if [ ${ece_run} -eq 2 -a ${NBL} -eq 75 ]; then
             echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
             echo "LAUNCHING: ./scripts/do_fwf_series_ifs.sh in the background!"
             ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh &
@@ -1413,7 +1413,7 @@ EOF
     <img style="border: 0px solid" alt="" src="mean_fwf_clv_${CONFRUN}.${FIG_FORM}"> <br><br><br>
 EOF
 
-    if [ ${ece_run} -eq 1 ]; then
+    if [ ${ece_run} -eq 2 ]; then
         cat >> index.html <<EOF
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.${FIG_FORM}"> <br><br><br>
     <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br><br>

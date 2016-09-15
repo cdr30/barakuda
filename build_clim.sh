@@ -266,7 +266,7 @@ fi
 
 
 
-if [ ${ece_run} -eq 1 ]; then
+if [ ${ece_run} -gt 0 ]; then
     if [ ! -d ${NEMO_OUT_D}/001 ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory 001 in:"; echo " ${NEMO_OUT_D}"; fi
 fi
 
@@ -281,7 +281,7 @@ while [ ${jyear} -le ${Y2} ]; do
 
 
     cpf=""
-    if [ ${ece_run} -eq 1 ]; then
+    if [ ${ece_run} -gt 0 ]; then
         # Need initial year in 001:
         fin=`\ls ${NEMO_OUT_D}/001/${CPREF}*_grid_T.${NCE}` ; fin=`basename ${fin}`
         YEAR_INI=`echo ${fin} | sed -e "s|${CPREF}||g" | cut -c1-4`
