@@ -37,8 +37,8 @@ usage()
     echo
     echo "      -y <YYYY> => force initial year to YYYY"
     echo
-    echo "      -z <YYYY> => force BaraKuda to stop at year YYYY"
-    echo
+    #echo "      -z <YYYY> => force BaraKuda to stop at year YYYY"
+    #echo
     echo "      -F        => forces creation of diagnostic page even if treatment of output files is not finished"
     echo
     echo "      -e        => create the HTML diagnostics page on local or remote server"
@@ -56,9 +56,10 @@ usage()
 
 
 # Some defaults:
-YEAR0=""
-LFORCE_YEAR1=false
-LFORCE_END=false
+#YEAR0=""
+#YEARN=""
+LFORCE_YINI=false
+LFORCE_YEND=false
 export RUNREF=""
 ISTAGE=1 ; # 1 => generation of data diagnostic files
 #          # 2 => creation of figures and diagnostic HTML page
@@ -66,13 +67,14 @@ LFORCEDIAG=false
 l_clim_diag=false
 IFREQ_SAV_YEARS=1
 
-while getopts C:R:f:y:z:c:FeEh option ; do
+#while getopts C:R:f:y:z:c:FeEh option ; do
+while getopts C:R:f:y:c:FeEh option ; do
     case $option in
         C) CONFIG=${OPTARG};;
         R) RUN=${OPTARG};;
         f) IFREQ_SAV_YEARS=${OPTARG};;
-        y) YEAR0=${OPTARG} ; LFORCE_YEAR1=true ;;
-        z) YEARN=${OPTARG} ; LFORCE_END=true ;;
+        y) YEAR0=${OPTARG} ; LFORCE_YINI=true ;;
+        #z) YEARN=${OPTARG} ; LFORCE_YEND=true ;;
         c) export RUNREF=${OPTARG} ;;
         F) LFORCEDIAG=true;;
         e) ISTAGE=2;;
@@ -235,6 +237,7 @@ export CPREF=`echo ${NEMO_FILE_PREFIX} | sed -e "s|<ORCA>|${ORCA}|g" -e "s|<RUN>
 # Will have a look at NEMO files in the directory where they are stored
 cd ${NEMO_OUT_D}/
 
+
 if [ ${ISTAGE} -eq 1 ]; then
 
     if [ ${ece_run} -gt 0 ]; then
@@ -243,22 +246,20 @@ if [ ${ISTAGE} -eq 1 ]; then
         cd 001/
     fi
 
-    if ! ${LFORCE_YEAR1}; then
     # Try to guess the first year from stored "grid_T" files:
-        export YEAR_INI=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/""/g | head -1 | cut -c1-4`
-        echo ${YEAR_INI} |  grep "[^0-9]" >/dev/null ;   # Checking if it's an integer:
-        if [ ! "$?" -eq 1 ]; then
-            echo "ERROR: it was imposible to guess initial year from your input files"
-            echo "       maybe the directory contains non-related files..."
-            echo "      => use the -y <YEAR> switch to force the initial year!"; exit
-        fi
-        echo " Initial year guessed from stored files => ${YEAR_INI}"; echo
-        YEAR_INI=`expr ${YEAR_INI} + 0`  ; # example: 1 instead of 0001...
-        #Y2=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/""/g | head -1 | cut -c10-13`
-        #YIr=`expr ${YEAR_INI} + 0`; Y2r=`expr ${Y2} + 0`
-        #if [ ${Y2r} -gt ${YIr} ]; then IFREQ_SAV_YEARS=$((${Y2r}-${YIr}+1)); fi
-        #echo "1 NEMO file contains ${IFREQ_SAV_YEARS} year(s)"; echo
-    else
+    YEAR_INI=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/""/g | head -1 | cut -c1-4`
+    echo ${YEAR_INI} |  grep "[^0-9]" >/dev/null ;   # Checking if it's an integer:
+    if [ ! "$?" -eq 1 ]; then
+        echo "ERROR: it was imposible to guess initial year from your input files"
+        echo "       maybe the directory contains non-related files..."
+        exit
+    fi
+    echo " Initial year guessed from stored files => ${YEAR_INI}"; echo
+    export YEAR_INI=`expr ${YEAR_INI} + 0`  ; # example: 1 instead of 0001...
+    YEAR_INI_F=${YEAR_INI} ; # saving the year deduced from first file 
+
+    if ${LFORCE_YINI}; then
+        if [ ${YEAR0} -lt ${YEAR_INI_F} ]; then echo "ERROR: forced initial year is before first year!"; exit; fi
         export YEAR_INI=${YEAR0}
         echo " Initial year forced to ${YEAR_INI}"; echo
     fi
@@ -281,13 +282,25 @@ if [ ${ISTAGE} -eq 1 ]; then
     fi
     echo " Last year guessed from stored files => ${YEAR_END}"; echo
 
-
-
     echo ${IFREQ_SAV_YEARS} > ${DIAG_D}/numb_year_per_file.info
     echo ${YEAR_INI}        > ${DIAG_D}/first_year.info
 
 else
-
+    
+    # -> this is stage 2 (plot generation) ISTAGE=2 !
+    
+    if [ ! -z ${YEAR0} ]; then
+        echo
+        echo "WARNING: using the -y switch for the creation of the plots (switch -e)"
+        echo "         will have no impact. For the time slice to use, the plots are based"
+        echo "         on what is found in ${DIAG_D}/ !"
+        echo "         => the diagnostic netdcf files"
+        echo "         => which should also be equivalent to what's found in files"
+        echo "            first_year.info and last_year_done.info"
+        echo ""
+        sleep 5
+    fi
+    
     for fc in "first_year" "numb_year_per_file" "last_year_done"; do
         ff=${DIAG_D}/${fc}.info
         if [ ! -f ${ff} ]; then echo "ERROR: file ${ff} is missing!"; exit; fi
@@ -297,15 +310,47 @@ else
     export YEAR_INI=`cat ${DIAG_D}/first_year.info`
     export YEAR_END=`cat ${DIAG_D}/last_year_done.info`
     export IFREQ_SAV_YEARS=`cat ${DIAG_D}/numb_year_per_file.info`
+    
+    echo
+    echo " For time-series to be ploted:"
+    echo "  * initial year = ${YEAR_INI}"
+    echo "  *  last   year = ${YEAR_END}"
+    echo
 
 fi
 
 
-cyear_ini=`printf "%04d" ${YEAR_INI}` ; cyear_end=`printf "%04d" ${YEAR_END}`
+# We may override what's been read into the *.info files!
+#if ${LFORCE_YEND}; then
+#    if [ ${YEARN} -le ${YEAR_INI} ]; then echo "ERROR: forced last year is before first year!"; exit; fi
+#    if [ ${YEARN} -gt ${YEAR_END} ]; then echo "ERROR: forced last year is beyond last year !"; exit; fi
+#    export YEAR_END=${YEARN}
+#fi
 
-if ${LFORCE_END}; then
-    if [ ${YEARN} -le ${YEAR_INI} ]; then echo "ERROR: forced stop year is before first year!"; exit; fi
-fi
+#if ${LFORCE_YINI}; then
+#    if [ ${YEAR0} -gt ${YEAR_END} ]; then echo "ERROR: forced initial year is beyond last year !"; exit; fi
+#    export YEAR_INI=${YEAR0}
+#fi
+
+cyear_ini=`printf "%04d" ${YEAR_INI}`
+cyear_end=`printf "%04d" ${YEAR_END}`
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+###########################################################################################
 
 
 
@@ -375,9 +420,10 @@ while ${lcontinue}; do
 
     cpf=""
     if [ ${ece_run} -gt 0 ]; then
-        iy=`expr ${jyear} - ${YEAR_INI} + 1` ; dir_ece=`printf "%03d" ${iy}`
+        iy=$(( ${jyear}-${YEAR_INI}+1 + ${YEAR_INI}-${YEAR_INI_F} ))
+        dir_ece=`printf "%03d" ${iy}`
         echo " *** ${cyear} => dir_ece = ${dir_ece}"
-        cpf="${dir_ece}/"
+        cpf="${dir_ece}/" 
     fi
 
     TTAG_ann=${cyear}0101_${cyear}1231
@@ -955,9 +1001,9 @@ while ${lcontinue}; do
     fi ; # if ${lcontinue}; then
 
 
-    if ${LFORCE_END}; then
-        if [ ${jyear} -eq ${YEARN} ]; then lcontinue=false; fi
-    fi
+    #if ${LFORCE_YEND}; then
+    #    if [ ${jyear} -eq ${YEARN} ]; then lcontinue=false; fi
+    #fi
 
     echo
     echo " Waiting for backround jobs for current year (${jyear}) !"
@@ -995,31 +1041,24 @@ if [ ${ISTAGE} -eq 2 ]; then
 
     # Agreement between last year from output files and 'fcompletion' file:
     ydum=`cat ${fcompletion}`
-    if [ ! ${ydum} -eq ${YEAR_END} ]; then
-        echo;
-        echo "###################################################################"
-        echo "PROBLEM: in ${fcompletion} last_year = ${ydum}"
-        echo "         and from stored files files last_year = ${YEAR_END} !"
-        echo "         (maybe you're calling $0 with the '-f' swicth...)"
-        echo "        => forcing YEAR_END to ${ydum}"
-        echo "###################################################################"
-        echo
-        sleep 4
-        export YEAR_END=${ydum}
+    if [ -z ${YEARN} ]; then
+        # (if YEARN is not set...)
+        if [ ! ${ydum} -eq ${YEAR_END} ]; then
+            echo;
+            echo "###################################################################"
+            echo "PROBLEM: in ${fcompletion} last_year = ${ydum}"
+            echo "         and from stored files files last_year = ${YEAR_END} !"
+            echo "###################################################################"
+            echo
+            exit
+        fi
     fi
-
+    
 
     cd ${BARAKUDA_ROOT}/
 
     echo; echo; echo "RUN ${RUN}: creating plots"; echo
 
-
-
-#    if false ; then
-
-
-    # Getting list of hydrographic sections:
-    #list=`cat ${BARAKUDA_ROOT}/data/transportiz.dat | grep '-'`
 
 
     # 1D plots to perform
@@ -1031,49 +1070,44 @@ if [ ${ISTAGE} -eq 2 ]; then
         DIAG_1D_LIST="${DIAG_1D_LIST} 3d_so mean_sos 3d_thetao mean_tos mean_zos mean_fwf mean_mldr10_1"
     fi
     if [ ${i_do_amoc} -eq 1 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} amoc";        fi
-    if [ ${i_do_trsp} -gt 0 ]; then
-        DIAG_1D_LIST="${DIAG_1D_LIST} transport_sections"
-    fi
-    if [ ${i_do_ice}  -eq 1 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} seaice";        fi
+    if [ ${i_do_trsp} -gt 0 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} transport_sections" ; fi
+    if [ ${i_do_ice}  -eq 1 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} seaice";       fi
 
     dy=`expr ${YEAR_END} - ${YEAR_INI} + 1` ; export YF2=`expr ${YEAR_END} + 1`
-
-
-
 
 
     # Doing 1D plots
     # ~~~~~~~~~~~~~~
 
     cd ${DIAG_D}/
-
-
+    
     echo ; echo; echo "Going to perform the following 1D plots:"
     echo "    => ${DIAG_1D_LIST}"; echo
 
     for fd in ${DIAG_1D_LIST}; do
+        echo "CALLING: plot_time_series.py ${fd}"
         ${PYTH} ${PYBRKD_EXEC_PATH}/plot_time_series.py ${fd} ; echo
+        echo
     done
-    echo ; echo
+    echo ; echo ; echo
 
     if [ ${i_do_mean} -eq 1 ]; then
 
          # 5-month-running mean SST anomaly on Nino region 3.4 graph:
-        echo "CALLING: enso.py Nino34_${CONFRUN}.dat"
+        echo "CALLING: plot_enso.py Nino34_${CONFRUN}.nc"
         ${PYTH} ${PYBRKD_EXEC_PATH}/plot_enso.py Nino34_${CONFRUN}.nc
-        echo; echo; echo
+        echo; echo
 
         # Hovmuller of temperature and salinity
-        echo "CALLING: hovm_tz.py ${YEAR_INI} ${YEAR_END} ${NBL}"
+        echo "CALLING: plot_hovm_tz.py"
         ${PYTH} ${PYBRKD_EXEC_PATH}/plot_hovm_tz.py
-        echo; echo; echo
+        echo; echo
         #
     fi
 
 
     if [ ${i_do_sigt} -eq 1 ]; then
         # Transport by sigma-class
-        # ~~~~~~~~~~~~~~~~~~~~~~~~
         echo "CALLING: plot_trsp_sigma.py"
         ${PYTH} ${PYBRKD_EXEC_PATH}/plot_trsp_sigma.py
         echo; echo; echo
@@ -1160,15 +1194,15 @@ if [ ${ISTAGE} -eq 2 ]; then
 
 
 
-        # Lat-Depth AMOC
-        # ~~~~~~~~~~~~~~
+            # Lat-Depth AMOC
+            # ~~~~~~~~~~~~~~
             if [ -f ${fcmoc} ]; then
                 echo; echo
                 echo " Ploting lat-depth MOC !"
                 cd ${DIAG_D}/
                 DIRS_2_EXP="${DIRS_2_EXP} moc"
                 rm -rf moc; mkdir moc; cd moc/
-                echo; echo; echo "CALLING: moc.py ${iclyear}"; echo
+                echo; echo; echo "CALLING: moc.py ${iclyear}"
                 ${PYTH} ${PYBRKD_EXEC_PATH}/moc.py ${iclyear}
                 cd ../
                 echo
@@ -1259,51 +1293,7 @@ if [ ${ISTAGE} -eq 2 ]; then
                 echo
 
 
-            # Surface fluxes diagnostics
-            # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-            #cd ${DIAG_D}/
-            #if [ ${i_do_flx} -eq 1 ]; then
-            #    COMFLUX1='' ; COMFLUX2='' ; DIRS_2_EXP="${DIRS_2_EXP} surf_fluxes"
-            #    mkdir -p surf_fluxes; cd surf_fluxes/
-            #    echo; echo; echo "CALLING: surf_fluxes.py ${iclyear}"; echo
-            #    ${PYTH} ${PYBRKD_EXEC_PATH}/surf_fluxes.py ${iclyear}
-            #    echo; echo; echo
-            #    cd ../
-            #fi
-            #echo
-
-
-
             done ; # for COMP2D in ${list_comp_2d}; do
-
-
-
-
-        #if [ ${i_do_mht} -eq 1 ]; then
-        ## Meridional transports of heat and salt
-        ## ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        #    if [ -f ${fclvt} ]; then
-        #        cd ${TMP_DIR}/
-        #        echo "in `pwd` !"; ls ; echo
-        #        echo "${BARAKUDA_ROOT}/cdftools_light/bin/cdfmhst.x ${fclvt}"
-        #        ${BARAKUDA_ROOT}/cdftools_light/bin/cdfmhst.x ${fclvt}
-        #            # mhst.nc, merid_heat_trp.dat and merid_salt_trp.dat created...
-        #        rm -f mhst.nc
-        #        mv -f  merid_heat_trp.dat ${DIAG_D}/mht_clim_${CONFRUN}_${CLIM_PER}.dat
-        #        mv -f  merid_salt_trp.dat ${DIAG_D}/mst_clim_${CONFRUN}_${CLIM_PER}.dat
-        #            #
-        #        cd ${BARAKUDA_ROOT}/
-        #        ./scripts/mk_plots.sh mht_clim
-        #        ./scripts/mk_plots.sh mst_clim
-        #    else
-        #        echo "PROBLEM: ${fclvt} not found"
-        #        echo "   => skipping meridional heat and salt transport diag..."
-        #        echo
-        #    fi
-        #
-        #fi
-
-
 
         else
             echo; echo
