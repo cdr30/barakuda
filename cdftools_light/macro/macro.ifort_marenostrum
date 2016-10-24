@@ -1,0 +1,19 @@
+NCDF_DIR=/apps/NETCDF/4.3.2/INTEL/IMPI
+HDF5_DIR=/apps/HDF5/1.8.12-mpi/IMPI
+
+NCDF= -I$(NCDF_DIR)/include -L$(NCDF_DIR)/lib -lnetcdf -lnetcdff
+
+F90=ifort
+
+
+# -fdefault-real-8 -fbounds-check
+
+##FFLAGS= -O3 -parallel -module ./mod $(NCDF)
+##FFLAGS= -O3 -parallel -xHost -module ./mod $(NCDF)
+
+
+FFLAGS= -O3 -xHOST -module ./mod $(NCDF)
+
+#FFLAGS= -O0 -CB -traceback -module ./mod $(NCDF)
+
+
