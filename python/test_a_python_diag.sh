@@ -1,8 +1,8 @@
 #!/bin/bash
 
-issh=0
+issh=1
 irnf=0
-iice=1
+iice=0
 iemp=0
 icmip5=0
 ihov=0
@@ -148,7 +148,7 @@ if [ ${issh} -eq 1 ]; then
     #export DIAG_D="/proj/bolinc/users/x_laubr/tmp/barakuda/ORCA1.L75_ece31/ORCA1.L75-LCM2"
     #export NN_SSH="sossheig"
     #export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask.nc"
-    #python exec/ssh.py 1024 1028
+    python exec/ssh.py 1024 1028
 
 fi
 

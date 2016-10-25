@@ -22,9 +22,10 @@ export STORE_DIR="/gpfs/scratch/bsc32/bsc32325"
 export CONF_INI_DIR="/gpfs/projects/bsc32/bsc32325/INPUTS_ORCA1_LIM3_PISCES_V9"
 
 # In what directory of the local machine to save the diagnostics:
-export DIAG_DIR="${STORE_DIR}/barakuda/${CONF}_ece32b"
+export DIAG_DIR="${STORE_DIR}/barakuda/${CONF}_ece32"
 
-
+module add NCO/4.6.1
+module add PYTHON/2.7.3
 
 # Is it an ec-earth run?
 export ece_run=1 ; # 0 => not an EC-Earth run, it's a "pure" ocean-only NEMO run done from traditional NEMO setup
@@ -93,8 +94,8 @@ export L_RENAME=false ; # set to true if your ORCA output has old name conventio
 export JTITLE="NEMO v3.6 ${CONF}-L${NBL}_LIM3 / EC-Earth 3.2b_tunning"
 
 # Land-sea mask and basins files:
-export MM_FILE=/proj/bolinc/users/x_laubr/klaus/mesh_mask.nc
-export BM_FILE=/proj/bolinc/users/x_laubr/klaus/basin_mask.nc
+export MM_FILE=/gpfs/projects/bsc32/bsc32325/ece-setup/nemo/mesh_mask.nc4
+export BM_FILE=/gpfs/projects/bsc32/bsc32325/ece-setup/nemo/basin_mask.nc4
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
 export F_T_CLIM_3D_12=${CONF_INI_DIR}/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc
