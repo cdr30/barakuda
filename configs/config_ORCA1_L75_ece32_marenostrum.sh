@@ -24,7 +24,7 @@ export CONF_INI_DIR="/gpfs/projects/bsc32/bsc32325/INPUTS_ORCA1_LIM3_PISCES_V9"
 # In what directory of the local machine to save the diagnostics:
 export DIAG_DIR="${STORE_DIR}/barakuda/${CONF}_ece32"
 
-module add NCO/4.6.1
+module add NCO/4.2.3
 module add PYTHON/2.7.3
 
 # Is it an ec-earth run?

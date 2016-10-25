@@ -181,8 +181,7 @@ if [ ${ISTAGE} -eq 1 ]; then
 fi
 
 
-
-# Need to be in accordance with the netcdf installation upon whicg cdftools_light is compiled:
+# Need to be consistent with the netcdf installation upon which cdftools_light was compiled:
 export NCDF_DIR=`cat cdftools_light/make.macro | grep ^NCDF_DIR | cut -d = -f2 | sed -e s/' '//g`
 echo ; echo "NCDF_DIR = ${NCDF_DIR}"; echo
 export LD_LIBRARY_PATH=${NCDF_DIR}/lib:${LD_LIBRARY_PATH}
@@ -528,7 +527,7 @@ while ${lcontinue}; do
                 done
 
 
-                # Need to create annual files if more than 1 year in 1 once NEMO file
+                # Need to create annual files if more than 1 year in 1 one NEMO file
                 if [ ${IFREQ_SAV_YEARS} -gt 1 ]; then
                     for gt in ${NEMO_SAVED_FILES}; do
                         ftd=./${CRTM}_${gt}.nc ; # file to divide!
