@@ -41,6 +41,8 @@ II / Compile CDFTOOLS executables
  * CDFTOOLS is a set of fortran executables intended to perform a multitude of
    diagnostics on NEMO output file and is developed by Jean-Marc Molines at LEGI
    in Grenoble.  However, this is a slightly modified light version here...
+   SO DO NOT USE AN OFFICIAL CDFTOOLS DISTRIBUTION, stick to the one that comes with
+   BaraKuda!
 
 - move to the 'barakuda/cdftools_light' directory
 
