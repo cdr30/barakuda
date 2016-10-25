@@ -12,9 +12,9 @@
 
 export BARAKUDA_ROOT=`pwd`
 
-CANOPY_PATH=${HOME}/opt/Canopy_64bit/User
-PYTH="${CANOPY_PATH}/bin/python -W ignore" ; # which Python installation to use
-export PYTHONPATH=${CANOPY_PATH}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
+PYTHON_HOME=${HOME}/opt/Canopy_64bit/User
+PYTH="${PYTHON_HOME}/bin/python -W ignore" ; # which Python installation to use
+export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
 PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
 
 #export FIG_FORMAT='svg'

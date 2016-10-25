@@ -41,7 +41,7 @@ export NEMO_FILE_PREFIX="ORCA1-<RUN>_<TSTAMP>_"
 # Temporary file system (scratch) on which to perform the job you can use <JOB_ID> if scracth depends on JOB ID:
 export SCRATCH="/scratch/local/<JOB_ID>"
 
-export CANOPY_PATH=${HOME}/opt/Canopy_64bit/User
+export PYTHON_HOME=${HOME}/opt/Canopy_64bit/User
 
 # If variables names in NEMO files are not the default...
 export NN_SST="sosstsst"

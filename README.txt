@@ -19,6 +19,9 @@ I / What do you need to be able to use BaraKuda ?
   A good idea is to install a shiny python distribution, something like Canopy:
   => https://www.enthought.com/products/canopy/
 
+  In any case, specify the appropriate "PYTHON_HOME" environment variable in you
+  config/conf_<MYCONF>.sh file
+
 - NEMO output data! => A directory containing the MONTHLY-AVERAGED, global
                        (rebuilt), NEMO output to analyze
                (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"

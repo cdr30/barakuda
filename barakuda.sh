@@ -115,12 +115,12 @@ if [ ! "${ORCA}" = "${CONF}" ]; then echo "ERROR: ORCA and CONF disagree! => ${O
 export ORCA=${CONF}
 
 echo
-if [ "${CANOPY_PATH}" = "" ]; then echo "ERROR: CANOPY_PATH is not set! => add it to config file"; exit; fi
-PYTH="${CANOPY_PATH}/bin/python -W ignore" ; # which Python installation to use
-export PYTHONPATH=${CANOPY_PATH}/lib/python2.7:${CANOPY_PATH}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
+if [ "${PYTHON_HOME}" = "" ]; then echo "ERROR: PYTHON_HOME is not set! => add it to config file"; exit; fi
+PYTH="${PYTHON_HOME}/bin/python -W ignore" ; # which Python installation to use
+export PYTHONPATH=${PYTHON_HOME}/lib/python2.7:${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
 PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
 
-echo " CANOPY_PATH => "${CANOPY_PATH} ; echo
+echo " PYTHON_HOME => "${PYTHON_HOME} ; echo
 
 echo "  TRANSPORT_SECTION_FILE => ${TRANSPORT_SECTION_FILE} !" ; echo
 

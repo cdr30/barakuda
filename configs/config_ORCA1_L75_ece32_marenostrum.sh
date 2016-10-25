@@ -55,7 +55,7 @@ export NEMO_FILE_PREFIX="<RUN>_<TSTAMP>_"
 #export SCRATCH="/scratch/local/<JOB_ID>"
 export SCRATCH="/scratch/tmp"
 
-export CANOPY_PATH="/gpfs/projects/bsc32/bsc32325/opt/canopy_python2.7"
+export PYTHON_HOME="/apps/PYTHON/2.7.3"
 
 # If variables names in NEMO files are not the default...
 export NN_SST="tos"
