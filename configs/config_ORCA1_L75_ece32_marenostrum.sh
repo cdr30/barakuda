@@ -19,7 +19,7 @@ export NBL=75     ; # number of levels
 export STORE_DIR="/gpfs/scratch/bsc32/bsc32325"
 
 # Path to directory containing some 2D and 3D climatologies on the relevant ORCA grid:
-export CONF_INI_DIR="/gpfs/projects/bsc32/bsc32325/INPUTS_ORCA1_LIM3_PISCES_V9"
+export CONF_INI_DIR="/gpfs/projects/bsc32/bsc32325/ORCA1/ORCA1-I/old_clim"
 
 # In what directory of the local machine to save the diagnostics:
 export DIAG_DIR="${STORE_DIR}/barakuda/${CONF}_ece32"
@@ -124,7 +124,7 @@ export FILE_DMV_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 
 
 # About remote HOST to install HTML pages to:
-ihttp=1 ; # do we export on a remote http server (1) or keep on the local machine (0)
+ihttp=0 ; # do we export on a remote http server (1) or keep on the local machine (0)
 RHOST=misu228.misu.su.se ; # remote host to send diagnostic page to///
 RUSER=laurent ; # username associated to remote host (for file export)
 RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host to send the diagnostic page to

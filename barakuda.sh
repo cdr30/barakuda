@@ -255,6 +255,7 @@ if [ ${ISTAGE} -eq 1 ]; then
     fi
     echo " Initial year guessed from stored files => ${YEAR_INI}"; echo
     export YEAR_INI=`expr ${YEAR_INI} + 0`  ; # example: 1 instead of 0001...
+    #
     YEAR_INI_F=${YEAR_INI} ; # saving the year deduced from first file 
 
     if ${LFORCE_YINI}; then
@@ -416,10 +417,10 @@ if ${LFORCEDIAG}; then lcontinue=false; fi
 while ${lcontinue}; do
 
     export cyear=`printf "%04d" ${jyear}`
-
+    
     cpf=""
-    if [ ${ece_run} -gt 0 ]; then
-        iy=$(( ${jyear}-${YEAR_INI}+1 + ${YEAR_INI}-${YEAR_INI_F} ))
+    if [ ${ISTAGE} -eq 1 ] && [ ${ece_run} -gt 0 ]; then
+        iy=$((${jyear}-${YEAR_INI}+1+${YEAR_INI}-${YEAR_INI_F}))
         dir_ece=`printf "%03d" ${iy}`
         echo " *** ${cyear} => dir_ece = ${dir_ece}"
         cpf="${dir_ece}/" 
@@ -1485,7 +1486,7 @@ EOF
 
     # If climatology built, sub 2D html pages
     # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    #lulu
+
     if ${l_pclim}; then
 
        # T, S, SSH and ice HTML page:
