@@ -91,16 +91,16 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v3.6 ${CONF}-L${NBL}_LIM3 / EC-Earth 3.2b_tunning"
+export JTITLE="NEMO v3.6 ${CONF}_LIM3 / EC-Earth 3.2b_tunning"
 
 # Land-sea mask and basins files:
 export MM_FILE=/gpfs/projects/bsc32/bsc32325/ece-setup/nemo/mesh_mask.nc4
 export BM_FILE=/gpfs/projects/bsc32/bsc32325/ece-setup/nemo/basin_mask.nc4
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
-export F_T_CLIM_3D_12=${CONF_INI_DIR}/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc
-export F_S_CLIM_3D_12=${CONF_INI_DIR}/so_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc
-export SST_CLIM_12=${CONF_INI_DIR}/tos_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc
+export F_T_CLIM_3D_12=${CONF_INI_DIR}/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc4
+export F_S_CLIM_3D_12=${CONF_INI_DIR}/so_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc4
+export SST_CLIM_12=${CONF_INI_DIR}/tos_180x360-ORCA1_Reynolds_monthly_mean1982-2005.nc4
 export NN_T_CLIM="thetao"
 export NN_S_CLIM="so"
 export NN_SST_CLIM="tos"

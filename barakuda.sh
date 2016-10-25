@@ -599,7 +599,7 @@ while ${lcontinue}; do
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # If coupled EC-Earth simu, attempting to compute ocean-averaged fluxes from IFS too (E, P, E-P)
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if [ ${ece_run} -eq 2 -a ${NBL} -eq 75 ]; then
+        if [ ${ece_run} -eq 2 ] && [ ${NBL} -eq 75 ]; then
             echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
             echo "LAUNCHING: ./scripts/do_fwf_series_ifs.sh in the background!"
             ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh &
@@ -1545,43 +1545,44 @@ EOF
 
     echo "Done!"; echo; echo
 
+
+    html_dir=${DIAG_D}/${RUN}
+    mkdir -p ${html_dir}
+
+    cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${html_dir}/
+    cp ${BARAKUDA_ROOT}/scripts/html/logo.png    ${html_dir}/
+
+    mv -f index.html ${html_dir}/
+    mv -f *.${FIG_FORM}      ${html_dir}/ >/dev/null 2>/dev/null
+    mv -f ./merid_transport/*.${FIG_FORM} ${html_dir}/ >/dev/null 2>/dev/null
+    mv -f *.svg      ${html_dir}/ >/dev/null 2>/dev/null
+    
+    if [ ${inmlst} -eq 1 ]; then cp ${NEMO_OUT_D}/${fnamelist} ${html_dir}/; fi
+
+    cp -r ${DIRS_2_EXP} ${html_dir}/ >/dev/null 2>/dev/null
+    
     echo; echo; echo
 
     if [ ${ihttp} -eq 1 ]; then
         echo "Preparing to export to remote host!"; echo
-        mkdir ${RUN}
-
-        cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${RUN}/
-        cp ${BARAKUDA_ROOT}/scripts/html/logo.png    ${RUN}/
-
-        mv -f index.html ${RUN}/
-        mv -f *.${FIG_FORM}      ${RUN}/ >/dev/null 2>/dev/null
-        mv -f ./merid_transport/*.${FIG_FORM} ${RUN}/ >/dev/null 2>/dev/null
-        mv -f *.svg      ${RUN}/ >/dev/null 2>/dev/null
-
-        if [ ${inmlst} -eq 1 ]; then cp ${NEMO_OUT_D}/${fnamelist} ${RUN}/; fi
-
-        cp -r ${DIRS_2_EXP} ${RUN}/ >/dev/null 2>/dev/null
-
-        tar cvf ${RUN}.tar ${RUN}
+        send_dir=`basename ${html_dir}`
+        tar cvf ${send_dir}.tar ${send_dir}
         ssh ${RUSER}@${RHOST} "mkdir -p ${RWWWD}"
-        scp ${RUN}.tar ${RUSER}@${RHOST}:${RWWWD}/
-        ssh ${RUSER}@${RHOST} "cd ${RWWWD}/; rm -rf ${RUN}; tar xf ${RUN}.tar 2>/dev/null; rm -f ${RUN}.tar; \
-            chmod -R a+r ${RUN}; cd ${RUN}/; source-highlight -i ${fnamelist} -s fortran -o namelist.html"
+        scp ${send_dir}.tar ${RUSER}@${RHOST}:${RWWWD}/
+        ssh ${RUSER}@${RHOST} "cd ${RWWWD}/; rm -rf ${send_dir}; tar xf ${send_dir}.tar 2>/dev/null; rm -f ${send_dir}.tar; \
+            chmod -R a+r ${send_dir}; cd ${send_dir}/; source-highlight -i ${fnamelist} -s fortran -o namelist.html"
         echo; echo
-        echo "Diagnostic page installed on  http://${RHOST}${RWWWD}/${RUN}/ !"
-        echo "( Also browsable on local host in ${DIAG_D}/${RUN} )"
-        rm -f ${RUN}.tar
-
+        echo "Diagnostic page installed on  http://${RHOST}${RWWWD}/${send_dir}/ !"
+        echo "( Also browsable on local host in ${DIAG_D}/${send_dir} )"
+        rm -f ${send_dir}.tar
+        
     else
-
         if [ ${ihttp} -eq 0 ]; then
-            echo "Diagnostic page installed in ${DIAG_D}/"
-            echo " => view this directory with a web browser..."
+            echo "Diagnostic page installed in ${html_dir}/"
+            echo " => you can view it with a web browser..."
         else
-            echo "Error: \"ihttp\" is either 0 or 1 !"
+            echo "Error: \"ihttp\" must be either 0 or 1 !"
         fi
-
     fi
 
     echo; echo
