@@ -254,7 +254,7 @@ if [ ${ISTAGE} -eq 1 ]; then
         exit
     fi
     echo " Initial year guessed from stored files => ${YEAR_INI}"; echo
-    export YEAR_INI=`$((${YEAR_INI}+0))`  ; # example: 1 instead of 0001...
+    export YEAR_INI=$((${YEAR_INI}+0))  ; # example: 1 instead of 0001...
     #
     YEAR_INI_F=${YEAR_INI} ; # saving the year deduced from first file 
 
@@ -270,7 +270,7 @@ if [ ${ISTAGE} -eq 1 ]; then
     if [ ${ece_run} -gt 0 ]; then
         dir_end=`printf "%03d" ${nby_ece}`
         if [ ! -d ${dir_end} ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory ${dir_end} in:"; echo " ${NEMO_OUT_D}"; exit ; fi
-        YEAR_END=`$((${YEAR_INI}+${nby_ece}))`
+        YEAR_END=$((${YEAR_INI}+${nby_ece}))
     else
         export YEAR_END=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/''/g | tail -1 | cut -c1-4`
         echo ${YEAR_END} |  grep "[^0-9]" >/dev/null; # Checking if it's an integer
@@ -278,7 +278,7 @@ if [ ${ISTAGE} -eq 1 ]; then
             echo "ERROR: it was imposible to guess the year coresponding to the last saved year!"
             echo "       => check your NEMO output directory and file naming..."; exit
         fi
-        YEAR_END=`$((${YEAR_END}+${IFREQ_SAV_YEARS}-1))`
+        YEAR_END=$((${YEAR_END}+${IFREQ_SAV_YEARS}-1))
     fi
     echo " Last year guessed from stored files => ${YEAR_END}"; echo
 
@@ -1067,7 +1067,7 @@ if [ ${ISTAGE} -eq 2 ]; then
     if [ ${i_do_trsp} -gt 0 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} transport_sections" ; fi
     if [ ${i_do_ice}  -eq 1 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} seaice";       fi
 
-    dy=`$((${YEAR_END}-${YEAR_INI}+1))` ; export YF2=`$((${YEAR_END}+1))`
+    dy=$((${YEAR_END}-${YEAR_INI}+1)) ; export YF2=$((${YEAR_END}+1))
 
 
     # Doing 1D plots

@@ -120,8 +120,8 @@ export LD_LIBRARY_PATH=${NCDF_DIR}/lib:${LD_LIBRARY_PATH}
 
 
 
-Y1=`$((${Y1}+0))`
-Y2=`$((${Y2}+0))`
+Y1=$((${Y1}+0))
+Y2=$((${Y2}+0))
 CY1=`printf "%04d" ${Y1}`
 CY2=`printf "%04d" ${Y2}`
 
@@ -258,9 +258,9 @@ ls -l ; echo; echo
 
 
 
-nby=`$((${Y2}-${Y1}+1))`
+nby=$((${Y2}-${Y1}+1))
 
-if [ ! `$((${nby}%${IFREQ_SAV_YEARS}))` -eq 0 ]; then
+if [ ! $((${nby}%${IFREQ_SAV_YEARS})) -eq 0 ]; then
     echo " Number of years should be a multiple of ${IFREQ_SAV_YEARS}!"; exit
 fi
 
@@ -286,7 +286,7 @@ while [ ${jyear} -le ${Y2} ]; do
         fin=`\ls ${NEMO_OUT_D}/001/${CPREF}*_grid_T.${NCE}` ; fin=`basename ${fin}`
         YEAR_INI=`echo ${fin} | sed -e "s|${CPREF}||g" | cut -c1-4`
         echo " *** YEAR_INI = ${YEAR_INI}"
-        iy=`$((${jyear}-${YEAR_INI}+1))` ; dir_ece=`printf "%03d" ${iy}`
+        iy=$((${jyear}-${YEAR_INI}+1)) ; dir_ece=`printf "%03d" ${iy}`
         echo " *** ${jyear} => ${cyear} => dir_ece = ${dir_ece}"
         cpf="${dir_ece}/"
         echo
