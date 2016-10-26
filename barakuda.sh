@@ -85,9 +85,9 @@ while getopts C:R:f:y:c:FeEh option ; do
 done
 
 
-if [ "${CONFIG}" = "" -o "${RUN}" = "" ]; then usage ; exit ; fi
+if [ "${CONFIG}" = "" ] || [ "${RUN}" = "" ]; then usage ; exit ; fi
 
-if [ "${RUNREF}" != "" -a ${ISTAGE} -eq 1 ]; then
+if [ "${RUNREF}" != "" ] && [ ${ISTAGE} -eq 1 ]; then
     echo; echo " WARNING: option '-c' only makes sense when '-e' or '-E' are specified !"
     sleep 2; echo
 fi
@@ -144,7 +144,7 @@ if [ "${ca}" = "" ]; then echo "Install NCO!!!"; echo; exit; fi
 
 
 # Names for temperature, salinity, u- and v-current...
-if [ "${NN_T}" = "" -o "${NN_S}" = "" -o "${NN_U}" = "" -o "${NN_V}" = "" ]; then
+if [ "${NN_T}" = "" ] || [ "${NN_S}" = "" ] || [ "${NN_U}" = "" ] || [ "${NN_V}" = "" ]; then
     echo "NN_T, NN_S, NN_U and NN_V are NOT given a value into"
     echo " in ${fconfig} "
     echo "  => using default names: thetao, so, uo, vo" ; echo
@@ -254,7 +254,7 @@ if [ ${ISTAGE} -eq 1 ]; then
         exit
     fi
     echo " Initial year guessed from stored files => ${YEAR_INI}"; echo
-    export YEAR_INI=`expr ${YEAR_INI} + 0`  ; # example: 1 instead of 0001...
+    export YEAR_INI=`$((${YEAR_INI}+0))`  ; # example: 1 instead of 0001...
     #
     YEAR_INI_F=${YEAR_INI} ; # saving the year deduced from first file 
 
@@ -270,7 +270,7 @@ if [ ${ISTAGE} -eq 1 ]; then
     if [ ${ece_run} -gt 0 ]; then
         dir_end=`printf "%03d" ${nby_ece}`
         if [ ! -d ${dir_end} ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory ${dir_end} in:"; echo " ${NEMO_OUT_D}"; exit ; fi
-        YEAR_END=`expr ${YEAR_INI} + ${nby_ece}`
+        YEAR_END=`$((${YEAR_INI}+${nby_ece}))`
     else
         export YEAR_END=`\ls ${CPREF}*${ctest}* | sed -e s/"${CPREF}"/''/g | tail -1 | cut -c1-4`
         echo ${YEAR_END} |  grep "[^0-9]" >/dev/null; # Checking if it's an integer
@@ -278,7 +278,7 @@ if [ ${ISTAGE} -eq 1 ]; then
             echo "ERROR: it was imposible to guess the year coresponding to the last saved year!"
             echo "       => check your NEMO output directory and file naming..."; exit
         fi
-        YEAR_END=`expr ${YEAR_END} + ${IFREQ_SAV_YEARS} - 1`
+        YEAR_END=`$((${YEAR_END}+${IFREQ_SAV_YEARS}-1))`
     fi
     echo " Last year guessed from stored files => ${YEAR_END}"; echo
 
@@ -357,7 +357,7 @@ cyear_end=`printf "%04d" ${YEAR_END}`
 jyear=${YEAR_INI}
 
 fcompletion=${DIAG_D}/last_year_done.info
-if [ -f ${fcompletion} ]; then jyear=`cat ${fcompletion}`; jyear=`expr ${jyear} + 1`; fi
+if [ -f ${fcompletion} ]; then jyear=`cat ${fcompletion}`; ((jyear++)); fi
 
 cd ${TMP_DIR}/
 
@@ -620,7 +620,7 @@ while ${lcontinue}; do
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Creating VT file if needed
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if [ ${i_do_trsp} -gt 0 -o ${i_do_mht} -eq 1 ]; then
+        if [ ${i_do_trsp} -gt 0 ] || [ ${i_do_mht} -eq 1 ]; then
             if [ ! -f ${fvt} ]; then
                 echo; echo; echo " *** doing: ./cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV}"
                 ./cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV}
@@ -804,16 +804,10 @@ while ${lcontinue}; do
         # End Sigma-Class
 
 
-
-
-
-
-
-
         # Vertical meridional or zonal sections:
         if [ ${i_do_sect} -eq 1 ]; then
             diro=${DIAG_D}/sections ; mkdir -p ${diro}
-            if [ ${VSECT_NM} = "" -o ${VSECT_JI} = "" -o ${VSECT_JJ} = "" ]; then
+            if [ ${VSECT_NM} = "" ] || [ ${VSECT_JI} = "" ] || [ ${VSECT_JJ} = "" ]; then
                 echo "VSECT_NM, VSECT_JI and VSECT_JJ must be defined in:"
                 echo "${fconfig}" ; exit
             fi
@@ -826,7 +820,7 @@ while ${lcontinue}; do
                     -d y,${VSECT_JJ[${js}]} \
                     ${ft} -o ${fo}
                 mv -f ${fo} ${diro}/
-                js=`expr ${js} + 1`
+                ((js++))
             done
             echo
         fi
@@ -901,7 +895,7 @@ while ${lcontinue}; do
         #  Deep Mixed Volume (DMV) on a given box
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-        if [ ! -z ${i_do_dmv} -a ${i_do_dmv} -gt 0 ]; then
+        if [ ! -z ${i_do_dmv} ] && [ ${i_do_dmv} -gt 0 ]; then
 
             if [ "${FILE_DEF_BOXES}" = "" ]; then
                 echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
@@ -1011,7 +1005,7 @@ while ${lcontinue}; do
     echo "  Done waiting!"
     echo
 
-    jyear=`expr ${jyear} + 1`
+    ((jyear++))
     
 
 # end loop years...
@@ -1073,7 +1067,7 @@ if [ ${ISTAGE} -eq 2 ]; then
     if [ ${i_do_trsp} -gt 0 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} transport_sections" ; fi
     if [ ${i_do_ice}  -eq 1 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} seaice";       fi
 
-    dy=`expr ${YEAR_END} - ${YEAR_INI} + 1` ; export YF2=`expr ${YEAR_END} + 1`
+    dy=`$((${YEAR_END}-${YEAR_INI}+1))` ; export YF2=`$((${YEAR_END}+1))`
 
 
     # Doing 1D plots
@@ -1225,7 +1219,7 @@ if [ ${ISTAGE} -eq 2 ]; then
 
             # Sea-ice extent stereographic polar projection South and North
             # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-            if [ ${i_do_ice}  -gt 0 -a `ipresent_var_in_ncf ${ficli} ${NN_ICEF}` -eq 1 ]; then
+            if [ ${i_do_ice}  -gt 0 ] && [ `ipresent_var_in_ncf ${ficli} ${NN_ICEF}` -eq 1 ]; then
                 echo; echo
                 echo " Performing 2D Sea-ice extent stereographic polar projection South and North"
                 cd ${DIAG_D}/

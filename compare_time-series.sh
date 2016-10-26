@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #==============================================================
 #
@@ -180,7 +180,7 @@ for run in ${LRUNS}; do
     iy=`cat ${DIAG_D}/last_year_done.info`
     if [ ${iy} -gt ${YEAR_END} ]; then export YEAR_END=${iy}; fi
 
-    jr=`expr ${jr} + 1`
+    ((jr++))
 done
 
 
