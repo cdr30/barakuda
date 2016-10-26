@@ -6,7 +6,7 @@
 I / What do you need to be able to use BaraKuda ?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-- A Fortan 90 compiler
+- A FORTRAN 90 compiler
 
 - netcdf library with support for the appropriate F90 compiler
 
@@ -19,8 +19,8 @@ I / What do you need to be able to use BaraKuda ?
   A good idea is to install a shiny python distribution, something like Canopy:
   => https://www.enthought.com/products/canopy/
 
-  In any case, specify the appropriate "PYTHON_HOME" environment variable in you
-  config/conf_<MYCONF>.sh file
+  In any case, specify the appropriate "PYTHON_HOME" environment variable in
+  your config/conf_<MYCONF>.sh file
 
 - NEMO output data! => A directory containing the MONTHLY-AVERAGED, global
                        (rebuilt), NEMO output to analyze
@@ -41,7 +41,7 @@ I / What do you need to be able to use BaraKuda ?
 II / Compile CDFTOOLS executables 
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
- * CDFTOOLS is a set of fortran executables intended to perform a multitude of
+ * CDFTOOLS is a set of FORTRAN executables intended to perform a multitude of
    diagnostics on NEMO output file and is developed by Jean-Marc Molines at LEGI
    in Grenoble.  However, this is a slightly modified light version here...
    SO DO NOT USE AN OFFICIAL CDFTOOLS DISTRIBUTION, stick to the one that comes with
