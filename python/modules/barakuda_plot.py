@@ -616,12 +616,10 @@ class plot :
             # Vertical color bar on the rhs
             rw = WDTH_DEF/2
             vfig_size                        = [ rw, rw ];        vsporg = [0.1, 0.1, 0.85, 0.85]
-            if czone == 'nseas':   vfig_size = [ rw , rw ];       vsporg = [0.085,  0.03, 0.9, 0.94]
-            if czone == 'natarct': vfig_size = [ rw , rw ];       vsporg = [0.065,  0.04, 0.95, 0.92]
-            if czone == 'spstere': vfig_size = [ rw , 0.81*rw ];  vsporg = [0.05, 0.05, 0.94, 0.89]
+            if czone == 'nseas':   vfig_size = [ rw , 0.7*rw ];   vsporg = [0.08,  0.07, 0.85, 0.85]
+            if czone == 'natarct': vfig_size = [ rw , rw ];       vsporg = [0.065, 0.04, 0.95, 0.92]
+            if czone == 'spstere': vfig_size = [ rw , 0.76*rw ];  vsporg = [0.11, 0.05, 0.82, 0.89]
             if czone == 'npol2':   vfig_size = [ rw , 0.96*rw ] ; vsporg = [0.1,  0.05, 0.86, 0.9]
-            #if czone == 'kav7':    vfig_size = [ 7., 5.  ]; vsporg = [0.085, 0.03, 0.91, 0.94]
-            #lulu
 
 
         fig = plt.figure(num = 1, figsize=(vfig_size), dpi=None, facecolor='w', edgecolor='k')
@@ -632,10 +630,6 @@ class plot :
         palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
         mpl.rcParams['contour.negative_linestyle'] = 'solid'; plt.contour.negative_linestyle='solid'
-
-
-
-
 
 
         if vp[1] == 'lcc' or vp[1] == 'cyl' :
@@ -675,9 +669,6 @@ class plot :
 
 
         carte.drawcoastlines() ; carte.fillcontinents(color='grey') ; carte.drawmapboundary()
-
-
-
 
 
         if vp[1] == 'lcc' or vp[1] == 'cyl':
@@ -1728,17 +1719,17 @@ def __font_unity__(size='normal'):
     if size == 'big': rat = 1.25
 
     params = { 'font.family':'Trebuchet MS',
-               'font.size':       int(14.*rat),
-               'legend.fontsize': int(14.*rat),
-               'xtick.labelsize': int(14.*rat),
-               'ytick.labelsize': int(14.*rat),
-               'axes.labelsize':  int(14.*rat) }
+               'font.size':       int(12.*rat),
+               'legend.fontsize': int(12.*rat),
+               'xtick.labelsize': int(12.*rat),
+               'ytick.labelsize': int(12.*rat),
+               'axes.labelsize':  int(12.*rat) }
 
     mpl.rcParams.update(params)
 
-    title_fonts    = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':int(16.*rat) }
-    label_fonts    = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(15.*rat) }
-    colorbar_fonts = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(14.*rat) }
+    title_fonts    = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':int(14.*rat) }
+    label_fonts    = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(13.*rat) }
+    colorbar_fonts = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(12.*rat) }
 
     return title_fonts, label_fonts, colorbar_fonts
 

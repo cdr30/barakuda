@@ -3,7 +3,8 @@
 #  B E T A  ! ! !
 
 # Diag to test:
-issh=1
+issh=0
+imld=1
 irnf=0
 iice=0
 iemp=0
@@ -35,13 +36,20 @@ finfoclim=${DIAG_D}/clim/last_clim
 y1_clim=`cat ${finfoclim} | cut -d - -f1`
 y2_clim=`cat ${finfoclim} | cut -d - -f2`
 
+export COMP2D="CLIM"
 
+rm -f *.png
 
 # Time for diags:
 
 if [ ${issh} -eq 1 ]; then
     CMD="python exec/ssh.py ${y1_clim} ${y2_clim}"
 fi
+
+if [ ${imld} -eq 1 ]; then
+    CMD="python exec/mld.py ${y1_clim} ${y2_clim}"
+fi
+
 
 echo
 echo "DOING: ${CMD}"
