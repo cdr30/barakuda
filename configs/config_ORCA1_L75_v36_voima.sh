@@ -44,7 +44,7 @@ export NEMO_FILE_PREFIX="<ORCA>-<RUN>_<TSTAMP>_"
 export SCRATCH="/lustre/tmp/$USER/tmp/<JOB_ID>"
 
 # Python installation directory where bin lib include reside
-export CANOPY_PATH=/opt/Python/2.7
+export PYTHON_HOME=/opt/Python/2.7
 
 # NETCDF binaries such as nccopy
 export NCDF_BIN=/opt/cray/netcdf/4.3.0/bin

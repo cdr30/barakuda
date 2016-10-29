@@ -1,18 +1,79 @@
 #!/bin/bash
 
+#  B E T A  ! ! !
+
+# Diag to test:
 issh=0
+imld=1
 irnf=0
-iice=1
+iice=0
 iemp=0
 icmip5=0
 ihov=0
 
+CONFIG="ORCA1_L75"
+ARCH="ece32_marenostrum"
+
+export RUN="LB00"
 
 
-export STORE_DIR="/proj/bolinc/users/x_laubr"
+. ../configs/config_${CONFIG}_${ARCH}.sh
 
+ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
+
+for og in ${ORCA_LIST}; do
+    ca=""; ca=`echo ${CONFIG} | grep ${og}` ; if [ "${ca}" != "" ]; then export ORCA=${og}; fi
+done
+if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
+
+export CONFRUN=${ORCA}-${RUN}
+export DIAG_D=${DIAG_DIR}/${CONFRUN}
 
 HERE=`pwd`
+
+finfoclim=${DIAG_D}/clim/last_clim
+
+y1_clim=`cat ${finfoclim} | cut -d - -f1`
+y2_clim=`cat ${finfoclim} | cut -d - -f2`
+
+export COMP2D="CLIM"
+
+rm -f *.png
+
+# Time for diags:
+
+if [ ${issh} -eq 1 ]; then
+    CMD="python exec/ssh.py ${y1_clim} ${y2_clim}"
+fi
+
+if [ ${imld} -eq 1 ]; then
+    CMD="python exec/mld.py ${y1_clim} ${y2_clim}"
+fi
+
+
+echo
+echo "DOING: ${CMD}"
+${CMD}
+
+
+# Add other diags here:
+
+
+
+
+
+
+exit
+# BELOW = OLD STUFFS, fix!
+
+
+
+
+
+
+
+
+
 
 if [ ${ihov} -eq 1 ]; then
     export RUN=cp70
@@ -25,7 +86,7 @@ if [ ${ihov} -eq 1 ]; then
     #
     cd ${DIAG_D}/
     python /home/x_laubr/DEV/barakuda/python/exec/plot_hovm_tz.py 1996 2000
-    
+
     mv -f hov_*_ORCA1.L75-${RUN}*.png ${HERE}/
     #
 fi
@@ -34,8 +95,11 @@ fi
 
 
 
+
+
+
 if [ ${iemp} -eq 1 ]; then
-    
+
     export ORCA="ORCA1.L75"
     #export RUN="32bI"
     export RUN="cp00"
@@ -46,9 +110,9 @@ if [ ${iemp} -eq 1 ]; then
     export TRANSPORT_SECTION_FILE="boo"
     export LMOCLAT="boo" ; export NN_SSH="boo" ; export NN_SSS="boo" ; export NN_S="boo"
     export NN_MLD="boo" ; export NN_SST="boo" ; export NN_T="boo"
-    export NN_FWF="wfo"       ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...               
-    export NN_EMP="emp_oce"   ; # name of E-P in "FILE_FLX_SUFFIX" file...                                       
-    export NN_P="precip"   ; # name of P in "FILE_FLX_SUFFIX" file...                                            
+    export NN_FWF="wfo"       ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
+    export NN_EMP="emp_oce"   ; # name of E-P in "FILE_FLX_SUFFIX" file...
+    export NN_P="precip"   ; # name of P in "FILE_FLX_SUFFIX" file...
     export NN_RNF="XXX"   ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
 
 
@@ -61,7 +125,7 @@ if [ ${iemp} -eq 1 ]; then
 
 
 
-    
+
 
 fi
 
@@ -72,8 +136,8 @@ fi
 if [ ${icmip5} -eq 1 ]; then
     export RUN="SPIN"
     export CPREF="ORCA1-${RUN}_MM_"
-    export ORCA=ORCA1.L42 ; # horizontal global configuration                             
-    export NBL=42         ; # number of levels                                            
+    export ORCA=ORCA1.L42 ; # horizontal global configuration
+    export NBL=42         ; # number of levels
     export STORE_DIR="/proj/bolinc/users/x_laubr"
     export TSTAMP="MM"
     export DIAG_D="."
@@ -82,16 +146,16 @@ if [ ${icmip5} -eq 1 ]; then
     export NN_SSS="sosaline"
     export NN_SSH="sossheig"
     export NN_T="votemper"
-    export NN_S="vosaline"    
+    export NN_S="vosaline"
 
-    export NN_TAUX="sozotaux" 
+    export NN_TAUX="sozotaux"
     export NN_TAUY="sometauy"
 
     export FILE_DEF_BOXES="/home/x_laubr/DEV/barakuda/data/def_boxes_convection_ORCA1.txt"
 
     python /home/x_laubr/DEV/barakuda/python/exec/budget_rectangle_box.py 2250 100 uv
 
-fi 
+fi
 
 
 
@@ -119,7 +183,7 @@ if [ ${iice} -eq 1 ]; then
 
     export COMP2D="CLIM"
     export FILE_ICE_SUFFIX="icemod"
-    export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...                                
+    export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
     export NN_ICET="sivolu" ; # ice thickness or rather volume...
     #export NN_ICEF="iiceconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
     #export NN_ICET="iicethic" ; # ice thickness but 'sit' is only in icemod file !!!
@@ -132,23 +196,4 @@ if [ ${iice} -eq 1 ]; then
 fi
 
 
-if [ ${issh} -eq 1 ]; then
-    
-    #export CONF="ORCA1.L46"
-    #export ORCA="ORCA1.L46"
-    #export RUN="LCM2"
-    #export DIAG_D="/proj/bolinc/users/x_laubr/tmp/barakuda/ORCA1.L46_ece31/ORCA1.L46-LCM2"
-    #export NN_SSH="sossheig"
-    #export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask.nc"
-    #python exec/ssh.py 1024 1028
-    
-    export CONF="ORCA1.L75"
-    export ORCA="ORCA1.L75"
-    #export RUN="LCM2"
-    #export DIAG_D="/proj/bolinc/users/x_laubr/tmp/barakuda/ORCA1.L75_ece31/ORCA1.L75-LCM2"
-    #export NN_SSH="sossheig"
-    #export MM_FILE="/proj/bolinc/users/x_laubr/${CONF}/mesh_mask.nc"
-    #python exec/ssh.py 1024 1028
-
-fi
 

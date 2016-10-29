@@ -10,7 +10,7 @@
 
 import numpy as nmp
 import matplotlib
-matplotlib.use('Agg') ; # important so no DISPLAY is needed!!!
+matplotlib.use('Agg')
 from matplotlib.pylab import cm
 
 

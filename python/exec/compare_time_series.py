@@ -65,10 +65,17 @@ vtime = nmp.zeros(nb_years)
 Xf = nmp.zeros((nbrun, nb_years))
 
 
-
-
-
-
+def test_nb_mnth_rec(nbmn, nbyr, cnd):
+    print ' *** nb. mnth. records =', nbmn
+    if nbmn%12 != 0:
+        print 'ERROR: compare_time_series.py => number of monthly records is not a multile of 12 in the netcdf file! diag = '+cnd
+        sys.exit(0)
+    if nbmn/12 > nbyr:
+        print 'ERROR: compare_time_series.py => too many monthly records in netcdf file! diag = '+cnd
+        print '     number of expected monthy records =', nbyr*12
+        print '                          number found =', nbmn
+        sys.exit(0)
+    return
 
 
 
@@ -96,9 +103,8 @@ if i2dfl == 1:
 
                 cf_in = cd_diag+'/'+confrun+'/'+cdiag+'_'+confrun+'_'+cocean+'.nc'
                 vt0, vd0 = bn.read_1d_series(cf_in, cvar, cv_t='time', l_return_time=True)
-                nbm = len(vt0) ; print ' *** nmb =', nbm
-                if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
-                if nbm/12 > nb_years: print 'ERROR: compare_time_series.py => PROBLEM#2. diag ='+cdiag, nbm/12, nb_years ; sys.exit(0)
+                nbm = len(vt0)
+                test_nb_mnth_rec(nbm, nb_years, cdiag)
                 VY, FY = bt.monthly_2_annual(vt0, vd0)
                 vtime[:nbm/12]   = VY[:]
                 Xf[jrun,:nbm/12] = FY[:] ; Xf[jrun,nbm/12:] = -999.
@@ -137,8 +143,7 @@ if imld == 1:
             if os.path.exists(cf_in):
                 vt0, vd0 = bn.read_1d_series(cf_in, cvar, cv_t='time', l_return_time=True)
                 nbm = len(vt0)
-                if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
-                if nbm/12 > nb_years: print 'ERROR: compare_time_series.py => PROBLEM#2. diag ='+cdiag; sys.exit(0)
+                test_nb_mnth_rec(nbm, nb_years, cdiag)
                 VY, FY = bt.monthly_2_annual(vt0, vd0)
                 vtime[:nbm/12]   = VY[:]
                 Xf[jrun,:nbm/12] = FY[:] ; Xf[jrun,nbm/12:] = -999.
@@ -191,8 +196,7 @@ if i3dfl == 1:
                     cf_in = cd_diag+'/'+confrun+'/'+cdiag+'_'+confrun+'_'+cocean+'.nc'
                     vt0, vd0 = bn.read_1d_series(cf_in, cvar+'_'+cdif, cv_t='time', l_return_time=True)
                     nbm = len(vt0)
-                    if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
-                    if nbm/12 > nb_years: print 'ERROR: compare_time_series.py => PROBLEM#2. diag ='+cdiag; sys.exit(0)
+                    test_nb_mnth_rec(nbm, nb_years, cdiag)
                     VY, FY = bt.monthly_2_annual(vt0, vd0)
                     vtime[:nbm/12]   = VY[:]
                     Xf[jrun,:nbm/12] = FY[:]  ; Xf[jrun,nbm/12:] = -999.
@@ -243,8 +247,7 @@ if iice == 1:
                     cf_in = cd_diag+'/'+confrun+'/seaice_diags.nc'
                     vt0, vd0 = bn.read_1d_series(cf_in, cvar+'_'+vlab[ipole], cv_t='time', l_return_time=True)
                     nbm = len(vt0)
-                    if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
-                    if nbm/12 > nb_years: print 'ERROR: compare_time_series.py => PROBLEM#2. diag ='+cdiag, nbm/12, nb_years ; sys.exit(0)
+                    test_nb_mnth_rec(nbm, nb_years, cdiag)
                     vtime[:nbm/12]   = vt0[vmnth[jdiag]::12]
                     Xf[jrun,:nbm/12] = vd0[vmnth[jdiag]::12] ; Xf[jrun,nbm/12:] = -999.
                     jrun = jrun + 1
@@ -296,9 +299,7 @@ if itrsp == 1:
                     Xtrsp = nmp.zeros((nbrun,nbsect,3,nb_years))
 
                 vtime_t = id_in.variables['time'][:] ; nbm = len(vtime_t) ; nby = nbm/12
-                if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
-                if nby > nb_years: print 'ERROR: compare_time_series.py => PROBLEM#2. diag ='+cdiag, nby, nb_years ; sys.exit(0)
-
+                test_nb_mnth_rec(nbm, nb_years, cdiag)
 
                 if nby == nb_years: vtime[:] = vtime_t[:]
 
@@ -355,8 +356,7 @@ if iamoc == 1:
                     vyear = nmp.zeros(nb_years)
                     Xamoc = nmp.zeros((nbrun, nblat, nb_years))
                 vtime_t = id_in.variables['time'][:] ; nbm = len(vtime_t) ; nby = nbm/12
-                if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
-                if nby > nb_years: print 'ERROR: compare_time_series.py => PROBLEM#2. diag ='+cdiag, nby, nb_years ; sys.exit(0)
+                test_nb_mnth_rec(nbm, nb_years, cdiag)
 
                 if nby == nb_years: vtime[:] = vtime_t[:]
 
@@ -401,8 +401,8 @@ if ifwf == 1:
 
             vt0, vd0 = bn.read_1d_series(cf_in, cvar, cv_t='time', l_return_time=True)
             nbm = len(vt0)
-            if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
-            if nbm/12 > nb_years: print 'ERROR: compare_time_series.py => PROBLEM#2. diag ='+cdiag; sys.exit(0)
+            test_nb_mnth_rec(nbm, nb_years, cdiag)
+
             VY, FY = bt.monthly_2_annual(vt0, vd0)
             Xf[jrun,:nbm/12] = FY[:]  ; Xf[jrun,nbm/12:] = -999.
             jrun = jrun + 1
@@ -445,8 +445,8 @@ if ifwf == 1:
 
                 vt0, vd0 = bn.read_1d_series(cf_in, cvar, cv_t='time', l_return_time=True)
                 nbm = len(vt0)
-                if nbm%12 != 0: print 'ERROR: compare_time_series.py => PROBLEM#1. diag ='+cdiag; sys.exit(0)
-                if nbm/12 > nb_years: print 'ERROR: compare_time_series.py => PROBLEM#2. diag ='+cdiag; sys.exit(0)
+                test_nb_mnth_rec(nbm, nb_years, cdiag)
+
                 VY, FY = bt.monthly_2_annual(vt0, vd0)
                 Xf[jrun,:nbm/12] = FY[:]  ; Xf[jrun,nbm/12:] = -999.
                 jrun = jrun + 1
@@ -461,4 +461,10 @@ if ifwf == 1:
 
 
 print  '\n\n'+sys.argv[0]+' done...\n'
+
+
+
+
+
+
 

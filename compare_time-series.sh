@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #==============================================================
 #
@@ -12,9 +12,9 @@
 
 export BARAKUDA_ROOT=`pwd`
 
-CANOPY_PATH=/opt/Python/2.7
-PYTH="${CANOPY_PATH}/bin/python -W ignore" ; # which Python installation to use
-export PYTHONPATH=${CANOPY_PATH}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
+PYTHON_HOME=/opt/Python/2.7
+PYTH="${PYTHON_HOME}/bin/python -W ignore" ; # which Python installation to use
+export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
 PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
 
 #export FIG_FORMAT='svg'
@@ -180,7 +180,7 @@ for run in ${LRUNS}; do
     iy=`cat ${DIAG_D}/last_year_done.info`
     if [ ${iy} -gt ${YEAR_END} ]; then export YEAR_END=${iy}; fi
 
-    jr=`expr ${jr} + 1`
+    ((jr++))
 done
 
 

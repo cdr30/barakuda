@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #==============================================================
 #
@@ -150,8 +150,8 @@ export LD_LIBRARY_PATH=${NCDF_DIR}/lib:${LD_LIBRARY_PATH}
 
 
 
-Y1=`expr ${Y1} + 0`
-Y2=`expr ${Y2} + 0`
+Y1=$((${Y1}+0))
+Y2=$((${Y2}+0))
 CY1=`printf "%04d" ${Y1}`
 CY2=`printf "%04d" ${Y2}`
 
@@ -204,12 +204,12 @@ for sf in ${VAF[*]}; do
     if [ "${ca}" = "" ]; then
         if [ "${cb}" != "" ]; then
             echo "PROBLEM! The diags you specified say you need ${sf} files"
-1            echo "     => but you have not specified ${sf} in NEMO_SAVED_FILES !"; exit
+            echo "     => but you have not specified ${sf} in NEMO_SAVED_FILES !"; exit
         fi
     else
         gimp_new="${sf} ${gimp_new}"
     fi
-    js=`expr ${js} + 1`
+    ((js++))
 done
 GRID_IMP=${gimp_new}
 echo; echo "File types to import: ${GRID_IMP}"; echo; echo
@@ -288,15 +288,15 @@ ls -l ; echo; echo
 
 
 
-nby=`expr ${Y2} - ${Y1} + 1`
+nby=$((${Y2}-${Y1}+1))
 
-if [ ! `expr ${nby} % ${IFREQ_SAV_YEARS}` -eq 0 ]; then
+if [ ! $((${nby}%${IFREQ_SAV_YEARS})) -eq 0 ]; then
     echo " Number of years should be a multiple of ${IFREQ_SAV_YEARS}!"; exit
 fi
 
 
 
-if [ ${ece_run} -eq 1 ]; then
+if [ ${ece_run} -gt 0 ]; then
     if [ ! -d ${NEMO_OUT_D}/001 ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory 001 in:"; echo " ${NEMO_OUT_D}"; fi
 fi
 
@@ -311,12 +311,12 @@ while [ ${jyear} -le ${Y2} ]; do
 
 
     cpf=""
-    if [ ${ece_run} -eq 1 ]; then
+    if [ ${ece_run} -gt 0 ]; then
         # Need initial year in 001:
         fin=`\ls ${NEMO_OUT_D}/001/${CPREF}*_grid_T.${NCE}` ; fin=`basename ${fin}`
         YEAR_INI=`echo ${fin} | sed -e "s|${CPREF}||g" | cut -c1-4`
         echo " *** YEAR_INI = ${YEAR_INI}"
-        iy=`expr ${jyear} - ${YEAR_INI} + 1` ; dir_ece=`printf "%03d" ${iy}`
+        iy=$((${jyear}-${YEAR_INI}+1)) ; dir_ece=`printf "%03d" ${iy}`
         echo " *** ${jyear} => ${cyear} => dir_ece = ${dir_ece}"
         cpf="${dir_ece}/"
         echo
@@ -455,8 +455,9 @@ while [ ${jyear} -le ${Y2} ]; do
         echo "After:"; ls *PSI.nc*
         echo
     fi
-
-    export jyear=`expr ${jyear} + 1`
+    
+    ((jyear++))
+    export jyear=${jyear}
 
 done
 
@@ -522,8 +523,8 @@ for suff in grid_T grid_U grid_V icemod SBC VT MOC PSI; do
         jm=0
         for cm in ${VCM[*]}; do
 
-            jm=`expr ${jm} + 1`
-
+            ((jm++))
+            
             if [ -f ./${CPREF}${CY1}0101_${CY1}1231_${suff}.${NCE} ]; then
                 echo; ls ; echo
                 echo "ncra -F -O -d time_counter,${jm},,12 ${CPREF}*0101_*1231_${suff}.${NCE} -o mean_m${cm}_${suff}.nc"

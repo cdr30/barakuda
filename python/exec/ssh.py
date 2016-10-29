@@ -35,7 +35,6 @@ elif 'ORCA1' in vdic['ORCA']:
 else:
     print 'FIX ME!!! ssh.py => dont know ji_lat0 for conf '+vdic['ORCA']+' !!!'; sys.exit(0)
 
-
 narg = len(sys.argv)
 if narg < 3: print 'Usage: '+sys.argv[0]+' <year1> <year2>'; sys.exit(0)
 cy1 = sys.argv[1] ; cy2=sys.argv[2]; jy1=int(cy1); jy2=int(cy2)
@@ -75,6 +74,9 @@ print 'ztot =', ztot
 
 ssh_plot = ssh_plot - ztot
 cztot = str(round(ztot,2))
+
+
+ji_lat0 = nmp.argmax(xlat[nj-1])  ; #lolo
 
 bp.plot("2d")(xlon[0,:], xlat[:,ji_lat0], ssh_plot[:,:], Xmask, -2., 2., 0.1,
               corca=vdic['ORCA'], lkcont=True, cpal='BrBG_r',
