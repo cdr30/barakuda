@@ -23,12 +23,12 @@ set -x
 cd $PBS_O_WORKDIR
 # -C ORCA1_L46_v36_voima -R ECN-D501 -i 1983 -e 2012
 export CONFIG=eORCA1_L75_v36_voima
-#export CONFIG=ORCA1_L75_v36_voima
+#export CONFIG=ORCA1_L75_ece32b_voima
 #export CONFIG=ORCA1_L46_v36_voima
 #export CONFIG=ORCA1_L75_v36_LIM2_voima
-export RUN=eO1L7501
-export Y1=1961
-export Y2=1971
+export RUN=RH01
+export Y1=2006
+export Y2=2015
 
 #SBATCH -A snic2014-10-3
 #SBATCH --reservation=dcs

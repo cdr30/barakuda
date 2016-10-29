@@ -20,15 +20,16 @@
 #PBS -l mppdepth=1
 #PBS -l walltime=12:00:00
 # You may need to comment this on other clusters than voima.
-#cd $PBS_O_WORKDIR
-#CONFIG=eORCA1_L75_v36_voima
-CONFIG=ORCA1_L75_v36_voima
+cd $PBS_O_WORKDIR
+CONFIG=eORCA1_L75_v36_voima
+#CONFIG=ORCA1_L75_v36_voima
+#CONFIG=ORCA1_L75_ece32b_voima
 #CONFIG=ORCA1_L46_v36_voima
 #CONFIG=ORCA1_L75_v36_LIM2_voima
-RUN=EE02
+RUN=RH02
 #RUN=O1L7512
-YEAR0=1990
-YEARN=1998
+YEAR0=1958
+YEARN=2015
 LFORCE_YEAR1=true
 LFORCE_END=true
 
@@ -90,9 +91,9 @@ usage()
 
 
 # Some defaults:
-YEAR0=""
-LFORCE_YEAR1=false
-LFORCE_END=false
+#YEAR0=""
+#LFORCE_YEAR1=false
+#LFORCE_END=false
 export RUNREF=""
 ISTAGE=1 ; # 1 => generation of data diagnostic files
 #          # 2 => creation of figures and diagnostic HTML page

@@ -60,8 +60,19 @@ export NN_V_EIV="0" ; # ignore
 export NN_TAUX="tauuo"
 export NN_TAUY="tauvo"
 
+export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction NN_ICEF? => "icemod" or "grid_T"
 export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
-export NN_ICET="sithic" ; # ice thickness but 'sit' is only in icemod file !!!
+export NN_ICET="sivolu" ; # ice thickness or rather volume...
+
+export FILE_FLX_SUFFIX="SBC" ; # in what file to find surface fluxes ?
+export NN_FWF="wfo"         ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
+#export NN_FWF="empmr"        ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
+export NN_EMP="emp_oce"     ; # name of E-P in "FILE_FLX_SUFFIX" file...
+#export NN_EMP="emp"          ; # name of E-P in "FILE_FLX_SUFFIX" file...
+export NN_P="precip"         ; # name of P in "FILE_FLX_SUFFIX" file...
+export NN_RNF="runoffs"      ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
+export NN_CLV="calving_cea"  ; # calving from icebergs in "FILE_FLX_SUFFIX" file...
+export NN_E="evap"           ; # evaporation in "FILE_FLX_SUFFIX" file...
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
@@ -102,6 +113,7 @@ export DIAG_DIR="/lustre/tmp/${USER}/barakuda/${CONF}"
 
 # Files with the list of rectangular boxes to look at more closely:
 export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_eORCA1.txt"
+export FILE_DMV_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_eORCA1.txt"
 
 
 
@@ -118,12 +130,16 @@ RWWWD=/data/www/barakuda/${CONF} ; # directory of the local or remote host to se
 # Diags to be performed #
 #########################
 
-
+# In what format should figures be produced:
+export FIG_FORM="png"
 
 
 
 # Basic 3D and surface averages:
 i_do_mean=1
+
+# FreshWater fluxes at the surface spatially averaged over the ocean, E-P-R, E-P, R, P, ...
+#i_do_fwf=1
 
 # AMOC:
 i_do_amoc=1
@@ -145,7 +161,6 @@ i_do_sigt=1
 
 # sea-ice diags
 i_do_ice=1  ; # Sea-ice diags
-export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction NN_ICEF? => "icemod" or "grid_T"
 
 
 i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!
@@ -162,15 +177,13 @@ i_do_box_TS_z=1 ; # do sigma vert. profiles on given boxes... # 1 => no figures,
 #                 # => needs file FILE_DEF_BOXES !!!
 # => produces time-series f(t,z)
 
-# 
+#
 # Deep Mixed volume in prescribed boxes:
 i_do_dmv=1
 export MLD_CRIT="1000,725,500"
 
 
-
-
-# Some nerdy stuffs about the critical depth in prescribed boxes: 
+# Some nerdy stuffs about the critical depth in prescribed boxes:
 i_do_zcrit=0
 
 
