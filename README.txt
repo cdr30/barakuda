@@ -65,17 +65,22 @@ II / Compile CDFTOOLS executables
 III / Create and configure your own "configs/config_<MY_CONF>.sh" from an existing one
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-NEMO output files must be stored in 
-<STORE_DIR>/<ORCA_GRID>/<ORCA_GRID>-<RUN>-S
-(ex: /nobackup/vagn2/x_laubr/ORCA1/ORCA1-SLB3500-S)
+NEMO output files must be monthly averages and of the following form:
+==> <RUN NAME>_1m_<YEAR>0101_<YEAR>1231_<GRID_TYPE>.nc(.gz)   (GRID_TYPE=grid_T/grid_U/grid_V/icemod) 
 
-Files there should be monthly averages and of the following form:
-==> <RUN NAME>_MM_<YEAR>0101_<YEAR>1231_<GRID_TYPE>.nc(.gz)   (GRID_TYPE=grid_T/grid_U/grid_V/icemod) 
+Gzipped or not!
 
- Gzipped or not! And only these files, nothing else!!!
+All files for all years must all be saved in the same directory (see
+NEMO_OUT_STRCT in the config file). Better if this directory only contains NEMO
+output files and nothing else!
+
+Alternatively NEMO files can be saved/organized in sub-directories a la
+EC-Earth: (ex: year 1995 of run started in 1990 is the 6th year so files for
+1995 are saved into sub-directory (of NEMO_OUT_STRCT) "006" (set 'ece_run' to 1
+or 2 then).
 
 If you want to perform the "climatology" plots (see section IV) you will need
-some   2D and 3D climatologies of T and S interpolated on the relevant ORCA
+some 2D and 3D climatologies of T and S interpolated on the relevant ORCA
 grid. Usually you should already have them since they are needed for your
 simulation. These are the following files in your BaraKuda config file:
 F_T_CLIM_3D_12, F_S_CLIM_3D_12, SST_CLIM_12
