@@ -290,7 +290,7 @@ if idfig == 'fwf':
         bp.plot("1d_multi")(VY, Xplt, vlab,
                             cfignm=cdiag+'_emp_IFS_annual_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': E-P over oceans (annual)',
-                            loc_legend='center', ymin=ym, ymax=yp, cfig_type=ff)
+                            loc_legend='out', ymin=ym, ymax=yp, cfig_type=ff)
         
     if l_fwf_ifs and l_rnf:
         # Runoff of NEMO compares to ( E-P global - E-P ocean ) of IFS:
@@ -303,7 +303,7 @@ if idfig == 'fwf':
         Xplt[1,:] = -vemp_land_ifs[:] ; vlab.append('-(E-P) over land IFS')
         #
         bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_rnf_IFS_'+CONFRUN, dt_year=ittic,
-                            cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (monthly)', loc_legend='upper center',
+                            cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (monthly)', loc_legend='out',
                             ymin=ym, ymax=yp, cfig_type=ff)
         #
         # Same but annual:
@@ -316,7 +316,7 @@ if idfig == 'fwf':
         VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], -vemp_land_ifs[:])
 
         bp.plot("1d_multi")(VY, Xplt, vlab, cfignm=cdiag+'_rnf_IFS_annual_'+CONFRUN, dt_year=ittic,
-                            cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (annual)', loc_legend='upper center',
+                            cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (annual)', loc_legend='out',
                             ymin=ym, ymax=yp, cfig_type=ff)
 
 
@@ -336,7 +336,7 @@ if idfig == 'fwf':
             
         bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_prc_IFS_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': Precip', ymin=ym, ymax=yp, cfig_type=ff,
-                            loc_legend='center')
+                            loc_legend='out')
 
 
     if l_fwf_ifs and l_evp:
@@ -349,7 +349,7 @@ if idfig == 'fwf':
         if l_evb: Xplt[2,:] = vevb[:] ; vlab.append('E NEMO ('+cv_evb+')')            
         bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_evp_IFS_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': Evaporation', ymin=ym, ymax=yp, cfig_type=ff,
-                            loc_legend='center')
+                            loc_legend='out')
         # Same but annual:
         nby = nbm/12
         Xplt = nmp.zeros((nbd,nby))
@@ -359,7 +359,7 @@ if idfig == 'fwf':
         bp.plot("1d_multi")(VY, Xplt, vlab,
                             cfignm=cdiag+'_evp_IFS_annual_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = CONFRUN+': Evaporation (annual)',
-                            loc_legend='upper center', ymin=ym, ymax=yp, cfig_type=ff)
+                            loc_legend='out', ymin=ym, ymax=yp, cfig_type=ff)
 
 
         # Everything possible
@@ -377,7 +377,7 @@ if idfig == 'fwf':
 
         bp.plot("1d_multi")(vtime, Xplt, vlab,
                             cfignm=cdiag+'_emp_ALL_IFS_'+CONFRUN, dt_year=ittic,
-                            loc_legend='center', cyunit=cyu,
+                            loc_legend='out', cyunit=cyu,
                             ctitle = CONFRUN+': fresh-water budgets', ymin=ym, ymax=yp, cfig_type=ff)
 
 
@@ -422,12 +422,12 @@ if idfig == 'ts3d':
 
     # Global for different depth:
     bp.plot("1d_multi")(vtime, FM[0,:,:], vlab[:], cfignm=cdiag+'_lev_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0, cfig_type=ff)
+                        loc_legend='out', cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0, cfig_type=ff)
 
 
     # Show each ocean (All depth):
     bp.plot("1d_multi")(vtime, FM[:,0,:], bo.voce2treat, cfignm=cdiag+'_basins_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0, cfig_type=ff)
+                        loc_legend='out', cyunit=cyu, ctitle = CONFRUN+': '+clnm, ymin=ym0, ymax=yp0, cfig_type=ff)
 
 
 
@@ -478,7 +478,7 @@ if idfig == 'amoc':
     # Time to plot
     bp.plot("1d_multi")(VY, FY, vlabels, cfignm=cdiag+'_'+CONFRUN+'_comp', dt_year=ittic,
                         cyunit=cyu, ctitle = CONFRUN+': '+r'Max. of AMOC', ymin=0, ymax=0,
-                        loc_legend='lower left', cfig_type=ff)
+                        loc_legend='out', cfig_type=ff)
 
 
 
@@ -518,23 +518,27 @@ if idfig == 'ice':
     Xplt[0,:] = varea_n[8::12] ; # extent Arctic september
     Xplt[1,:] = varea_s[2::12] ; # extent Antarctic march
     bp.plot("1d_multi")(vtime_y, Xplt, vlab_sum, cfignm='seaice_extent_summer_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer', ymin=0., ymax=0., cfig_type=ff)
+                        cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local summer',
+                        loc_legend='out', ymin=0., ymax=0., cfig_type=ff)
 
     Xplt[0,:] = vvolu_n[8::12] ; # volume Arctic september
     Xplt[1,:] = vvolu_s[2::12] ; # volume Antarctic march
     bp.plot("1d_multi")(vtime_y, Xplt, vlab_sum, cfignm='seaice_volume_summer_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer', ymin=0., ymax=0., cfig_type=ff)
+                        cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local summer',
+                        loc_legend='out', ymin=0., ymax=0., cfig_type=ff)
 
     # End of local winter
     Xplt[0,:] = varea_n[2::12] ; # extent Arctic march
     Xplt[1,:] = varea_s[8::12] ; # extent Antarctic september
     bp.plot("1d_multi")(vtime_y, Xplt, vlab_win, cfignm='seaice_extent_winter_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter', ymin=0., ymax=0., cfig_type=ff)
+                        cyunit=cyua, ctitle = CONFRUN+': '+r'Sea-Ice extent, end of local winter',
+                        loc_legend='out', ymin=0., ymax=0., cfig_type=ff)
 
     Xplt[0,:] = vvolu_n[2::12] ; # volume Arctic march
     Xplt[1,:] = vvolu_s[8::12] ; # volume Antarctic september
     bp.plot("1d_multi")(vtime_y, Xplt, vlab_win, cfignm='seaice_volume_winter_'+CONFRUN, dt_year=ittic,
-                        cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter', ymin=0., ymax=0., cfig_type=ff)
+                        cyunit=cyuv, ctitle = CONFRUN+': '+r'Sea-Ice volume, end of local winter',
+                        loc_legend='out', ymin=0., ymax=0., cfig_type=ff)
 
 
 

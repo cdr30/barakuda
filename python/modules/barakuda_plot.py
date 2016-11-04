@@ -1279,8 +1279,6 @@ class plot :
                    l_tranparent_bg=True, cxunit='', lmask=True):
 
         # lzonal => zonally averaged curves...
-
-
         if lzonal:
             font_ttl, font_big_fixed, font_xylb, font_clb = __font_unity__(size='big')
         else:
@@ -1288,14 +1286,18 @@ class plot :
 
         # Number of lines to plot:
         [ nb_plt, nbt ] = XD.shape
-
         if len(vt) != nbt: print 'ERROR: plot_1d_multi.barakuda_plot.py => vt and XD do not agree in shape!'; sys.exit(0)
         if len(vlabels) != nb_plt: print 'ERROR: plot_1d_multi.barakuda_plot.py => wrong number of labels...'; sys.exit(0)
-
         n0 = len(line_styles)
         if n0 > 0 and n0 != nb_plt: print 'ERROR: plot_1d_multi.barakuda_plot.py => wrong number line styles!!!'; sys.exit(0)
+        nb_col, nb_row = __nb_col_row_legend__(nb_plt) ; # nb of columns and rows for legend
 
-
+        # Do we put the legend outside of the plot?
+        l_legend_out = False ; y_leg = 0.
+        if loc_legend == 'out':
+            l_legend_out = True
+            y_leg = 0.06*nb_row ; # Figure needs to be vertically extended in that case
+            fig_size = (fig_size[0],(1.+y_leg)*fig_size[1]) ; #lulu
 
         # Masking the time-series shorter than others (masked with -999.)
         if lmask: XD = nmp.ma.masked_where(XD < -900., XD)
@@ -1314,9 +1316,7 @@ class plot :
                 plt.plot(vt[:], XD[jp,:], line_styles[jp],   label=vlabels[jp], linewidth=2)
             else:
                 plt.plot(vt[:], XD[jp,:], v_dflt_colors[jp], label=vlabels[jp], linewidth=2)
-
-
-        if loc_legend != '0':  plt.legend(loc=loc_legend, ncol=int(nb_plt/4+1), shadow=True, fancybox=True)
+            
 
         # Prevents from using scientific notations in axess ticks numbering:
         ax.get_xaxis().get_major_formatter().set_useOffset(False)
@@ -1355,6 +1355,15 @@ class plot :
         if cxunit != '': plt.xlabel('('+cxunit+')', **font_xylb)
 
         plt.title(ctitle, **font_ttl)
+
+        if loc_legend != '0':
+            if l_legend_out:
+                # Shrink Y axis's height by % on the bottom
+                box = ax.get_position()
+                ax.set_position([box.x0, box.y0 + box.height*y_leg, box.width, box.height*(1.-y_leg)])                
+                plt.legend(bbox_to_anchor=(0.5, -0.05), ncol=nb_col, shadow=True, fancybox=True)
+            else:
+                plt.legend(loc=loc_legend, ncol=nb_col, shadow=True, fancybox=True)
 
         cf_fig = cfignm+'.'+cfig_type
 
@@ -1934,3 +1943,23 @@ def __fix_z_axis__(ax_hndl, plt_hndl, z0, zK, l_log=False, l_z_inc=True):
         ax_hndl.set_ylim(zK+(zK-z0)/50. , z0)
 
     ax_hndl.grid(color='k', linestyle='-', linewidth=0.5)
+
+
+def __nb_col_row_legend__(nn):
+    if nn <= 3:
+        nbc = 1 ; nbr = nn
+    elif nn == 4:
+        nbc = 2 ; nbr = 2
+    elif nn > 4 and nn <= 6:
+        nbc = 2 ; nbrfull = 2; nfull = nbc*nbrfull; nbr = nbrfull + nn/nfull
+    elif nn > 6 and nn <= 9:
+        nbc = 3 ; nbrfull = 2; nfull = nbc*nbrfull; nbr = nbrfull + nn/nfull
+    elif nn > 9 and nn <= 16:
+        nbc = 4 ; nbrfull = 3; nfull = nbc*nbrfull; nbr = nbrfull + nn/nfull
+    else:
+        nbc = 4 ; nbr = nn/nbc + 1
+    return nbc, nbr
+    
+        
+
+

@@ -4,7 +4,8 @@
 
 # Diag to test:
 issh=0
-imld=1
+its=1
+imld=0
 irnf=0
 iice=0
 iemp=0
@@ -38,7 +39,7 @@ y2_clim=`cat ${finfoclim} | cut -d - -f2`
 
 export COMP2D="CLIM"
 
-rm -f *.png
+rm -f *.png *.nc
 
 # Time for diags:
 
@@ -48,6 +49,12 @@ fi
 
 if [ ${imld} -eq 1 ]; then
     CMD="python exec/mld.py ${y1_clim} ${y2_clim}"
+fi
+
+if [ ${its} -eq 1 ]; then
+    diag=3d_thetao
+    ln -sf ${DIAG_D}/${diag}_ORCA1.L75-LB00_* .
+    CMD="python exec/plot_time_series.py ${diag}"
 fi
 
 

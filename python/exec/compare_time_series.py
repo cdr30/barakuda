@@ -17,7 +17,7 @@ import barakuda_orca as bo
 import barakuda_plot as bp
 import barakuda_tool as bt
 
-DEFAULT_LEGEND_LOC = 'center left'
+DEFAULT_LEGEND_LOC = 'out'
 
 iamoc  = 1
 i2dfl  = 1
@@ -255,7 +255,7 @@ if iice == 1:
                 cdiag = 'seaice_'+cvar
                 cmnth = '%2.2i'%(vmnth[jdiag]+1)
                 bp.plot("1d_multi")(vtime, Xf, clist_runs, cfig_type=cffig,
-                                    cfignm=cdiag+'_m'+str(cmnth)+'_comparison_'+cpole, dt_year=ittic, loc_legend='upper center',
+                                    cfignm=cdiag+'_m'+str(cmnth)+'_comparison_'+cpole, dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                                     cyunit=vunit[jdiag], ctitle = vname[jdiag]+', '+cpole, ymin=0, ymax=0)
 
                 ipole = ipole + 1
@@ -321,7 +321,7 @@ if itrsp == 1:
         for cstuff in vstuff:
 
             bp.plot("1d_multi")(vyear[:], Xtrsp[:,jsect,jstuff,:], clist_runs, cfig_type=cffig,
-                                cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic, loc_legend='upper left',
+                                cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                                 cyunit=vunit[jstuff], ctitle = 'Transport of '+cstuff+' through section '+csect,
                                 ymin=0, ymax=0)
 
@@ -372,7 +372,7 @@ if iamoc == 1:
     for clr in list_lat:
 
         bp.plot("1d_multi")(vyear[:], Xamoc[:,jl,:], clist_runs, cfig_type=cffig,
-                            cfignm='AMOC_'+clr+'_comparison', loc_legend='lower left',
+                            cfignm='AMOC_'+clr+'_comparison', loc_legend=DEFAULT_LEGEND_LOC,
                             dt_year=ittic, cyunit='Sv', ctitle = 'AMOC ('+clr+')', ymin=0, ymax=0)
 
         jl = jl + 1
