@@ -10,7 +10,9 @@ I / What do you need to be able to use BaraKuda ?
 
 - netcdf library with support for the appropriate F90 compiler
 
-- NCO 
+- NCO
+
+- 'convert' from ImageMagick if you want to generate GIF movies (i_do_movi=1) 
 
 - For time-series and 2D plots, the following up-to-date packages:
   => python-netcdf4 (from netCDF4 import Dataset) and Matplotlib

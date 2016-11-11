@@ -596,24 +596,25 @@ while ${lcontinue}; do
         fvt=${CRT1}_VT.nc
 
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # If coupled EC-Earth simu, attempting to compute ocean-averaged fluxes from IFS too (E, P, E-P)
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if [ ${ece_run} -eq 2 ] && [ ${NBL} -eq 75 ]; then
-            echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
-            echo "LAUNCHING: ./scripts/do_fwf_series_ifs.sh in the background!"
-            ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh &
-            echo
+        
+        
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # 2D maps of NEMO - OBS for SST and SSS (for movies) 
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if [ ${i_do_movi} -eq 1 ]; then
+            echo; echo; echo "2D maps of NEMO - OBS for SST and SSS (for movies)"
+            echo "CALLING: prepare_movies.py ${ft} ${jyear}"
+            ${PYTH} ${PYBRKD_EXEC_PATH}/prepare_movies.py ${ft} ${jyear} &
         fi
-        
-        
+
+
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Computing time-series of spatially-averaged variables
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if [ ${i_do_mean} -eq 1 ]; then
             echo; echo; echo "Global monthly values"
             echo "CALLING: mean.py ${ft} ${jyear}"
-            ${PYTH} ${PYBRKD_EXEC_PATH}/mean.py ${ft} ${jyear}
+            ${PYTH} ${PYBRKD_EXEC_PATH}/mean.py ${ft} ${jyear} &
         fi
 
 
@@ -623,14 +624,11 @@ while ${lcontinue}; do
         if [ ${i_do_trsp} -gt 0 ] || [ ${i_do_mht} -eq 1 ]; then
             if [ ! -f ${fvt} ]; then
                 echo; echo; echo " *** doing: ./cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV}"
-                ./cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV}
-                echo "Done!"; echo; echo
+                ./cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV} &
             fi
         fi
-
-
-
-
+        
+        
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Computing time-series of spatially-averaged variables
@@ -639,10 +637,93 @@ while ${lcontinue}; do
         if [ ${i_do_ssx_box} -eq 1 ]; then
             echo; echo; echo "Box monthly values"
             echo "CALLING: ssx_boxes ${ft} ${jyear} ${NN_SST} ${NN_SSS}"
-            ${PYTH} ${PYBRKD_EXEC_PATH}/ssx_boxes.py ${ft} ${jyear} ${NN_SST} ${NN_SSS}
+            ${PYTH} ${PYBRKD_EXEC_PATH}/ssx_boxes.py ${ft} ${jyear} ${NN_SST} ${NN_SSS} &
         fi
 
 
+
+
+
+
+        wait
+        wait
+        rsync -avP movies ${DIAG_D}/
+        echo
+        echo " .... diag level #1 done...." ; echo ; echo
+        
+        
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # If coupled EC-Earth simu, attempting to compute ocean-averaged fluxes from IFS too (E, P, E-P)
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if [ ${ece_run} -eq 2 ] && [ ${NBL} -eq 75 ]; then
+            echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
+            echo "LAUNCHING: ./scripts/do_fwf_series_ifs.sh in the background!"
+            ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh &
+            echo
+        fi
+
+
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        #  Transport by sigma-class
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if [ ${i_do_sigt} -eq 1 ]; then
+            
+            echo; echo
+            if [ ! -f ./dens_section.dat ]; then
+                if [ -f ${DENSITY_SECTION_FILE} ]; then
+                    echo "Copying ${DENSITY_SECTION_FILE} to here: `pwd` !"; cp ${DENSITY_SECTION_FILE} ./dens_section.dat
+                else
+                    echo; echo "WARNING: Can't do Transport by sigma-class: ${DENSITY_SECTION_FILE} is missing!!!"
+                fi
+            fi
+            echo " *** doing: ./cdfsigtrp.x ${ft} ${fu} ${fv} 24.8 28.6 19 ${jyear} ${DIAG_D}  ${NN_T} ${NN_S} ${NN_U} ${NN_V}"; echo
+            ./cdfsigtrp.x ${ft} ${fu} ${fv} 24.8 28.6 19 ${jyear} ${DIAG_D} ${NN_T} ${NN_S} ${NN_U} ${NN_V} &
+
+        fi
+
+
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        # VOLUME, HEAT and SALT transports through specified section
+        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if [ ${i_do_trsp} -gt 0 ]; then
+
+            echo; echo; echo "Transports of volume, heat and salt through different sections"
+            if [ "${TRANSPORT_SECTION_FILE}" = "" ]; then
+                echo "Please specify which TRANSPORT_SECTION_FILE to use into the config file!" ; exit
+            fi
+            if [ ! -f ./transportiz.dat ]; then
+                check_if_file ${TRANSPORT_SECTION_FILE}
+                cp ${TRANSPORT_SECTION_FILE} ./transportiz.dat
+            fi
+            if [ ${i_do_trsp} -eq 1 ]; then z1_trsp="" ; z2_trsp=""; fi
+            if [ ! -f ${fvt} ]; then
+                echo "PROBLEM: file ${fvt} is not here, skipping transport section!"
+            else
+                echo " *** doing: ./cdftransportiz.x ${CPREF}${TTAG_ann} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV} ${jyear} ${DIAG_D} ${z1_trsp} ${z2_trsp}"
+                ./cdftransportiz.x ${CPREF}${TTAG_ann} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV} ${jyear} ${DIAG_D} ${z1_trsp} ${z2_trsp} &
+            fi
+        fi   ; # ${i_do_trsp} -gt 0
+
+
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        #  Deep Mixed Volume (DMV) on a given box
+        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        if [ ! -z ${i_do_dmv} ] && [ ${i_do_dmv} -gt 0 ]; then
+            
+            if [ "${FILE_DEF_BOXES}" = "" ]; then
+                echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
+            fi            
+            echo "CALLING: dmv.py ${ft} ${cyear}"
+            ${PYTH} ${PYBRKD_EXEC_PATH}/dmv.py ${ft} ${cyear} &
+            
+        fi
+
+
+
+
+
+        
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         #  AMOC  ( Max of Atlantic MOC for several latitude bands )
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -670,36 +751,6 @@ while ${lcontinue}; do
 
 
 
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        # VOLUME, HEAT and SALT transports through specified section
-        # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        if [ ${i_do_trsp} -gt 0 ]; then
-
-            echo; echo; echo "Transports of volume, heat and salt through different sections"
-
-            if [ "${TRANSPORT_SECTION_FILE}" = "" ]; then
-                echo "Please specify which TRANSPORT_SECTION_FILE to use into the config file!" ; exit
-            fi
-
-            if [ ! -f ./transportiz.dat ]; then
-                check_if_file ${TRANSPORT_SECTION_FILE}
-                cp ${TRANSPORT_SECTION_FILE} ./transportiz.dat
-            fi
-
-            if [ ${i_do_trsp} -eq 1 ]; then z1_trsp="" ; z2_trsp=""; fi
-
-
-            if [ ! -f ${fvt} ]; then
-                echo "PROBLEM: file ${fvt} is not here, skipping transport section!"
-            else
-                echo " *** doing: ./cdftransportiz.x ${CPREF}${TTAG_ann} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV} ${jyear} ${DIAG_D} ${z1_trsp} ${z2_trsp}"
-                ./cdftransportiz.x ${CPREF}${TTAG_ann} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV} ${jyear} ${DIAG_D} ${z1_trsp} ${z2_trsp}
-                echo "Done!"; echo; echo
-
-                rm -f *.tmp broken_line_*
-            fi
-        fi   ; # ${i_do_trsp} -gt 0
 
 
 
@@ -721,9 +772,8 @@ while ${lcontinue}; do
                 echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
             fi
             echo " *** doing: ${PYTH} ${PYBRKD_EXEC_PATH}/budget_rectangle_box.py ${cyear} 100 uv"
-            ${PYTH} ${PYBRKD_EXEC_PATH}/budget_rectangle_box.py ${cyear} 100 uv
-            echo "Done!"; echo; echo
-
+            ${PYTH} ${PYBRKD_EXEC_PATH}/budget_rectangle_box.py ${cyear} 100 uv &
+            
         fi
 
 
@@ -737,26 +787,16 @@ while ${lcontinue}; do
             echo; echo; echo "Meridional transport of heat and salt"
 
             fo=${DIAG_D}/merid_transport_T_S_${CONFRUN}.nc
-
+            
             if [ ! -f ${fvt} ]; then
                 echo "PROBLEM: file ${fvt} is not here, skipping meridional transports section"
             else
                 rm -f merid_heat_trp.dat merid_salt_trp.dat
                 echo " *** doing: ./cdfmhst.x ${fvt} ${fo} ${jyear}"
-                ./cdfmhst.x ${fvt} ${fo} ${jyear}
-                echo "Done!"; echo; echo; echo
+                ./cdfmhst.x ${fvt} ${fo} ${jyear} &
             fi
 
         fi
-
-
-
-
-
-
-
-
-
 
 
 
@@ -781,27 +821,6 @@ while ${lcontinue}; do
 
 
 
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        #  Transport by sigma-class
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        if [ ${i_do_sigt} -eq 1 ]; then
-
-            echo; echo
-            if [ ! -f ./dens_section.dat ]; then
-                if [ -f ${DENSITY_SECTION_FILE} ]; then
-                    echo "Copying ${DENSITY_SECTION_FILE} to here: `pwd` !"; cp ${DENSITY_SECTION_FILE} ./dens_section.dat
-                else
-                    echo; echo "WARNING: Can't do Transport by sigma-class: ${DENSITY_SECTION_FILE} is missing!!!"
-                fi
-            fi
-
-            echo " *** doing: ./cdfsigtrp.x ${ft} ${fu} ${fv} 24.8 28.6 19 ${jyear} ${DIAG_D}  ${NN_T} ${NN_S} ${NN_U} ${NN_V}"; echo
-            ./cdfsigtrp.x ${ft} ${fu} ${fv} 24.8 28.6 19 ${jyear} ${DIAG_D} ${NN_T} ${NN_S} ${NN_U} ${NN_V}
-            echo "Done!"; echo
-
-        fi
-        # End Sigma-Class
 
 
         # Vertical meridional or zonal sections:
@@ -857,9 +876,7 @@ while ${lcontinue}; do
             fi
 
             echo " *** doing: ./cdficediags.x tmp_ice.nc ${jyear} ${DIAG_D} ${coic}"
-            ./cdficediags.x tmp_ice.nc ${jyear} ${DIAG_D} ${coic}
-            echo "Done!"; echo; echo; echo
-            rm -f tmp_ice.nc
+            ./cdficediags.x tmp_ice.nc ${jyear} ${DIAG_D} ${coic} &
 
         fi
 
@@ -881,7 +898,7 @@ while ${lcontinue}; do
             fi
 
             echo "CALLING: prof_TS_z_box.py ${cyear}"
-            ${PYTH} ${PYBRKD_EXEC_PATH}/prof_TS_z_box.py ${cyear}
+            ${PYTH} ${PYBRKD_EXEC_PATH}/prof_TS_z_box.py ${cyear} &
             echo;echo
 
         fi
@@ -891,29 +908,13 @@ while ${lcontinue}; do
 
 
 
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        #  Deep Mixed Volume (DMV) on a given box
-        #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-        if [ ! -z ${i_do_dmv} ] && [ ${i_do_dmv} -gt 0 ]; then
-
-            if [ "${FILE_DEF_BOXES}" = "" ]; then
-                echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
-            fi
-
-            echo "CALLING: dmv.py ${ft} ${cyear}"
-            ${PYTH} ${PYBRKD_EXEC_PATH}/dmv.py ${ft} ${cyear}
-            echo;echo
-
-        fi
 
 
         if [ ${i_do_zcrit} -gt 0 ]; then
-
+            
             if [ "${FILE_DEF_BOXES}" = "" ]; then
                 echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
             fi
-
             echo "CALLING: zcrit_conv.py ${cyear}"
             ${PYTH} ${PYBRKD_EXEC_PATH}/zcrit_conv.py ${cyear}
             echo;echo
@@ -974,40 +975,33 @@ while ${lcontinue}; do
 
 
 
-
-
-
-
-
-
-
+        echo
+        echo " Waiting for backround jobs for current year (${jyear}) !"
+        wait
+        wait
+        echo "  Done waiting!"
+        echo
+        rm -f *.tmp broken_line_* tmp_ice.nc        
+        rm -f ${CRT1}_*.nc ; #debug
+        
 
         # DIAGS ARE DONE !!!
 
-        rm -f *.tmp
-
-        #debug:
-        rm -f ${CRT1}_*.nc
-
         echo "${cyear}" > ${fcompletion}
-
-
+        
+        
     fi ; # if ${lcontinue}; then
-
+    
 
     #if ${LFORCE_YEND}; then
     #    if [ ${jyear} -eq ${YEARN} ]; then lcontinue=false; fi
     #fi
 
-    echo
-    echo " Waiting for backround jobs for current year (${jyear}) !"
     wait
-    echo "  Done waiting!"
-    echo
-
+    
     ((jyear++))
     
-
+    
 # end loop years...
 done ; # while ${lcontinue}; do
 
@@ -1108,8 +1102,6 @@ if [ ${ISTAGE} -eq 2 ]; then
     fi
 
 
-
-
     if [ ${i_do_mht} -eq 1 ]; then
         #
         # Hovmullers of advective meridional heat/salt transport
@@ -1119,8 +1111,21 @@ if [ ${ISTAGE} -eq 2 ]; then
         echo; echo; echo
         #
     fi
+    
+    if [ ${i_do_movi} -eq 1 ]; then
+        # 
+        echo
+        echo "Creating GIF movies out of the 2D maps of NEMO - OBS for SST and SSS"
+        rm -f *_${CONFRUN}.gif
+        convert -delay 100 -loop 0 movies/dsst_*.png dsst_${CONFRUN}.gif &
+        convert -delay 100 -loop 0 movies/dsss_*.png dsss_${CONFRUN}.gif &
+        wait
+        echo "Done!" ; echo
+    fi
 
-    echo; echo
+
+
+    echo; echo; echo
 
 
 
@@ -1360,82 +1365,90 @@ EOF
         fi
     fi
 
+    if [ ${i_do_movi} -eq 1 ]; then
+        cat >> index.html <<EOF
+    <br><br><big><big> Evolution of SST and SSS biases (w.r.t observations)</big></big> <br>
+    <img style="border: 0px solid" alt="" src="dsst_${CONFRUN}.gif"> <br>
+    <img style="border: 0px solid" alt="" src="dsss_${CONFRUN}.gif"> <br>
+EOF
+    fi
+
     # Temperature section
     cat >> index.html <<EOF
-    <br><br><br><br><big><big> Temperature time-series </big></big><br><br><br>
-    <img style="border: 0px solid" alt="" src="3d_thetao_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_tos_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="3d_thetao_lev_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="3d_thetao_basins_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="Nino34_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_global.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_atlantic.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_pacific.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_indian.${FIG_FORM}"> <br><br><br><br><br><br>
+    <br><br><big><big> Temperature time-series </big></big><br>
+    <img style="border: 0px solid" alt="" src="3d_thetao_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_tos_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_thetao_lev_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_thetao_basins_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="Nino34_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_global.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_atlantic.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_pacific.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_indian.${FIG_FORM}"> <br><br><br><br>
 EOF
 
     # Salinity section
     cat >> index.html <<EOF
-    <br><br><br><br><big><big> Salinity time-series </big></big><br><br><br>
-    <img style="border: 0px solid" alt="" src="3d_so_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_sos_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="3d_so_lev_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="3d_so_basins_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_global.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_atlantic.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_pacific.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_indian.${FIG_FORM}"> <br><br><br> <br><br><br>
+    <br><br><br><big><big> Salinity time-series </big></big><br>
+    <img style="border: 0px solid" alt="" src="3d_so_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_sos_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_so_lev_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="3d_so_basins_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_global.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_atlantic.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_pacific.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_indian.${FIG_FORM}"> <br><br> <br><br>
 EOF
 
     cat >> index.html <<EOF
-    <br><br><br><br><big><big> Freshwater-flux-related time-series </big></big><br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.${FIG_FORM}">     <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_fwf_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_emp_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_prc_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_clv_${CONFRUN}.${FIG_FORM}"> <br><br><br>
+    <br><br><br><big><big> Freshwater-flux-related time-series </big></big><br><br>
+    <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.${FIG_FORM}">     <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_fwf_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_prc_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_clv_${CONFRUN}.${FIG_FORM}"> <br><br>
 EOF
 
     if [ ${ece_run} -eq 2 ]; then
         cat >> index.html <<EOF
-    <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_evp_IFS_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_evp_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_prc_IFS_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_emp_ALL_IFS_${CONFRUN}.${FIG_FORM}"> <br><br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_evp_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_evp_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_prc_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="mean_fwf_emp_ALL_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
 EOF
     fi
     
     cat >> index.html <<EOF
-    <br><br><br><br><big><big> Atlantic Meridional Overturning Circulation </big></big><br><br><br>
-    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.${FIG_FORM}"> <br><br><br> <br><br><br>
+    <br><br><br><big><big> Atlantic Meridional Overturning Circulation </big></big><br><br>
+    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.${FIG_FORM}"> <br><br>
+    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.${FIG_FORM}"> <br><br> <br><br>
 EOF
 
     # Sea-ice section
     if [ ${i_do_ice}  -gt 0 ]; then
         cat >> index.html <<EOF
-        <br><br><br><br><big><big> Arctic/Antarctic sea-ice time-series</big></big><br><br><br>
-        <img style="border: 0px solid" alt="" src="seaice_extent_winter_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-        <img style="border: 0px solid" alt="" src="seaice_extent_summer_${CONFRUN}.${FIG_FORM}"> <br><br><br><br>
-        <img style="border: 0px solid" alt="" src="seaice_volume_winter_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-        <img style="border: 0px solid" alt="" src="seaice_volume_summer_${CONFRUN}.${FIG_FORM}"> <br><br><br><br><br><br>
+        <br><br><br><big><big> Arctic/Antarctic sea-ice time-series</big></big><br><br>
+        <img style="border: 0px solid" alt="" src="seaice_extent_winter_${CONFRUN}.${FIG_FORM}"> <br><br>
+        <img style="border: 0px solid" alt="" src="seaice_extent_summer_${CONFRUN}.${FIG_FORM}"> <br><br><br>
+        <img style="border: 0px solid" alt="" src="seaice_volume_winter_${CONFRUN}.${FIG_FORM}"> <br><br>
+        <img style="border: 0px solid" alt="" src="seaice_volume_summer_${CONFRUN}.${FIG_FORM}"> <br><br><br><br>
 EOF
     fi
 
     if [ ${i_do_trsp} -gt 0 ]; then
         # Adding transport section part:
-        echo "<br><br><br><br><big><big> Transport through sections</big></big><br><br><br>" >> index.html
+        echo "<br><br><br><big><big> Transport through sections</big></big><br><br>" >> index.html
         list_section=`cat ${TRANSPORT_SECTION_FILE} | grep '-'`
         for cs in ${list_section}; do
             echo ${cs}
             echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_vol_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>"  >> index.html
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_heat_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br><br>" >> index.html
-            echo "<br><br><br>" >> index.html
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_heat_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>" >> index.html
+            echo "<br><br>" >> index.html
         done
     fi
 
@@ -1443,34 +1456,34 @@ EOF
     if [ ${i_do_mean} -eq 1 ]; then
         list_mld_figs=`\ls mean_mldr10_1_${CONFRUN}*.${FIG_FORM}`
         if [ ! "${list_mld_figs}" = "" ]; then
-            echo "<br><br><br><br><big><big> Horizontally-averaged Mixed-Layer Depth in different regions</big></big><br><br><br>" >> index.html
+            echo "<br><br><br><big><big> Horizontally-averaged Mixed-Layer Depth in different regions</big></big><br><br>" >> index.html
             for fmld in ${list_mld_figs}; do
                 echo "<img style=\"border: 0px solid\" alt=\"\" src=\"${fmld}\"> <br><br>"  >> index.html
-                echo "<br><br><br>" >> index.html
+                echo "<br><br>" >> index.html
             done
         fi
     fi
 
     if [ ${i_do_sigt} -eq 1 ]; then
         # Adding transport by sigma class section part:
-        echo "<br><br><br><br><big><big> Transport by sigma class at Nordic sills</big></big><br><br><br>" >> index.html
+        echo "<br><br><br><big><big> Transport by sigma class at Nordic sills</big></big><br><br>" >> index.html
         list_section=`cat ${DENSITY_SECTION_FILE} | grep '_'`
         for cs in ${list_section}; do
             echo ${cs}
             echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_sigma_class_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>"  >> index.html
         done
         echo "<img style=\"border: 0px solid\" alt=\"\" src=\"tr_sigma_gt278_${CONFRUN}.${FIG_FORM}\"> <br><br>"  >> index.html
-        echo "<br><br><br>" >> index.html
+        echo "<br><br>" >> index.html
     fi
 
     if [ ${i_do_mht} -eq 1 ]; then
         # Adding meridional heat transport:
-        echo "<br><br><br><br><big><big> Meridional transports</big></big><br><br><br>"  >> index.html
+        echo "<br><br><br><big><big> Meridional transports</big></big><br><br>"  >> index.html
         for coce in "global" "atlantic" "pacific" "indian"; do
             echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MHT_${CONFRUN}_${coce}.${FIG_FORM}\"> <br><br>"     >> index.html
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MST_${CONFRUN}_${coce}.${FIG_FORM}\"> <br><br><br>" >> index.html
+            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MST_${CONFRUN}_${coce}.${FIG_FORM}\"> <br><br>" >> index.html
         done
-        echo "<br><br><br>" >> index.html
+        echo "<br><br>" >> index.html
     fi
 
     cat ${BARAKUDA_ROOT}/scripts/html/conf_end.html          >> index.html ; # Closing HTML file...
@@ -1547,9 +1560,8 @@ EOF
     cp ${BARAKUDA_ROOT}/scripts/html/logo.png    ${html_dir}/
 
     mv -f index.html ${html_dir}/
-    mv -f *.${FIG_FORM}      ${html_dir}/ >/dev/null 2>/dev/null
+    for fp in ${FIG_FORM} svg gif; do mv -f *.${fp} ${html_dir}/ >/dev/null 2>/dev/null ; done
     mv -f ./merid_transport/*.${FIG_FORM} ${html_dir}/ >/dev/null 2>/dev/null
-    mv -f *.svg      ${html_dir}/ >/dev/null 2>/dev/null
     
     if [ ${inmlst} -eq 1 ]; then cp ${NEMO_OUT_D}/${fnamelist} ${html_dir}/; fi
 

@@ -60,18 +60,18 @@ export PYTHON_HOME="/apps/PYTHON/2.7.3"
 # If variables names in NEMO files are not the default...
 export NN_SST="sosstsst"
 export NN_SSS="sosaline"
-export NN_SSH="sosheigh"
+export NN_SSH="sossheig"
 export NN_T="votemper"
 export NN_S="vosaline"
 export NN_MLD="mldr10_1"
-export NN_U="uo"
-export NN_V="vo"
+export NN_U="vozocrtx"
+export NN_V="vomecrty"
 #export NN_U_EIV="vozoeivu"
 #export NN_V_EIV="vomeeivv"
 export NN_U_EIV="0" ; # ignore
 export NN_V_EIV="0" ; # ignore
-export NN_TAUX="tauuo"
-export NN_TAUY="tauvo"
+export NN_TAUX="sozotaux"
+export NN_TAUY="sometauy"
 
 export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction and volume?
 export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
@@ -140,6 +140,8 @@ RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host
 export FIG_FORM="png"
 
 
+# Movies of SST and SSS compared to OBS:
+i_do_movi=1
 
 # Basic 3D and surface averages:
 i_do_mean=1

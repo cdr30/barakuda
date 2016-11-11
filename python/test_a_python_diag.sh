@@ -3,7 +3,7 @@
 #  B E T A  ! ! !
 
 # Diag to test:
-iflick=1
+imov=1
 issh=0
 its=0
 imld=0
@@ -69,8 +69,8 @@ rm -f *.png *.nc
 
 # Time for diags:
 
-if [ ${iflick} -eq 1 ]; then
-    CMD="python exec/prepare_flicks.py ${ft} ${jyear}"
+if [ ${imov} -eq 1 ]; then
+    CMD="python exec/prepare_movies.py ${ft} ${jyear}"
 fi
 
 if [ ${issh} -eq 1 ]; then
