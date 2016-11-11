@@ -23,25 +23,15 @@ import barakuda_plot as bp
 #lfig2 = True
 
 
-venv_needed = {'ORCA','RUN','DIAG_D','COMP2D','MM_FILE','NN_SST','NN_T','NN_S',
+venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','NN_SST','NN_T','NN_S',
                'F_T_CLIM_3D_12','F_S_CLIM_3D_12','SST_CLIM_12','NN_SST_CLIM','NN_T_CLIM','NN_S_CLIM'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
 CONFRUN = vdic['ORCA']+'-'+vdic['RUN']
 
-CC = vdic['COMP2D']
-
-
-# Bounds and increment for comparison maps:
-#if CC == 'CLIM':
-#    tmin=-5.  ;  tmax=5.  ; dtemp = 0.5
-#    smin=-2.5 ;  smax=2.5 ; dsali = 0.25
-#else:
-tmin=-2.  ;  tmax=2. ;  dtemp = 0.1
-smin=-0.5 ;  smax=.5 ;  dsali = 0.025
-
-path_fig='./'
+tmin=-4.  ;  tmax=-tmin ;  dtemp = 0.25
+smin=-0.5 ;  smax=-smin ;  dsali = 0.025
 
 fig_type='png'
 
@@ -52,15 +42,9 @@ if narg < 3: print 'Usage: '+sys.argv[0]+' <NEMO grid_T file (1 year, monthyly)>
 cf_in = sys.argv[1]
 cy=sys.argv[2] ; jy=int(cy)
 
-#if not ( jy1 >= 1984 and jy2 <= 2006 ):
-#    jy1_clim = 1984 ; jy2_clim = 2006
-#else:
-#    jy1_clim = jy1 ;  jy2_clim = jy2
-#
-#print ' First and last year to treat:', jy1, jy2
-#print ' => mean on the clim : ', jy1_clim, jy2_clim, '\n'
+path_fig = 'flicks'
 
-
+os.system("mkdir -p "+path_fig)
 
 
 # 3D climatology :
@@ -74,10 +58,11 @@ id_clim.close()
 [ nmn , nk0 , nj0 , ni0 ] = Tclim.shape
 
 # Salinity
-#bt.chck4f(vdic['F_S_CLIM_3D_12'])
-#id_clim = Dataset(vdic['F_S_CLIM_3D_12'])
+bt.chck4f(vdic['F_S_CLIM_3D_12'])
+id_clim = Dataset(vdic['F_S_CLIM_3D_12'])
 #Sclim  = id_clim.variables[vdic['NN_S_CLIM']][:,:,:,:]; print '(has ',Sclim.shape[0],' time snapshots)\n'
-#id_clim.close()
+SSSclim  = id_clim.variables[vdic['NN_S_CLIM']][:,0,:,:]; print '(has ',SSSclim.shape[0],' time snapshots)\n'
+id_clim.close()
 
 print [ nmn , nk0 , nj0 , ni0 ]
 
@@ -111,14 +96,18 @@ if vdic['NN_SST'] == 'thetao':
 else:
     SSTnemo = id_in.variables[vdic['NN_SST']][:,:,:]
 
-Tnemo  = id_in.variables[vdic['NN_T']][:,:,:,:]
-print '(has ',Tnemo.shape[0],' time snapshots)\n'
+SSSnemo = id_in.variables[vdic['NN_S']][:,0,:,:]
+
+#Tnemo  = id_in.variables[vdic['NN_T']][:,:,:,:]
+#print '(has ',Tnemo.shape[0],' time snapshots)\n'
 #Snemo  = id_in.variables[vdic['NN_S']][:,:,:,:]
 vdepth = id_in.variables['deptht'][:]
 id_in.close()
 
-[ nt, nk, nj, ni ] = Tnemo.shape
-if nk != nk0 or nj != nj0 or ni != ni0:
+#[ nt, nk, nj, ni ] = Tnemo.shape
+[ nt, nj, ni ] = SSTnemo.shape
+#if nk != nk0 or nj != nj0 or ni != ni0:
+if nj != nj0 or ni != ni0:
     print 'ERROR: NEMO file do no agree in shape!'
     print '       clim => '+str(ni0)+', '+str(nj0)+', '+str(nk0),' ('+vdic['F_T_CLIM_3D_12']+')'
     print '       NEMO => '+str(ni)+', '+str(nj)+', '+str(nk)
@@ -135,20 +124,37 @@ vlat = nmp.zeros(nj) ; vlat[:] = xlat[:,ji_lat0]
 
 ###cy = '1990' ; #lulu
 
-for jt in range(1):
+cv_dsst = 'dsst'
+cv_dsss = 'dsss'
 
+for jt in range(nt):
+
+    cm = "%02d" % (jt+1)
+    cdate = cy+cm
 
     # SST:
     bp.plot("2d")(vlon, vlat, SSTnemo[jt,:,:] - SSTclim[jt,:,:],
                   imask[0,:,:],  tmin, tmax, dtemp,
                   corca=vdic['ORCA'], lkcont=False, cpal='RdBu_r',
-                  cfignm=path_fig+'dsst_annual_'+CONFRUN+'_-_'+CC,
+                  cfignm=path_fig+'/'+cv_dsst+'_'+cdate,
                   cbunit='K', cfig_type=fig_type, lat_min=-65., lat_max=75.,
-                  ctitle='SST difference to '+CC+', '+CONFRUN+' ('+cy+')',
+                  ctitle='SST (NEMO - obs) '+CONFRUN+' ('+cdate+')',
+                  lforce_lim=True, i_cb_subsamp=2)
+
+    # SSS:
+    bp.plot("2d")(vlon, vlat, SSSnemo[jt,:,:] - SSSclim[jt,:,:],
+                  imask[0,:,:],  smin, smax, dsali,
+                  corca=vdic['ORCA'], lkcont=False, cpal='PiYG_r',
+                  cfignm=path_fig+'/'+cv_dsss+'_'+cdate,
+                  cbunit='PSU', cfig_type=fig_type, lat_min=-65., lat_max=75.,
+                  ctitle='SSS (NEMO - obs) '+CONFRUN+' ('+cdate+')',
                   lforce_lim=True, i_cb_subsamp=2)
 
 
 
+for cv in [ cv_dsst, cv_dsss ]:
+    cfig_out = path_fig+'/'+cv+'_'+CONFRUN+'_'+cy+'.gif'
+    os.system("convert -delay 100 -loop 0 "+cv+"*.png "+cfig_out+" > out_conv_"+cv+".out")
 
 
 sys.exit(0)
