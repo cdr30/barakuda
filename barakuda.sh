@@ -117,7 +117,7 @@ export ORCA=${CONF}
 echo
 if [ "${PYTHON_HOME}" = "" ]; then echo "ERROR: PYTHON_HOME is not set! => add it to config file"; exit; fi
 PYTH="${PYTHON_HOME}/bin/python -W ignore" ; # which Python installation to use
-export PYTHONPATH=${PYTHON_HOME}/lib/python2.7:${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
+export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
 PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
 
 echo " PYTHON_HOME => "${PYTHON_HOME} ; echo
