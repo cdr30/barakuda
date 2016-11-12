@@ -199,6 +199,15 @@ while ${lcontinue}; do
             pid_boxa=$! ; echo
         fi
 
+        
+        echo
+        echo " Gonna wait for level #1 to be done !"
+        wait  ${pid_vtvt} ${pid_boxa}
+        echo " .... diag level #1 done...." ; echo
+        
+        echo
+
+
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # Meridional heat and salt transport
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -214,14 +223,6 @@ while ${lcontinue}; do
                 pid_mhst=$! ; echo
             fi
         fi
-
-        
-        echo
-        echo " Gonna wait for level #1 to be done !"
-        wait  ${pid_vtvt} ${pid_boxa} ${pid_mhst}
-        echo " .... diag level #1 done...." ; echo
-        
-        echo
         
 
         #~~~~~~~
@@ -315,7 +316,7 @@ while ${lcontinue}; do
         # lulu
         # pid_sigt pid_trsp pid_dmvl pid_bbbb pid_mhst
         echo " Gonna wait for level #2 to be done !"
-        wait ${pid_amoc}
+        wait ${pid_amoc} ; # moc needs to be done to call cdfmaxmoc.x ...
         echo
         echo " .... diag level #2 done...." ; echo ; echo
 
@@ -474,15 +475,13 @@ while ${lcontinue}; do
         echo " Waiting for backround jobs for current year (${jyear}) !"
         wait ${pid_movt} ${pid_movs} ${pid_mean} ${pid_fwfl}
         wait
-        echo "  Done waiting!"
-        echo
+        echo "  Done waiting for year ${cyear} !"
         rsync -avP movies ${DIAG_D}/
         rm -f *.tmp broken_line_* tmp_ice.nc
         rm -f ${CRT1}_*.nc ; #debug
-        echo
+        echo ; echo
 
         # DIAGS ARE DONE !!!
-
         echo "${cyear}" > ${fcompletion}
 
 
@@ -539,11 +538,22 @@ if [ ${ISTAGE} -eq 2 ]; then
     fi
 
 
-    cd ${BARAKUDA_ROOT}/
+    
 
     echo; echo; echo "RUN ${RUN}: creating plots"; echo
 
+    #cd ${BARAKUDA_ROOT}/
 
+    cd ${DIAG_D}/
+
+
+    if [ ${i_do_movi} -eq 1 ]; then
+        echo
+        echo "Creating GIF movies out of the 2D maps of NEMO - OBS for SST and SSS"
+        rm -f *_${CONFRUN}.gif
+        convert -delay 100 -loop 0 movies/dsst_*.png dsst_${CONFRUN}.gif &
+        convert -delay 100 -loop 0 movies/dsss_*.png dsss_${CONFRUN}.gif &
+    fi
 
     # 1D plots to perform
     # ~~~~~~~~~~~~~~~~~~~
@@ -561,9 +571,7 @@ if [ ${ISTAGE} -eq 2 ]; then
 
 
     # Doing 1D plots
-    # ~~~~~~~~~~~~~~
-
-    cd ${DIAG_D}/
+    # ~~~~~~~~~~~~~~    
 
     echo ; echo; echo "Going to perform the following 1D plots:"
     echo "    => ${DIAG_1D_LIST}"; echo
@@ -606,17 +614,6 @@ if [ ${ISTAGE} -eq 2 ]; then
         ${PYTH} ${PYBRKD_EXEC_PATH}/plot_hovm_merid_trsp.py
         echo; echo; echo
         #
-    fi
-
-    if [ ${i_do_movi} -eq 1 ]; then
-        #
-        echo
-        echo "Creating GIF movies out of the 2D maps of NEMO - OBS for SST and SSS"
-        rm -f *_${CONFRUN}.gif
-        convert -delay 100 -loop 0 movies/dsst_*.png dsst_${CONFRUN}.gif &
-        convert -delay 100 -loop 0 movies/dsss_*.png dsss_${CONFRUN}.gif &
-        wait
-        echo "Done!" ; echo
     fi
 
 
@@ -1045,6 +1042,9 @@ EOF
         #fi
 
     fi
+
+
+    wait ; # likely waiting for the creation of the GIFs....
 
     echo "Done!"; echo; echo
 
