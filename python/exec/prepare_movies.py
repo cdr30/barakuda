@@ -37,9 +37,18 @@ fig_type='png'
 
 
 narg = len(sys.argv)
-if narg < 3: print 'Usage: '+sys.argv[0]+' <NEMO grid_T file (1 year, monthyly)> <year>'; sys.exit(0)
+if narg < 4:
+    print 'Usage: '+sys.argv[0]+' <NEMO grid_T file (1 year, monthyly)> <year> <var>'
+    print '          with var one of "sst" or "sss"'
+    sys.exit(0)
+
 cf_in = sys.argv[1]
-cy=sys.argv[2] ; jy=int(cy)
+cy    = sys.argv[2] ; jy=int(cy)
+cvar  = sys.argv[3]
+
+if not cvar in ['sst','sss']:
+    print 'ERROR (prepare_movies.py): variable '+cvar+' not supported yet!'
+    sys.exit(0)
 
 path_fig = 'movies'
 
@@ -50,28 +59,28 @@ os.system("mkdir -p "+path_fig)
 # ------------
 
 # Temperature
-bt.chck4f(vdic['F_T_CLIM_3D_12'])
-id_clim = Dataset(vdic['F_T_CLIM_3D_12'])
-Tclim  = id_clim.variables[vdic['NN_T_CLIM']][:,:,:,:]; print '(has ',Tclim.shape[0],' time snapshots)\n'
-id_clim.close()
-[ nmn , nk0 , nj0 , ni0 ] = Tclim.shape
+#    bt.chck4f(vdic['F_T_CLIM_3D_12'])
+#    id_clim = Dataset(vdic['F_T_CLIM_3D_12'])
+#    Tclim  = id_clim.variables[vdic['NN_T_CLIM']][:,0,:,:]; print '(has ',Tclim.shape[0],' time snapshots)\n'
+#    id_clim.close()
+#    [ nmn , nk0 , nj0 , ni0 ] = Tclim.shape
+
 
 # Salinity
-bt.chck4f(vdic['F_S_CLIM_3D_12'])
-id_clim = Dataset(vdic['F_S_CLIM_3D_12'])
-#Sclim  = id_clim.variables[vdic['NN_S_CLIM']][:,:,:,:]; print '(has ',Sclim.shape[0],' time snapshots)\n'
-SSSclim  = id_clim.variables[vdic['NN_S_CLIM']][:,0,:,:]; print '(has ',SSSclim.shape[0],' time snapshots)\n'
-id_clim.close()
-
-print [ nmn , nk0 , nj0 , ni0 ]
-
+if cvar == 'sss':
+    bt.chck4f(vdic['F_S_CLIM_3D_12'])
+    id_clim = Dataset(vdic['F_S_CLIM_3D_12'])
+    SSXclim  = id_clim.variables[vdic['NN_S_CLIM']][:,0,:,:]; print '(has ',SSXclim.shape[0],' time snapshots)\n'
+    id_clim.close()
 
 # 2D SST obs :
-print 'We use the following SST climatology:'; print vdic['SST_CLIM_12']
-bt.chck4f(vdic['SST_CLIM_12'])
-id_clim_sst = Dataset(vdic['SST_CLIM_12'])
-SSTclim  = id_clim_sst.variables[vdic['NN_SST_CLIM']][:,:,:]; print '(has ',SSTclim.shape[0],' time snapshots)\n'
-id_clim_sst.close()
+if cvar == 'sst':
+    bt.chck4f(vdic['SST_CLIM_12'])
+    id_clim_sst = Dataset(vdic['SST_CLIM_12'])
+    SSXclim  = id_clim_sst.variables[vdic['NN_SST_CLIM']][:,:,:]; print '(has ',SSXclim.shape[0],' time snapshots)\n'
+    id_clim_sst.close()
+
+[ nmn , nj0 , ni0 ] = SSXclim.shape
 
 
 
@@ -88,23 +97,23 @@ id_mask.close()
 # Getting SST, THETA and S in NEMO monthly grid_T file:
 # -----------------------------------------------------
 
-bt.chck4f(cf_in) ; id_in = Dataset(cf_in)
+bt.chck4f(cf_in)
 
-if vdic['NN_SST'] == 'thetao':
-    SSTnemo = id_in.variables[vdic['NN_SST']][:,0,:,:]
-else:
-    SSTnemo = id_in.variables[vdic['NN_SST']][:,:,:]
-
-SSSnemo = id_in.variables[vdic['NN_S']][:,0,:,:]
-
-#Tnemo  = id_in.variables[vdic['NN_T']][:,:,:,:]
-#print '(has ',Tnemo.shape[0],' time snapshots)\n'
-#Snemo  = id_in.variables[vdic['NN_S']][:,:,:,:]
+id_in = Dataset(cf_in)
+if cvar == 'sst':
+    if vdic['NN_SST'] == 'thetao':
+        SSXnemo = id_in.variables[vdic['NN_SST']][:,0,:,:]
+    else:
+        SSXnemo = id_in.variables[vdic['NN_SST']][:,:,:]
+if cvar == 'sss':
+    SSXnemo = id_in.variables[vdic['NN_S']][:,0,:,:]
 vdepth = id_in.variables['deptht'][:]
 id_in.close()
 
+
+
 #[ nt, nk, nj, ni ] = Tnemo.shape
-[ nt, nj, ni ] = SSTnemo.shape
+[ nt, nj, ni ] = SSXnemo.shape
 #if nk != nk0 or nj != nj0 or ni != ni0:
 if nj != nj0 or ni != ni0:
     print 'ERROR: NEMO file do no agree in shape!'
@@ -131,23 +140,25 @@ for jt in range(nt):
     cm = "%02d" % (jt+1)
     cdate = cy+cm
 
-    # SST:
-    bp.plot("2d")(vlon, vlat, SSTnemo[jt,:,:] - SSTclim[jt,:,:],
-                  imask[0,:,:],  tmin, tmax, dtemp,
-                  corca=vdic['ORCA'], lkcont=False, cpal='RdBu_r',
-                  cfignm=path_fig+'/'+cv_dsst+'_'+cdate,
-                  cbunit='K', cfig_type=fig_type, lat_min=-65., lat_max=75.,
-                  ctitle='SST (NEMO - obs) '+CONFRUN+' ('+cdate+')',
-                  lforce_lim=True, i_cb_subsamp=2)
+    if cvar == 'sst':
+        # SST:
+        bp.plot("2d")(vlon, vlat, SSXnemo[jt,:,:] - SSXclim[jt,:,:],
+                      imask[0,:,:],  tmin, tmax, dtemp,
+                      corca=vdic['ORCA'], lkcont=False, cpal='RdBu_r',
+                      cfignm=path_fig+'/'+cv_dsst+'_'+cdate,
+                      cbunit='K', cfig_type=fig_type, lat_min=-65., lat_max=75.,
+                      ctitle='SST (NEMO - obs) '+CONFRUN+' ('+cdate+')',
+                      lforce_lim=True, i_cb_subsamp=2)
 
-    # SSS:
-    bp.plot("2d")(vlon, vlat, SSSnemo[jt,:,:] - SSSclim[jt,:,:],
-                  imask[0,:,:],  smin, smax, dsali,
-                  corca=vdic['ORCA'], lkcont=False, cpal='PiYG_r',
-                  cfignm=path_fig+'/'+cv_dsss+'_'+cdate,
-                  cbunit='PSU', cfig_type=fig_type, lat_min=-65., lat_max=75.,
-                  ctitle='SSS (NEMO - obs) '+CONFRUN+' ('+cdate+')',
-                  lforce_lim=True, i_cb_subsamp=2)
+    if cvar == 'sss':
+        # SSS:
+        bp.plot("2d")(vlon, vlat, SSXnemo[jt,:,:] - SSXclim[jt,:,:],
+                      imask[0,:,:],  smin, smax, dsali,
+                      corca=vdic['ORCA'], lkcont=False, cpal='PiYG_r',
+                      cfignm=path_fig+'/'+cv_dsss+'_'+cdate,
+                      cbunit='PSU', cfig_type=fig_type, lat_min=-65., lat_max=75.,
+                      ctitle='SSS (NEMO - obs) '+CONFRUN+' ('+cdate+')',
+                      lforce_lim=True, i_cb_subsamp=2)
 
 
 

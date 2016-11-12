@@ -70,7 +70,7 @@ rm -f *.png *.nc
 # Time for diags:
 
 if [ ${imov} -eq 1 ]; then
-    CMD="python exec/prepare_movies.py ${ft} ${jyear}"
+    CMD="python exec/prepare_movies.py ${ft} ${jyear} sss"
 fi
 
 if [ ${issh} -eq 1 ]; then
