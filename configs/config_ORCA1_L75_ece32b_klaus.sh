@@ -29,10 +29,12 @@ export DIAG_DIR="${STORE_DIR}/tmp/barakuda/${CONF}_ece32b"
 # Is it an ec-earth run?
 export ece_run=2 ; # 0 => not an EC-Earth run, it's a "pure" ocean-only NEMO run done from traditional NEMO setup
 #                  # 1 => it's an OCEAN-ONLY EC-Earth run done from a EC-Earth setup
-#                  # 2 => it's an COUPLED  EC-Earth run
+#                  # 2 => it's a  COUPLED  EC-Earth run
 #                  #      Both 1 and 2 imply that NEMO files are stored in something like
 #                  #       ${STORE_DIR}/<RUN>/output/nemo/<YYY>
 #                  #       where YYY starts from '001' to
+#                  #   If you select '2', make sure 'cdo' is available and working!!!
+#
 export Y_INI_EC=1990 ;    # initial year if ec-earth run...
 
 
@@ -89,7 +91,7 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v3.6 ${CONF}-L${NBL}_LIM3 / EC-Earth 3.2b"
+export JTITLE="NEMO v3.6 ${CONF}_LIM3 / EC-Earth 3.2b"
 
 # Land-sea mask and basins files:
 export MM_FILE=/proj/bolinc/users/x_laubr/klaus/mesh_mask.nc
@@ -138,6 +140,8 @@ RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host
 export FIG_FORM="png"
 
 
+# Movies of SST and SSS compared to OBS:
+i_do_movi=1
 
 # Basic 3D and surface averages:
 i_do_mean=1

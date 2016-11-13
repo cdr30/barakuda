@@ -3,7 +3,8 @@
 #  B E T A  ! ! !
 
 # Diag to test:
-imov=1
+ifwf=1
+imov=0
 issh=0
 its=0
 imld=0
@@ -52,7 +53,7 @@ export COMP2D="CLIM"
 export NEMO_OUT_D=`echo ${NEMO_OUT_STRCT} | sed -e "s|<ORCA>|${ORCA}|g" -e "s|<RUN>|${RUN}|g"`
 if [ ! -d ${NEMO_OUT_D} ]; then echo "Unfortunately we could not find ${NEMO_OUT_D}"; exit; fi
 YEAR_INI=1990 ; YEAR_INI_F=1990
-cyear=`printf "%04d" ${jyear}`
+export cyear=`printf "%04d" ${jyear}`
 if [ ${ece_run} -gt 0 ]; then
     iy=$((${jyear}-${YEAR_INI}+1+${YEAR_INI}-${YEAR_INI_F}))
     dir_ece="`printf "%03d" ${iy}`/"
@@ -68,6 +69,11 @@ export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/py
 rm -f *.png *.nc
 
 # Time for diags:
+
+if [ ${ifwf} -eq 1 ]; then
+    CMD="${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh"
+fi
+
 
 if [ ${imov} -eq 1 ]; then
     CMD="python exec/prepare_movies.py ${ft} ${jyear} sss"

@@ -34,6 +34,8 @@ export ece_run=1 ; # 0 => not an EC-Earth run, it's a "pure" ocean-only NEMO run
 #                  #      Both 1 and 2 imply that NEMO files are stored in something like
 #                  #       ${STORE_DIR}/<RUN>/output/nemo/<YYY>
 #                  #       where YYY starts from '001' to
+#                  #   If you select '2', make sure 'cdo' is available and working!!!
+#
 export Y_INI_EC=1990 ;    # initial year if ec-earth run...
 
 
