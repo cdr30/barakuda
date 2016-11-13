@@ -941,7 +941,7 @@ EOF
             echo ${cs}
             echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_vol_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>"  >> index.html
             echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_heat_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>" >> index.html
-            echo "<br><br>" >> index.html
+            echo "<br>" >> index.html
         done
     fi
 
@@ -952,7 +952,6 @@ EOF
             echo "<br><br><br><big><big> Horizontally-averaged Mixed-Layer Depth in different regions</big></big><br><br>" >> index.html
             for fmld in ${list_mld_figs}; do
                 echo "<img style=\"border: 0px solid\" alt=\"\" src=\"${fmld}\"> <br><br>"  >> index.html
-                echo "<br><br>" >> index.html
             done
         fi
     fi
