@@ -6,7 +6,7 @@
 #
 #    An OCEAN MONITORING python environment for NEMO
 #
-#             L. Brodeau, 2009-2015
+#             L. Brodeau, 2009-2016
 #
 #===============================================================
 
@@ -310,10 +310,6 @@ while ${lcontinue}; do
             pid_bbbb=$! ; echo
         fi
 
-
-
-
-        # lulu
         # pid_sigt pid_trsp pid_dmvl pid_bbbb pid_mhst
         echo " Gonna wait for level #2 to be done !"
         wait ${pid_amoc} ; # moc needs to be done to call cdfmaxmoc.x ...
@@ -514,6 +510,10 @@ l_pclim=false
 if [ ${ISTAGE} -eq 2 ]; then
 
     rm -rf ${DIAG_D}/${RUN}
+    
+    y1=`cat ${DIAG_D}/first_year.info`
+    y2=`cat ${DIAG_D}/last_year_done.info`
+    nby=$((${y2}-${y1}+1)) ; #lulu
 
     if [ ${IFREQ_SAV_YEARS} -gt 1 ]; then
         fnamelist=namelist.${cy1m}-${cy2m}
@@ -549,10 +549,12 @@ if [ ${ISTAGE} -eq 2 ]; then
 
     if [ ${i_do_movi} -eq 1 ]; then
         echo
-        echo "Creating GIF movies out of the 2D maps of NEMO - OBS for SST and SSS"
+        idelay=$((120-${nby}*8))
+        if [ ${idelay} -lt 10 ]; then idelay=10; fi
+        echo "Creating GIF movies out of the 2D maps of NEMO - OBS for SST and SSS (delay=${idelay})"
         rm -f *_${CONFRUN}.gif
-        convert -delay 100 -loop 0 movies/dsst_*.png dsst_${CONFRUN}.gif &
-        convert -delay 100 -loop 0 movies/dsss_*.png dsss_${CONFRUN}.gif &
+        convert -delay ${idelay} -loop 0 movies/dsst_*.png dsst_${CONFRUN}.gif &
+        convert -delay ${idelay} -loop 0 movies/dsss_*.png dsss_${CONFRUN}.gif &
     fi
 
     # 1D plots to perform
@@ -692,7 +694,7 @@ if [ ${ISTAGE} -eq 2 ]; then
                 echo; echo
                 echo " Ploting lat-depth MOC !"
                 cd ${DIAG_D}/
-                DIRS_2_EXP="${DIRS_2_EXP} moc"
+                export DIRS_2_EXP="${DIRS_2_EXP} moc"
                 rm -rf moc; mkdir moc; cd moc/
                 echo; echo; echo "CALLING: moc.py ${iclyear}"
                 ${PYTH} ${PYBRKD_EXEC_PATH}/moc.py ${iclyear}
@@ -707,7 +709,7 @@ if [ ${ISTAGE} -eq 2 ]; then
                 echo; echo
                 echo " Performing 2D mapping of March Mixed layer depth in Nordic Seas"
                 cd ${DIAG_D}/
-                DIRS_2_EXP="${DIRS_2_EXP} mld"
+                export DIRS_2_EXP="${DIRS_2_EXP} mld"
                 rm -rf mld; mkdir mld; cd mld/
                 echo; echo; echo "CALLING: mld.py ${iclyear}"; echo
                 ${PYTH} ${PYBRKD_EXEC_PATH}/mld.py ${iclyear}
@@ -721,7 +723,7 @@ if [ ${ISTAGE} -eq 2 ]; then
                 echo; echo
                 echo " Performing 2D Sea-ice extent stereographic polar projection South and North"
                 cd ${DIAG_D}/
-                DIRS_2_EXP="${DIRS_2_EXP} sea_ice"
+                export DIRS_2_EXP="${DIRS_2_EXP} sea_ice"
                 rm -rf sea_ice; mkdir sea_ice; cd sea_ice/
                 echo; echo; echo "CALLING: ice.py ${iclyear}"; echo
                 ${PYTH} ${PYBRKD_EXEC_PATH}/ice.py ${iclyear}
@@ -736,7 +738,7 @@ if [ ${ISTAGE} -eq 2 ]; then
             if [ `ipresent_var_in_ncf ${ftcli} ${NN_SSH}` -eq 1 ]; then
                 echo; echo
                 echo " SSH map"
-                DIRS_2_EXP="${DIRS_2_EXP} ssh"
+                export DIRS_2_EXP="${DIRS_2_EXP} ssh"
                 cd ${DIAG_D}/
                 rm -rf ssh; mkdir ssh; cd ssh/
                 echo; echo; echo "CALLING: ssh.py ${iclyear}"; echo
@@ -776,7 +778,7 @@ if [ ${ISTAGE} -eq 2 ]; then
                 echo; echo
                 echo " Performing 2D Temperature and Salinity maps and sections"
                 cd ${DIAG_D}/
-                DIRS_2_EXP="${DIRS_2_EXP} temp_sal"
+                export DIRS_2_EXP="${DIRS_2_EXP} temp_sal"
                 DIRS_2_EXP_RREF="${DIRS_2_EXP_RREF} temp_sal"
                 mkdir -p temp_sal; cd temp_sal/
                 echo; echo; echo "CALLING: temp_sal.py ${iclyear}"; echo
@@ -797,255 +799,27 @@ if [ ${ISTAGE} -eq 2 ]; then
     fi ; # if ${l_clim_diag}
 
 
-    cd ${DIAG_D}/
 
-
-
-
-
-
-
-
-
-
-    echo; echo; echo ; echo "Creating HTML file!"
+    # Time for HTML stuff!
 
     cd ${DIAG_D}/
-
-    inmlst=0
-    if [ -f ${NEMO_OUT_D}/${fnamelist} ]; then inmlst=1; fi
-
-    rm -f index.html
-
-    if [ "${JTITLE}" = "" ]; then
-        echo "Problem, variable JTITLE is not set!" ; exit
-    else
-        TITLE="Ocean diagnostics, run ${RUN}, conf ${ORCA}, ${JTITLE}"
-    fi
-
-    # Starting to configure HTML index file:
-    sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" \
-        ${BARAKUDA_ROOT}/scripts/html/conf_start.html > index.html
-
-    # Namelist section
-    if [ ${inmlst} -eq 1 ]; then
-        cat >> index.html <<EOF
-        <big> <a href="./namelist.html"> Last namelist </a> </big>
-        <br><br><br><br>
-EOF
-    fi
-
-    # Climato section
-    if ${l_pclim}; then
-        cat >> index.html <<EOF
-        <br><big><big> Diags from climatology (${CLIM_PER}) </big></big><br><br><br>
-        <big> <a href="./temp_sal/index.html"> Temperature and Salinity vs CLIM</a> </big>             <br><br><br><br>
-        <big> <a href="./ssh/index.html">  Sea Surface Height </a> </big>                              <br><br><br><br>
-        <big> <a href="./sea_ice/index.html">  Arctic and Antarctic sea-ice extent vs CLIM </a> </big> <br><br><br><br>
-        <big> <a href="./mld/index.html">  Mixed Layer depth in relevent regions </a> </big>           <br><br><br><br>
-        <big> <a href="./moc/index.html">  Meridional Overturning Circulation </a> </big>              <br><br><br><br>
-EOF
-        if ${lcomp_to_run}; then
-            cat >> index.html <<EOF
-            <br><big><big> Comparison with run ${RUNREF}, climatology (2004-2007) </big></big><br><br><br>
-            <big> <a href="./temp_sal/index_${RUNREF}.html"> Temperature and Salinity vs ${RUNREF}</a> </big>             <br><br><br><br>
-            <!--        <big> <a href="./ssh/index_${RUNREF}.html">  Sea Surface Height </a> </big>                              <br><br><br><br>
-            <big> <a href="./sea_ice/index_${RUNREF}.html">  Arctic and Antarctic sea-ice extent vs ${RUNREF} </a> </big> <br><br><br><br>
-            <big> <a href="./mld/index_${RUNREF}.html">  Mixed Layer depth in relevent regions </a> </big>           <br><br><br><br>
-            <big> <a href="./moc/index_${RUNREF}.html">  Meridional Overturning Circulation </a> </big>              <br><br><br><br>
-            -->
-EOF
-        fi
-    fi
-
-    if [ ${i_do_movi} -eq 1 ]; then
-        cat >> index.html <<EOF
-        <br><br><big><big> Evolution of SST and SSS biases (w.r.t observations)</big></big> <br>
-        <img style="border: 0px solid" alt="" src="dsst_${CONFRUN}.gif"> <br>
-        <img style="border: 0px solid" alt="" src="dsss_${CONFRUN}.gif"> <br>
-EOF
-    fi
-
-    # Temperature section
-    cat >> index.html <<EOF
-    <br><br><big><big> Temperature time-series </big></big><br>
-    <img style="border: 0px solid" alt="" src="3d_thetao_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_tos_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="3d_thetao_lev_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="3d_thetao_basins_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="Nino34_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_global.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_atlantic.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_pacific.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_temperature_${CONFRUN}_indian.${FIG_FORM}"> <br><br><br><br>
-EOF
-
-    # Salinity section
-    cat >> index.html <<EOF
-    <br><br><br><big><big> Salinity time-series </big></big><br>
-    <img style="border: 0px solid" alt="" src="3d_so_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_sos_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="3d_so_lev_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="3d_so_basins_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_global.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_atlantic.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_pacific.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="hov_salinity_${CONFRUN}_indian.${FIG_FORM}"> <br><br> <br><br>
-EOF
-
-    cat >> index.html <<EOF
-    <br><br><br><big><big> Freshwater-flux-related time-series </big></big><br><br>
-    <img style="border: 0px solid" alt="" src="mean_zos_${CONFRUN}.${FIG_FORM}">     <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_fwf_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_emp_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_prc_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_rnf_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="mean_fwf_clv_${CONFRUN}.${FIG_FORM}"> <br><br>
-EOF
-
-    if [ ${ece_run} -eq 2 ]; then
-        cat >> index.html <<EOF
-        <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
-        <img style="border: 0px solid" alt="" src="mean_fwf_emp_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br>
-        <img style="border: 0px solid" alt="" src="mean_fwf_evp_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
-        <img style="border: 0px solid" alt="" src="mean_fwf_evp_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br>
-        <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
-        <img style="border: 0px solid" alt="" src="mean_fwf_rnf_IFS_annual_${CONFRUN}.${FIG_FORM}"> <br><br>
-        <img style="border: 0px solid" alt="" src="mean_fwf_prc_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
-        <img style="border: 0px solid" alt="" src="mean_fwf_emp_ALL_IFS_${CONFRUN}.${FIG_FORM}"> <br><br>
-EOF
-    fi
-
-    cat >> index.html <<EOF
-    <br><br><br><big><big> Atlantic Meridional Overturning Circulation </big></big><br><br>
-    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}.${FIG_FORM}"> <br><br>
-    <img style="border: 0px solid" alt="" src="amoc_${CONFRUN}_comp.${FIG_FORM}"> <br><br> <br><br>
-EOF
-
-    # Sea-ice section
-    if [ ${i_do_ice}  -gt 0 ]; then
-        cat >> index.html <<EOF
-        <br><br><br><big><big> Arctic/Antarctic sea-ice time-series</big></big><br><br>
-        <img style="border: 0px solid" alt="" src="seaice_extent_winter_${CONFRUN}.${FIG_FORM}"> <br><br>
-        <img style="border: 0px solid" alt="" src="seaice_extent_summer_${CONFRUN}.${FIG_FORM}"> <br><br><br>
-        <img style="border: 0px solid" alt="" src="seaice_volume_winter_${CONFRUN}.${FIG_FORM}"> <br><br>
-        <img style="border: 0px solid" alt="" src="seaice_volume_summer_${CONFRUN}.${FIG_FORM}"> <br><br><br><br>
-EOF
-    fi
-
-    if [ ${i_do_trsp} -gt 0 ]; then
-        # Adding transport section part:
-        echo "<br><br><br><big><big> Transport through sections</big></big><br><br>" >> index.html
-        list_section=`cat ${TRANSPORT_SECTION_FILE} | grep '-'`
-        for cs in ${list_section}; do
-            echo ${cs}
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_vol_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>"  >> index.html
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_heat_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>" >> index.html
-            echo "<br>" >> index.html
-        done
-    fi
-
-    # Checking if figures with time-series of MLD in specified boxes are here and adding them:
-    if [ ${i_do_mean} -eq 1 ]; then
-        list_mld_figs=`\ls mean_mldr10_1_${CONFRUN}*.${FIG_FORM}`
-        if [ ! "${list_mld_figs}" = "" ]; then
-            echo "<br><br><br><big><big> Horizontally-averaged Mixed-Layer Depth in different regions</big></big><br><br>" >> index.html
-            for fmld in ${list_mld_figs}; do
-                echo "<img style=\"border: 0px solid\" alt=\"\" src=\"${fmld}\"> <br><br>"  >> index.html
-            done
-        fi
-    fi
-
-    if [ ${i_do_sigt} -eq 1 ]; then
-        # Adding transport by sigma class section part:
-        echo "<br><br><br><big><big> Transport by sigma class at Nordic sills</big></big><br><br>" >> index.html
-        list_section=`cat ${DENSITY_SECTION_FILE} | grep '_'`
-        for cs in ${list_section}; do
-            echo ${cs}
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"transport_sigma_class_${cs}_${CONFRUN}.${FIG_FORM}\"> <br><br>"  >> index.html
-        done
-        echo "<img style=\"border: 0px solid\" alt=\"\" src=\"tr_sigma_gt278_${CONFRUN}.${FIG_FORM}\"> <br><br>"  >> index.html
-        echo "<br><br>" >> index.html
-    fi
-
-    if [ ${i_do_mht} -eq 1 ]; then
-        # Adding meridional heat transport:
-        echo "<br><br><br><big><big> Meridional transports</big></big><br><br>"  >> index.html
-        for coce in "global" "atlantic" "pacific" "indian"; do
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MHT_${CONFRUN}_${coce}.${FIG_FORM}\"> <br><br>"     >> index.html
-            echo "<img style=\"border: 0px solid\" alt=\"\" src=\"MST_${CONFRUN}_${coce}.${FIG_FORM}\"> <br><br>" >> index.html
-        done
-        echo "<br><br>" >> index.html
-    fi
-
-    cat ${BARAKUDA_ROOT}/scripts/html/conf_end.html          >> index.html ; # Closing HTML file...
-
-
-
-
+    
+    . ${BARAKUDA_ROOT}/configs/build_html.bash
+    
+    # Building main index.html 
+    build_index_html
+    
     # If climatology built, sub 2D html pages
-    # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
     if ${l_pclim}; then
-
-       # T, S, SSH and ice HTML page:
-        for cdiag in ${DIRS_2_EXP}; do
-            cat ${BARAKUDA_ROOT}/scripts/html/conf_start.html               > index.tmp
-            cat ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html >> index.tmp
-            cat ${BARAKUDA_ROOT}/scripts/html/conf_end.html                >> index.tmp
-            sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${CONFRUN}|g" \
-                -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" -e "s|{COMP2D}|CLIM|g" \
-                index.tmp > ${cdiag}/index.html
-            rm -f index.tmp
-            cd ${cdiag}/ ; ln -sf ../logo.png . ; cd ../
-        done
-
-        for var in "sst" "sss" "sections_ts" "ts_100m" "ts_1000m" "ts_3000m"; do
-            cat ${BARAKUDA_ROOT}/scripts/html/conf_start.html               > index.tmp
-            cat ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html         >> index.tmp
-            cat ${BARAKUDA_ROOT}/scripts/html/conf_end.html                >> index.tmp
-            sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${CONFRUN}|g" \
-                -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" -e "s|{COMP2D}|CLIM|g" \
-                index.tmp > temp_sal/${var}_CLIM.html
-        done
-
-        if ${lcomp_to_run}; then
-            for cdiag in ${DIRS_2_EXP_RREF}; do
-                cat ${BARAKUDA_ROOT}/scripts/html/conf_start.html               > index.tmp
-                cat ${BARAKUDA_ROOT}/scripts/html/${cdiag}/index_${cdiag}.html >> index.tmp
-                cat ${BARAKUDA_ROOT}/scripts/html/conf_end.html                >> index.tmp
-                sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${CONFRUN}|g" \
-                    -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" -e "s|{COMP2D}|${RUNREF}|g" \
-                    index.tmp > ${cdiag}/index_${RUNREF}.html
-                rm -f index.tmp
-                cd ${cdiag}/ ; ln -sf ../logo.png . ; cd ../
-            done
-            for var in "sst" "sss" "sections_ts" "ts_100m" "ts_1000m" "ts_3000m"; do
-                cat ${BARAKUDA_ROOT}/scripts/html/conf_start.html               > index.tmp
-                cat ${BARAKUDA_ROOT}/scripts/html/temp_sal/${var}.html         >> index.tmp
-                cat ${BARAKUDA_ROOT}/scripts/html/conf_end.html                >> index.tmp
-                sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${CONFRUN}|g" \
-                    -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" -e "s|{COMP2D}|${RUNREF}|g" \
-                    index.tmp > temp_sal/${var}_${RUNREF}.html
-            done
-        fi
-
-        # Surface fluxes HTML page:
-        #if [ ${i_do_flx} -eq 1 ]; then
-        #    sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${COMP2D}|g" \
-        #        ${BARAKUDA_ROOT}/scripts/html/surf_fluxes/index_fluxes.html > surf_fluxes/index.html
-        #    for flx in "Qsw" "Qlw" "Qla" "Qse"; do
-        #        sed -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{COMP2D}|${COMP2D}|g" \
-        #            ${BARAKUDA_ROOT}/scripts/html/surf_fluxes/${flx}.html > surf_fluxes/${flx}.html
-        #    done
-        #fi
-
+        build_sub_html
     fi
-
+    
+    #==================================================================
+    
 
     wait ; # likely waiting for the creation of the GIFs....
 
-    echo "Done!"; echo; echo
+    echo; echo
 
 
     html_dir=${DIAG_D}/${RUN}
@@ -1055,10 +829,8 @@ EOF
     cp ${BARAKUDA_ROOT}/scripts/html/logo.png    ${html_dir}/
 
     mv -f index.html ${html_dir}/
-    for fp in ${FIG_FORM} svg gif; do mv -f *.${fp} ${html_dir}/ >/dev/null 2>/dev/null ; done
-    mv -f ./merid_transport/*.${FIG_FORM} ${html_dir}/ >/dev/null 2>/dev/null
-
-    if [ ${inmlst} -eq 1 ]; then cp ${NEMO_OUT_D}/${fnamelist} ${html_dir}/; fi
+    for fp in ${ff} svg gif; do mv -f *.${fp} ${html_dir}/ >/dev/null 2>/dev/null ; done
+    mv -f ./merid_transport/*.${ff} ${html_dir}/ >/dev/null 2>/dev/null
 
     cp -r ${DIRS_2_EXP} ${html_dir}/ >/dev/null 2>/dev/null
 

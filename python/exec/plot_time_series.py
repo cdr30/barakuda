@@ -443,7 +443,7 @@ if idfig == 'amoc':
     list_lat = clmoc.split() ; nblat = len(list_lat)
     print '\n AMOC: '+str(nblat)+' latitude bands!'
 
-    i45 = 3 ; # position of AMOC at 45!
+    i40 = 2 ; # position of AMOC at 40!
 
     jl = 0
     for clr in list_lat:
@@ -463,13 +463,13 @@ if idfig == 'amoc':
     if nbm%12 != 0:
         print 'ERROR: plot_time_series.py => '+cdiag+', number of records not a multiple of 12!'
         sys.exit(0)
-    VY, FY = bt.monthly_2_annual(vtime, Xamoc[i45,:])
+    VY, FY = bt.monthly_2_annual(vtime, Xamoc[i40,:])
 
     ittic = bt.iaxe_tick(nbm/12)
 
     # Time to plot
-    bp.plot("1d_mon_ann")(vtime, VY, Xamoc[i45,:], FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
-                          cyunit=cyu, ctitle = CONFRUN+': '+r'Max. of AMOC between '+vlabels[i45],
+    bp.plot("1d_mon_ann")(vtime, VY, Xamoc[i40,:], FY, cfignm=cdiag+'_'+CONFRUN, dt_year=ittic,
+                          cyunit=cyu, ctitle = CONFRUN+': '+r'Max. of AMOC between '+vlabels[i40],
                           ymin=ym, ymax=yp, dy=1., i_y_jump=2, cfig_type=ff)
 
     # Annual:

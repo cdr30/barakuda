@@ -12,6 +12,8 @@
 #
 #===========================================================
 
+export HOST=MARENOSTRUM
+
 export CONF=ORCA1.L75 ; # horizontal global configuration
 export NBL=75     ; # number of levels
 
@@ -19,7 +21,7 @@ export NBL=75     ; # number of levels
 export STORE_DIR="/gpfs/scratch/bsc32/bsc32325"
 
 # Path to directory containing some 2D and 3D climatologies on the relevant ORCA grid:
-export CONF_INI_DIR="/gpfs/projects/bsc32/bsc32325/ORCA1/ORCA1-I/old_clim"
+export CONF_INI_DIR="/gpfs/projects/bsc32/bsc32325/ORCA1/ORCA1-I/barakuda_clim"
 
 # In what directory of the local machine to save the diagnostics:
 export DIAG_DIR="${STORE_DIR}/barakuda/${CONF}_ece32"
@@ -93,7 +95,7 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v3.6 ${CONF}_LIM3 / EC-Earth 3.2b_tunning"
+export JTITLE="LIM3, NEMO 3.6 (EC-Earth 3.2b_tuning)"
 
 # Land-sea mask and basins files:
 export MM_FILE=/gpfs/projects/bsc32/bsc32325/ece-setup/nemo/mesh_mask.nc4

@@ -29,7 +29,6 @@ function barakuda_usage()
     echo
     echo "      -h        => print this message"
     echo
-    exit
 }
 
 
@@ -47,11 +46,13 @@ function barakuda_init()
     export LFORCEDIAG=false
     export l_clim_diag=false
     export IFREQ_SAV_YEARS=1
+    #
 }
 
 function barakuda_check()
 {
-    if [ "${CONFIG}" = "" ] || [ "${RUN}" = "" ]; then barakuda_usage ; exit ; fi
+    script=`basename $0 | sed -e s/'.sh'/''/g`
+    if [ "${CONFIG}" = "" ] || [ "${RUN}" = "" ]; then ${script}_usage ; exit ; fi
 
     if [ "${RUNREF}" != "" ] && [ ${ISTAGE} -eq 1 ]; then
         echo; echo " WARNING: option '-c' only makes sense when '-e' or '-E' are specified !"
@@ -65,10 +66,21 @@ function barakuda_check()
 
     if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
     echo
+    
+    if [ "${script}" = "build_clim" ]; then
+        echo Boo
+        if [ -z ${Y1} ] || [ -z ${Y2} ]; then
+            ${script}_usage
+            echo; echo " ==> Please specify both first and last year for climatology (-i and -e ) !!!"; echo
+            exit
+        fi
+    fi
 }
+
 
 function barakuda_setup()
 {
+    script=`basename $0 | sed -e s/'.sh'/''/g`
     echo
     if [ ! "${ORCA}" = "${CONF}" ]; then echo "ERROR: ORCA and CONF disagree! => ${ORCA} ${CONF}"; exit; fi
     export ORCA=${CONF}
@@ -94,10 +106,6 @@ function barakuda_setup()
         done
     fi
 
-# Testing if NCO is installed:
-    which ncks 1>out 2>/dev/null; ca=`cat out`; rm -f out
-    if [ "${ca}" = "" ]; then echo "Install NCO!!!"; echo; exit; fi
-
 # Names for temperature, salinity, u- and v-current...
     if [ "${NN_T}" = "" ] || [ "${NN_S}" = "" ] || [ "${NN_U}" = "" ] || [ "${NN_V}" = "" ]; then
         echo "NN_T, NN_S, NN_U and NN_V are NOT given a value into"
@@ -108,54 +116,38 @@ function barakuda_setup()
 
     echo ; echo " *** NN_T=${NN_T}, NN_S=${NN_S}, NN_U=${NN_U} and NN_V=${NN_V} "; echo
 
-# Not fully supported yet:
-    ca=" => diagnostic totally beta and not fully supported yet!"
-    if [ ${i_do_sect} -gt 0 ]; then echo " *** i_do_sect ${ca}"; exit; fi
-    if [ ${i_do_amo}  -gt 0 ]; then echo " *** i_do_amo  ${ca}"; exit; fi
-    if [ ${i_do_icet} -gt 0 ]; then echo " *** i_do_icet ${ca}"; exit; fi
-    if [ ${i_do_flx}  -gt 0 ]; then echo " *** i_do_flx  ${ca}"; exit; fi
-
-
-# Checking what files we have / plan to use:
+    # Checking what files we have / plan to use:
     if [ "${NEMO_SAVED_FILES}" = "" ]; then
         echo "Please specify which NEMO files are saved (file suffixes, grid_T, ..., icemod) ?"
         echo " => set the variable NEMO_SAVED_FILES in your config_${CONFIG}.sh file!"; exit
     fi
     echo; echo "File types to import (NEMO_SAVED_FILES) : ${NEMO_SAVED_FILES}"; echo; echo
 
-
-    if [ ${ISTAGE} -eq 1 ]; then
-    # List of CDFTOOLS executables needed for the diagnostics:
-        L_EXEC="cdfmaxmoc.x cdfmoc.x cdfvT.x cdftransportiz.x cdficediags.x cdfmhst.x cdfsigtrp.x"
-        for ex in ${L_EXEC}; do check_if_file cdftools_light/bin/${ex} "Compile CDFTOOLS executables!"; done
-    fi
-
-
-# Need to be consistent with the netcdf installation upon which cdftools_light was compiled:
+    # Need to be consistent with the netcdf installation upon which cdftools_light was compiled:
     export NCDF_DIR=`cat cdftools_light/make.macro | grep ^NCDF_DIR | cut -d = -f2 | sed -e s/' '//g`
     echo ; echo "NCDF_DIR = ${NCDF_DIR}"; echo
     export LD_LIBRARY_PATH=${NCDF_DIR}/lib:${LD_LIBRARY_PATH}
 
-# Exporting some variables needed by the python scripts:
+    # Exporting some variables needed by the python scripts:
     export RUN=${RUN}
     export CONFRUN=${ORCA}-${RUN}
     export DIAG_D=${DIAG_DIR}/${CONFRUN}
-
-
+    export CLIM_DIR=${DIAG_D}/clim
+    
     if [ ${ISTAGE} -eq 1 ]; then
-    # We need a scratch/temporary directory to copy these files to and gunzip them:
+        # We need a scratch/temporary directory to copy these files to and gunzip them:
         if [ "${SLURM_JOBID}" = "" -a `hostname` = "triolith1" ]; then
         # Likely to be running interactively on triolith
-            export SCRATCH=${HOME}/tmp
-            export TMP_DIR=${SCRATCH}/${RUN}_tmp
+            export SCRATCH=${HOME}/tmp/${script}_tmp
+            export TMP_DIR=${SCRATCH}/${RUN}_${script}_tmp
         else
-        # Normal case:
+            # Normal case:
             SCRATCH=`echo ${SCRATCH} | sed -e "s|<JOB_ID>|${SLURM_JOBID}|g"`
             export TMP_DIR=${SCRATCH}/${RUN}
         fi
         echo " IMPORTANT the SCRATCH work directory is set to:" ; echo " ${SCRATCH}"
     else
-        export TMP_DIR=${DIAG_D}/tmp
+        export TMP_DIR=${DIAG_D}/${script}_tmp
     fi
 
     echo " IMPORTANT the TMP_DIR work directory is set to:" ; echo " ${TMP_DIR}"; echo ; sleep 2
@@ -171,6 +163,32 @@ function barakuda_setup()
 
     export CPREF=`echo ${NEMO_FILE_PREFIX} | sed -e "s|<ORCA>|${ORCA}|g" -e "s|<RUN>|${RUN}|g" -e "s|<TSTAMP>|${TSTAMP}|g"`
     echo " NEMO files prefix = ${CPREF} "
+
+    # only neede for barakuda.sh :
+    if [ "${script}" = "barakuda" ]; then
+        # Testing if NCO is installed:
+        which ncks 1>out 2>/dev/null; ca=`cat out`; rm -f out
+        if [ "${ca}" = "" ]; then echo "Install NCO!!!"; echo; exit; fi
+
+        # Not fully supported yet:
+        ca=" => diagnostic totally beta and not fully supported yet!"
+        if [ ${i_do_sect} -gt 0 ]; then echo " *** i_do_sect ${ca}"; exit; fi
+        if [ ${i_do_amo}  -gt 0 ]; then echo " *** i_do_amo  ${ca}"; exit; fi
+        if [ ${i_do_icet} -gt 0 ]; then echo " *** i_do_icet ${ca}"; exit; fi
+        if [ ${i_do_flx}  -gt 0 ]; then echo " *** i_do_flx  ${ca}"; exit; fi
+
+        if [ ${ISTAGE} -eq 1 ]; then
+            # List of CDFTOOLS executables needed for the diagnostics:
+            L_EXEC="cdfmaxmoc.x cdfmoc.x cdfvT.x cdftransportiz.x cdficediags.x cdfmhst.x cdfsigtrp.x"
+            for ex in ${L_EXEC}; do check_if_file cdftools_light/bin/${ex} "Compile CDFTOOLS executables!"; done
+        fi
+    fi
+    
+    # only needed for build_clim.sh :
+    if [ "${script}" = "build_clim" ]; then
+        mkdir -p ${CLIM_DIR}
+    fi
+    
     echo
 }
 
@@ -254,6 +272,7 @@ function barakuda_init_plot()
 
 function barakuda_import_mesh_mask()
 {
+    script=`basename $0 | sed -e s/'.sh'/''/g`
     cd ${TMP_DIR}/
     # Importing mesh_mask files:
     check_if_file ${MM_FILE}
@@ -285,6 +304,10 @@ function barakuda_import_mesh_mask()
     echo " *** mesh_mask to be used: ${MM_FILE} "
     echo " *** basin mask to be used: ${BM_FILE} "
     echo
+    
+    if [ "${script}" = "build_clim" ]; then
+        ln -sf mesh_mask.nc mesh_hgr.nc ; ln -sf mesh_mask.nc mesh_zgr.nc ; ln -sf mesh_mask.nc mask.nc
+    fi
 }
 
 function barakuda_check_year_is_complete()
@@ -391,6 +414,26 @@ function barakuda_import_files()
     done
     echo
 }
+
+function build_clim_usage()
+{
+    echo
+    echo "USAGE: ${0} -C <config> -R <run> -i <first_year> -e <last_year> (options)"
+    echo
+    echo "     Available configs are:"
+    for cc in ${list_conf}; do
+        echo "         * ${cc}"
+    done
+    echo
+    echo "   OPTIONS:"
+    echo "      -f <years> => how many years per NEMO file? default = 1"
+    echo "      -h         => print this message"
+    echo
+}
+
+
+
+
 
 # ================ Misc. Functions ===============
 

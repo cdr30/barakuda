@@ -11,14 +11,13 @@
 #===============================================================
 
 export BARAKUDA_ROOT=`pwd`
+export FIG_FORMAT='png'
 
-PYTHON_HOME=${HOME}/opt/Canopy_64bit/User
-PYTH="${PYTHON_HOME}/bin/python -W ignore" ; # which Python installation to use
-export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
-PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
+
+
 
 #export FIG_FORMAT='svg'
-export FIG_FORMAT='png'
+
 
 # Supported ORCA grids:
 ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
@@ -35,7 +34,9 @@ usage()
     echo "USAGE: ${0} -C <config> -R <run1,run2,...,runN>  (options)"
     echo
     echo "     Available configs are:"
-    echo "             => ${list_conf}"
+    for cc in ${list_conf}; do
+        echo "         * ${cc}"
+    done
     echo
     echo "   OPTIONS:"
     echo "      -y <YYYY> => force initial year to YYYY"
@@ -94,21 +95,14 @@ else
 fi
 echo
 
-
 if [ ! "${ORCA}" = "${CONF}" ]; then echo "ERROR: ORCA and CONF disagree! => ${ORCA} ${CONF}"; exit; fi
 export ORCA=${CONF}
 
-
-
-
-
-
-
-
-
-
-
-
+# Should be set from bash_fucntions:
+PYTH="${PYTHON_HOME}/bin/python -W ignore" ; # which Python installation to use
+export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
+PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
+#-------------------
 
 
 LRUNS=`echo ${CRUNS} | sed -e s/'\,'/'\ '/g -e s/'\, '/'\ '/g`
@@ -118,15 +112,8 @@ echo " NEMO grid = ${ORCA}";
 echo " reading config into: ${fconfig}"
 echo; echo
 
-
-
-
 export CONF=${CONF}
 export LIST_RUNS=${LRUNS}
-
-
-
-
 
 NRUNS="${ORCA}-`echo ${LRUNS} | sed -e 's/\ /_/g'`"
 echo " Label to be used: ${NRUNS}" ; echo
@@ -134,9 +121,6 @@ echo " Label to be used: ${NRUNS}" ; echo
 BASE_NAME="comp_${NRUNS}"
 
 DIAG_COMP_DIR=${DIAG_DIR}/comparisons/${BASE_NAME} ; rm -rf ${DIAG_COMP_DIR} ; mkdir -p ${DIAG_COMP_DIR}
-
-
-
 
 YEAR_INI=4000
 YEAR_END=0

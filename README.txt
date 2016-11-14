@@ -132,7 +132,7 @@ B/ To be able to create the "climatology" plots (maps, sections, etc, based on a
        using the "-E" switch instead of "-e" (see point V/A)
 
 
-C/ If you want to create time-series comparing 2 runs (each already diagnosed, at least stage III):
+C/ To compare time-series between at least 2 runs (each already diagnosed, at least stage III):
    
    ./compare_time-series.sh -C <MY_CONF> -R <RUN1>,<RUN2>,...,<RUNn>
    (ex: ./compare_time-series.sh -C ORCA1_L75_v36_triolith -R SL36C00,SL36EIE )
