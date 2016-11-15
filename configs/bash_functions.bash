@@ -66,7 +66,7 @@ function barakuda_check()
 
     if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
     echo
-    
+
     if [ "${script}" = "build_clim" ]; then
         echo Boo
         if [ -z ${Y1} ] || [ -z ${Y2} ]; then
@@ -133,23 +133,25 @@ function barakuda_setup()
     export CONFRUN=${ORCA}-${RUN}
     export DIAG_D=${DIAG_DIR}/${CONFRUN}
     export CLIM_DIR=${DIAG_D}/clim
-    
+
     if [ ${ISTAGE} -eq 1 ]; then
         # We need a scratch/temporary directory to copy these files to and gunzip them:
-        if [ "${SLURM_JOBID}" = "" -a `hostname` = "triolith1" ]; then
-        # Likely to be running interactively on triolith
-            export SCRATCH=${HOME}/tmp/${script}_tmp
-            export TMP_DIR=${SCRATCH}/${RUN}_${script}_tmp
-        else
-            # Normal case:
+        # Normal case, inside a batch job scheduler:
+        if [ ! -z "${SLURM_JOBID}" ]; then
+            # NSC / Sweden
             SCRATCH=`echo ${SCRATCH} | sed -e "s|<JOB_ID>|${SLURM_JOBID}|g"`
             export TMP_DIR=${SCRATCH}/${RUN}
+            #
+        elif [ ! -z "${LSB_JOBID}" ]; then
+            # MARENOSTRUM / Barcelona
+            export TMP_DIR=${TMPDIR}
+            #
+        else
+            export TMP_DIR=/tmp/barakuda_${CONFRUN}_${script}
         fi
-        echo " IMPORTANT the SCRATCH work directory is set to:" ; echo " ${SCRATCH}"
     else
-        export TMP_DIR=${DIAG_D}/${script}_tmp
+        export TMP_DIR=${DIAG_D}/tmp
     fi
-
     echo " IMPORTANT the TMP_DIR work directory is set to:" ; echo " ${TMP_DIR}"; echo ; sleep 2
 
     rm -rf ${TMP_DIR}
@@ -183,12 +185,11 @@ function barakuda_setup()
             for ex in ${L_EXEC}; do check_if_file cdftools_light/bin/${ex} "Compile CDFTOOLS executables!"; done
         fi
     fi
-    
-    # only needed for build_clim.sh :
-    if [ "${script}" = "build_clim" ]; then
-        mkdir -p ${CLIM_DIR}
+
+    if [ -z ${NCDF_DIR} ]; then
+        echo "ERROR: NCDF_DIR could not be determined, please specify it in your config file!"
+        exit
     fi
-    
     echo
 }
 
@@ -304,7 +305,7 @@ function barakuda_import_mesh_mask()
     echo " *** mesh_mask to be used: ${MM_FILE} "
     echo " *** basin mask to be used: ${BM_FILE} "
     echo
-    
+
     if [ "${script}" = "build_clim" ]; then
         ln -sf mesh_mask.nc mesh_hgr.nc ; ln -sf mesh_mask.nc mesh_zgr.nc ; ln -sf mesh_mask.nc mask.nc
     fi

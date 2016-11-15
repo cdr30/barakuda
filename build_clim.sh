@@ -10,12 +10,10 @@
 #
 #===============================================================
 
-iremap=0 ; REGG="360x180"; # remap to regular lat-lon grid?
 iuv=0      ; # Do a climatology for current...
 ivt=1      ; # Do a climatology for VT
 iamoc=1    ; # Do a climatology for 2D lat-depth AMOC?
 ibpsi=0    ; # Do a climatology for barotropic stream function
-
 
 export BARAKUDA_ROOT=`pwd`
 
@@ -55,19 +53,26 @@ barakuda_setup
 
 echo
 echo " SETTINGS: "
-echo "   *** Y1    = ${Y1} "
-echo "   *** Y2    = ${Y2} "
-echo "   *** CONFIG  = ${CONFIG} "
-echo "   *** GRID  = ${ORCA} "
-echo "   *** RUN  = ${RUN} "
-echo "   *** CPREF  = ${CPREF} "
-echo "   *** IFREQ_SAV_YEARS  = ${IFREQ_SAV_YEARS} "
+echo "   *** CLIM_DIR = ${CLIM_DIR} "
+echo "   *** TMP_DIR  = ${TMP_DIR} "
+echo "   *** Y1       = ${Y1} "
+echo "   *** Y2       = ${Y2} "
+echo "   *** CONFIG   = ${CONFIG} "
+echo "   *** GRID     = ${ORCA} "
+echo "   *** RUN      = ${RUN} "
+echo "   *** CPREF    = ${CPREF} "
+echo "   *** IFREQ_SAV_YEARS = ${IFREQ_SAV_YEARS} "
 echo
+
+CP2NC4="${NCDF_DIR}/bin/nccopy -k 4 -d 9"
 
 Y1=$((${Y1}+0))
 Y2=$((${Y2}+0))
 CY1=`printf "%04d" ${Y1}`
 CY2=`printf "%04d" ${Y2}`
+
+
+mkdir -p ${CLIM_DIR}
 
 
 # Variables to extract:
@@ -79,8 +84,6 @@ C2ET="nav_lon,nav_lat,deptht" #,time_counter"
 C2EU="nav_lon,nav_lat,depthu" #,time_counter"
 C2EV="nav_lon,nav_lat,depthv" #,time_counter"
 C2EW="nav_lon,nav_lat,depthw" #,time_counter"
-
-
 
 GRID_IMP="grid_T"
 
@@ -195,40 +198,39 @@ while [ ${jyear} -le ${Y2} ]; do
     #fg=${CRT1}_${FILE_ICE_SUFFIX}.nc ; # can be icemod or grid_T ....
     #fvt=${CRT1}_VT.nc
 
-    ls -l ; echo; echo
-
     echo
     
     if [ ${ivt} -eq 1 ]; then
         # Creating VT files:
         echo "Doing: ${BARAKUDA_ROOT}/cdftools_light/bin/cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV}"
-        ${BARAKUDA_ROOT}/cdftools_light/bin/cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV}
-        echo "After:"; ls *VT.nc*
+        ${BARAKUDA_ROOT}/cdftools_light/bin/cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV} &
         echo
     fi
 
     echo
-
+    
     if [ ${iamoc} -eq 1 ]; then
         rm -f moc.nc
         echo " *** doing: ./cdfmoc.x ${fv} ${NN_V} ${NN_V_EIV}"
-        ${BARAKUDA_ROOT}/cdftools_light/bin/cdfmoc.x ${fv} ${NN_V} ${NN_V_EIV}
-        echo "Done!"; echo; echo; echo
-        ncwa -O -a x moc.nc ${CPREF}${TTAG_ann}_MOC.nc ; # removing degenerate x record...
-        rm -f moc.nc
-        echo "After:"; ls *MOC.nc*
+        ${BARAKUDA_ROOT}/cdftools_light/bin/cdfmoc.x ${fv} ${NN_V} ${NN_V_EIV} &
         echo
     fi
 
     if [ ${ibpsi} -eq 1 ]; then
         rm -f psi.nc
         echo " *** doing: ./cdfpsi.x ${fu} ${fv} V"
-        ${BARAKUDA_ROOT}/cdftools_light/bin/cdfpsi.x ${fu} ${fv} V
-        echo "Done!"; echo; echo; echo
-        mv -f psi.nc ${CPREF}${TTAG_ann}_PSI.nc
-        echo "After:"; ls *PSI.nc*
+        ${BARAKUDA_ROOT}/cdftools_light/bin/cdfpsi.x ${fu} ${fv} V &
         echo
     fi
+
+    wait
+
+    ncwa -O -a x moc.nc ${CPREF}${TTAG_ann}_MOC.nc ; # removing degenerate x record...
+    rm -f moc.nc
+    mv -f psi.nc        ${CPREF}${TTAG_ann}_PSI.nc
+
+    echo "After year ${jyear}:"; ls -l *.nc*
+    echo
     
     ((jyear++))
     export jyear=${jyear}
@@ -244,8 +246,8 @@ if [ ${ivt} -eq 1 ]; then
     rm -f ${CPREF}*_VT.nc
 
     # Converting to netcdf4 with maximum compression level:
-    ${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${fo} ${fo}4 ;  rm -f ${fo}
-    mv -f ${fo}4 ${CLIM_DIR}/
+    ${CP2NC4} ${fo} ${fo}4 &
+    
 fi
 
 if [ ${iamoc} -eq 1 ]; then
@@ -253,8 +255,7 @@ if [ ${iamoc} -eq 1 ]; then
     # Averaged MOC file:
     ncra -O ${CPREF}*_MOC.nc -o ${fo}
     # Converting to netcdf4 with maximum compression level:
-    ${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${fo} ${fo}4 ;  rm -f ${fo}
-    mv -f ${fo}4 ${CLIM_DIR}/
+    ${CP2NC4} ${fo} ${fo}4 &
 fi
 
 
@@ -263,9 +264,9 @@ if [ ${ibpsi} -eq 1 ]; then
     # Averaged PSI file:
     ncra -O ${CPREF}*_PSI.nc -o ${fo}
     # Converting to netcdf4 with maximum compression level:
-    ${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${fo} ${fo}4 ;  rm -f ${fo}
-    mv -f ${fo}4 ${CLIM_DIR}/
+    ${CP2NC4} ${fo} ${fo}4 &
 fi
+
 
 echo;echo;echo;
 
@@ -317,36 +318,30 @@ for suff in grid_T grid_U grid_V icemod SBC VT MOC PSI; do
         echo
 
         mv -f out_${suff}.nc ${f2c}
-
-        if [ ${iremap} -eq 1 ]; then
-            echo; echo "cdo remapbil,r${REGG} ${f2c} ${f2c_reg}"
-            cdo remapbil,r${REGG} ${f2c} ${f2c_reg}
-            echo
-        fi
-
+        
         # Converting to netcdf4 with maximum compression level:
         echo; ls ; echo
-        echo "${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${f2c} ${f2c}4 ;  rm -f ${f2c}"
-        ${NCDF_DIR}/bin/nccopy -k 4 -d 9 ${f2c} ${f2c}4 ;  rm -f ${f2c}
+        echo "${CP2NC4} ${f2c} ${f2c}4"
+        ${CP2NC4} ${f2c} ${f2c}4 &
         echo
-        mv -f ${f2c}4    ${CLIM_DIR}/
-
-        if [ ${iremap} -eq 1 ]; then mv -f ${f2c_reg} ${CLIM_DIR}/ ; fi
-
-
+        
     else
         echo ; echo ; echo ; echo " Ignoring monthly ${suff} files!"; echo
     fi
 
 done ; # loop along files suffixes
 
+wait
+wait
+
+mv -f aclim_${CONFRUN}*.nc4 ${CLIM_DIR}/
+mv -f mclim_${CONFRUN}*.nc4 ${CLIM_DIR}/
 
 echo;echo
 echo "${CY1}-${CY2}" > ${CLIM_DIR}/last_clim
 echo "Climatology saved into: ${CLIM_DIR}/"
 echo;echo
 
-
-#debug:
+cd /tmp/
 rm -rf ${TMP_DIR} 2>/dev/null
-
+exit

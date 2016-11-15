@@ -56,7 +56,7 @@ export NEMO_FILE_PREFIX="<RUN>_<TSTAMP>_"
 # => should get rid of TSTAMP actually...
 
 # Temporary file system (scratch) on which to perform the job you can use <JOB_ID> if scracth depends on JOB ID:
-#export SCRATCH="/scratch/local/<JOB_ID>"
+#export SCRATCH="/scratch/local/<JOB_ID>" ; # triolith
 export SCRATCH="/scratch/tmp"
 
 export PYTHON_HOME="/apps/PYTHON/2.7.3"

@@ -49,6 +49,18 @@ fi
 
 barakuda_setup
 
+echo
+echo " SETTINGS: "
+echo "   *** CLIM_DIR = ${CLIM_DIR} "
+echo "   *** TMP_DIR  = ${TMP_DIR} "
+echo "   *** CONFIG   = ${CONFIG} "
+echo "   *** GRID     = ${ORCA} "
+echo "   *** RUN      = ${RUN} "
+echo "   *** CPREF    = ${CPREF} "
+echo "   *** IFREQ_SAV_YEARS = ${IFREQ_SAV_YEARS} "
+echo
+
+
 if [ ${ISTAGE} -eq 1 ]; then
     barakuda_first_last_years ; # look at NEMO files to know what are first and last years available...
     echo ${IFREQ_SAV_YEARS} > ${DIAG_D}/numb_year_per_file.info
