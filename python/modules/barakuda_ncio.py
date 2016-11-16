@@ -80,8 +80,18 @@ def read_1d_series(cf_i, cv_i, cv_t='time', l_return_time=True):
     if not path.exists(cf_i): print 'ERROR: read_1d_series.barakuda_ncio => '+cf_i+' not found!'; sys.exit(0)
 
     id_i = Dataset(cf_i)
+    list_variables = id_i.variables.keys()
+    
     if l_return_time: vt = id_i.variables[cv_t][:]
-    vd = id_i.variables[cv_i][:]
+    
+    if cv_i in list_variables[:]:
+        vd = id_i.variables[cv_i][:]
+    else:
+        print 'WARNING: read_1d_series.barakuda_ncio => '+cv_i+' not found into '+cf_i+' !'
+        if l_return_time:
+            vd = nmp.zeros(len(vt))
+        else:
+            vd = [ 0. ]
     id_i.close()
 
     if l_return_time:

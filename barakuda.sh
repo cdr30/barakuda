@@ -837,8 +837,8 @@ if [ ${ISTAGE} -eq 2 ]; then
     html_dir=${DIAG_D}/${RUN}
     mkdir -p ${html_dir}
 
-    cp ${BARAKUDA_ROOT}/src/scripts/html/conf_*.html ${html_dir}/
-    cp ${BARAKUDA_ROOT}/src/scripts/html/logo.png    ${html_dir}/
+    cp ${BARAKUDA_ROOT}/src/html/conf_*.html ${html_dir}/
+    cp ${BARAKUDA_ROOT}/src/html/logo.png    ${html_dir}/
 
     mv -f index.html ${html_dir}/
     for fp in ${ff} svg gif; do mv -f *.${fp} ${html_dir}/ >/dev/null 2>/dev/null ; done

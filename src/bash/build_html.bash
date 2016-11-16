@@ -23,7 +23,7 @@ function build_index_html()
 
     # Starting to configure HTML index file:
     sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${CONFRUN}|g" -e "s|{DATE}|`date`|g" -e "s|{HOST}|${HOST}:`hostname`|g" \
-        ${BARAKUDA_ROOT}/src/scripts/html/conf_start.html > index.html
+        ${BARAKUDA_ROOT}/src/html/conf_start.html > index.html
 
     # Climato section
     if ${l_pclim}; then
@@ -169,7 +169,7 @@ EOF
         echo "${spf}" >> index.html
     fi
 
-    cat ${BARAKUDA_ROOT}/src/scripts/html/conf_end.html >> index.html
+    cat ${BARAKUDA_ROOT}/src/html/conf_end.html >> index.html
 
 }
 
@@ -191,9 +191,9 @@ function build_sub_html()
 
        # T, S, SSH and ice HTML page:
     for cdiag in ${DIRS_2_EXP}; do
-        cat ${BARAKUDA_ROOT}/src/scripts/html/conf_start.html               > index.tmp
-        cat ${BARAKUDA_ROOT}/src/scripts/html/${cdiag}/index_${cdiag}.html >> index.tmp
-        cat ${BARAKUDA_ROOT}/src/scripts/html/conf_end.html                >> index.tmp
+        cat ${BARAKUDA_ROOT}/src/html/conf_start.html               > index.tmp
+        cat ${BARAKUDA_ROOT}/src/html/${cdiag}/index_${cdiag}.html >> index.tmp
+        cat ${BARAKUDA_ROOT}/src/html/conf_end.html                >> index.tmp
         sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${cr}|g" \
             -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" -e "s|{COMP2D}|CLIM|g" \
             index.tmp > ${cdiag}/index.html
@@ -202,9 +202,9 @@ function build_sub_html()
     done
 
     for var in "sst" "sss" "sections_ts" "ts_100m" "ts_1000m" "ts_3000m"; do
-        cat ${BARAKUDA_ROOT}/src/scripts/html/conf_start.html               > index.tmp
-        cat ${BARAKUDA_ROOT}/src/scripts/html/temp_sal/${var}.html         >> index.tmp
-        cat ${BARAKUDA_ROOT}/src/scripts/html/conf_end.html                >> index.tmp
+        cat ${BARAKUDA_ROOT}/src/html/conf_start.html               > index.tmp
+        cat ${BARAKUDA_ROOT}/src/html/temp_sal/${var}.html         >> index.tmp
+        cat ${BARAKUDA_ROOT}/src/html/conf_end.html                >> index.tmp
         sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${cr}|g" \
             -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" -e "s|{COMP2D}|CLIM|g" \
             index.tmp > temp_sal/${var}_CLIM.html
@@ -212,9 +212,9 @@ function build_sub_html()
 
     if ${lcomp_to_run}; then
         for cdiag in ${DIRS_2_EXP_RREF}; do
-            cat ${BARAKUDA_ROOT}/src/scripts/html/conf_start.html               > index.tmp
-            cat ${BARAKUDA_ROOT}/src/scripts/html/${cdiag}/index_${cdiag}.html >> index.tmp
-            cat ${BARAKUDA_ROOT}/src/scripts/html/conf_end.html                >> index.tmp
+            cat ${BARAKUDA_ROOT}/src/html/conf_start.html               > index.tmp
+            cat ${BARAKUDA_ROOT}/src/html/${cdiag}/index_${cdiag}.html >> index.tmp
+            cat ${BARAKUDA_ROOT}/src/html/conf_end.html                >> index.tmp
             sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${cr}|g" \
                 -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" -e "s|{COMP2D}|${RUNREF}|g" \
                 index.tmp > ${cdiag}/index_${RUNREF}.html
@@ -222,9 +222,9 @@ function build_sub_html()
             cd ${cdiag}/ ; ln -sf ../logo.png . ; cd ../
         done
         for var in "sst" "sss" "sections_ts" "ts_100m" "ts_1000m" "ts_3000m"; do
-            cat ${BARAKUDA_ROOT}/src/scripts/html/conf_start.html               > index.tmp
-            cat ${BARAKUDA_ROOT}/src/scripts/html/temp_sal/${var}.html         >> index.tmp
-            cat ${BARAKUDA_ROOT}/src/scripts/html/conf_end.html                >> index.tmp
+            cat ${BARAKUDA_ROOT}/src/html/conf_start.html               > index.tmp
+            cat ${BARAKUDA_ROOT}/src/html/temp_sal/${var}.html         >> index.tmp
+            cat ${BARAKUDA_ROOT}/src/html/conf_end.html                >> index.tmp
             sed -e "s|{TITLE}|${TITLE}|g" -e "s|{CONFRUN}|${cr}|g" \
                 -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" -e "s|{COMP2D}|${RUNREF}|g" \
                 index.tmp > temp_sal/${var}_${RUNREF}.html

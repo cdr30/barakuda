@@ -145,58 +145,58 @@ export FIG_FORM="png"
 
 
 # Movies of SST and SSS compared to OBS:
-i_do_movi=1
+export i_do_movi=1
 
 # Basic 3D and surface averages:
-i_do_mean=1
+export i_do_mean=1
 
 # IFS freshWater fluxes at the surface spatially averaged over the ocean, E-P-R, E-P, R, P, ...
-i_do_fwf=0 ; # only relevant when ece_run=2...
+export i_do_fwf=0 ; # only relevant when ece_run=2...
 
 # AMOC:
-i_do_amoc=1
+export i_do_amoc=1
 export LMOCLAT="20-23 30-33 40-43 45-48 50-53" ; # List of latitude bands to look in for max of AMOC
 
 
 # Transport of mass, heat and salt through specified sections (into TRANSPORT_SECTION_FILE):
-i_do_trsp=2  ; # transport of mass, heat and salt through specified sections
+export i_do_trsp=2  ; # transport of mass, heat and salt through specified sections
 #              # i_do_trsp=2 => treat also different depths range!
 z1_trsp=100  ; # first  depth: i_do_trsp must be set to 2
 z2_trsp=1000 ; # second depth: i_do_trsp must be set to 2
 
 
 # meridional heat/salt transport (advective)
-i_do_mht=1
+export i_do_mht=1
 
 # Transport by sigma class
-i_do_sigt=1
+export i_do_sigt=1
 
 # sea-ice diags
-i_do_ice=1  ; # Sea-ice diags
+export i_do_ice=1  ; # Sea-ice diags
 
 
-i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!
+export i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!
 #             # => needs file FILE_DEF_BOXES !!!
 # => produces time-series f(t)  (mean of 2D fields)
 
 
-i_do_ssx_box=0 ; # zoom on given boxes (+spatially-averaged values) for surface properties
+export i_do_ssx_box=0 ; # zoom on given boxes (+spatially-averaged values) for surface properties
 #                # boxes defined into barakuda_orca.py ...
 
 
 # Vertical profiles on of box-averaged as a function of time...
-i_do_box_TS_z=1 ; # do sigma vert. profiles on given boxes... # 1 => no figures, 2 => figures
+export i_do_box_TS_z=1 ; # do sigma vert. profiles on given boxes... # 1 => no figures, 2 => figures
 #                 # => needs file FILE_DEF_BOXES !!!
 # => produces time-series f(t,z)
 
 #
 # Deep Mixed volume in prescribed boxes:
-i_do_dmv=0
+export i_do_dmv=0
 export MLD_CRIT="1000,725,500"
 
 
 # Some nerdy stuffs about the critical depth in prescribed boxes:
-i_do_zcrit=0
+export i_do_zcrit=0
 
 
 
@@ -207,21 +207,21 @@ i_do_zcrit=0
 
 # Fresh-water transport associated to sea-ice transport
 #  => must compile cdficeflux.x but depends on more recent CDFTOOLS module...
-i_do_icet=0 ; # treat sea-ice volume transport!
+export i_do_icet=0 ; # treat sea-ice volume transport!
 export TRANSPORT_ICE_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1_ARCTIC.dat"
 
 
 
 
-i_do_flx=0  ; # surface fluxes diags
+export i_do_flx=0  ; # surface fluxes diags
 
 
 
 
-i_do_amo=0 ;  # buit a SST time serie usable to build Atlantic Multidecadal Oscilation index
+export i_do_amo=0 ;  # buit a SST time serie usable to build Atlantic Multidecadal Oscilation index
 
 
-i_do_sect=0 ; # do sigma vert. profiles on given boxes...
+export i_do_sect=0 ; # do sigma vert. profiles on given boxes...
 VSECT_NM=( "Indian_77p5_E" "Atlantic_21p5_W" )
 VSECT_JI=(      "5,5"          "266,266"     ) ; # X range in C convention
 VSECT_JJ=(    "25,170"          "7,291"      ) ; # Y range in C convention

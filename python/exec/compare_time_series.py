@@ -30,13 +30,15 @@ ifwf   = 1  ; # freshwater fluxes at the surface
 
 venv_needed = {'LIST_RUNS','DIAG_DIR','CONF','FIG_FORMAT', \
                'NN_SST','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD', \
-               'TRANSPORT_SECTION_FILE','LMOCLAT'}
+               'TRANSPORT_SECTION_FILE','LMOCLAT','i_do_fwf'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
 cd_diag = vdic['DIAG_DIR']
 cffig   = vdic['FIG_FORMAT']
 
+
+i_do_ifs_fwf = int(vdic['i_do_fwf'])
 
 narg = len(sys.argv)
 if narg != 3: print 'Usage: '+sys.argv[0]+' <first_year> <last_year>'; sys.exit(0)
@@ -413,58 +415,52 @@ if ifwf == 1:
 
         jdiag = jdiag+1
 
+    if i_do_ifs_fwf == 1:
 
-    # Checking if there are filef for IFS:
-    l_fwf_ifs = True  ;  jrun=0
-    for confrun in clist_confruns:
-        cf_in = cd_diag+'/'+confrun+'/mean_fwf_IFS_'+clist_runs[jrun]+'_global.nc'
-        print '  *** Checking for the existence of '+cf_in
-        if os.path.exists(cf_in):
-            print "  *** IFS FWF files found!"
-            l_fwf_ifs = True and l_fwf_ifs
-        jrun=jrun+1
-
-
-    if l_fwf_ifs:
-
-        co = ' oceans (IFS)'
-        cl = ' land (IFS)'
-        vvar  = [ 'flx_e_sv', 'flx_p_sv'  , 'flx_emp_sv', 'flx_e_land_sv', 'flx_p_land_sv'  , 'flx_emp_land_sv' ]
-        vname = [ 'E'+co   , 'Precip'+co, 'E-P'+co    , 'E'+cl        , 'Precip'+cl     , 'E-P'+cl          ]
-        vunit = [ r'Sv'     ,  r'Sv'      ,  r'Sv'      , r'Sv'          ,  r'Sv'           ,  r'Sv'            ]
-        vstit = [ co, co, co, cl, cl, cl ]
-
-        jdiag=0
-        for cvar in vvar:
-            cdiag = cvar
-            print '\n Treating IFS FWF : '+cdiag
-
-            jrun=0
-            for confrun in clist_confruns:
-                cf_in = cd_diag+'/'+confrun+'/mean_fwf_IFS_'+clist_runs[jrun]+'_global.nc'
-
-                vt0, vd0 = bn.read_1d_series(cf_in, cvar, cv_t='time', l_return_time=True)
-                nbm = len(vt0)
-                test_nb_mnth_rec(nbm, nb_years, cdiag)
-
-                VY, FY = bt.monthly_2_annual(vt0, vd0)
-                Xf[jrun,:nbm/12] = FY[:]  ; Xf[jrun,nbm/12:] = -999.
-                jrun = jrun + 1
-
-            bp.plot("1d_multi")(VY, Xf[:,:], clist_runs, cfig_type=cffig,
-                                cfignm='FWF_'+cdiag+'_IFS_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
-                                cyunit=vunit[jdiag], ctitle = vname[jdiag]+' flux integrated over'+vstit[jdiag], ymin=0, ymax=0)
-
-            jdiag = jdiag+1
+        # Checking if there are filef for IFS:
+        l_fwf_ifs = True  ;  jrun=0
+        for confrun in clist_confruns:
+            cf_in = cd_diag+'/'+confrun+'/mean_fwf_IFS_'+clist_runs[jrun]+'_global.nc'
+            print '  *** Checking for the existence of '+cf_in
+            if os.path.exists(cf_in):
+                print "  *** IFS FWF files found!"
+                l_fwf_ifs = True and l_fwf_ifs
+            jrun=jrun+1
+    
+    
+        if l_fwf_ifs:
+    
+            co = ' oceans (IFS)'
+            cl = ' land (IFS)'
+            vvar  = [ 'flx_e_sv', 'flx_p_sv'  , 'flx_emp_sv', 'flx_e_land_sv', 'flx_p_land_sv'  , 'flx_emp_land_sv' ]
+            vname = [ 'E'+co   , 'Precip'+co, 'E-P'+co    , 'E'+cl        , 'Precip'+cl     , 'E-P'+cl          ]
+            vunit = [ r'Sv'     ,  r'Sv'      ,  r'Sv'      , r'Sv'          ,  r'Sv'           ,  r'Sv'            ]
+            vstit = [ co, co, co, cl, cl, cl ]
+    
+            jdiag=0
+            for cvar in vvar:
+                cdiag = cvar
+                print '\n Treating IFS FWF : '+cdiag
+    
+                jrun=0
+                for confrun in clist_confruns:
+                    cf_in = cd_diag+'/'+confrun+'/mean_fwf_IFS_'+clist_runs[jrun]+'_global.nc'
+    
+                    vt0, vd0 = bn.read_1d_series(cf_in, cvar, cv_t='time', l_return_time=True)
+                    nbm = len(vt0)
+                    test_nb_mnth_rec(nbm, nb_years, cdiag)
+    
+                    VY, FY = bt.monthly_2_annual(vt0, vd0)
+                    Xf[jrun,:nbm/12] = FY[:]  ; Xf[jrun,nbm/12:] = -999.
+                    jrun = jrun + 1
+    
+                bp.plot("1d_multi")(VY, Xf[:,:], clist_runs, cfig_type=cffig,
+                                    cfignm='FWF_'+cdiag+'_IFS_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
+                                    cyunit=vunit[jdiag], ctitle = vname[jdiag]+' flux integrated over'+vstit[jdiag], ymin=0, ymax=0)
+    
+                jdiag = jdiag+1
 
 
 
 
 print  '\n\n'+sys.argv[0]+' done...\n'
-
-
-
-
-
-
-

@@ -184,7 +184,7 @@ ${PYTH} ${PYBRKD_EXEC_PATH}/compare_time_series.py ${YEAR_INI} ${YEAR_END}
 sed -e "s|{CONFRUN}|Comparison ${NRUNS}|g" \
     -e "s|{TITLE}|Ocean, ${JTITLE}: comparing ${VRUNS[*]}|g" \
     -e "s|{NRUNS}|${NRUNS}|g" -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" \
-    ${BARAKUDA_ROOT}/scripts/html/conf_start.html >  index.html
+    ${BARAKUDA_ROOT}/src/html/conf_start.html >  index.html
 
 list_figs=`\ls *.${FIG_FORMAT}`
 
@@ -194,10 +194,10 @@ for ff in ${list_figs}; do
 
 done
 
-cat ${BARAKUDA_ROOT}/scripts/html/conf_end.html >> index.html ; # Closing HTML file...
+cat ${BARAKUDA_ROOT}/src/html/conf_end.html >> index.html ; # Closing HTML file...
 
-cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html  .
-cp ${BARAKUDA_ROOT}/scripts/html/logo.png     .
+cp ${BARAKUDA_ROOT}/src/html/conf_*.html  .
+cp ${BARAKUDA_ROOT}/src/html/logo.png     .
 echo; echo
 
 
