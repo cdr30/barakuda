@@ -21,7 +21,7 @@ export BARAKUDA_ROOT=`pwd`
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
 
 # Important bash functions:
-. ${BARAKUDA_ROOT}/configs/bash_functions.bash
+. ${BARAKUDA_ROOT}/src/bash/bash_functions.bash
 
 barakuda_init
 

@@ -16,7 +16,7 @@ export BARAKUDA_ROOT=`pwd`
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
 
 # Important bash functions:
-. ${BARAKUDA_ROOT}/configs/bash_functions.bash
+. ${BARAKUDA_ROOT}/src/bash/bash_functions.bash
 
 barakuda_init
 
@@ -161,8 +161,8 @@ while ${lcontinue}; do
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if [ ${ece_run} -eq 2 ] && [ ${NBL} -eq 75 ] && [ ${i_do_fwf} -eq 1 ]; then
             echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
-            echo "LAUNCHING: ./scripts/do_fwf_series_ifs.sh in the background!"
-            ${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh &
+            echo "LAUNCHING: ./src/scripts/do_fwf_series_ifs.sh in the background!"
+            ${BARAKUDA_ROOT}/src/scripts/do_fwf_series_ifs.sh &
             pid_fwfl=$! ; echo
         fi
 
@@ -816,7 +816,7 @@ if [ ${ISTAGE} -eq 2 ]; then
 
     cd ${DIAG_D}/
     
-    . ${BARAKUDA_ROOT}/configs/build_html.bash
+    . ${BARAKUDA_ROOT}/src/bash/build_html.bash
     
     # Building main index.html 
     build_index_html
@@ -837,8 +837,8 @@ if [ ${ISTAGE} -eq 2 ]; then
     html_dir=${DIAG_D}/${RUN}
     mkdir -p ${html_dir}
 
-    cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html ${html_dir}/
-    cp ${BARAKUDA_ROOT}/scripts/html/logo.png    ${html_dir}/
+    cp ${BARAKUDA_ROOT}/src/scripts/html/conf_*.html ${html_dir}/
+    cp ${BARAKUDA_ROOT}/src/scripts/html/logo.png    ${html_dir}/
 
     mv -f index.html ${html_dir}/
     for fp in ${ff} svg gif; do mv -f *.${fp} ${html_dir}/ >/dev/null 2>/dev/null ; done

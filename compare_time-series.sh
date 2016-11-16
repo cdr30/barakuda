@@ -26,7 +26,7 @@ ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
 
 # Important bash functions:
-. ${BARAKUDA_ROOT}/configs/bash_functions.bash
+. ${BARAKUDA_ROOT}/src/bash/bash_functions.bash
 
 usage()
 {

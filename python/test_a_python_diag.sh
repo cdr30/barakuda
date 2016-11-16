@@ -27,7 +27,7 @@ export BARAKUDA_ROOT=`pwd | sed -e "s|/python||g"`
 
 
 
-. ${BARAKUDA_ROOT}/configs/bash_functions.bash
+. ${BARAKUDA_ROOT}/src/bash/bash_functions.bash
 . ${BARAKUDA_ROOT}/configs/config_${CONFIG}_${ARCH}.sh
 
 ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
@@ -71,7 +71,7 @@ rm -f *.png *.nc
 # Time for diags:
 
 if [ ${ifwf} -eq 1 ]; then
-    CMD="${BARAKUDA_ROOT}/scripts/do_fwf_series_ifs.sh"
+    CMD="${BARAKUDA_ROOT}/src/scripts/do_fwf_series_ifs.sh"
 fi
 
 
