@@ -150,8 +150,8 @@ i_do_movi=1
 # Basic 3D and surface averages:
 i_do_mean=1
 
-# FreshWater fluxes at the surface spatially averaged over the ocean, E-P-R, E-P, R, P, ...
-#i_do_fwf=1
+# IFS freshWater fluxes at the surface spatially averaged over the ocean, E-P-R, E-P, R, P, ...
+i_do_fwf=0 ; # only relevant when ece_run=2...
 
 # AMOC:
 i_do_amoc=1
