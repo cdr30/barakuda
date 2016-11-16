@@ -29,12 +29,6 @@ zmax_mld_atl = 1600. ; dz_mld = 100.
 
 
 
-if 'ORCA2' in corca:
-    ji_lat0 = 132
-elif 'ORCA1' in corca:
-    ji_lat0 = 265
-else:
-    print 'FIX ME!!! ssh.py => dont know ji_lat0 for conf '+corca+' !!!'; sys.exit(0)
 
 
 l_obs_mld = False
@@ -153,6 +147,9 @@ if l_obs_mld:
 
 # FIGURES MARCH #
 #################
+
+# the Jean-Marc Molines method:
+ji_lat0 = nmp.argmax(xlat[nj-1])
 
 
 bp.plot("nproj")('nseas', 200., zmax_mld_atl, dz_mld, xlon, xlat, mldr10[imnth,:,:],

@@ -96,7 +96,6 @@ class plot :
 
 
 
-
     # Functions:
 
 
@@ -166,6 +165,11 @@ class plot :
 
         i_lat_lon = 1
         if len(VX) == 1 or len(VY) == 1: i_lat_lon = 0 ; # no long. and lat. provided !
+        if corca[:5] == 'eORCA':
+            # don't know how to lat-lon 2d plot eORCA
+            # so just plot without projections
+            i_lat_lon = 0
+
 
 
         # Don't want to modify XF array, working with XFtmp:
@@ -1317,7 +1321,6 @@ class plot :
             else:
                 plt.plot(vt[:], XD[jp,:], v_dflt_colors[jp], label=vlabels[jp], linewidth=2)
             
-
         # Prevents from using scientific notations in axess ticks numbering:
         ax.get_xaxis().get_major_formatter().set_useOffset(False)
         ax.get_yaxis().get_major_formatter().set_useOffset(False)
@@ -1419,7 +1422,6 @@ class plot :
             plt.axis( [y1, y2, nmp.min(VF[:])-0.2*df, nmp.max(VF[:])+0.2*df] )
         else:
             plt.axis([y1, y2, ymin,     ymax])
-
 
         print nmp.arange(y1, y2+dt_year, dt_year)
 
