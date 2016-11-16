@@ -227,7 +227,8 @@ while [ ${jyear} -le ${Y2} ]; do
 
     ncwa -O -a x moc.nc ${CPREF}${TTAG_ann}_MOC.nc ; # removing degenerate x record...
     rm -f moc.nc
-    mv -f psi.nc        ${CPREF}${TTAG_ann}_PSI.nc
+
+    if [ ${ibpsi} -eq 1 ]; then mv -f psi.nc ${CPREF}${TTAG_ann}_PSI.nc; fi
 
     echo "After year ${jyear}:"; ls -l *.nc*
     echo
@@ -317,7 +318,9 @@ for suff in grid_T grid_U grid_V icemod SBC VT MOC PSI; do
         rm mean_m*_${suff}.nc
         echo
 
+        echo "mv -f out_${suff}.nc ${f2c}"
         mv -f out_${suff}.nc ${f2c}
+        echo
         
         # Converting to netcdf4 with maximum compression level:
         echo; ls ; echo
@@ -328,14 +331,17 @@ for suff in grid_T grid_U grid_V icemod SBC VT MOC PSI; do
     else
         echo ; echo ; echo ; echo " Ignoring monthly ${suff} files!"; echo
     fi
-
+    
 done ; # loop along files suffixes
 
 wait
 wait
 
-mv -f aclim_${CONFRUN}*.nc4 ${CLIM_DIR}/
-mv -f mclim_${CONFRUN}*.nc4 ${CLIM_DIR}/
+for cl in aclim mclim; do
+    echo "mv -f ${cl}_${CONFRUN}*.nc4 ${CLIM_DIR}/"
+    mv -f ${cl}_${CONFRUN}*.nc4 ${CLIM_DIR}/
+    echo
+done
 
 echo;echo
 echo "${CY1}-${CY2}" > ${CLIM_DIR}/last_clim
