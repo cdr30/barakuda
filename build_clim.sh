@@ -53,6 +53,7 @@ barakuda_setup
 
 echo
 echo " SETTINGS: "
+echo "   *** DIAG_D   = ${DIAG_D} "
 echo "   *** CLIM_DIR = ${CLIM_DIR} "
 echo "   *** TMP_DIR  = ${TMP_DIR} "
 echo "   *** Y1       = ${Y1} "
@@ -157,14 +158,17 @@ if [ ${ece_run} -gt 0 ]; then
     if [ ! -d ${NEMO_OUT_D}/001 ]; then echo "ERROR: since ece_run=${ece_run}, there should be a directory 001 in:"; echo " ${NEMO_OUT_D}"; fi
 fi
 
-export YEAR_INI_F=`cat ${DIAG_D}/first_year.info`
+
+ffirsty="${DIAG_D}/first_year.info"
+if [ ! -f  ${ffirsty} ]; then echo "ERROR: file ${ffirsty} not found!!!"; exit; fi
+export YEAR_INI_F=`cat ${ffirsty}`
 
 export jyear=${Y1}
 
 while [ ${jyear} -le ${Y2} ]; do
-    
+
     export cyear=`printf "%04d" ${jyear}` ; echo ; echo "Year = ${cyear}"
-    
+
     cpf=""
     if [ ${ece_run} -gt 0 ]; then
         iy=$((${jyear}-${Y1}+1+${Y1}-${YEAR_INI_F}))
@@ -172,14 +176,14 @@ while [ ${jyear} -le ${Y2} ]; do
         echo " *** ${cyear} => dir_ece = ${dir_ece}"
         cpf="${dir_ece}/"
     fi
-    
+
     TTAG_ann=${cyear}0101_${cyear}1231
-    
+
     i_get_file=0
     if [ $((${jyear}%${IFREQ_SAV_YEARS})) -eq 0 ]; then
         barakuda_check_year_is_complete  ; # lcontinue might be updated to false!
     fi
-    
+
     CRTM=${CPREF}${TTAG}
     CRT1=${CPREF}${TTAG_ann}
 
@@ -190,7 +194,7 @@ while [ ${jyear} -le ${Y2} ]; do
         ftt="./${CRT1}_${gt}.nc" ;  check_if_file ${ftt}
     done
     echo; echo "All required files are in `pwd` for year ${cyear} !"; echo
-    
+
     # Files to work with for current year:
     ft=${CRT1}_grid_T.nc
     fu=${CRT1}_grid_U.nc
@@ -199,7 +203,7 @@ while [ ${jyear} -le ${Y2} ]; do
     #fvt=${CRT1}_VT.nc
 
     echo
-    
+
     if [ ${ivt} -eq 1 ]; then
         # Creating VT files:
         echo "Doing: ${BARAKUDA_ROOT}/cdftools_light/bin/cdfvT.x ${CPREF}${TTAG_ann} ${NN_T} ${NN_S} ${NN_U} ${NN_V} ${NN_U_EIV} ${NN_V_EIV}"
@@ -208,7 +212,7 @@ while [ ${jyear} -le ${Y2} ]; do
     fi
 
     echo
-    
+
     if [ ${iamoc} -eq 1 ]; then
         rm -f moc.nc
         echo " *** doing: ./cdfmoc.x ${fv} ${NN_V} ${NN_V_EIV}"
@@ -232,7 +236,7 @@ while [ ${jyear} -le ${Y2} ]; do
 
     echo "After year ${jyear}:"; ls -l *.nc*
     echo
-    
+
     ((jyear++))
     export jyear=${jyear}
 
@@ -248,7 +252,7 @@ if [ ${ivt} -eq 1 ]; then
 
     # Converting to netcdf4 with maximum compression level:
     ${CP2NC4} ${fo} ${fo}4 &
-    
+
 fi
 
 if [ ${iamoc} -eq 1 ]; then
@@ -286,7 +290,7 @@ for suff in grid_T grid_U grid_V icemod SBC VT MOC PSI; do
 
 
     if [ -f ./${CPREF}${CY1}0101_${CY1}1231_${suff}.nc ]; then
-        
+
         echo ; echo ; echo ; echo " Treating ${suff} files!"; echo
 
         f2c=mclim_${CONFRUN}_${CY1}-${CY2}_${suff}.nc
@@ -300,7 +304,7 @@ for suff in grid_T grid_U grid_V icemod SBC VT MOC PSI; do
         for cm in ${VCM[*]}; do
 
             ((jm++))
-            
+
             if [ -f ./${CPREF}${CY1}0101_${CY1}1231_${suff}.nc ]; then
                 echo; ls ; echo
                 echo "ncra -F -O -d time_counter,${jm},,12 ${CPREF}*0101_*1231_${suff}.nc -o mean_m${cm}_${suff}.nc"
@@ -321,17 +325,17 @@ for suff in grid_T grid_U grid_V icemod SBC VT MOC PSI; do
         echo "mv -f out_${suff}.nc ${f2c}"
         mv -f out_${suff}.nc ${f2c}
         echo
-        
+
         # Converting to netcdf4 with maximum compression level:
         echo; ls ; echo
         echo "${CP2NC4} ${f2c} ${f2c}4"
         ${CP2NC4} ${f2c} ${f2c}4 &
         echo
-        
+
     else
         echo ; echo ; echo ; echo " Ignoring monthly ${suff} files!"; echo
     fi
-    
+
 done ; # loop along files suffixes
 
 wait
