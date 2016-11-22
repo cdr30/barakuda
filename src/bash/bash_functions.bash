@@ -52,7 +52,7 @@ function barakuda_init()
 function barakuda_check()
 {
     script=`basename $0 | sed -e s/'.sh'/''/g`
-    if [ "${CONFIG}" = "" ] || [ "${RUN}" = "" ]; then ${script}_usage ; exit ; fi
+    if [ -z ${CONFIG} ] || [ -z ${RUN} ]; then ${script}_usage ; exit ; fi
 
     if [ "${RUNREF}" != "" ] && [ ${ISTAGE} -eq 1 ]; then
         echo; echo " WARNING: option '-c' only makes sense when '-e' or '-E' are specified !"
@@ -64,7 +64,7 @@ function barakuda_check()
         ca=""; ca=`echo ${CONFIG} | grep ${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
     done
 
-    if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
+    if [ -z ${ORCA} ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
     echo
 
     if [ "${script}" = "build_clim" ]; then
@@ -86,7 +86,7 @@ function barakuda_setup()
     export ORCA=${CONF}
     echo
 
-    if [ "${PYTHON_HOME}" = "" ]; then echo "ERROR: PYTHON_HOME is not set! => add it to config file"; exit; fi
+    if [ -z ${PYTHON_HOME} ]; then echo "ERROR: PYTHON_HOME is not set! => add it to config file"; exit; fi
     export PYTH="${PYTHON_HOME}/bin/python -W ignore" ; # which Python installation to use
     export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
     export PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
@@ -107,7 +107,7 @@ function barakuda_setup()
     fi
 
 # Names for temperature, salinity, u- and v-current...
-    if [ "${NN_T}" = "" ] || [ "${NN_S}" = "" ] || [ "${NN_U}" = "" ] || [ "${NN_V}" = "" ]; then
+    if [ -z ${NN_T} ] || [ -z ${NN_S} ] || [ -z ${NN_U} ] || [ -z ${NN_V} ]; then
         echo "NN_T, NN_S, NN_U and NN_V are NOT given a value into"
         echo " in ${fconfig} "
         echo "  => using default names: thetao, so, uo, vo" ; echo
@@ -117,7 +117,7 @@ function barakuda_setup()
     echo ; echo " *** NN_T=${NN_T}, NN_S=${NN_S}, NN_U=${NN_U} and NN_V=${NN_V} "; echo
 
     # Checking what files we have / plan to use:
-    if [ "${NEMO_SAVED_FILES}" = "" ]; then
+    if [ -z "${NEMO_SAVED_FILES}" ]; then
         echo "Please specify which NEMO files are saved (file suffixes, grid_T, ..., icemod) ?"
         echo " => set the variable NEMO_SAVED_FILES in your config_${CONFIG}.sh file!"; exit
     fi
@@ -180,15 +180,19 @@ function barakuda_setup()
         if [ ${i_do_flx}  -gt 0 ]; then echo " *** i_do_flx  ${ca}"; exit; fi
 
         if [ ${ISTAGE} -eq 1 ]; then
-            # List of CDFTOOLS executables needed for the diagnostics:
-            L_EXEC="cdfmaxmoc.x cdfmoc.x cdfvT.x cdftransportiz.x cdficediags.x cdfmhst.x cdfsigtrp.x"
             for ex in ${L_EXEC}; do check_if_file cdftools_light/bin/${ex} "Compile CDFTOOLS executables!"; done
         fi
     fi
 
     if [ -z ${NCDF_DIR} ]; then
-        echo "ERROR: NCDF_DIR could not be determined, please specify it in your config file!"
-        exit
+        if [ ! -z ${NETCDF_DIR} ]; then
+            export NCDF_DIR=${NETCDF_DIR}
+        elif [ ! -z ${NETCDF_HOME} ]; then
+            export NCDF_DIR=${NETCDF_HOME}
+        else
+            echo "ERROR: NCDF_DIR could not be determined, please specify it in your config file!"
+            exit
+        fi
     fi
     echo
 }

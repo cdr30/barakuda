@@ -109,7 +109,7 @@ echo; echo " GRID_IMP = ${GRID_IMP}"; echo
 
 
 # Checking what files we have / plan to use:
-if [ "${NEMO_SAVED_FILES}" = "" ]; then
+if [ -z "${NEMO_SAVED_FILES}" ]; then
     echo "Please specify which NEMO files are saved (file suffixes, grid_T, ..., icemod) ?"
     echo " => set the variable NEMO_SAVED_FILES in your config_${CONFIG}.sh file!"; exit
 fi
@@ -199,7 +199,7 @@ while [ ${jyear} -le ${Y2} ]; do
     ft=${CRT1}_grid_T.nc
     fu=${CRT1}_grid_U.nc
     fv=${CRT1}_grid_V.nc
-    #fg=${CRT1}_${FILE_ICE_SUFFIX}.nc ; # can be icemod or grid_T ....
+    #fj=${CRT1}_${FILE_ICE_SUFFIX}.nc ; # can be icemod or grid_T ....
     #fvt=${CRT1}_VT.nc
 
     echo

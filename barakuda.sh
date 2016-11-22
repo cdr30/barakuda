@@ -47,6 +47,9 @@ else
     echo "PROBLEM: cannot find file ${fconfig} !"; exit
 fi
 
+# List of CDFTOOLS executables needed for the diagnostics:
+export L_EXEC="cdfmaxmoc.x cdfmoc.x cdfvT.x cdftransportiz.x cdficediags.x cdfmhst.x cdfsigtrp.x"
+
 barakuda_setup
 
 echo
@@ -89,11 +92,10 @@ barakuda_import_mesh_mask ; # Importing mesh_mask (+basin) files...
 
 if [ ${ISTAGE} -eq 1 ]; then
     # Importing cdftools executables:
-    for ex in ${L_EXEC}; do cp -L ${BARAKUDA_ROOT}/cdftools_light/bin/${ex} . ; done
+    for ex in ${L_EXEC}; do rsync -avP ${BARAKUDA_ROOT}/cdftools_light/bin/${ex} . ; done
 fi
 
 sgz=""
-
 
 
 
@@ -152,7 +154,7 @@ while ${lcontinue}; do
         ft=${CRT1}_grid_T.nc
         fu=${CRT1}_grid_U.nc
         fv=${CRT1}_grid_V.nc
-        fg=${CRT1}_${FILE_ICE_SUFFIX}.nc ; # can be icemod or grid_T ....
+        fj=${CRT1}_${FILE_ICE_SUFFIX}.nc ; # can be icemod or grid_T ....
         fvt=${CRT1}_VT.nc
 
 
@@ -177,6 +179,9 @@ while ${lcontinue}; do
             echo "CALLING: prepare_movies.py ${ft} ${jyear} sss"
             ${PYTH} ${PYBRKD_EXEC_PATH}/prepare_movies.py ${ft} ${jyear} sss &
             pid_movs=$! ; echo
+            echo "CALLING: prepare_movies.py ${fj} ${jyear} ice"
+            ${PYTH} ${PYBRKD_EXEC_PATH}/prepare_movies.py ${fj} ${jyear} ice &
+            pid_movi=$! ; echo
         fi
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -272,7 +277,7 @@ while ${lcontinue}; do
         if [ ${i_do_trsp} -gt 0 ]; then
 
             echo; echo; echo "Transports of volume, heat and salt through different sections"
-            if [ "${TRANSPORT_SECTION_FILE}" = "" ]; then
+            if [ -z ${TRANSPORT_SECTION_FILE} ]; then
                 echo "Please specify which TRANSPORT_SECTION_FILE to use into the config file!" ; exit
             fi
             if [ ! -f ./transportiz.dat ]; then
@@ -295,7 +300,7 @@ while ${lcontinue}; do
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if [ ! -z ${i_do_dmv} ] && [ ${i_do_dmv} -gt 0 ]; then
 
-            if [ "${FILE_DEF_BOXES}" = "" ]; then
+            if [ -z ${FILE_DEF_BOXES} ]; then
                 echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
             fi
             echo "CALLING: dmv.py ${ft} ${cyear}"
@@ -314,7 +319,7 @@ while ${lcontinue}; do
 
             echo; echo; echo "Budget and other stuffs on rectangular boxes!"
 
-            if [ "${FILE_DEF_BOXES}" = "" ]; then
+            if [ -z ${FILE_DEF_BOXES} ]; then
                 echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
             fi
             echo " *** doing: ${PYTH} ${PYBRKD_EXEC_PATH}/budget_rectangle_box.py ${cyear} 100 uv"
@@ -333,7 +338,7 @@ while ${lcontinue}; do
         #  Max AMOC
         #~~~~~~~~~~~
         if [ ${i_do_amoc} -eq 1 ]; then
-            if [ "${LMOCLAT}" = "" ]; then
+            if [ -z "${LMOCLAT}" ]; then
                 echo "AMOC => specify latitude bands with variable LMOCLAT into the config file!!!"; exit
             fi
             for clat in ${LMOCLAT}; do
@@ -349,15 +354,15 @@ while ${lcontinue}; do
         #~~~~~~~~~
         if [ ${i_do_ice} -eq 1 ]; then
             echo; echo; echo "Sea-ice extent and volume..." ; rm -f tmp_ice.nc
-            echo "ncks  -A -v ${NN_ICEF} ${fg} -o tmp_ice.nc"
-            ncks  -A -v ${NN_ICEF} ${fg} -o tmp_ice.nc
+            echo "ncks  -A -v ${NN_ICEF} ${fj} -o tmp_ice.nc"
+            ncks  -A -v ${NN_ICEF} ${fj} -o tmp_ice.nc
             ncrename -v ${NN_ICEF},ice_frac tmp_ice.nc
             coic=""
-            if [ "${NN_ICET}" = "" ]; then
+            if [ -z ${NN_ICET} ]; then
                 coic="oic" ; # means only ice concentration available!
             else
-                echo "ncks  -A -v ${NN_ICET} ${fg} -o tmp_ice.nc"
-                ncks  -A -v ${NN_ICET} ${fg} -o tmp_ice.nc
+                echo "ncks  -A -v ${NN_ICET} ${fj} -o tmp_ice.nc"
+                ncks  -A -v ${NN_ICET} ${fj} -o tmp_ice.nc
                 ncrename -v ${NN_ICET},ice_thic tmp_ice.nc
             fi
             echo " *** doing: ./cdficediags.x tmp_ice.nc ${jyear} ${DIAG_D} ${coic}"
@@ -371,7 +376,7 @@ while ${lcontinue}; do
         #     => it provides time-series depending on time and depth
         #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if [ ${i_do_box_TS_z} -gt 0 ]; then
-            if [ "${FILE_DEF_BOXES}" = "" ]; then
+            if [ -z ${FILE_DEF_BOXES} ]; then
                 echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
             fi
             echo "CALLING: prof_TS_z_box.py ${cyear}"
@@ -402,7 +407,7 @@ while ${lcontinue}; do
         # Vertical meridional or zonal sections:
         if [ ${i_do_sect} -eq 1 ]; then
             diro=${DIAG_D}/sections ; mkdir -p ${diro}
-            if [ ${VSECT_NM} = "" ] || [ ${VSECT_JI} = "" ] || [ ${VSECT_JJ} = "" ]; then
+            if [ -z ${VSECT_NM} ] || [ -z ${VSECT_JI} ] || [ -z ${VSECT_JJ} ]; then
                 echo "VSECT_NM, VSECT_JI and VSECT_JJ must be defined in:"
                 echo "${fconfig}" ; exit
             fi
@@ -426,7 +431,7 @@ while ${lcontinue}; do
         #==============================
 
         if [ ${i_do_zcrit} -gt 0 ]; then
-            if [ "${FILE_DEF_BOXES}" = "" ]; then
+            if [ -z ${FILE_DEF_BOXES} ]; then
                 echo "Please specify a FILE_DEF_BOXES to use into the config file!" ; exit
             fi
             echo "CALLING: zcrit_conv.py ${cyear}"
@@ -452,8 +457,8 @@ while ${lcontinue}; do
 
             diro=${DIAG_D}/transport_sections ; mkdir -p ${diro}
 
-            echo "CALLING: /home/x_laubr/DEV/CDFTOOLS/bin/cdficeflux ${fg}"
-            /home/x_laubr/DEV/CDFTOOLS/bin/cdficeflux ${fg}
+            echo "CALLING: /home/x_laubr/DEV/CDFTOOLS/bin/cdficeflux ${fj}"
+            /home/x_laubr/DEV/CDFTOOLS/bin/cdficeflux ${fj}
 
             list_ice=`cat transport_ice.dat | grep '-'`
 
@@ -477,14 +482,12 @@ while ${lcontinue}; do
         fi
 
 
-
-        
         echo
         echo " Waiting for backround jobs for current year (${jyear}) !"
-        wait ${pid_movt} ${pid_movs} ${pid_mean} ${pid_fwfl}
+        wait ${pid_movt} ${pid_movs} ${pid_movi} ${pid_mean} ${pid_fwfl}
         wait
         echo "  Done waiting for year ${cyear} !"
-        rsync -avP movies ${DIAG_D}/
+        if [ ${i_do_movi} -eq 1 ]; then rsync -avP movies ${DIAG_D}/ ; fi
         rm -f *.tmp broken_line_* tmp_ice.nc
         rm -f ${CRT1}_*.nc ; #debug
         echo ; echo
@@ -567,6 +570,8 @@ if [ ${ISTAGE} -eq 2 ]; then
         rm -f *_${CONFRUN}.gif
         convert -delay ${idelay} -loop 0 movies/dsst_*.png dsst_${CONFRUN}.gif &
         convert -delay ${idelay} -loop 0 movies/dsss_*.png dsss_${CONFRUN}.gif &
+        convert -delay ${idelay} -loop 0 movies/icen_*.png icen_${CONFRUN}.gif &
+        convert -delay ${idelay} -loop 0 movies/ices_*.png ices_${CONFRUN}.gif &
     fi
 
     # 1D plots to perform
@@ -673,7 +678,7 @@ if [ ${ISTAGE} -eq 2 ]; then
             l_pclim=true
             lcomp_to_run=false
 
-            if [ ! "${RUNREF}" = "" ]; then
+            if [ ! -z ${RUNREF} ]; then
                 lcomp_to_run=true
                 list_comp_2d="CLIM ${RUNREF}"
                 # Must check if climatology for run ${RUNREF} is there:

@@ -3,8 +3,8 @@
 #  B E T A  ! ! !
 
 # Diag to test:
-ifwf=1
-imov=0
+ifwf=0
+imov=1
 issh=0
 its=0
 imld=0
@@ -59,8 +59,11 @@ if [ ${ece_run} -gt 0 ]; then
     dir_ece="`printf "%03d" ${iy}`/"
 fi
 CPREF=`echo ${NEMO_FILE_PREFIX} | sed -e "s|<ORCA>|${ORCA}|g" -e "s|<RUN>|${RUN}|g" -e "s|<TSTAMP>|${TSTAMP}|g"`
-ft=${NEMO_OUT_D}/${dir_ece}${CPREF}${cyear}0101_${cyear}1231_grid_T.nc
+ft=${NEMO_OUT_D}/${dir_ece}${CPREF}${cyear}0101_${cyear}1231_grid_T.nc4
 check_if_file ${ft}
+fj=${NEMO_OUT_D}/${dir_ece}${CPREF}${cyear}0101_${cyear}1231_icemod.nc4
+check_if_file ${fj}
+
 
 
 export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules
@@ -77,6 +80,7 @@ fi
 
 if [ ${imov} -eq 1 ]; then
     CMD="python exec/prepare_movies.py ${ft} ${jyear} sss"
+    #CMD="python exec/prepare_movies.py ${fj} ${jyear} ice"
 fi
 
 if [ ${issh} -eq 1 ]; then

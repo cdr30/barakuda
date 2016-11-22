@@ -75,13 +75,13 @@ done
 
 
 
-if [ "${CONFIG}" = "" -o "${CRUNS}" = "" ]; then usage ; exit ; fi
+if [ -z ${CONFIG} ] || [ -z ${CRUNS} ]; then usage ; exit ; fi
 
 for og in ${ORCA_LIST}; do
     ca=""; ca=`echo ${CONFIG} | grep ${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
 done
 
-if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
+if [ -z ${ORCA} ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
 
 echo
 

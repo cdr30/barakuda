@@ -42,7 +42,7 @@ PROGRAM cdftransportiz
   !! * Local variables
   IMPLICIT NONE
 
-  LOGICAL, PARAMETER :: l_save_broken_lines = .TRUE. !lolo
+  LOGICAL, PARAMETER :: l_save_broken_lines = .FALSE. !lolo
 
   INTEGER :: nclass   !: number of depth class
   INTEGER ,DIMENSION (:),ALLOCATABLE ::  imeter  !: limit beetween depth level, in m (nclass -1)
