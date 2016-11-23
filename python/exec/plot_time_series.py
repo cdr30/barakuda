@@ -184,9 +184,13 @@ if idfig == 'fwf':
     if cvr3 in list_var[:]:
         l_emp = True
         vemp  = id_in.variables[cvr3][:]
+
     if cvr4 in list_var[:]:
-        l_prc = True
+        # There is sometimes Precip in NEMO output which only has NaN! lolo
+        l_prc = True ; l_prc_nemo_valid = True
         vprc  = id_in.variables[cvr4][:]
+        if nmp.isnan(vprc[0]): l_prc_nemo_valid = False
+
     if cvr5 in list_var[:]:
         l_clv = True
         vclv  = id_in.variables[cvr5][:]
@@ -249,12 +253,12 @@ if idfig == 'fwf':
         VY, FY = bt.monthly_2_annual(vtime, vevp)
         bp.plot("1d_mon_ann")(vtime, VY, vevp, FY, cfignm=cdiag+'_evp_'+CONFRUN, dt_year=ittic,
                               cyunit=cyu, ctitle = CONFRUN+': '+cln6, ymin=ym, ymax=yp, cfig_type=ff)
-    if l_prc:
+    if l_prc and l_prc_nemo_valid:
         VY, FY = bt.monthly_2_annual(vtime, vprc)
         bp.plot("1d_mon_ann")(vtime, VY, vprc, FY, cfignm=cdiag+'_prc_'+CONFRUN, dt_year=ittic,
                               cyunit=cyu, ctitle = CONFRUN+': '+cln4, ymin=ym, ymax=yp, cfig_type=ff)
 
-    if l_evp and l_prc:
+    if l_evp and l_prc and l_prc_nemo_valid:
         VY, FY = bt.monthly_2_annual(vtime, vevp-vprc)
         bp.plot("1d_mon_ann")(vtime, VY, vprc, FY, cfignm=cdiag+'_prc_'+CONFRUN, dt_year=ittic,
                               cyunit=cyu, ctitle = CONFRUN+': E-P as E-P !', ymin=ym, ymax=yp, cfig_type=ff)
@@ -274,7 +278,7 @@ if idfig == 'fwf':
         Xplt[0,:] = vemp[:]             ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
         Xplt[1,:] = vemp_ifs[:]         ; vlab.append('E-P IFS (oceans)')
         Xplt[2,:] = vemp_land_ifs[:]    ; vlab.append('E-P IFS (land)')
-        if l_prc and l_evp :
+        if l_prc and l_prc_nemo_valid and l_evp :
             Xplt[3,:] = vevp[:]-vprc[:] ; vlab.append('E-P NEMO ('+vdic_fwf['NN_E']+'-'+vdic_fwf['NN_P']+')')
         bp.plot("1d_multi")(vtime, Xplt, vlab,
                             cfignm=cdiag+'_emp_IFS_'+CONFRUN, dt_year=ittic,
@@ -285,7 +289,7 @@ if idfig == 'fwf':
         VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vemp[:])
         VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], vemp_ifs[:])
         VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], vemp_land_ifs[:])
-        if l_prc and l_evp:
+        if l_prc and l_prc_nemo_valid and l_evp:
             VY, Xplt[3,:] = bt.monthly_2_annual(vtime[:], vevp[:]-vprc[:])
         bp.plot("1d_multi")(VY, Xplt, vlab,
                             cfignm=cdiag+'_emp_IFS_annual_'+CONFRUN, dt_year=ittic,
@@ -321,12 +325,17 @@ if idfig == 'fwf':
 
 
     if l_fwf_ifs and l_prc:
-        # Only P for NEMO and IFS, and RNF NEMO: lulu
+        # Only P for NEMO and IFS, and RNF NEMO:
         vlab = [] ; nbd = 3
         if l_rnf: nbd = 4
         if l_rnf and l_clv: nbd = 5
         Xplt = nmp.zeros((nbd,nbm))
-        Xplt[0,:] = vprc[:]        ; vlab.append('P NEMO')
+        
+        if not l_prc_nemo_valid:
+            print 'WARNING: NEMO precip is NOTHING!!! Filling with 0! (plot_time_series.py)'
+            Xplt[0,:] = 0.0        ; vlab.append('P NEMO: MISSING in NEMO output file!')
+        else:
+            Xplt[0,:] = vprc[:]    ; vlab.append('P NEMO')
         Xplt[1,:] = vp_ifs[:]      ; vlab.append('P IFS (oceans)')
         Xplt[2,:] = vp_land_ifs[:] ; vlab.append('P IFS (land)')
         if l_rnf:
@@ -370,7 +379,7 @@ if idfig == 'fwf':
         if l_emp:     Xplt[2,:] = vfwf[:]     ; vlab.append('E-P-R NEMO ('+vdic_fwf['NN_FWF']+')')
         if l_rnf:     Xplt[3,:] = vrnf[:]     ; vlab.append('R NEMO ('+vdic_fwf['NN_RNF']+')')
         if l_fwf_ifs: Xplt[4,:] = ve_ifs[:]   ; vlab.append('E IFS')
-        if l_prc:     Xplt[5,:] = vprc[:]     ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
+        if l_prc and l_prc_nemo_valid:     Xplt[5,:] = vprc[:]     ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
         if l_fwf_ifs: Xplt[6,:] = vp_ifs[:]   ; vlab.append('P IFS')
         if l_clv:     Xplt[7,:] = vclv[:]     ; vlab.append('Calving NEMO ('+vdic_fwf['NN_CLV']+')')
         if l_evp:     Xplt[8,:] = vevp[:]     ; vlab.append('E NEMO ('+vdic_fwf['NN_E']+')')

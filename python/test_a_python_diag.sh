@@ -4,9 +4,9 @@
 
 # Diag to test:
 ifwf=0
-imov=1
+imov=0
 issh=0
-its=0
+its=1
 imld=0
 irnf=0
 iice=0
@@ -68,10 +68,22 @@ check_if_file ${fj}
 
 export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules
 
+echo ; echo " *** DIAG_D=${DIAG_D} !"; echo
+
 
 rm -f *.png *.nc
 
 # Time for diags:
+
+if [ ${its} -eq 1 ]; then
+    #diag=3d_thetao
+    diag=mean_fwf
+    ln -sf ${DIAG_D}/${diag}*.nc .
+    CMD="python exec/plot_time_series.py ${diag}"
+
+fi
+
+
 
 if [ ${ifwf} -eq 1 ]; then
     CMD="${BARAKUDA_ROOT}/src/scripts/do_fwf_series_ifs.sh"
@@ -91,11 +103,6 @@ if [ ${imld} -eq 1 ]; then
     CMD="python exec/mld.py ${y1_clim} ${y2_clim}"
 fi
 
-if [ ${its} -eq 1 ]; then
-    diag=3d_thetao
-    ln -sf ${DIAG_D}/${diag}_ORCA1.L75-LB00_* .
-    CMD="python exec/plot_time_series.py ${diag}"
-fi
 
 
 echo
