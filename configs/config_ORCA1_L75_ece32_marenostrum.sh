@@ -6,16 +6,17 @@
 #
 # OCEAN MONITORING for NEMO v3.6 of EC-Earth 3.2 beta tunning on 75 levels
 #
-#            HPC: triolith
+#            Machine: MareNostrum@BSC
 #
-#        L. Brodeau, 2015
+#        L. Brodeau, 2016
 #
 #===========================================================
 
-export HOST=MARENOSTRUM
+export CONF=ORCA1.L75 ; # horizontal global ORCA configuration
+export NBL=75         ; # number of levels
 
-export CONF=ORCA1.L75 ; # horizontal global configuration
-export NBL=75     ; # number of levels
+export HOST=MARENOSTRUM ; # this has no importance at all, it will just become an "info" on the web-page!
+export JTITLE="LIM3, NEMO 3.6 (EC-Earth 3.2b_tuning)" ;   #  // same here ...
 
 # Path to directory containing NEMO output files:
 export STORE_DIR="/gpfs/scratch/bsc32/bsc32325"
@@ -26,8 +27,12 @@ export CONF_INI_DIR="/gpfs/projects/bsc32/bsc32325/ORCA1/ORCA1-I/barakuda_clim"
 # In what directory of the local machine to save the diagnostics:
 export DIAG_DIR="${STORE_DIR}/barakuda/${CONF}_ece32"
 
-module add NCO/4.2.3
+# --- only for problematic hosts ----
+module add NCO/4.2.3    
 module add PYTHON/2.7.3
+# -----------------------------------
+
+export PYTHON_HOME="/apps/PYTHON/2.7.3" ; # HOME to python distribution with matplotlib and basemap !
 
 # Is it an ec-earth run?
 export ece_run=2 ; # 0 => not an EC-Earth run, it's a "pure" ocean-only NEMO run done from traditional NEMO setup
@@ -39,7 +44,6 @@ export ece_run=2 ; # 0 => not an EC-Earth run, it's a "pure" ocean-only NEMO run
 #                  #   If you select '2', make sure 'cdo' is available and working!!!
 #
 export Y_INI_EC=1990 ;    # initial year if ec-earth run...
-
 
 # List of suffixed of files that have been saved by NEMO and that are needed for the diags:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
@@ -59,8 +63,6 @@ export NEMO_FILE_PREFIX="<RUN>_<TSTAMP>_"
 #export SCRATCH="/scratch/local/<JOB_ID>" ; # triolith
 export SCRATCH="/scratch/tmp"
 
-export PYTHON_HOME="/apps/PYTHON/2.7.3"
-
 # If variables names in NEMO files are not the default...
 export NN_SST="sosstsst"
 export NN_SSS="sosaline"
@@ -70,8 +72,6 @@ export NN_S="vosaline"
 export NN_MLD="mldr10_1"
 export NN_U="vozocrtx"
 export NN_V="vomecrty"
-#export NN_U_EIV="vozoeivu"
-#export NN_V_EIV="vomeeivv"
 export NN_U_EIV="0" ; # ignore
 export NN_V_EIV="0" ; # ignore
 export NN_TAUX="sozotaux"
@@ -89,13 +89,9 @@ export NN_RNF="runoffs"      ; # name of continental runoffs in "FILE_FLX_SUFFIX
 export NN_CLV="calving_cea"  ; # calving from icebergs in "FILE_FLX_SUFFIX" file...
 export NN_E="evap"           ; # evaporation in "FILE_FLX_SUFFIX" file...
 
-
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
 
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
-
-
-export JTITLE="LIM3, NEMO 3.6 (EC-Earth 3.2b_tuning)"
 
 # Land-sea mask and basins files:
 export MM_FILE=/gpfs/projects/bsc32/bsc32325/ORCA1/ec-earth3.2/mesh_mask.nc4
