@@ -90,28 +90,24 @@ EOF
     ${img_l} hov_salinity_${cr}_indian.${ff} ${img_r}
 EOF
 
+
+LIST_FW_FIG="zos fwf_fwf fwf_emp fwf_prc fwf_rnf fwf_clv \
+fwf_prc_NEMO_IFS_annual fwf_emp_IFS fwf_emp_IFS_annual fwf_evp_IFS \
+fwf_evp_IFS_annual fwf_rnf_IFS fwf_rnf_IFS_annual fwf_prc_IFS fwf_emp_ALL_IFS"
+
     cat >> index.html <<EOF
     ${ctl} Freshwater-flux-related time-series ${ctr}
-    ${img_l} mean_zos_${cr}.${ff}">     ${spf}
-    ${img_l} mean_fwf_fwf_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_emp_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_prc_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_rnf_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_clv_${cr}.${ff} ${img_r}
 EOF
 
-    if [ ${ece_run} -eq 2 ]; then
-        cat >> index.html <<EOF
-    ${img_l} mean_fwf_emp_IFS_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_emp_IFS_annual_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_evp_IFS_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_evp_IFS_annual_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_rnf_IFS_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_rnf_IFS_annual_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_prc_IFS_${cr}.${ff} ${img_r}
-    ${img_l} mean_fwf_emp_ALL_IFS_${cr}.${ff} ${img_r}
-EOF
-    fi
+    for fd in ${LIST_FW_FIG}; do
+        fgn="mean_${fd}_${cr}.${ff}"; fgf="${HTML_DIR}/${fgn}"
+        if [ -f ${fgf} ]; then
+            echo "${img_l} ${fgn} ${img_r}" >> index.html
+    #else
+    #    echo "LOLO: ${fgf} not found!!!!"
+        fi
+    done
+
 
     # Sea-ice section
     if [ ${i_do_ice}  -gt 0 ]; then
@@ -145,7 +141,7 @@ EOF
 
     # Checking if figures with time-series of MLD in specified boxes are here and adding them:
     if [ ${i_do_mean} -eq 1 ]; then
-        list_mld_figs=`\ls mean_mldr10_1_${cr}*.${ff}`
+        list_mld_figs=`\ls ${HTML_DIR}/mean_mldr10_1_${cr}*.${ff}`
         if [ ! "${list_mld_figs}" = "" ]; then
             echo "    ${ctl} Horizontally-averaged Mixed-Layer Depth in different regions${ctr}" >> index.html
             for fmld in ${list_mld_figs}; do

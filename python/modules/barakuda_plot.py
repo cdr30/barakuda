@@ -130,6 +130,10 @@ class plot :
         plt.hold(True)
         if lkcont: plt.contour(VX, zVZ, XF, vc, colors='k', linewidths=0.2)
 
+        # Prevents from using scientific notations in axess ticks numbering:
+        ax.get_xaxis().get_major_formatter().set_useOffset(False)
+        ax.get_yaxis().get_major_formatter().set_useOffset(False)
+
         # Colorbar:
         __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, cunit=cbunit, cfont=font_clb, fontsize=10)
 
@@ -918,7 +922,7 @@ class plot :
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-        font_ttl, font_xylb, font_clb = __font_unity__(dpi_fig=DPI_DEF)
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
@@ -1217,6 +1221,10 @@ class plot :
 
         plt.plot(VTm, VDm, mnth_col, label=r'monthly', linewidth=1)
         plt.plot(VTy, VDy, b_red, label=r'annual', linewidth=2)
+
+        # Prevents from using scientific notations in axess ticks numbering:
+        ax.get_xaxis().get_major_formatter().set_useOffset(False)
+        ax.get_yaxis().get_major_formatter().set_useOffset(False)
 
         if plt_m03: plt.plot(VTm[2:Nt1:12], VDm[2:Nt1:12], 'orange', label=r'March',     linewidth=2)
         if plt_m09: plt.plot(VTm[8:Nt1:12], VDm[8:Nt1:12], 'orange', label=r'September', linewidth=2)

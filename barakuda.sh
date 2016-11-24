@@ -816,13 +816,23 @@ if [ ${ISTAGE} -eq 2 ]; then
     fi ; # if ${l_clim_diag}
 
 
+    
+    wait
 
     # Time for HTML stuff!
 
+    export HTML_DIR=${DIAG_D}/${RUN}
+    mkdir -p ${HTML_DIR}
+    
     cd ${DIAG_D}/
+
+    # Moving all figures to HTML_DIR:
+    for fp in ${FIG_FORM} svg gif; do mv -f *.${fp} ${HTML_DIR}/ >/dev/null 2>/dev/null ; done
+    mv -f ./merid_transport/*.${FIG_FORM} ${HTML_DIR}/ >/dev/null 2>/dev/null
     
     . ${BARAKUDA_ROOT}/src/bash/build_html.bash
     
+    wait
     # Building main index.html 
     build_index_html
     
@@ -838,24 +848,18 @@ if [ ${ISTAGE} -eq 2 ]; then
 
     echo; echo
 
+    cp ${BARAKUDA_ROOT}/src/html/conf_*.html ${HTML_DIR}/
+    cp ${BARAKUDA_ROOT}/src/html/logo.png    ${HTML_DIR}/
 
-    html_dir=${DIAG_D}/${RUN}
-    mkdir -p ${html_dir}
+    mv -f index.html ${HTML_DIR}/
 
-    cp ${BARAKUDA_ROOT}/src/html/conf_*.html ${html_dir}/
-    cp ${BARAKUDA_ROOT}/src/html/logo.png    ${html_dir}/
-
-    mv -f index.html ${html_dir}/
-    for fp in ${ff} svg gif; do mv -f *.${fp} ${html_dir}/ >/dev/null 2>/dev/null ; done
-    mv -f ./merid_transport/*.${ff} ${html_dir}/ >/dev/null 2>/dev/null
-
-    cp -r ${DIRS_2_EXP} ${html_dir}/ >/dev/null 2>/dev/null
+    cp -r ${DIRS_2_EXP} ${HTML_DIR}/ >/dev/null 2>/dev/null
 
     echo; echo; echo
 
     if [ ${ihttp} -eq 1 ]; then
         echo "Preparing to export to remote host!"; echo
-        send_dir=`basename ${html_dir}`
+        send_dir=`basename ${HTML_DIR}`
         tar cvf ${send_dir}.tar ${send_dir}
         ssh ${RUSER}@${RHOST} "mkdir -p ${RWWWD}"
         scp ${send_dir}.tar ${RUSER}@${RHOST}:${RWWWD}/
@@ -868,7 +872,7 @@ if [ ${ISTAGE} -eq 2 ]; then
 
     else
         if [ ${ihttp} -eq 0 ]; then
-            echo "Diagnostic page installed in ${html_dir}/"
+            echo "Diagnostic page installed in ${HTML_DIR}/"
             echo " => you can view it with a web browser..."
         else
             echo "Error: \"ihttp\" must be either 0 or 1 !"

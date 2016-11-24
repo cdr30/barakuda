@@ -17,7 +17,7 @@ ihov=0
 CONFIG="ORCA1_L75"
 ARCH="ece32_marenostrum"
 
-export RUN="LB01"
+export RUN="LBO0" ; NC=nc
 
 jyear=1990 ; # year to test on (if relevant)
 
@@ -59,9 +59,9 @@ if [ ${ece_run} -gt 0 ]; then
     dir_ece="`printf "%03d" ${iy}`/"
 fi
 CPREF=`echo ${NEMO_FILE_PREFIX} | sed -e "s|<ORCA>|${ORCA}|g" -e "s|<RUN>|${RUN}|g" -e "s|<TSTAMP>|${TSTAMP}|g"`
-ft=${NEMO_OUT_D}/${dir_ece}${CPREF}${cyear}0101_${cyear}1231_grid_T.nc4
+ft=${NEMO_OUT_D}/${dir_ece}${CPREF}${cyear}0101_${cyear}1231_grid_T.${NC}
 check_if_file ${ft}
-fj=${NEMO_OUT_D}/${dir_ece}${CPREF}${cyear}0101_${cyear}1231_icemod.nc4
+fj=${NEMO_OUT_D}/${dir_ece}${CPREF}${cyear}0101_${cyear}1231_icemod.${NC}
 check_if_file ${fj}
 
 

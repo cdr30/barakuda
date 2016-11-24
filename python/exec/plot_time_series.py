@@ -323,6 +323,14 @@ if idfig == 'fwf':
                             cyunit=cyu, ctitle = CONFRUN+': Continental runoffs (annual)', loc_legend='out',
                             ymin=ym, ymax=yp, cfig_type=ff)
 
+    # Annual comparison of PRECIP, NEMO vs IFS ! lulu
+    if l_fwf_ifs and l_prc and l_prc_nemo_valid:
+        Xplt = nmp.zeros((2,nby)) ; vlab = []
+        VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vprc[:]);   vlab.append('P NEMO')
+        VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], vp_ifs[:]); vlab.append('P IFS')
+        bp.plot("1d_multi")(VY, Xplt, vlab, cfignm=cdiag+'_prc_NEMO_IFS_annual_'+CONFRUN, dt_year=ittic,
+                            cyunit=cyu, ctitle = CONFRUN+': Precip (annual)', loc_legend='out',
+                            ymin=ym, ymax=yp, cfig_type=ff)
 
     if l_fwf_ifs and l_prc:
         # Only P for NEMO and IFS, and RNF NEMO:
@@ -344,7 +352,7 @@ if idfig == 'fwf':
             Xplt[4,:] = vclv[:]    ; vlab.append('Calving NEMO')
             
         bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_prc_IFS_'+CONFRUN, dt_year=ittic,
-                            cyunit=cyu, ctitle = CONFRUN+': Precip', ymin=ym, ymax=yp, cfig_type=ff,
+                            cyunit=cyu, ctitle = CONFRUN+': Precip (monthly)', ymin=ym, ymax=yp, cfig_type=ff,
                             loc_legend='out')
 
 
