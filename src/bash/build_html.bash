@@ -145,7 +145,8 @@ EOF
         if [ ! "${list_mld_figs}" = "" ]; then
             echo "    ${ctl} Horizontally-averaged Mixed-Layer Depth in different regions${ctr}" >> index.html
             for fmld in ${list_mld_figs}; do
-                echo "    ${img_l} ${fmld} ${img_r}"  >> index.html
+                fgn=`basename ${fmld}`
+                echo "    ${img_l} ${fgn} ${img_r}"  >> index.html
             done
         fi
     fi
