@@ -125,9 +125,10 @@ PROGRAM cdftransportiz
   !!  Read command line and output usage message if not compliant.
   narg= iargc()
   IF ( narg < 7  ) THEN
-     PRINT *,' Usage : cdftransportiz <CONFTAG> <nameU> <nameV> <nameUeiv> <nameVeiv> <year> <DIROUT> ''limit of level'' (<ref temp.degree>)'
+     PRINT *,' Usage : cdftransportiz <CONFTAG> <nameU> <nameV> <nameUeiv> <nameVeiv> <year> <DIROUT> '
+     PRINT *, '                       "limit of level" (<ref temp.degree>)'
      PRINT *,'    => files are: <CONFTAG>_VT.nc <CONFTAG>_grid_U.nc <CONFTAG>_grid_V.nc'
-     PRINT *, '  If eddy-induced velocity is not relevant, specify "0" "0" for <nameUeiv> <nameVeiv>'
+     PRINT *,' If eddy-induced velocity is not relevant, specify "0" "0" for <nameUeiv> <nameVeiv>'
      PRINT *,' Files mesh_mask.nc must be in te current directory'
      STOP
   ENDIF
