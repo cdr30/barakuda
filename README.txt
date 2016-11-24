@@ -26,14 +26,15 @@ I / What do you need to be able to use BaraKuda ?
 
 - NEMO output data! => A directory containing the MONTHLY-AVERAGED, global
                        (rebuilt), NEMO output to analyze
-               (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"
+  (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"
 
 - a NEMO mesh_mask file and the the corresponding basin_mask (ocean basins).
   (variables MM_FILE and BM_FILE into your config/conf_<MYCONF>.sh file)
   To create the NEMO mesh_mask.nc just launch the relevant NEMO experiment with the
   namelist parameter nn_msh set to 1 !
-  If you use ORCA1 or ORCA025 you can use the "<ORCA>_create_basin_mask_from_meshmask.py" in python/exec
-  to generate the basin file!
+  If you use ORCA1 or ORCA025 you can use the
+  "<ORCA>_create_basin_mask_from_meshmask.py" in python/exec to generate the
+  basin file!
               tmaskatl(y, x) => "Atlantic Basin" ;
               tmaskpac(y, x) => "Pacific Basin" ;
               tmaskind(y, x) => "Indian Basin" ;
@@ -44,28 +45,36 @@ II / Compile CDFTOOLS executables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  * CDFTOOLS is a set of FORTRAN executables intended to perform a multitude of
-   diagnostics on NEMO output file and is developed by Jean-Marc Molines at LEGI
-   in Grenoble.  However, this is a slightly modified light version here...
-   SO DO NOT USE AN OFFICIAL CDFTOOLS DISTRIBUTION, stick to the one that comes with
-   BaraKuda!
+   diagnostics on NEMO output file and is developed by Jean-Marc Molines at LGGE
+   in Grenoble.  However, this is a slightly modified light version here...  SO
+   DO NOT USE AN OFFICIAL CDFTOOLS DISTRIBUTION, stick to the one that comes
+   with BaraKuda!
 
 - move to the 'barakuda/cdftools_light' directory
 
-- configure your own 'make.macro' for your system (some templates for gfortran and Intel are provided...)
+- configure your own 'make.macro' for your system (some templates for gfortran
+  and Intel are provided...)
     => just copy or link your own "macro.your_arch" to "make.macro" !
     => F90 compiler and related netcdf library to use
 
 - compile with 'gmake'
 
-- if that was successful the 'barakuda/bin' directory should contain the following executables
-    => cdfcurl.x cdfmaxmoc.x cdfmhst.x cdfmoc.x cdfpsi.x  cdftransportiz.x  cdfzonalmean.x
-       cdfhflx.x cdfmeanvar.x cdfmocatl.x cdfmoy.x cdfrmsssh.x cdfvT.x cdficediags.x  cdfmean.x
-       cdfmocsig.x cdfmxl.x cdfsigtrp.x cdfw.x
+- if that was successful the 'barakuda/bin' directory should contain the 8
+  following executables:
+ * cdficediags.x
+ * cdfmaxmoc.x
+ * cdfmhst.x
+ * cdfmoc.x
+ * cdfpsi.x
+ * cdfsigtrp.x
+ * cdftransportiz.x
+ * cdfvT.x
 
 
 
-III / Create and configure your own "configs/config_<MY_CONF>.sh" from an existing one
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+III / Create and configure your own "configs/config_<MY_CONF>.sh"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 NEMO output files must be monthly averages and of the following form:
 ==> <RUN NAME>_1m_<YEAR>0101_<YEAR>1231_<GRID_TYPE>.nc(.gz)   (GRID_TYPE=grid_T/grid_U/grid_V/icemod) 
