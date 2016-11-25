@@ -163,8 +163,8 @@ while ${lcontinue}; do
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         if [ ${ece_run} -eq 2 ] && [ ${NBL} -eq 75 ] && [ ${i_do_fwf} -eq 1 ]; then
             echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
-            echo "LAUNCHING: ./src/scripts/do_fwf_series_ifs.sh in the background!"
-            ${BARAKUDA_ROOT}/src/scripts/do_fwf_series_ifs.sh &
+            echo "LAUNCHING: ./src/bash/extract_ifs_surf_fluxes.sh in the background!"
+            ${BARAKUDA_ROOT}/src/bash/extract_ifs_surf_fluxes.sh &
             pid_fwfl=$! ; echo
         fi
 

@@ -3,10 +3,10 @@
 #  B E T A  ! ! !
 
 # Diag to test:
-ifwf=0
+ifwf=1
 imov=0
 issh=0
-its=1
+its=0
 imld=0
 irnf=0
 iice=0
@@ -17,7 +17,7 @@ ihov=0
 CONFIG="ORCA1_L75"
 ARCH="ece32_marenostrum"
 
-export RUN="LBO0" ; NC=nc
+export RUN="LBO1" ; NC=nc
 
 jyear=1990 ; # year to test on (if relevant)
 
@@ -84,9 +84,8 @@ if [ ${its} -eq 1 ]; then
 fi
 
 
-
 if [ ${ifwf} -eq 1 ]; then
-    CMD="${BARAKUDA_ROOT}/src/scripts/do_fwf_series_ifs.sh"
+    CMD="${BARAKUDA_ROOT}/src/bash/extract_ifs_surf_fluxes.sh"
 fi
 
 
