@@ -90,21 +90,22 @@ EOF
     ${img_l} hov_salinity_${cr}_indian.${ff} ${img_r}
 EOF
 
-
-LIST_FW_FIG="zos fwf_fwf fwf_emp fwf_prc fwf_rnf fwf_clv \
-fwf_prc_NEMO_IFS_annual fwf_emp_IFS fwf_emp_IFS_annual fwf_evp_IFS \
-fwf_evp_IFS_annual fwf_rnf_IFS fwf_rnf_IFS_annual fwf_prc_IFS fwf_emp_ALL_IFS"
+    # Freshwater flux diagnostics:
+    LIST_FW_FIG="zos fwf_fwf fwf_emp fwf_prc fwf_rnf fwf_clv \
+fwf_evp_NEMO_IFS fwf_evp_NEMO_IFS_annual \
+fwf_prc_NEMO_IFS fwf_prc_NEMO_IFS_annual \
+fwf_EmP_NEMO_IFS fwf_EmP_NEMO_IFS_annual \
+fwf_rnf_NEMO_IFS fwf_rnf_NEMO_IFS_annual \
+fwf_EmPmR_NEMO_IFS fwf_EmPmR_NEMO_IFS_annual \
+fwf_prc_IFS fwf_emp_ALL_IFS"
 
     cat >> index.html <<EOF
     ${ctl} Freshwater-flux-related time-series ${ctr}
 EOF
-
     for fd in ${LIST_FW_FIG}; do
         fgn="mean_${fd}_${cr}.${ff}"; fgf="${HTML_DIR}/${fgn}"
         if [ -f ${fgf} ]; then
             echo "${img_l} ${fgn} ${img_r}" >> index.html
-    #else
-    #    echo "LOLO: ${fgf} not found!!!!"
         fi
     done
 
