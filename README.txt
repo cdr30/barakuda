@@ -72,12 +72,17 @@ II / Compile CDFTOOLS executables
 
 
 
-
 III / Create and configure your own "configs/config_<MY_CONF>.sh"
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+IMPORTANT: Always refer to the 'configs/config_TEMPLATE.sh' config file as a
+reference when creating/re-adjusting yours. It is a symbolic link pointing to
+the last officially supported and most up-to-date config file.  It should be
+sufficiently well commented for you to be able to adjust your own config file.
+
 NEMO output files must be monthly averages and of the following form:
-==> <RUN NAME>_1m_<YEAR>0101_<YEAR>1231_<GRID_TYPE>.nc(.gz)   (GRID_TYPE=grid_T/grid_U/grid_V/icemod) 
+==> <RUN NAME>_1m_<YEAR>0101_<YEAR>1231_<GRID_TYPE>.nc(.gz)
+           (GRID_TYPE=grid_T/grid_U/grid_V/icemod) 
 
 Gzipped or not!
 
@@ -141,7 +146,8 @@ B/ To be able to create the "climatology" plots (maps, sections, etc, based on a
        using the "-E" switch instead of "-e" (see point V/A)
 
 
-C/ To compare time-series between at least 2 runs (each already diagnosed, at least stage III):
+C/ To compare time-series between at least 2 (already diagnosed) runs:
    
    ./compare_time-series.sh -C <MY_CONF> -R <RUN1>,<RUN2>,...,<RUNn>
    (ex: ./compare_time-series.sh -C ORCA1_L75_v36_triolith -R SL36C00,SL36EIE )
+

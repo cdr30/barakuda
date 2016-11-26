@@ -177,7 +177,6 @@ function barakuda_setup()
         if [ ${i_do_sect} -gt 0 ]; then echo " *** i_do_sect ${ca}"; exit; fi
         if [ ${i_do_amo}  -gt 0 ]; then echo " *** i_do_amo  ${ca}"; exit; fi
         if [ ${i_do_icet} -gt 0 ]; then echo " *** i_do_icet ${ca}"; exit; fi
-        if [ ${i_do_flx}  -gt 0 ]; then echo " *** i_do_flx  ${ca}"; exit; fi
 
         if [ ${ISTAGE} -eq 1 ]; then
             for ex in ${L_EXEC}; do check_if_file cdftools_light/bin/${ex} "Compile CDFTOOLS executables!"; done
