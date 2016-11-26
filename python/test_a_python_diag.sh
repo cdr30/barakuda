@@ -3,10 +3,11 @@
 #  B E T A  ! ! !
 
 # Diag to test:
-ifwf=1
+isflx=0
+imean=0
 imov=0
 issh=0
-its=0
+its=1
 imld=0
 irnf=0
 iice=0
@@ -77,15 +78,20 @@ rm -f *.png *.nc
 
 if [ ${its} -eq 1 ]; then
     #diag=3d_thetao
-    diag=mean_fwf
+    #diag=mean_fwf
+    diag=mean_htf
     ln -sf ${DIAG_D}/${diag}*.nc .
     CMD="python exec/plot_time_series.py ${diag}"
 
 fi
 
 
-if [ ${ifwf} -eq 1 ]; then
+if [ ${isflx} -eq 1 ]; then
     CMD="${BARAKUDA_ROOT}/src/bash/extract_ifs_surf_fluxes.sh"
+fi
+
+if [ ${imean} -eq 1 ]; then
+    CMD="python exec/mean.py ${ft} ${jyear}"
 fi
 
 

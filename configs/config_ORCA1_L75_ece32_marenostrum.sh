@@ -153,7 +153,7 @@ export i_do_movi=1
 export i_do_mean=1
 
 # IFS freshWater fluxes at the surface spatially averaged over the ocean, E-P-R, E-P, R, P, ...
-export i_do_fwf=1 ; # only relevant when ece_run=2...
+export i_do_ifs_flx=1 ; # only relevant when ece_run=2...
 
 # AMOC:
 export i_do_amoc=1
@@ -216,7 +216,7 @@ VSECT_JJ=(    "25,170"          "7,291"      ) ; # Y range in C convention
 
 #========================== Marenostrum @ BSC =========================================================
 ### Shouldn't be needed elsewhere than MareNostrum, where it's a hello to have CDO working...
-## => Only if you specified ece_run=2 and i_do_fwf
+## => Only if you specified ece_run=2 and i_do_ifs_flx
 export MOD_CDO="gcc/4.7.2 intel/13.0.1 openmpi/1.8.1 NETCDF/4.1.3 HDF5/1.8.10 UDUNITS/2.1.24 CDO/1.7.0"
 #=======================================================================================================
 

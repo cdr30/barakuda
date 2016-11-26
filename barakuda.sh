@@ -161,11 +161,11 @@ while ${lcontinue}; do
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         # If coupled EC-Earth simu, attempting to compute ocean-averaged fluxes from IFS too (E, P, E-P)
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        if [ ${ece_run} -eq 2 ] && [ ${NBL} -eq 75 ] && [ ${i_do_fwf} -eq 1 ]; then
+        if [ ${ece_run} -eq 2 ] && [ ${NBL} -eq 75 ] && [ ${i_do_ifs_flx} -eq 1 ]; then
             echo; echo; echo "Fluxes of freshwater at the surface from IFS..."
             echo "LAUNCHING: ./src/bash/extract_ifs_surf_fluxes.sh in the background!"
             ${BARAKUDA_ROOT}/src/bash/extract_ifs_surf_fluxes.sh &
-            pid_fwfl=$! ; echo
+            pid_flxl=$! ; echo
         fi
 
         # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -484,7 +484,7 @@ while ${lcontinue}; do
 
         echo
         echo " Waiting for backround jobs for current year (${jyear}) !"
-        wait ${pid_movt} ${pid_movs} ${pid_movi} ${pid_mean} ${pid_fwfl}
+        wait ${pid_movt} ${pid_movs} ${pid_movi} ${pid_mean} ${pid_flxl}
         wait
         echo "  Done waiting for year ${cyear} !"
         if [ ${i_do_movi} -eq 1 ]; then rsync -avP movies ${DIAG_D}/ ; fi
@@ -580,7 +580,7 @@ if [ ${ISTAGE} -eq 2 ]; then
     DIAG_1D_LIST=""
 
     if [ ${i_do_mean} -eq 1 ]; then
-        DIAG_1D_LIST="${DIAG_1D_LIST} 3d_so mean_sos 3d_thetao mean_tos mean_zos mean_fwf mean_mldr10_1"
+        DIAG_1D_LIST="${DIAG_1D_LIST} 3d_so mean_sos 3d_thetao mean_tos mean_zos mean_fwf mean_htf mean_mldr10_1"
     fi
     if [ ${i_do_amoc} -eq 1 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} amoc";        fi
     if [ ${i_do_trsp} -gt 0 ]; then DIAG_1D_LIST="${DIAG_1D_LIST} transport_sections" ; fi
