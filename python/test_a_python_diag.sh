@@ -17,7 +17,7 @@ ihov=0
 CONFIG="ORCA1_L75"
 ARCH="ece32_marenostrum"
 
-export RUN="LBO1" ; NC=nc
+export RUN="LBO0" ; NC=nc
 
 jyear=1990 ; # year to test on (if relevant)
 

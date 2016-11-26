@@ -1,5 +1,23 @@
 #!/bin/bash
 
+#################################################################################
+#
+#  PURPOSE: Extract all possible surface flux components of freshwater (FWF) and
+#  heat (HTF) from IFS/EC-Earth (native grib output). Calculate their surface
+#  integrals over the ocean and land... And output them as monthly time-series
+#  into 2 netcdf files.
+#
+#  Dependencies:
+#  CDO, NCO
+#
+#  Author: L. Broddeau for BaraKuda, November 2016.
+#
+#
+# Surface-integrated Freshwater fluxes over the ocean in Sverdrup (Sv)
+# --------------------------------------------------------------------
+#
+# [ 1Sv==1.E6 m^3/s ]
+#
 # Lagerloef and colleagues note that:
 #
 # Evaporation from the global ocean is estimated to be ~ 13 Sv, and the
@@ -17,14 +35,14 @@
 # References: Lagerloef, G., Schmitt, R., Schanze, J. Kao, H-Y, 2010, The Ocean
 #             and the Global Water Cycle, Oceanography, Vol.23, No.4
 #
-
-#RUN=32bG
-#Y_INI_EC=1990
-#cyear=2038
-#NEMO_OUT_D=/nobackup/rossby15/sm_uflad/run/${RUN}/output/nemo
-#DIAG_D=.
-#HERE=`pwd`
-
+#
+# Surface integrated Heat fluxes over the ocean in PetaWatts (PW) 
+# ---------------------------------------------------------------
+#
+# [ 1PW==1.E15 Watts ]
+# => expect an order of magnitude of 10 PW (Solar ~ 55 PW)
+#
+##################################################################################
 
 cmsg="ERROR: $0 => global variable"
 if [ -z ${RUN} ]; then echo "${cmsg} RUN is unknown!"; exit ; fi
@@ -32,6 +50,8 @@ if [ -z ${Y_INI_EC} ]; then echo "${cmsg} Y_INI_EC is unknown!"; exit ; fi
 if [ -z ${cyear} ]; then echo "${cmsg} cyear is unknown!"; exit ; fi
 if [ -z ${NEMO_OUT_D} ]; then echo "${cmsg} NEMO_OUT_D is unknown!"; exit ; fi
 if [ -z ${DIAG_D} ]; then echo "${cmsg} DIAG_D is unknown!"; exit ; fi
+
+mkdir -p ${DIAG_D}
 
 echo " MOD_CDO => ${MOD_CDO} !!!"
 if [ ! "${MOD_CDO}" = "" ]; then module add ${MOD_CDO}; fi
@@ -47,15 +67,12 @@ echo " IFS_OUT_D = ${IFS_OUT_D}"
 echo " Fields to extract from IFS GG files => ${FLX_EXTRACT}"
 echo
 
-
-
 YDIR=$((${cyear}-${Y_INI_EC}+1))
 
 dir_ece=`printf "%03d" ${YDIR}`
 dir_ece=${RUN_DIR}/output/ifs/${dir_ece}
 
 echo ${dir_ece}
-
 
 F_AREA=${RUN_DIR}/areas.nc
 F_MASK=${RUN_DIR}/masks.nc
@@ -122,7 +139,7 @@ if [ "${wc}" = "" ]; then
 fi
 
 
-FLX_EXTRACT_S=`echo "${FLX_EXTRACT}" | sed -e s/','/' '/g` ; # with a ' ' instead of a ',' 
+FLX_EXTRACT_S=`echo "${FLX_EXTRACT}" | sed -e s/','/' '/g` ; # with a ' ' instead of a ','
 
 
 
@@ -178,9 +195,9 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
         isign=1
         if [ "${VAR}" = "e" ]; then isign=-1; fi
 
-        cu='pw'; cun='PW'; rfact="1.E-15"
+        cu='pw'; cun='PW'; rfact="1.E-15"; ctype="htf"
         if [ "${VAR}" = "e" ] || [ "${VAR}" = "lsp" ] || [ "${VAR}" = "cp" ]; then
-            cu='sv'; cun='Sv'; rfact="1.E-6"
+            cu='sv'; cun='Sv'; rfact="1.E-6"; ctype="fwf"
         fi
 
         # Multiplying ${VAR} and ifs_area_masked:
@@ -196,15 +213,15 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
         ncatted -O -a units,flx_${VAR}_glb_${cu},o,c,"${cun}" ${ftreat}.nc
         ncatted -O -a units,flx_${VAR}_land_${cu},o,c,"${cun}" ${ftreat}.nc
 
-        ncks -h -A -v flx_${VAR}_${cu}     ${ftreat}.nc -o final_${cm}.nc
-        ncks -h -A -v flx_${VAR}_glb_${cu} ${ftreat}.nc -o final_${cm}.nc
-        ncks -h -A -v flx_${VAR}_land_${cu} ${ftreat}.nc -o final_${cm}.nc
+        ncks -h -A -v flx_${VAR}_${cu}      ${ftreat}.nc -o final_${ctype}_${cm}.nc
+        ncks -h -A -v flx_${VAR}_glb_${cu}  ${ftreat}.nc -o final_${ctype}_${cm}.nc
+        ncks -h -A -v flx_${VAR}_land_${cu} ${ftreat}.nc -o final_${ctype}_${cm}.nc
 
         # Checking surface of the ocean to be sure...
         #if [ ${icpt} -eq 1 ]; then
         #    ncap2 -h -A -s "srf_ocean=ifs_area_ocean.total(\$x)*1.E-12" ${ftreat}.nc -o ${ftreat}.nc
         #    ncatted -O -a units,srf_ocean,o,c,'10^6 km^2' ${ftreat}.nc
-        #    ncks -h -A -v srf_ocean ${ftreat}.nc -o final_${cm}.nc
+        #    ncks -h -A -v srf_ocean ${ftreat}.nc -o final_${ctype}_${cm}.nc
         #fi
 
         rm -f ${ftreat}.nc
@@ -221,34 +238,51 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
 done
 
 
-echo "ncrcat -O final_*.nc -o final.nc"
-ncrcat -O final_*.nc -o final.nc
+for ct in "htf" "fwf"; do
+    echo "ncrcat -O final_${ct}_*.nc -o final_${ct}.nc"
+    ncrcat -O final_${ct}_*.nc -o final_${ct}.nc
 
-ncap2 -h -O -s "time=array(${cyear}.0416667,0.08333333,\$time)" final.nc -o final.nc
-ncatted -O -a units,time,o,c,'years' final.nc
+    ncap2 -h -O -s "time=array(${cyear}.0416667,0.08333333,\$time)" final_${ct}.nc -o final_${ct}.nc
+    ncatted -O -a units,time,o,c,'years' final_${ct}.nc
+done
 
-ncap2 -h -A -s "flx_p_sv=flx_cp_sv+flx_lsp_sv" final.nc
-ncap2 -h -A -s "flx_emp_sv=flx_e_sv-flx_p_sv"  final.nc
 
-ncap2 -h -A -s "flx_p_glb_sv=flx_cp_glb_sv+flx_lsp_glb_sv" final.nc
-ncap2 -h -A -s "flx_emp_glb_sv=flx_e_glb_sv-flx_p_glb_sv"  final.nc
+# Freshwater fluxes that need to be built:
+ncap2 -h -A -s "flx_p_sv=flx_cp_sv+flx_lsp_sv" final_fwf.nc  ; # total precip over ocean
+ncap2 -h -A -s "flx_emp_sv=flx_e_sv-flx_p_sv"  final_fwf.nc  ; # E-P over ocean
+# Same, Ocean+Land:
+ncap2 -h -A -s "flx_p_glb_sv=flx_cp_glb_sv+flx_lsp_glb_sv" final_fwf.nc
+ncap2 -h -A -s "flx_emp_glb_sv=flx_e_glb_sv-flx_p_glb_sv"  final_fwf.nc
+# Same, Land:
+ncap2 -h -A -s "flx_p_land_sv=flx_cp_land_sv+flx_lsp_land_sv" final_fwf.nc
+ncap2 -h -A -s "flx_emp_land_sv=flx_e_land_sv-flx_p_land_sv"  final_fwf.nc
 
-ncap2 -h -A -s "flx_p_land_sv=flx_cp_land_sv+flx_lsp_land_sv" final.nc
-ncap2 -h -A -s "flx_emp_land_sv=flx_e_land_sv-flx_p_land_sv"  final.nc
 
-# Net heat flux over the ocean
-ncap2 -h -A -s "flx_qnet_pw=flx_ssr_pw+flx_str_pw+flx_slhf_pw+flx_sshf_pw" final.nc
+# Heat fluxes that need to be built:
+ncap2 -h -A -s "flx_qnet_pw=flx_ssr_pw+flx_str_pw+flx_slhf_pw+flx_sshf_pw" final_htf.nc ; # Net heat flux over ocean
+# Same, Ocean+Land:
+ncap2 -h -A -s "flx_qnet_glb_pw=flx_ssr_glb_pw+flx_str_glb_pw+flx_slhf_glb_pw+flx_sshf_glb_pw" final_htf.nc
+# Same, Land:
+ncap2 -h -A -s "flx_qnet_land_pw=flx_ssr_land_pw+flx_str_land_pw+flx_slhf_land_pw+flx_sshf_land_pw" final_htf.nc ; # Net heat flux over ocean
 
-rm -f metrics.nc final_*.nc
+rm -f metrics.nc final_htf_*.nc final_fwf_*.nc
 
-fout=${DIAG_D}/mean_fwf_IFS_${RUN}_global.nc
 
-if [ ! -f ${fout} ]; then
-    mv final.nc ${fout}
-else
-    ncrcat -h -A ${fout} final.nc -o ${fout}
-fi
-rm -f final.nc
+
+for ct in "htf" "fwf"; do
+
+    fout=${DIAG_D}/mean_${ct}_IFS_${RUN}_global.nc
+
+    if [ ! -f ${fout} ]; then
+        mv final_${ct}.nc ${fout}
+    else
+        ncrcat -h -A ${fout} final_${ct}.nc -o ${fout}
+    fi
+
+    rm -f final_${ct}.nc
+
+done
+
 
 if [ ! "${MOD_CDO}" = "" ]; then module rm ${MOD_CDO}; fi
 
