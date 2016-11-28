@@ -372,22 +372,19 @@ if idfig == 'fwf':
     # Only runoffs (-(E-P) over land for IFS):
     if l_fwf_ifs and l_rnf:
         vlab = [] ; nbd = 2
+        if l_clv: nbd = 3
         Xplt = nmp.zeros((nbd,nbm))
-        if l_clv:
-            Xplt[0,:] = vrnf[:] + vclv[:] ; vlab.append('R + calving NEMO')
-        else:
-            Xplt[0,:] = vrnf[:]           ; vlab.append('R NEMO')
-        Xplt[1,:] = -vemp_land_ifs[:] ; vlab.append('-(E-P) over land IFS')
+        Xplt[0,:] = vrnf[:]                     ; vlab.append('R NEMO')
+        Xplt[1,:] = -vemp_land_ifs[:]           ; vlab.append('-(E-P) over land IFS')
+        if l_clv: Xplt[2,:] = vrnf[:] + vclv[:] ; vlab.append('R + Calving NEMO')
         bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_rnf_NEMO_IFS_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = 'NEMO & IFS, '+CONFRUN+': Continental runoffs (monthly)',
                             ymin=ym, ymax=yp, cfig_type=ff, loc_legend='out')
         # Same but annual:
-        Xplt = nmp.zeros((nbd,nby))
-        if l_clv:
-            VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:] + vclv[:])
-        else:
-            VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:])
+        Xplt = nmp.zeros((nbd,nby))        
+        VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vrnf[:])
         VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], -vemp_land_ifs[:])
+        if l_clv: VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], vrnf[:] + vclv[:])
         bp.plot("1d_multi")(VY, Xplt, vlab, cfignm=cdiag+'_rnf_NEMO_IFS_annual_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = 'NEMO & IFS, '+CONFRUN+': Continental runoffs (annual)',
                             ymin=ym, ymax=yp, cfig_type=ff, loc_legend='out')
