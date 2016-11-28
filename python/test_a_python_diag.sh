@@ -78,8 +78,8 @@ rm -f *.png *.nc
 
 if [ ${its} -eq 1 ]; then
     #diag=3d_thetao
-    #diag=mean_fwf
-    diag=mean_htf
+    diag=mean_fwf
+    #diag=mean_htf
     ln -sf ${DIAG_D}/${diag}*.nc .
     CMD="python exec/plot_time_series.py ${diag}"
 

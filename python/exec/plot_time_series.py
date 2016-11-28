@@ -248,7 +248,6 @@ if idfig == 'htf':
                             cyunit=cyu, ctitle = 'NEMO & IFS, '+CONFRUN+': Surface net heat flux (annual)',
                             ymin=ym, ymax=yp, cfig_type=ff, loc_legend='out')
 
-    #lolo
     # Only Qsol (NEMO and IFS)
     if l_htf_ifs and l_qsr:
         vlab = [] ; nbd = 2
@@ -454,10 +453,12 @@ if idfig == 'fwf':
     # Only [ Evaporation - Precipitation - Runoffs ] (NEMO and IFS)
     if l_fwf_ifs and l_evp and l_prc and l_prc_nemo_valid and l_rnf:
         vlab = [] ; nbd = 3
+        if l_clv: nbd = 4
         Xplt = nmp.zeros((nbd,nbm))
         Xplt[0,:] = vevp[:]   - vprc[:]   - vrnf[:]           ; vlab.append('E-P-R NEMO (as E-P-R)')
         Xplt[1,:] = ve_ifs[:] - vp_ifs[:] + vemp_land_ifs[:] ; vlab.append('E-P-R IFS')
-        Xplt[2,:] = vfwf[:]          ; vlab.append('E-P-R NEMO (as '+vdic_fwf['NN_FWF']+')')
+        Xplt[2,:] = vfwf[:]          ; vlab.append('NEMO: '+vdic_fwf['NN_FWF'])
+        if l_clv: Xplt[3,:] = vfwf[:] + vclv[:] ; vlab.append('NEMO: '+vdic_fwf['NN_FWF']+'+'+vdic_fwf['NN_CLV'])
         bp.plot("1d_multi")(vtime, Xplt, vlab, cfignm=cdiag+'_EmPmR_NEMO_IFS_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = 'NEMO & IFS, '+CONFRUN+': E-P-R (monthly)',
                             ymin=ym, ymax=yp, cfig_type=ff, loc_legend='out')
@@ -465,17 +466,11 @@ if idfig == 'fwf':
         Xplt = nmp.zeros((nbd,nby))
         VY, Xplt[0,:] = bt.monthly_2_annual(vtime[:], vevp[:]   - vprc[:]   - vrnf[:])
         VY, Xplt[1,:] = bt.monthly_2_annual(vtime[:], ve_ifs[:] - vp_ifs[:] + vemp_land_ifs[:])
-        VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], vfwf[:] )
+        VY, Xplt[2,:] = bt.monthly_2_annual(vtime[:], vfwf[:])
+        if l_clv: Vy, Xplt[3,:] = bt.monthly_2_annual(vtime[:], vfwf[:] + vclv[:])
         bp.plot("1d_multi")(VY, Xplt, vlab, cfignm=cdiag+'_EmPmR_NEMO_IFS_annual_'+CONFRUN, dt_year=ittic,
                             cyunit=cyu, ctitle = 'NEMO & IFS, '+CONFRUN+': E-P-R (annual)',
                             ymin=ym, ymax=yp, cfig_type=ff, loc_legend='out')
-
-
-
-
-
-
-
 
 
 
@@ -502,26 +497,23 @@ if idfig == 'fwf':
                             loc_legend='out')
 
 
-
-
         # Everything possible
-        Xplt = nmp.zeros((9,nbm))
-        vlab = []
-        if l_emp:     Xplt[0,:] = vemp[:]     ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
-        if l_fwf_ifs: Xplt[1,:] = vemp_ifs[:] ; vlab.append('E-P IFS')
-        if l_emp:     Xplt[2,:] = vfwf[:]     ; vlab.append('E-P-R NEMO ('+vdic_fwf['NN_FWF']+')')
-        if l_rnf:     Xplt[3,:] = vrnf[:]     ; vlab.append('R NEMO ('+vdic_fwf['NN_RNF']+')')
-        if l_fwf_ifs: Xplt[4,:] = ve_ifs[:]   ; vlab.append('E IFS')
-        if l_prc and l_prc_nemo_valid:     Xplt[5,:] = vprc[:]     ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
-        if l_fwf_ifs: Xplt[6,:] = vp_ifs[:]   ; vlab.append('P IFS')
-        if l_clv:     Xplt[7,:] = vclv[:]     ; vlab.append('Calving NEMO ('+vdic_fwf['NN_CLV']+')')
-        if l_evp:     Xplt[8,:] = vevp[:]     ; vlab.append('E NEMO ('+vdic_fwf['NN_E']+')')
-
-        bp.plot("1d_multi")(vtime, Xplt, vlab,
-                            cfignm=cdiag+'_emp_ALL_IFS_'+CONFRUN, dt_year=ittic,
-                            loc_legend='out', cyunit=cyu,
-                            ctitle = CONFRUN+': fresh-water budgets', ymin=ym, ymax=yp, cfig_type=ff)
-
+        #Xplt = nmp.zeros((9,nbm))
+        #vlab = []
+        #if l_emp:     Xplt[0,:] = vemp[:]     ; vlab.append('E-P NEMO ('+vdic_fwf['NN_EMP']+')')
+        #if l_fwf_ifs: Xplt[1,:] = vemp_ifs[:] ; vlab.append('E-P IFS')
+        #if l_emp:     Xplt[2,:] = vfwf[:]     ; vlab.append('E-P-R NEMO ('+vdic_fwf['NN_FWF']+')')
+        #if l_rnf:     Xplt[3,:] = vrnf[:]     ; vlab.append('R NEMO ('+vdic_fwf['NN_RNF']+')')
+        #if l_fwf_ifs: Xplt[4,:] = ve_ifs[:]   ; vlab.append('E IFS')
+        #if l_prc and l_prc_nemo_valid:     Xplt[5,:] = vprc[:]     ; vlab.append('P NEMO ('+vdic_fwf['NN_P']+')')
+        #if l_fwf_ifs: Xplt[6,:] = vp_ifs[:]   ; vlab.append('P IFS')
+        #if l_clv:     Xplt[7,:] = vclv[:]     ; vlab.append('Calving NEMO ('+vdic_fwf['NN_CLV']+')')
+        #if l_evp:     Xplt[8,:] = vevp[:]     ; vlab.append('E NEMO ('+vdic_fwf['NN_E']+')')
+        #
+        #bp.plot("1d_multi")(vtime, Xplt, vlab,
+        #                    cfignm=cdiag+'_emp_ALL_IFS_'+CONFRUN, dt_year=ittic,
+        #                    loc_legend='out', cyunit=cyu,
+        #                    ctitle = CONFRUN+': fresh-water budgets', ymin=ym, ymax=yp, cfig_type=ff)
 
 
 if idfig == 'ts3d':
