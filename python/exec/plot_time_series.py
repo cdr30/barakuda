@@ -359,7 +359,7 @@ if idfig == 'fwf':
 
     if l_evp and l_prc and l_prc_nemo_valid:
         VY, FY = bt.monthly_2_annual(vtime, vevp-vprc)
-        bp.plot("1d_mon_ann")(vtime, VY, vprc, FY, cfignm=cdiag+'_prc_'+CONFRUN, dt_year=ittic,
+        bp.plot("1d_mon_ann")(vtime, VY, vevp-vprc, FY, cfignm=cdiag+'_prc_'+CONFRUN, dt_year=ittic,
                               cyunit=cyu, ctitle = CONFRUN+': E-P as E-P !', ymin=ym, ymax=yp, cfig_type=ff)
 
 
