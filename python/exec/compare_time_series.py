@@ -30,7 +30,7 @@ ifwf   = 1  ; # freshwater fluxes at the surface
 
 venv_needed = {'LIST_RUNS','DIAG_DIR','CONF','FIG_FORMAT', \
                'NN_SST','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD', \
-               'TRANSPORT_SECTION_FILE','LMOCLAT','i_do_fwf'}
+               'TRANSPORT_SECTION_FILE','LMOCLAT','i_do_ifs_flx'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
@@ -38,7 +38,7 @@ cd_diag = vdic['DIAG_DIR']
 cffig   = vdic['FIG_FORMAT']
 
 
-i_do_ifs_fwf = int(vdic['i_do_fwf'])
+i_do_ifs_flx = int(vdic['i_do_ifs_flx'])
 
 narg = len(sys.argv)
 if narg != 3: print 'Usage: '+sys.argv[0]+' <first_year> <last_year>'; sys.exit(0)
@@ -415,7 +415,7 @@ if ifwf == 1:
 
         jdiag = jdiag+1
 
-    if i_do_ifs_fwf == 1:
+    if i_do_ifs_flx == 1:
 
         # Checking if there are filef for IFS:
         l_fwf_ifs = True  ;  jrun=0
