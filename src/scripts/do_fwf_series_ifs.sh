@@ -33,6 +33,8 @@ if [ -z ${cyear} ]; then echo "${cmsg} cyear is unknown!"; exit ; fi
 if [ -z ${NEMO_OUT_D} ]; then echo "${cmsg} NEMO_OUT_D is unknown!"; exit ; fi
 if [ -z ${DIAG_D} ]; then echo "${cmsg} DIAG_D is unknown!"; exit ; fi
 
+echo " MOD_CDO => ${MOD_CDO} !!!"
+if [ ! "${MOD_CDO}" = "" ]; then module add ${MOD_CDO}; fi
 
 RUN_DIR=`echo ${NEMO_OUT_D} | sed -e "s|/output/nemo||g"`
 IFS_OUT_D=`echo ${NEMO_OUT_D} | sed -e "s|/output/nemo|/output/ifs|g"`
@@ -71,7 +73,7 @@ cd ./IFS/
 #echo "cdo setmisstoc,0 -ifthen -eqc,0 -selvar,A128.msk ${F_MASK} -selvar,A128.srf ${F_AREA} metrics.nc"
 #cdo setmisstoc,0 -ifthen -eqc,0 -selvar,A128.msk ${F_MASK} -selvar,A128.srf ${F_AREA} metrics.nc
 #echo
- 
+
 ncks -O -h -v A128.msk ${F_MASK} -o metrics.nc
 ncrename -h -v A128.msk,mask  metrics.nc
 
@@ -98,15 +100,30 @@ ncecat   -h -O metrics.nc -o metrics.nc
 ncrename -h -d record,time metrics.nc
 
 
-#mv -f metrics.nc ${HERE}/
-#exit
+wc=`which cdo`
+if [ "${wc}" = "" ]; then
+    echo "=========================================================="
+    echo "ERROR: $0 => No CDO software!!! (command 'cdo' not found)"
+    echo "=========================================================="
+    echo
+    exit
+fi
+
+wc=`which ncks`
+if [ "${wc}" = "" ]; then
+    echo "=========================================================="
+    echo "ERROR: $0 => No NCO software!!! (command 'ncks' not found)"
+    echo "=========================================================="
+    echo
+    exit
+fi
 
 
 
 for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
 
     echo
-    echo " do_fwf_series_ifs.sh => ${cyear}/${cm}"
+    echo " ${0} => ${cyear}/${cm}"
 
     fgrb=${dir_ece}/ICMGG${RUN}+${cyear}${cm}
 
@@ -127,7 +144,6 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
 
     ncrename -h -O -d rgrid,x ${FALL}
 
-
     icpt=0
     for VAR in  "e" "lsp" "cp"; do
 
@@ -140,7 +156,7 @@ for cm in "01" "02" "03" "04" "05" "06" "07" "08" "09" "10" "11" "12"; do
         # To netcdf monthly:
         echo "ncra -h -O -v ${BVAR} ${FALL} -O ${ftreat}_m.nc"
         ncra -h -O -v ${BVAR} ${FALL} -O ${ftreat}_m.nc
-        
+
         # To m/s:
         echo "ncap2 -h -A -s ${VAR}=${BVAR}/${pptime} ${ftreat}_m.nc -o ${ftreat}.nc"
         ncap2 -h -A -s "${VAR}=${BVAR}/${pptime}" ${ftreat}_m.nc -o ${ftreat}.nc ; rm ${ftreat}_m.nc
@@ -215,9 +231,6 @@ ncap2 -h -A -s "flx_emp_land_sv=flx_e_land_sv-flx_p_land_sv"  final.nc
 rm -f metrics.nc final_*.nc
 
 
-#mv -f final.nc ${HERE}/ ; exit
-
-
 fout=${DIAG_D}/mean_fwf_IFS_${RUN}_global.nc
 
 if [ ! -f ${fout} ]; then
@@ -226,5 +239,10 @@ else
     ncrcat -h -A ${fout} final.nc -o ${fout}
 fi
 rm -f final.nc
+
+if [ ! "${MOD_CDO}" = "" ]; then module rm ${MOD_CDO}; fi
+
+cd ../
+rm -rf ./IFS
 
 exit

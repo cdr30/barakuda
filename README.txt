@@ -10,7 +10,9 @@ I / What do you need to be able to use BaraKuda ?
 
 - netcdf library with support for the appropriate F90 compiler
 
-- NCO 
+- NCO
+
+- 'convert' from ImageMagick if you want to generate GIF movies (i_do_movi=1) 
 
 - For time-series and 2D plots, the following up-to-date packages:
   => python-netcdf4 (from netCDF4 import Dataset) and Matplotlib
@@ -24,14 +26,15 @@ I / What do you need to be able to use BaraKuda ?
 
 - NEMO output data! => A directory containing the MONTHLY-AVERAGED, global
                        (rebuilt), NEMO output to analyze
-               (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"
+  (grid_T, grid_U, grid_V and icemod files) as "*.nc", "*.nc.gz" or ".nc4"
 
 - a NEMO mesh_mask file and the the corresponding basin_mask (ocean basins).
   (variables MM_FILE and BM_FILE into your config/conf_<MYCONF>.sh file)
   To create the NEMO mesh_mask.nc just launch the relevant NEMO experiment with the
   namelist parameter nn_msh set to 1 !
-  If you use ORCA1 or ORCA025 you can use the "<ORCA>_create_basin_mask_from_meshmask.py" in python/exec
-  to generate the basin file!
+  If you use ORCA1 or ORCA025 you can use the
+  "<ORCA>_create_basin_mask_from_meshmask.py" in python/exec to generate the
+  basin file!
               tmaskatl(y, x) => "Atlantic Basin" ;
               tmaskpac(y, x) => "Pacific Basin" ;
               tmaskind(y, x) => "Indian Basin" ;
@@ -42,31 +45,44 @@ II / Compile CDFTOOLS executables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
  * CDFTOOLS is a set of FORTRAN executables intended to perform a multitude of
-   diagnostics on NEMO output file and is developed by Jean-Marc Molines at LEGI
-   in Grenoble.  However, this is a slightly modified light version here...
-   SO DO NOT USE AN OFFICIAL CDFTOOLS DISTRIBUTION, stick to the one that comes with
-   BaraKuda!
+   diagnostics on NEMO output file and is developed by Jean-Marc Molines at LGGE
+   in Grenoble.  However, this is a slightly modified light version here...  SO
+   DO NOT USE AN OFFICIAL CDFTOOLS DISTRIBUTION, stick to the one that comes
+   with BaraKuda!
 
 - move to the 'barakuda/cdftools_light' directory
 
-- configure your own 'make.macro' for your system (some templates for gfortran and Intel are provided...)
+- configure your own 'make.macro' for your system (some templates for gfortran
+  and Intel are provided...)
     => just copy or link your own "macro.your_arch" to "make.macro" !
     => F90 compiler and related netcdf library to use
 
 - compile with 'gmake'
 
-- if that was successful the 'barakuda/bin' directory should contain the following executables
-    => cdfcurl.x cdfmaxmoc.x cdfmhst.x cdfmoc.x cdfpsi.x  cdftransportiz.x  cdfzonalmean.x
-       cdfhflx.x cdfmeanvar.x cdfmocatl.x cdfmoy.x cdfrmsssh.x cdfvT.x cdficediags.x  cdfmean.x
-       cdfmocsig.x cdfmxl.x cdfsigtrp.x cdfw.x
+- if that was successful the 'barakuda/bin' directory should contain the 8
+  following executables:
+ * cdficediags.x
+ * cdfmaxmoc.x
+ * cdfmhst.x
+ * cdfmoc.x
+ * cdfpsi.x
+ * cdfsigtrp.x
+ * cdftransportiz.x
+ * cdfvT.x
 
 
 
-III / Create and configure your own "configs/config_<MY_CONF>.sh" from an existing one
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+III / Create and configure your own "configs/config_<MY_CONF>.sh"
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+IMPORTANT: Always refer to the 'configs/config_TEMPLATE.sh' config file as a
+reference when creating/re-adjusting yours. It is a symbolic link pointing to
+the last officially supported and most up-to-date config file.  It should be
+sufficiently well commented for you to be able to adjust your own config file.
 
 NEMO output files must be monthly averages and of the following form:
-==> <RUN NAME>_1m_<YEAR>0101_<YEAR>1231_<GRID_TYPE>.nc(.gz)   (GRID_TYPE=grid_T/grid_U/grid_V/icemod) 
+==> <RUN NAME>_1m_<YEAR>0101_<YEAR>1231_<GRID_TYPE>.nc(.gz)
+           (GRID_TYPE=grid_T/grid_U/grid_V/icemod) 
 
 Gzipped or not!
 
@@ -130,7 +146,8 @@ B/ To be able to create the "climatology" plots (maps, sections, etc, based on a
        using the "-E" switch instead of "-e" (see point V/A)
 
 
-C/ If you want to create time-series comparing 2 runs (each already diagnosed, at least stage III):
+C/ To compare time-series between at least 2 (already diagnosed) runs:
    
    ./compare_time-series.sh -C <MY_CONF> -R <RUN1>,<RUN2>,...,<RUNn>
    (ex: ./compare_time-series.sh -C ORCA1_L75_v36_triolith -R SL36C00,SL36EIE )
+

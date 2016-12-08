@@ -3,8 +3,12 @@
 #  B E T A  ! ! !
 
 # Diag to test:
+isflx=0
+imean=0
+imov=0
 issh=0
-imld=1
+its=1
+imld=0
 irnf=0
 iice=0
 iemp=0
@@ -14,10 +18,18 @@ ihov=0
 CONFIG="ORCA1_L75"
 ARCH="ece32_marenostrum"
 
-export RUN="LB00"
+export RUN="LBO0" ; NC=nc
+
+jyear=1990 ; # year to test on (if relevant)
 
 
-. ../configs/config_${CONFIG}_${ARCH}.sh
+export BARAKUDA_ROOT=`pwd | sed -e "s|/python||g"`
+
+
+
+
+. ${BARAKUDA_ROOT}/src/bash/bash_functions.bash
+. ${BARAKUDA_ROOT}/configs/config_${CONFIG}_${ARCH}.sh
 
 ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
 
@@ -38,9 +50,55 @@ y2_clim=`cat ${finfoclim} | cut -d - -f2`
 
 export COMP2D="CLIM"
 
-rm -f *.png
+# To know the name of NEMO output files:
+export NEMO_OUT_D=`echo ${NEMO_OUT_STRCT} | sed -e "s|<ORCA>|${ORCA}|g" -e "s|<RUN>|${RUN}|g"`
+if [ ! -d ${NEMO_OUT_D} ]; then echo "Unfortunately we could not find ${NEMO_OUT_D}"; exit; fi
+YEAR_INI=1990 ; YEAR_INI_F=1990
+export cyear=`printf "%04d" ${jyear}`
+if [ ${ece_run} -gt 0 ]; then
+    iy=$((${jyear}-${YEAR_INI}+1+${YEAR_INI}-${YEAR_INI_F}))
+    dir_ece="`printf "%03d" ${iy}`/"
+fi
+CPREF=`echo ${NEMO_FILE_PREFIX} | sed -e "s|<ORCA>|${ORCA}|g" -e "s|<RUN>|${RUN}|g" -e "s|<TSTAMP>|${TSTAMP}|g"`
+ft=${NEMO_OUT_D}/${dir_ece}${CPREF}${cyear}0101_${cyear}1231_grid_T.${NC}
+check_if_file ${ft}
+fj=${NEMO_OUT_D}/${dir_ece}${CPREF}${cyear}0101_${cyear}1231_icemod.${NC}
+check_if_file ${fj}
+
+
+
+export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules
+
+echo ; echo " *** DIAG_D=${DIAG_D} !"; echo
+
+
+rm -f *.png *.nc
 
 # Time for diags:
+
+if [ ${its} -eq 1 ]; then
+    #diag=3d_thetao
+    diag=mean_fwf
+    #diag=mean_htf
+    ln -sf ${DIAG_D}/${diag}*.nc .
+    CMD="python exec/plot_time_series.py ${diag}"
+
+fi
+
+
+if [ ${isflx} -eq 1 ]; then
+    CMD="${BARAKUDA_ROOT}/src/bash/extract_ifs_surf_fluxes.sh"
+fi
+
+if [ ${imean} -eq 1 ]; then
+    CMD="python exec/mean.py ${ft} ${jyear}"
+fi
+
+
+if [ ${imov} -eq 1 ]; then
+    CMD="python exec/prepare_movies.py ${ft} ${jyear} sss"
+    #CMD="python exec/prepare_movies.py ${fj} ${jyear} ice"
+fi
 
 if [ ${issh} -eq 1 ]; then
     CMD="python exec/ssh.py ${y1_clim} ${y2_clim}"
@@ -49,6 +107,7 @@ fi
 if [ ${imld} -eq 1 ]; then
     CMD="python exec/mld.py ${y1_clim} ${y2_clim}"
 fi
+
 
 
 echo

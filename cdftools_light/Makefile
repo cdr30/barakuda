@@ -24,30 +24,14 @@ EXEC = ./bin/cdfpsi.x \
        ./bin/cdfvT.x \
        ./bin/cdftransportiz.x
 
-
-# if add one of these, be sure to check that no "mesh_hgr.nc" and "mesh_zgr" are there, replace with mesh_mask.nc:
-#       ./bin/cdficeflux.x \
-#       ./bin/cdfmocatl.x \
-#       ./bin/cdfmean.x \
-#        ./bin/cdfhflx.x \
-#        ./bin/cdfpsi.x \
-#       ./bin/cdfmoy.x \
-#       ./bin/cdfcurl.x \
-#       ./bin/cdfmeanvar.x \
-#       ./bin/cdfmocsig.x \
-#       ./bin/cdfrmsssh.x \
-#       ./bin/cdfzonalmean.x \
-#       ./bin/cdfmxl.x \
-#       ./bin/cdfw.x
-
 all: $(EXEC)
 
 ## Statistical programs
 ./bin/cdfmoy.x: src/cdfio.o   src/cdfmoy.f90
 	$(F90) src/cdfmoy.f90 -o ./bin/cdfmoy.x  src/cdfio.o  $(FFLAGS)
 
-./bin/cdfpsi.x: src/cdfio.o   src/cdfpsi.f90
-	$(F90) src/cdfpsi.f90 -o ./bin/cdfpsi.x  src/cdfio.o  $(FFLAGS)
+./bin/cdfpsi.x: src/cdfio.o src/io_ezcdf.o src/cdfpsi.f90
+	$(F90) src/cdfpsi.f90 -o ./bin/cdfpsi.x  src/cdfio.o src/io_ezcdf.o $(FFLAGS)
 
 ./bin/cdfeke.x: src/cdfio.o  src/cdfeke.f90
 	$(F90) src/cdfeke.f90 -o ./bin/cdfeke.x  src/cdfio.o $(FFLAGS)
@@ -114,9 +98,6 @@ all: $(EXEC)
 
 ./bin/cdfbuoyflx: src/cdfio.o  src/eos.o cdfbuoyflx.f90
 	$(F90) src/cdfbuoyflx.f90 -o ./bin/cdfbuoyflx.x  src/cdfio.o src/eos.o $(FFLAGS)
-
-./bin/cdfpsi.x: src/cdfio.o src/io_ezcdf.o src/cdfpsi.f90
-	$(F90) src/cdfpsi.f90 -o ./bin/cdfpsi.x  src/cdfio.o src/io_ezcdf.o $(FFLAGS)
 
 ./bin/cdfmaxmoc.x: src/cdfio.o src/io_ezcdf.o src/cdfmaxmoc.f90
 	$(F90) src/cdfmaxmoc.f90 -o ./bin/cdfmaxmoc.x  src/cdfio.o src/io_ezcdf.o $(FFLAGS)

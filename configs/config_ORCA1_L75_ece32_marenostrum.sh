@@ -6,36 +6,44 @@
 #
 # OCEAN MONITORING for NEMO v3.6 of EC-Earth 3.2 beta tunning on 75 levels
 #
-#            HPC: triolith
+#            Machine: MareNostrum@BSC
 #
-#        L. Brodeau, 2015
+#        L. Brodeau, November 2016
 #
 #===========================================================
 
-export CONF=ORCA1.L75 ; # horizontal global configuration
-export NBL=75     ; # number of levels
+export CONF=ORCA1.L75 ; # horizontal global ORCA configuration
+export NBL=75         ; # number of levels
+
+export HOST=MARENOSTRUM ; # this has no importance at all, it will just become an "info" on the web-page!
+export JTITLE="LIM3, NEMO 3.6 (EC-Earth 3.2b_tuning)" ;   #  // same here ...
 
 # Path to directory containing NEMO output files:
 export STORE_DIR="/gpfs/scratch/bsc32/bsc32325"
 
 # Path to directory containing some 2D and 3D climatologies on the relevant ORCA grid:
-export CONF_INI_DIR="/gpfs/projects/bsc32/bsc32325/ORCA1/ORCA1-I/old_clim"
+export CONF_INI_DIR="/gpfs/projects/bsc32/bsc32325/ORCA1/ORCA1-I/barakuda_clim"
 
 # In what directory of the local machine to save the diagnostics:
 export DIAG_DIR="${STORE_DIR}/barakuda/${CONF}_ece32"
 
-module add NCO/4.2.3
+# --- only for problematic hosts ----
+module add NCO/4.2.3    
 module add PYTHON/2.7.3
+# -----------------------------------
+
+export PYTHON_HOME="/apps/PYTHON/2.7.3" ; # HOME to python distribution with matplotlib and basemap !
 
 # Is it an ec-earth run?
-export ece_run=1 ; # 0 => not an EC-Earth run, it's a "pure" ocean-only NEMO run done from traditional NEMO setup
+export ece_run=2 ; # 0 => not an EC-Earth run, it's a "pure" ocean-only NEMO run done from traditional NEMO setup
 #                  # 1 => it's an OCEAN-ONLY EC-Earth run done from a EC-Earth setup
 #                  # 2 => it's a  COUPLED  EC-Earth run
 #                  #      Both 1 and 2 imply that NEMO files are stored in something like
 #                  #       ${STORE_DIR}/<RUN>/output/nemo/<YYY>
 #                  #       where YYY starts from '001' to
+#                  #   If you select '2', make sure 'cdo' is available and working!!!
+#
 export Y_INI_EC=1990 ;    # initial year if ec-earth run...
-
 
 # List of suffixed of files that have been saved by NEMO and that are needed for the diags:
 export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
@@ -52,50 +60,54 @@ export NEMO_FILE_PREFIX="<RUN>_<TSTAMP>_"
 # => should get rid of TSTAMP actually...
 
 # Temporary file system (scratch) on which to perform the job you can use <JOB_ID> if scracth depends on JOB ID:
-#export SCRATCH="/scratch/local/<JOB_ID>"
+#export SCRATCH="/scratch/local/<JOB_ID>" ; # triolith
 export SCRATCH="/scratch/tmp"
 
-export PYTHON_HOME="/apps/PYTHON/2.7.3"
 
-# If variables names in NEMO files are not the default...
-export NN_SST="tos"
-export NN_SSS="sos"
-export NN_SSH="zos"
-export NN_T="thetao"
-export NN_S="so"
+####### NEMO => what fields in what files ??? ############
+#       ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+#   => depends on the XIOS *.xml setup you used...
+#   => always specify a string for the NN_* variables
+#      even when missing from your files (ex: NN_MLD="xx")
+#
+# State variables and others in grid_T files:
+export NN_SST="sosstsst"
+export NN_SSS="sosaline"
+export NN_SSH="sossheig"
+export NN_T="votemper"
+export NN_S="vosaline"
 export NN_MLD="mldr10_1"
-export NN_U="uo"
-export NN_V="vo"
-#export NN_U_EIV="vozoeivu"
-#export NN_V_EIV="vomeeivv"
-export NN_U_EIV="0" ; # ignore
-export NN_V_EIV="0" ; # ignore
-export NN_TAUX="tauuo"
-export NN_TAUY="tauvo"
-
-export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction and volume?
+#
+# State variables and others in grid_U files:
+export NN_U="vozocrtx"
+export NN_TAUX="sozotaux"
+export NN_U_EIV="0" ; # 0 => ignore
+# State variables and others in grid_V files:
+export NN_V="vomecrty"
+export NN_TAUY="sometauy"
+export NN_V_EIV="0" ; # 0 => ignore
+#
+# Sea-ice fields:
+export FILE_ICE_SUFFIX="icemod" ; # in what file type extension to find ice fields
 export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
 export NN_ICET="sivolu" ; # ice thickness or rather volume...
-
-export FILE_FLX_SUFFIX="SBC" ; # in what file to find surface fluxes ?
-export NN_FWF="wfo"          ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
+#
+# Surface fluxes:
+export FILE_FLX_SUFFIX="SBC" ; # in what file type extension to find surface fluxes
+export NN_FWF="empmr"        ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
 export NN_EMP="emp_oce"      ; # name of E-P in "FILE_FLX_SUFFIX" file...
-export NN_P="precip"         ; # name of P in "FILE_FLX_SUFFIX" file...
+export NN_P="precip"         ; # name of total precipitation (solid+liquid) in "FILE_FLX_SUFFIX" file...
 export NN_RNF="runoffs"      ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
-export NN_CLV="calving_cea"  ; # calving from icebergs in "FILE_FLX_SUFFIX" file...
-export NN_E="evap"           ; # evaporation in "FILE_FLX_SUFFIX" file...
-
-
-export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
-
-export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
-
-
-export JTITLE="NEMO v3.6 ${CONF}_LIM3 / EC-Earth 3.2b_tunning"
+export NN_CLV="calving"      ; # calving from icebergs in "FILE_FLX_SUFFIX" file...
+export NN_E="evapo"          ; # name of total evaporation in "FILE_FLX_SUFFIX" file...
+export NN_QNET="qt"          ; # name of total net surface heat flux in "FILE_FLX_SUFFIX" file...
+export NN_QSOL="qsr"         ; # name of net surface solar flux in "FILE_FLX_SUFFIX" file...
+#
+################################################################################################
 
 # Land-sea mask and basins files:
-export MM_FILE=/gpfs/projects/bsc32/bsc32325/ece-setup/nemo/mesh_mask.nc4
-export BM_FILE=/gpfs/projects/bsc32/bsc32325/ece-setup/nemo/basin_mask.nc4
+export MM_FILE=/gpfs/projects/bsc32/bsc32325/ORCA1/ec-earth3.2/mesh_mask.nc4
+export BM_FILE=/gpfs/projects/bsc32/bsc32325/ORCA1/ec-earth3.2/basin_mask.nc4
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
 export F_T_CLIM_3D_12=${CONF_INI_DIR}/thetao_1degx1deg-ORCA1.L75_WOA2009_monthly_LB_20160223.nc4
@@ -115,20 +127,18 @@ export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1.dat"
 # For transport by sigma-class:
 export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_ORCA1.dat"
 
-
-
-# Files with the list of rectangular boxes to look at more closely:
+# Files with the list of rectangular domains to "analyze" more closely:
 export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 export FILE_DMV_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 
+# In what format should figures be produced ('png' recommanded, but 'svg' supported!):
+export FIG_FORM="png"
 
-
-# About remote HOST to install HTML pages to:
-ihttp=0 ; # do we export on a remote http server (1) or keep on the local machine (0)
-RHOST=misu228.misu.su.se ; # remote host to send diagnostic page to///
-RUSER=laurent ; # username associated to remote host (for file export)
-RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host to send the diagnostic page to
-
+# About remote HOST to send/install HTML pages to:
+export ihttp=0                  ; # do we export on a remote http server (1) or keep on the local machine (0)
+export RHOST=whitehouse.gov.org ; # remote host to send diagnostic page to///
+export RUSER=donald             ; # username associated to remote host (for file export)
+export RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host to send the diagnostic page to
 
 
 
@@ -136,86 +146,78 @@ RWWWD=/data/www/barakuda/ec-earth_3.2b ; # directory of the local or remote host
 # Diags to be performed #
 #########################
 
-# In what format should figures be produced:
-export FIG_FORM="png"
-
-
+# Movies of SST and SSS compared to OBS:
+export i_do_movi=1
 
 # Basic 3D and surface averages:
-i_do_mean=1
+export i_do_mean=1
 
-# FreshWater fluxes at the surface spatially averaged over the ocean, E-P-R, E-P, R, P, ...
-#i_do_fwf=1
+# IFS freshWater fluxes at the surface spatially averaged over the ocean, E-P-R, E-P, R, P, ...
+export i_do_ifs_flx=1 ; # only relevant when ece_run=2...
 
 # AMOC:
-i_do_amoc=1
+export i_do_amoc=1
 export LMOCLAT="20-23 30-33 40-43 45-48 50-53" ; # List of latitude bands to look in for max of AMOC
 
-
 # Transport of mass, heat and salt through specified sections (into TRANSPORT_SECTION_FILE):
-i_do_trsp=2  ; # transport of mass, heat and salt through specified sections
+export i_do_trsp=2  ; # transport of mass, heat and salt through specified sections
 #              # i_do_trsp=2 => treat also different depths range!
 z1_trsp=100  ; # first  depth: i_do_trsp must be set to 2
 z2_trsp=1000 ; # second depth: i_do_trsp must be set to 2
 
-
-# meridional heat/salt transport (advective)
-i_do_mht=1
+# Meridional heat/salt transport (advective)
+export i_do_mht=1
 
 # Transport by sigma class
-i_do_sigt=1
+export i_do_sigt=1
 
-# sea-ice diags
-i_do_ice=1  ; # Sea-ice diags
+# Sea-ice diags
+export i_do_ice=1  ; # Sea-ice diags
 
-
-i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!
+# Budget on pre-defined (FILE_DEF_BOXES) rectangular domains:
+export i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!
 #             # => needs file FILE_DEF_BOXES !!!
 # => produces time-series f(t)  (mean of 2D fields)
 
-
-i_do_ssx_box=0 ; # zoom on given boxes (+spatially-averaged values) for surface properties
-#                # boxes defined into barakuda_orca.py ...
-
-
 # Vertical profiles on of box-averaged as a function of time...
-i_do_box_TS_z=1 ; # do sigma vert. profiles on given boxes... # 1 => no figures, 2 => figures
+export i_do_box_TS_z=1 ; # do sigma vert. profiles on given boxes... # 1 => no figures, 2 => figures
 #                 # => needs file FILE_DEF_BOXES !!!
 # => produces time-series f(t,z)
 
-#
 # Deep Mixed volume in prescribed boxes:
-i_do_dmv=0
+export i_do_dmv=0
 export MLD_CRIT="1000,725,500"
 
 
+
+# BETA / TESTING / NERDY (at your own risks...):
+#
+export i_do_ssx_box=0 ; # zoom on given boxes (+spatially-averaged values) for surface properties
+#                     # boxes defined into barakuda_orca.py ...
+
 # Some nerdy stuffs about the critical depth in prescribed boxes:
-i_do_zcrit=0
-
-
-
-
-
-
-# BETA / TESTING:
+export i_do_zcrit=0
 
 # Fresh-water transport associated to sea-ice transport
 #  => must compile cdficeflux.x but depends on more recent CDFTOOLS module...
-i_do_icet=0 ; # treat sea-ice volume transport!
+export i_do_icet=0 ; # treat sea-ice volume transport!
 export TRANSPORT_ICE_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1_ARCTIC.dat"
 
+export i_do_amo=0 ;  # buit a SST time serie usable to build Atlantic Multidecadal Oscilation index
 
-
-
-i_do_flx=0  ; # surface fluxes diags
-
-
-
-
-i_do_amo=0 ;  # buit a SST time serie usable to build Atlantic Multidecadal Oscilation index
-
-
-i_do_sect=0 ; # do sigma vert. profiles on given boxes...
+export i_do_sect=0 ; # do sigma vert. profiles on given boxes...
 VSECT_NM=( "Indian_77p5_E" "Atlantic_21p5_W" )
 VSECT_JI=(      "5,5"          "266,266"     ) ; # X range in C convention
 VSECT_JJ=(    "25,170"          "7,291"      ) ; # Y range in C convention
+
+
+
+# Place for potential specific host-related survival tricks:
+
+#========================== Marenostrum @ BSC =========================================================
+### Shouldn't be needed elsewhere than MareNostrum, where it's a hello to have CDO working...
+## => Only if you specified ece_run=2 and i_do_ifs_flx
+export MOD_CDO="gcc/4.7.2 intel/13.0.1 openmpi/1.8.1 NETCDF/4.1.3 HDF5/1.8.10 UDUNITS/2.1.24 CDO/1.7.0"
+#=======================================================================================================
+
+

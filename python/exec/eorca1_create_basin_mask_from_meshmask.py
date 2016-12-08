@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+# ORCA1 -> eORCA1 has 40 gridpoint offset
 # L. Brodeau, april 2010
 
 import sys
@@ -8,7 +8,7 @@ from netCDF4 import Dataset
 from string import replace
 
 if len(sys.argv) != 2:
-    print 'Usage: '+sys.argv[0]+' <mesh_mask_ORCA1_file.nc>'
+    print 'Usage: '+sys.argv[0]+' <mesh_mask_eORCA1_file.nc>'
     sys.exit(0)
 
 cf_mm  = sys.argv[1]
@@ -39,46 +39,47 @@ f_mm.close()
 
 print 'Dimension = ', ni, nj, '\n'
 
-mask_atl = nmp.zeros((nj,ni))
-mask_pac = nmp.zeros((nj,ni))
-mask_ind = nmp.zeros((nj,ni))
-mask_soc = nmp.zeros((nj,ni))
+mask_atl = nmp.zeros(nj*ni) ; mask_atl.shape = [ nj, ni ]
+mask_pac = nmp.zeros(nj*ni) ; mask_pac.shape = [ nj, ni ]
+mask_ind = nmp.zeros(nj*ni) ; mask_ind.shape = [ nj, ni ]
+mask_soc = nmp.zeros(nj*ni) ; mask_soc.shape = [ nj, ni ]
 
-mask_ip1 = nmp.zeros((nj,ni))
-mask_inp = nmp.zeros((nj,ni))
+mask_ip1 = nmp.zeros(nj*ni) ; mask_ip1.shape = [ nj, ni ]
+mask_inp = nmp.zeros(nj*ni) ; mask_inp.shape = [ nj, ni ]
 
 
 
+# eORCA1 offset
+eo1 = 40
 
 # ATL for ORCA1
 # ~~~~~~~~~~~~~
 mask_atl[:,:] = tmask[:,:]
 
 # Removing Southern Ocean:
-#mask_atl[:95,:] = 0
+mask_atl[:95+eo1,:] = 0
 
 # Removing Pacific and Indian
-mask_atl[0:246,0:190] = 0 # 246 => to keep Pacific side of the arctic basin...
-mask_atl[0:168,0:223] = 0 ; mask_atl[0:255,310:] = 0
-mask_atl[165:177,190:204] = 0; mask_atl[165:180,190:198] = 0; mask_atl[165:170,200:206] = 0
-mask_atl[188:209,282:] = 0; mask_atl[209:215,288:] = 0
-
-
+mask_atl[0:246+eo1,0:190] = 0 # 246 => to keep Pacific side of the arctic basin...
+mask_atl[0:168+eo1,0:223] = 0 ; mask_atl[0:255+eo1,310:] = 0
+mask_atl[165+eo1:177+eo1,190:204] = 0; mask_atl[165+eo1:180+eo1,190:198] = 0;
+mask_atl[165+eo1:170+eo1,200:206] = 0
+mask_atl[188+eo1:209+eo1,282:] = 0; mask_atl[209+eo1:215+eo1,288:] = 0
 
 # REMOVING INDONESIA + AUSTRALIA
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 mask_ip1[:,:] = tmask[:,:]
 
-mask_ip1[114:122,53:75] = 0
-mask_ip1[119:126,68:74] = 0
-mask_ip1[124:143,44:59] = 0
-mask_ip1[128:159,33:42] = 0
-mask_ip1[120:142,52:61] = 0
-mask_ip1[124:136,41:70] = 0
-mask_ip1[127:128,37:42] = 0
-mask_ip1[120:126,60:70] = 0
-mask_ip1[141:158,30:33] = 0
-mask_ip1[152:162,26:30] = 0
+mask_ip1[114+eo1:122+eo1,53:75] = 0
+mask_ip1[119+eo1:126+eo1,68:74] = 0
+mask_ip1[124+eo1:143+eo1,44:59] = 0
+mask_ip1[128+eo1:159+eo1,33:42] = 0
+mask_ip1[120+eo1:142+eo1,52:61] = 0
+mask_ip1[124+eo1:136+eo1,41:70] = 0
+mask_ip1[127+eo1:128+eo1,37:42] = 0
+mask_ip1[120+eo1:126+eo1,60:70] = 0
+mask_ip1[141+eo1:158+eo1,30:33] = 0
+mask_ip1[152+eo1:162+eo1,26:30] = 0
 
 
 
@@ -90,15 +91,15 @@ mask_ip1[152:162,26:30] = 0
 mask_pac[:,:] = tmask[:,:]
 
 # Removing Southern Ocean until souther Australia:
-mask_pac[:95,:] = 0
+mask_pac[:95+eo1,:] = 0
 
 
 # Removing Indonesian side
 mask_pac[:,:45] = 0
-mask_pac[88:145,45:61] = 0
-mask_pac[112:125,59:70] = 0
-mask_pac[123:136,60:67] = 0
-mask_pac[88:99,60:71] = 0 # bottom Australia
+mask_pac[88+eo1:145+eo1,45:61] = 0
+mask_pac[112+eo1:125+eo1,59:70] = 0
+mask_pac[123+eo1:136+eo1,60:67] = 0
+mask_pac[88+eo1:99+eo1,60:71] = 0 # bottom Australia
 
 
 # V2
@@ -111,7 +112,7 @@ idxatl = nmp.where(mask_atl == 1.0)
 mask_pac[idxatl] = 0
 
 # Removing atlantic bottom and the rest (Indian)
-mask_pac[83:,224:] = 0
+mask_pac[83+eo1:,224:] = 0
 
 
 # IND for ORCA1
@@ -119,16 +120,16 @@ mask_pac[83:,224:] = 0
 mask_ind[:,:] = tmask[:,:]
 
 # Removing Southern Ocean until southern Australia:
-mask_ind[:95,:] = 0
+mask_ind[:95+eo1,:] = 0
 
 # Removing Atl and Pac
 mask_ind[:,:] = mask_ind[:,:] - mask_atl[:,:] - mask_pac[:,:]
 
-mask_ind[93:100,46:68] = 0 # australia bottom
+mask_ind[93+eo1:100+eo1,46:68] = 0 # australia bottom
 
 # Removing Mediterranean+Caspian sea:
-mask_ind[192:228,279:329] = 0
-mask_ind[198:242,328:344] = 0
+mask_ind[192+eo1:228+eo1,279:329] = 0
+mask_ind[198+eo1:242+eo1,328:344] = 0
 
 
 
@@ -139,20 +140,23 @@ mask_ind[198:242,328:344] = 0
 # Indo-Pacific
 # ~~~~~~~~~~~~
 mask_inp[:,:] = tmask[:,:]
-mask_inp[:95,:] = 0
+mask_inp[:95+eo1,:] = 0
 
 # Removing Atlantic
 idxatl = nmp.where(mask_atl == 1.0)
 mask_inp[idxatl] = 0
 
-mask_inp[93:100,46:68] = 0 # australia bottom
+mask_inp[93+eo1:100+eo1,46:68] = 0 # australia bottom
 
 # Removing Mediterranean sea:
-mask_inp[192:228,279:329] = 0
-mask_inp[198:242,328:344] = 0
+mask_inp[192+eo1:228+eo1,279:329] = 0
+mask_inp[198+eo1:242+eo1,328:344] = 0
 
 # Removing indonesia
 #mask_inp[:,:] = mask_inp[:,:] * mask_ip1[:,:]
+
+
+
 
 
 
@@ -164,7 +168,7 @@ mask_soc[:,:] = tmask[:,:]
 
 idxatl = nmp.where(mask_atl+mask_pac+mask_ind > 0.5)
 mask_soc[idxatl] = 0
-mask_soc[122:,:] = 0
+mask_soc[122+eo1:,:] = 0
 
 
 
@@ -201,10 +205,13 @@ id_soc[:,:]  =  mask_soc[:,:]
 id_inp[:,:]  =  mask_inp[:,:]
 
 
-f_out.About  = 'ORCA1 main oceanic basin land-sea mask created from '+cf_mm
-f_out.Author = ' Generated with "orca1_create_basin_mask_from_meshmask.py" of BaraKuda (https://github.com/brodeau/barakuda)'
+f_out.About  = 'ORCA1 main oceans basin land-sea mask created from '+cf_mm
+f_out.Author = 'L. Brodeau (lb_nemo_create_basin_mask.py of PYLB)'
+
 
 f_out.close()
+
+
 
 
 print cf_out+' sucessfully created!'

@@ -11,14 +11,13 @@
 #===============================================================
 
 export BARAKUDA_ROOT=`pwd`
+export FIG_FORMAT='png'
 
-PYTHON_HOME=${HOME}/opt/Canopy_64bit/User
-PYTH="${PYTHON_HOME}/bin/python -W ignore" ; # which Python installation to use
-export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
-PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
+
+
 
 #export FIG_FORMAT='svg'
-export FIG_FORMAT='png'
+
 
 # Supported ORCA grids:
 ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
@@ -27,7 +26,7 @@ ORCA_LIST="ORCA1.L75 ORCA1.L46 ORCA1.L42 ORCA2 ORCA2_L46"
 list_conf=`\ls configs/config_*.sh` ; list_conf=`echo ${list_conf} | sed -e s/'configs\/config_'/''/g -e s/'.sh'/''/g`
 
 # Important bash functions:
-. ${BARAKUDA_ROOT}/configs/bash_functions.bash
+. ${BARAKUDA_ROOT}/src/bash/bash_functions.bash
 
 usage()
 {
@@ -35,7 +34,9 @@ usage()
     echo "USAGE: ${0} -C <config> -R <run1,run2,...,runN>  (options)"
     echo
     echo "     Available configs are:"
-    echo "             => ${list_conf}"
+    for cc in ${list_conf}; do
+        echo "         * ${cc}"
+    done
     echo
     echo "   OPTIONS:"
     echo "      -y <YYYY> => force initial year to YYYY"
@@ -74,13 +75,13 @@ done
 
 
 
-if [ "${CONFIG}" = "" -o "${CRUNS}" = "" ]; then usage ; exit ; fi
+if [ -z ${CONFIG} ] || [ -z ${CRUNS} ]; then usage ; exit ; fi
 
 for og in ${ORCA_LIST}; do
     ca=""; ca=`echo ${CONFIG} | grep ${og}` ; if [ "${ca}" != "" ]; then ORCA=${og}; fi
 done
 
-if [ "${ORCA}" = "" ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
+if [ -z ${ORCA} ]; then echo "ORCA grid of config ${CONFIG} not supported yet"; exit; fi
 
 echo
 
@@ -94,21 +95,14 @@ else
 fi
 echo
 
-
 if [ ! "${ORCA}" = "${CONF}" ]; then echo "ERROR: ORCA and CONF disagree! => ${ORCA} ${CONF}"; exit; fi
 export ORCA=${CONF}
 
-
-
-
-
-
-
-
-
-
-
-
+# Should be set from bash_fucntions:
+PYTH="${PYTHON_HOME}/bin/python -W ignore" ; # which Python installation to use
+export PYTHONPATH=${PYTHON_HOME}/lib/python2.7/site-packages:${BARAKUDA_ROOT}/python/modules ; # PATH to python barakuda modules
+PYBRKD_EXEC_PATH=${BARAKUDA_ROOT}/python/exec         ; # PATH to python barakuda executable
+#-------------------
 
 
 LRUNS=`echo ${CRUNS} | sed -e s/'\,'/'\ '/g -e s/'\, '/'\ '/g`
@@ -118,15 +112,8 @@ echo " NEMO grid = ${ORCA}";
 echo " reading config into: ${fconfig}"
 echo; echo
 
-
-
-
 export CONF=${CONF}
 export LIST_RUNS=${LRUNS}
-
-
-
-
 
 NRUNS="${ORCA}-`echo ${LRUNS} | sed -e 's/\ /_/g'`"
 echo " Label to be used: ${NRUNS}" ; echo
@@ -134,9 +121,6 @@ echo " Label to be used: ${NRUNS}" ; echo
 BASE_NAME="comp_${NRUNS}"
 
 DIAG_COMP_DIR=${DIAG_DIR}/comparisons/${BASE_NAME} ; rm -rf ${DIAG_COMP_DIR} ; mkdir -p ${DIAG_COMP_DIR}
-
-
-
 
 YEAR_INI=4000
 YEAR_END=0
@@ -200,7 +184,7 @@ ${PYTH} ${PYBRKD_EXEC_PATH}/compare_time_series.py ${YEAR_INI} ${YEAR_END}
 sed -e "s|{CONFRUN}|Comparison ${NRUNS}|g" \
     -e "s|{TITLE}|Ocean, ${JTITLE}: comparing ${VRUNS[*]}|g" \
     -e "s|{NRUNS}|${NRUNS}|g" -e "s|{DATE}|`date`|g" -e "s|{HOST}|`hostname`|g" \
-    ${BARAKUDA_ROOT}/scripts/html/conf_start.html >  index.html
+    ${BARAKUDA_ROOT}/src/html/conf_start.html >  index.html
 
 list_figs=`\ls *.${FIG_FORMAT}`
 
@@ -210,10 +194,10 @@ for ff in ${list_figs}; do
 
 done
 
-cat ${BARAKUDA_ROOT}/scripts/html/conf_end.html >> index.html ; # Closing HTML file...
+cat ${BARAKUDA_ROOT}/src/html/conf_end.html >> index.html ; # Closing HTML file...
 
-cp ${BARAKUDA_ROOT}/scripts/html/conf_*.html  .
-cp ${BARAKUDA_ROOT}/scripts/html/logo.png     .
+cp ${BARAKUDA_ROOT}/src/html/conf_*.html  .
+cp ${BARAKUDA_ROOT}/src/html/logo.png     .
 echo; echo
 
 

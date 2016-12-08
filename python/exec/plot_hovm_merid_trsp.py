@@ -103,7 +103,12 @@ for jb in range(nbasins):
     Lfinite = nmp.isfinite(Xheat[jb,:,:]) ; idx_good = nmp.where(Lfinite)
     imask[idx_good] = 1
             
-    [ rmin, rmax, rdf ] = bt.get_min_max_df(Xheat[jb,5:,:],40)
+    # time record to consider to chose a min and a max for colorbar:
+    jt_ini = 5
+    if Nby <= 10: jt_ini = 1
+    if Nby ==  1: jt_ini = 0
+
+    [ rmin, rmax, rdf ] = bt.get_min_max_df(Xheat[jb,jt_ini:,:],40)
 
     bp.plot("vert_section")(vyear[:], vlat[:], nmp.flipud(nmp.rot90(Xheat[jb,:,:])), nmp.flipud(nmp.rot90(imask[:,:])),
                             rmin, rmax, rdf,
@@ -118,7 +123,7 @@ for jb in range(nbasins):
 
     # Salt transport
 
-    [ rmin, rmax, rdf ] = bt.get_min_max_df(Xsalt[jb,5:,:],40)
+    [ rmin, rmax, rdf ] = bt.get_min_max_df(Xsalt[jb,jt_ini:,:],40)
 
     bp.plot("vert_section")(vyear[:], vlat[:], nmp.flipud(nmp.rot90(Xsalt[jb,:,:])), nmp.flipud(nmp.rot90(imask[:,:])),
                             rmin, rmax, rdf,

@@ -17,7 +17,7 @@ import barakuda_orca as bo
 import barakuda_plot as bp
 import barakuda_tool as bt
 
-DEFAULT_LEGEND_LOC = 'center left'
+DEFAULT_LEGEND_LOC = 'out'
 
 iamoc  = 1
 i2dfl  = 1
@@ -30,13 +30,15 @@ ifwf   = 1  ; # freshwater fluxes at the surface
 
 venv_needed = {'LIST_RUNS','DIAG_DIR','CONF','FIG_FORMAT', \
                'NN_SST','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD', \
-               'TRANSPORT_SECTION_FILE','LMOCLAT'}
+               'TRANSPORT_SECTION_FILE','LMOCLAT','i_do_ifs_flx'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
 cd_diag = vdic['DIAG_DIR']
 cffig   = vdic['FIG_FORMAT']
 
+
+i_do_ifs_flx = int(vdic['i_do_ifs_flx'])
 
 narg = len(sys.argv)
 if narg != 3: print 'Usage: '+sys.argv[0]+' <first_year> <last_year>'; sys.exit(0)
@@ -255,7 +257,7 @@ if iice == 1:
                 cdiag = 'seaice_'+cvar
                 cmnth = '%2.2i'%(vmnth[jdiag]+1)
                 bp.plot("1d_multi")(vtime, Xf, clist_runs, cfig_type=cffig,
-                                    cfignm=cdiag+'_m'+str(cmnth)+'_comparison_'+cpole, dt_year=ittic, loc_legend='upper center',
+                                    cfignm=cdiag+'_m'+str(cmnth)+'_comparison_'+cpole, dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                                     cyunit=vunit[jdiag], ctitle = vname[jdiag]+', '+cpole, ymin=0, ymax=0)
 
                 ipole = ipole + 1
@@ -321,7 +323,7 @@ if itrsp == 1:
         for cstuff in vstuff:
 
             bp.plot("1d_multi")(vyear[:], Xtrsp[:,jsect,jstuff,:], clist_runs, cfig_type=cffig,
-                                cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic, loc_legend='upper left',
+                                cfignm='transport_'+cstuff+'_'+csect+'_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
                                 cyunit=vunit[jstuff], ctitle = 'Transport of '+cstuff+' through section '+csect,
                                 ymin=0, ymax=0)
 
@@ -372,7 +374,7 @@ if iamoc == 1:
     for clr in list_lat:
 
         bp.plot("1d_multi")(vyear[:], Xamoc[:,jl,:], clist_runs, cfig_type=cffig,
-                            cfignm='AMOC_'+clr+'_comparison', loc_legend='lower left',
+                            cfignm='AMOC_'+clr+'_comparison', loc_legend=DEFAULT_LEGEND_LOC,
                             dt_year=ittic, cyunit='Sv', ctitle = 'AMOC ('+clr+')', ymin=0, ymax=0)
 
         jl = jl + 1
@@ -413,58 +415,52 @@ if ifwf == 1:
 
         jdiag = jdiag+1
 
+    if i_do_ifs_flx == 1:
 
-    # Checking if there are filef for IFS:
-    l_fwf_ifs = True  ;  jrun=0
-    for confrun in clist_confruns:
-        cf_in = cd_diag+'/'+confrun+'/mean_fwf_IFS_'+clist_runs[jrun]+'_global.nc'
-        print '  *** Checking for the existence of '+cf_in
-        if os.path.exists(cf_in):
-            print "  *** IFS FWF files found!"
-            l_fwf_ifs = True and l_fwf_ifs
-        jrun=jrun+1
-
-
-    if l_fwf_ifs:
-
-        co = ' oceans (IFS)'
-        cl = ' land (IFS)'
-        vvar  = [ 'flx_e_sv', 'flx_p_sv'  , 'flx_emp_sv', 'flx_e_land_sv', 'flx_p_land_sv'  , 'flx_emp_land_sv' ]
-        vname = [ 'E'+co   , 'Precip'+co, 'E-P'+co    , 'E'+cl        , 'Precip'+cl     , 'E-P'+cl          ]
-        vunit = [ r'Sv'     ,  r'Sv'      ,  r'Sv'      , r'Sv'          ,  r'Sv'           ,  r'Sv'            ]
-        vstit = [ co, co, co, cl, cl, cl ]
-
-        jdiag=0
-        for cvar in vvar:
-            cdiag = cvar
-            print '\n Treating IFS FWF : '+cdiag
-
-            jrun=0
-            for confrun in clist_confruns:
-                cf_in = cd_diag+'/'+confrun+'/mean_fwf_IFS_'+clist_runs[jrun]+'_global.nc'
-
-                vt0, vd0 = bn.read_1d_series(cf_in, cvar, cv_t='time', l_return_time=True)
-                nbm = len(vt0)
-                test_nb_mnth_rec(nbm, nb_years, cdiag)
-
-                VY, FY = bt.monthly_2_annual(vt0, vd0)
-                Xf[jrun,:nbm/12] = FY[:]  ; Xf[jrun,nbm/12:] = -999.
-                jrun = jrun + 1
-
-            bp.plot("1d_multi")(VY, Xf[:,:], clist_runs, cfig_type=cffig,
-                                cfignm='FWF_'+cdiag+'_IFS_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
-                                cyunit=vunit[jdiag], ctitle = vname[jdiag]+' flux integrated over'+vstit[jdiag], ymin=0, ymax=0)
-
-            jdiag = jdiag+1
+        # Checking if there are filef for IFS:
+        l_fwf_ifs = True  ;  jrun=0
+        for confrun in clist_confruns:
+            cf_in = cd_diag+'/'+confrun+'/mean_fwf_IFS_'+clist_runs[jrun]+'_global.nc'
+            print '  *** Checking for the existence of '+cf_in
+            if os.path.exists(cf_in):
+                print "  *** IFS FWF files found!"
+                l_fwf_ifs = True and l_fwf_ifs
+            jrun=jrun+1
+    
+    
+        if l_fwf_ifs:
+    
+            co = ' oceans (IFS)'
+            cl = ' land (IFS)'
+            vvar  = [ 'flx_e_sv', 'flx_p_sv'  , 'flx_emp_sv', 'flx_e_land_sv', 'flx_p_land_sv'  , 'flx_emp_land_sv' ]
+            vname = [ 'E'+co   , 'Precip'+co, 'E-P'+co    , 'E'+cl        , 'Precip'+cl     , 'E-P'+cl          ]
+            vunit = [ r'Sv'     ,  r'Sv'      ,  r'Sv'      , r'Sv'          ,  r'Sv'           ,  r'Sv'            ]
+            vstit = [ co, co, co, cl, cl, cl ]
+    
+            jdiag=0
+            for cvar in vvar:
+                cdiag = cvar
+                print '\n Treating IFS FWF : '+cdiag
+    
+                jrun=0
+                for confrun in clist_confruns:
+                    cf_in = cd_diag+'/'+confrun+'/mean_fwf_IFS_'+clist_runs[jrun]+'_global.nc'
+    
+                    vt0, vd0 = bn.read_1d_series(cf_in, cvar, cv_t='time', l_return_time=True)
+                    nbm = len(vt0)
+                    test_nb_mnth_rec(nbm, nb_years, cdiag)
+    
+                    VY, FY = bt.monthly_2_annual(vt0, vd0)
+                    Xf[jrun,:nbm/12] = FY[:]  ; Xf[jrun,nbm/12:] = -999.
+                    jrun = jrun + 1
+    
+                bp.plot("1d_multi")(VY, Xf[:,:], clist_runs, cfig_type=cffig,
+                                    cfignm='FWF_'+cdiag+'_IFS_comparison', dt_year=ittic, loc_legend=DEFAULT_LEGEND_LOC,
+                                    cyunit=vunit[jdiag], ctitle = vname[jdiag]+' flux integrated over'+vstit[jdiag], ymin=0, ymax=0)
+    
+                jdiag = jdiag+1
 
 
 
 
 print  '\n\n'+sys.argv[0]+' done...\n'
-
-
-
-
-
-
-

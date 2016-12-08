@@ -26,7 +26,10 @@ lat2_nino = 5.
 
 cv_evb = 'evap_ao_cea' ; # debug evap in ec-earth...
 
-venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX','NN_FWF','NN_EMP','NN_P','NN_RNF','NN_CLV','NN_E','NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD'}
+venv_needed = {'ORCA','RUN','DIAG_D','MM_FILE','BM_FILE','NEMO_SAVED_FILES','FILE_FLX_SUFFIX',
+               'NN_SST','NN_SSS','NN_SSH','NN_T','NN_S','NN_MLD',
+               'NN_FWF','NN_EMP','NN_P','NN_RNF','NN_CLV','NN_E',
+               'NN_QNET','NN_QSOL'}
 
 vdic = bt.check_env_var(sys.argv[0], venv_needed)
 
@@ -75,16 +78,18 @@ id_mm.close()
 
 
 Xarea_t = nmp.zeros((nj, ni))
-Xarea_t[:,:] = re1t[:,:]*re2t[:,:]*rmask[0,:,:]
+Xarea_t[:,:] = re1t[:,:]*re2t[:,:]*rmask[0,:,:]*1.E-6 ; # [10^6 m^2] !
 Socean = nmp.sum( Xarea_t[:,:] )
-print '\n  *** Surface of the ocean = ', Socean* 1.E-12, '  [10^6 km^2]\n'
+print '\n  *** Surface of the ocean = ', Socean* 1.E-6, '  [10^6 km^2]\n'
 
 
 
 cfe_sflx = vdic['FILE_FLX_SUFFIX']
 l_fwf = False
+l_htf = False
 if cfe_sflx in vdic['NEMO_SAVED_FILES']:
     l_fwf = True
+    l_htf = True
     cf_F_in = replace(cf_T_in, 'grid_T', cfe_sflx)
 
 Xe1t = nmp.zeros((nk, nj, ni))
@@ -117,10 +122,50 @@ del rmask, mask_atl, mask_pac, mask_ind
 
 
 
-##############################################################
-# Time-series of globally averaged surface freshwater fluxes #
-##############################################################
+#######################################################################
+# Time-series of globally averaged surface heat and freshwater fluxes #
+######################################################################
 
+# Heat fluxes
+if l_htf:
+
+    cv_qnt = vdic['NN_QNET']
+    cv_qsr = vdic['NN_QSOL']
+
+    id_in = Dataset(cf_F_in)
+    list_variables = id_in.variables.keys()
+    l_qnt = False
+    if  cv_qnt in list_variables[:]:
+        l_qnt = True
+        QNT_m = id_in.variables[cv_qnt][:,:,:]
+        print '   *** Qnet ('+cv_qnt+') read!'             
+    l_qsr = False
+    if  cv_qsr in list_variables[:]:
+        l_qsr = True
+        QSR_m = id_in.variables[cv_qsr][:,:,:]
+        print '   *** Qsol ('+cv_qsr+') read!'
+    id_in.close()
+    l_htf = l_qnt ; # Forgeting heat flux if both Qnet is missing...
+
+if l_htf:
+    [ nt, nj0, ni0 ] = QNT_m.shape
+    vtime = nmp.zeros(nt)
+    for jt in range(nt): vtime[jt] = float(jyear) + (float(jt)+0.5)*1./12.
+    vqnt = [] ; vqsr = []
+    if l_qnt: vqnt = nmp.zeros(nt)
+    if l_qsr: vqsr = nmp.zeros(nt)
+    for jt in range(nt):
+        if l_qnt: vqnt[jt] = nmp.sum( QNT_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to PW
+        if l_qsr: vqsr[jt] = nmp.sum( QSR_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to PW
+
+    cf_out   = vdic['DIAG_D']+'/mean_htf_'+CONFRUN+'_global.nc'
+    bnc.wrt_appnd_1d_series(vtime, vqnt, cf_out, 'Qnet',
+                            cu_t='year', cu_d='PW',  cln_d ='Globally averaged net heat flux (nemo:'+cv_qnt+')',
+                            vd2=vqsr, cvar2='Qsol',  cln_d2='Globally averaged net solar heat flux (nemo:'+cv_qsr+')',
+                            )
+
+
+# Freshwater fluxes
 if l_fwf:
 
     cv_fwf = vdic['NN_FWF']
@@ -198,13 +243,13 @@ if l_fwf:
 
 
     for jt in range(nt):
-        vfwf[jt]           = nmp.sum( FWF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
-        if l_emp: vemp[jt] = nmp.sum( EMP_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
-        if l_rnf: vrnf[jt] = nmp.sum( RNF_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
-        if l_prc: vprc[jt] = nmp.sum( PRC_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
-        if l_clv: vclv[jt] = nmp.sum( CLV_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
-        if l_evp: vevp[jt] = nmp.sum( EVP_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
-        if l_evb: vevb[jt] = nmp.sum( EVB_m[jt,:,:]*Xarea_t ) * 1.E-9 ;  # to Sv
+        vfwf[jt]           = nmp.sum( FWF_m[jt,:,:]*Xarea_t ) * 1.E-3 ;  # to Sv
+        if l_emp: vemp[jt] = nmp.sum( EMP_m[jt,:,:]*Xarea_t ) * 1.E-3 ;  # to Sv
+        if l_rnf: vrnf[jt] = nmp.sum( RNF_m[jt,:,:]*Xarea_t ) * 1.E-3 ;  # to Sv
+        if l_prc: vprc[jt] = nmp.sum( PRC_m[jt,:,:]*Xarea_t ) * 1.E-3 ;  # to Sv
+        if l_clv: vclv[jt] = nmp.sum( CLV_m[jt,:,:]*Xarea_t ) * 1.E-3 ;  # to Sv
+        if l_evp: vevp[jt] = nmp.sum( EVP_m[jt,:,:]*Xarea_t ) * 1.E-3 ;  # to Sv
+        if l_evb: vevb[jt] = nmp.sum( EVB_m[jt,:,:]*Xarea_t ) * 1.E-3 ;  # to Sv
 
     cf_out   = vdic['DIAG_D']+'/mean_fwf_'+CONFRUN+'_global.nc'
 

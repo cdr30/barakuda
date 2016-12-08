@@ -25,9 +25,12 @@ import barakuda_orca as bo
 
 
 # Some defaults:
-WDTH_DEF     = 10.
-HGHT_DEF     =  4.
+#WDTH_DEF     = 10.
+#HGHT_DEF     =  4.
+WDTH_DEF     = 9.
+HGHT_DEF     = 3.6
 FIG_SIZE_DEF = ( WDTH_DEF , HGHT_DEF )
+RAT_XY       = WDTH_DEF/10.
 DPI_DEF      = 120
 AXES_DEF     = [0.1, 0.082, 0.87, 0.84]
 
@@ -96,7 +99,6 @@ class plot :
 
 
 
-
     # Functions:
 
 
@@ -107,7 +109,7 @@ class plot :
 
         import barakuda_colmap as bcm
 
-        font_ttl, font_xylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
         zVZ = __prepare_z_log_axis__(l_zlog, VZ)
 
@@ -116,8 +118,8 @@ class plot :
         # Masking where mask is zero!
         XF = nmp.ma.masked_where(XMSK == 0, XF)
 
-        fig = plt.figure(num = 1, figsize=(WDTH_DEF,5.), dpi=None, facecolor='w', edgecolor='k') ; #vert_section
-        ax  = plt.axes([0.085, 0.06, 0.98, 0.88], axisbg = 'gray')
+        fig = plt.figure(num = 1, figsize=(WDTH_DEF , RAT_XY*5.), dpi=None, facecolor='w', edgecolor='k')
+        ax  = plt.axes([0.095, 0.06, 0.92, 0.88], axisbg = 'gray')
         vc  = __vcontour__(rmin, rmax, dc)
 
         # Colormap:
@@ -127,6 +129,10 @@ class plot :
         cf = plt.contourf(VX, zVZ, XF, vc, cmap = palette, norm = pal_norm)
         plt.hold(True)
         if lkcont: plt.contour(VX, zVZ, XF, vc, colors='k', linewidths=0.2)
+
+        # Prevents from using scientific notations in axess ticks numbering:
+        ax.get_xaxis().get_major_formatter().set_useOffset(False)
+        ax.get_yaxis().get_major_formatter().set_useOffset(False)
 
         # Colorbar:
         __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, cunit=cbunit, cfont=font_clb, fontsize=10)
@@ -162,10 +168,15 @@ class plot :
         import barakuda_colmap as bcm
 
 
-        font_ttl, font_xylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
         i_lat_lon = 1
         if len(VX) == 1 or len(VY) == 1: i_lat_lon = 0 ; # no long. and lat. provided !
+        if corca[:5] == 'eORCA':
+            # don't know how to lat-lon 2d plot eORCA
+            # so just plot without projections
+            i_lat_lon = 0
+
 
 
         # Don't want to modify XF array, working with XFtmp:
@@ -192,9 +203,9 @@ class plot :
 
         if i_lat_lon == 1:
             vert_rat = (lat_max - lat_min)/(75. + 75.)
-            fig_size = (WDTH_DEF,4.8*vert_rat)    ; #2d  lulu
+            fig_size = (WDTH_DEF , RAT_XY*4.8*vert_rat)    ; #2d
         else:
-            fig_size = (WDTH_DEF , float(nx)/float(ny)*5.) ; #2d
+            fig_size = (WDTH_DEF , RAT_XY*float(nx)/float(ny)*5.) ; #2d
 
 
         # FIGURE
@@ -261,9 +272,10 @@ class plot :
             cf0 = plt.pcolor(XF0, cmap = bcm.chose_palette("mask"))
 
         # Colorbar:
-        ifsize = 14
+        ifsize = 14.*100./float(DPI_DEF)
         if i_lat_lon == 1: ifsize = int(ifsize*vert_rat); ifsize=max(ifsize,6)
-        __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cb_or=cb_orient, cunit=cbunit, cfont=font_clb, fontsize=ifsize)
+        __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont,
+                          cb_or=cb_orient, cunit=cbunit, cfont=font_clb, fontsize=ifsize)
 
         # X and Y nice ticks:
         if i_lat_lon == 1:
@@ -284,6 +296,7 @@ class plot :
         del XFtmp, XF0
 
         return
+
 
 
     def __2d_reg(self,VX, VY, XF, XMSK, rmin, rmax, dc, lkcont=False, cpal='jet',
@@ -337,7 +350,6 @@ class plot :
         vc = __vcontour__(rmin, rmax, dc)
 
         # Palette:
-        #palette = bcm.chose_palette(cpal)
         pal_norm = colors.Normalize(vmin = rmin, vmax = rmax, clip = False)
         mpl.rcParams['contour.negative_linestyle'] = 'solid'
         plt.contour.negative_linestyle='solid'
@@ -355,13 +367,9 @@ class plot :
             cfs = plt.contour(VXe, VY, XFe, vcont_spec, colors='w', linewidths = 1.)
             #plt.clabel(cfs, inline=1, fmt='%4.1f', fontsize=12)
 
-
         if lkcont:
             cfk = plt.contour(VXe, VY, XFe, vc, colors='k', linewidths = 0.2)
             for c in cfk.collections: c.set_zorder(0.25)
-
-
-
 
         # Putting land-sea mask on top of current plot, cleaner than initial masking...
         # because won't influence contours since they are done
@@ -378,7 +386,6 @@ class plot :
             for c in cf0.collections: c.set_zorder(5)
             plt.contour(VXe, VY, XMSKe, [ 0.25 ], colors='k', linewidths = 1.)
 
-
         # COLOR BAR:
         __nice_colorbar__(cf, plt, vc, i_sbsmp=i_cb_subsamp, lkc=lkcont, cb_or=cb_orient, cunit=cbunit, cfont=font_clb, fontsize=colorbar_fs)
 
@@ -391,7 +398,6 @@ class plot :
         plt.yticks(vvy,clat) ; plt.xticks(vvx,clon)
 
         plt.axis([ rlon_min, rlon_max, lat_min, lat_max])
-
 
         if ctitle != ' ': plt.title(ctitle, **font_ttl)
 
@@ -499,7 +505,7 @@ class plot :
                 czunit='', ctitle='', lab='', lab1='', lab2='', lab3='', box_legend=(0.6, 0.75),
                 lnarrow=False):
 
-        font_ttl, font_xylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
         ny = len(VY)
         if len(VZn) != ny: print 'ERROR: plot_zonal.barakuda_plot => VY and VZn do not agree in size'; sys.exit(0)
@@ -510,10 +516,10 @@ class plot :
         if len(VZ3) == ny: lp3=True
 
         if lnarrow:
-            fig = plt.figure(num = 1, figsize=(WDTH_DEF/2.,4.), dpi=None)  ; #zonal
+            fig = plt.figure(num = 1, figsize=(WDTH_DEF/2. , HGHT_DEF), dpi=None)  ; #zonal
             ax  = plt.axes([0.14 , 0.12, 0.85, 0.82])   #, axisbg = 'gray')
         else:
-            fig = plt.figure(num = 1, figsize=(WDTH_DEF,6.), dpi=None)  ; #zonal
+            fig = plt.figure(num = 1, figsize=(WDTH_DEF , RAT_XY*6.), dpi=None)  ; #zonal
             ax = plt.axes([0.08, 0.11, 0.9, 0.82])   #, axisbg = 'gray')
 
         plt.plot(VY, VZn*0.0, 'k', linewidth=1) ; plt.hold(True)
@@ -571,7 +577,7 @@ class plot :
         from mpl_toolkits.basemap import shiftgrid
         import barakuda_colmap as bcm
 
-        font_ttl, font_xylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=dpi_fig)
 
         # For projections :
         vp = __give_proj__(czone) ; # projection information
@@ -614,7 +620,7 @@ class plot :
 
         else:
             # Vertical color bar on the rhs
-            rw = WDTH_DEF/2
+            rw = 5.
             vfig_size                        = [ rw, rw ];        vsporg = [0.1, 0.1, 0.85, 0.85]
             if czone == 'nseas':   vfig_size = [ rw , 0.7*rw ];   vsporg = [0.08,  0.07, 0.85, 0.85]
             if czone == 'natarct': vfig_size = [ rw , rw ];       vsporg = [0.065, 0.04, 0.95, 0.92]
@@ -766,9 +772,9 @@ class plot :
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, Xamoc)
 
-        font_ttl, font_xylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
-        fig = plt.figure(num = 1, figsize=(WDTH_DEF,6.), facecolor='w', edgecolor='k')  ; #amoc_lat_depth
+        fig = plt.figure(num = 1, figsize=(WDTH_DEF , RAT_XY*6.), facecolor='w', edgecolor='k')  ; #amoc_lat_depth
         ax  = plt.axes([0.1,  0.1,  0.94, 0.85], axisbg = 'gray')
 
         vc = __vcontour__(rmin, rmax, dc)
@@ -916,15 +922,14 @@ class plot :
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-        font_ttl, font_xylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
-        fig = plt.figure(num = 1, figsize=(WDTH_DEF,6.), dpi=None, facecolor='w', edgecolor='k') ; #trsp_sig_class
+        fig = plt.figure(num = 1, figsize=(WDTH_DEF , RAT_XY*6.), dpi=None, facecolor='w', edgecolor='k') ; #trsp_sig_class
         ax = plt.axes([0.055,  -0.025, 0.92, 0.98], axisbg = 'white')
 
-
-        vc = __vcontour__(rmin, rmax, dc); #print 'plot_time_depth_hovm: contours =>\n', vc, '\n'
+        vc = __vcontour__(rmin, rmax, dc)
 
         nbins = len(vsigma_bounds) - 1
 
@@ -965,14 +970,6 @@ class plot :
         plt.close(1)
 
         return
-
-
-
-
-
-
-
-
 
 
 
@@ -1041,7 +1038,7 @@ class plot :
         import matplotlib.colors as colors   # palette and co.
         import barakuda_colmap as bcm
 
-        font_ttl, font_xylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
         zVZ = __prepare_z_log_axis__(l_zlog, VZ)
 
@@ -1050,11 +1047,11 @@ class plot :
         if lforce_lim: __force_min_and_max__(rmin, rmax, XF)
 
 
-        fig = plt.figure(num = 1, figsize=(WDTH_DEF,6.), dpi=None, facecolor='w', edgecolor='k') ; #time_depth_hovm
-        ax = plt.axes([0.07,  0.08,   1., 0.82], axisbg = 'gray')
+        fig = plt.figure(num = 1, figsize=(WDTH_DEF , RAT_XY*6.), dpi=None, facecolor='w', edgecolor='k')
+        ax = plt.axes([0.09, 0.08, 0.9, 0.82], axisbg = 'gray')
 
 
-        vc = __vcontour__(rmin, rmax, dc); #print 'plot_time_depth_hovm: contours =>\n', vc, '\n'
+        vc = __vcontour__(rmin, rmax, dc)
 
         # Palette:
         palette = bcm.chose_palette(cpal)
@@ -1087,7 +1084,7 @@ class plot :
         __fix_z_axis__(ax, plt, zmin, zmax, l_log=l_zlog, l_z_inc=False)
 
         plt.title(ctitle, **font_ttl)
-        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_DEF, orientation='portrait', transparent=False) ; #time_depth_hovm
+        plt.savefig(cfignm+'.'+cfig_type, dpi=DPI_DEF, orientation='portrait', transparent=False)
         print cfignm+'.'+cfig_type+' created!\n'
         plt.close(1)
 
@@ -1103,7 +1100,7 @@ class plot :
 
     def __enso(self,VT, VSST, cfignm='fig', dt_year=5):
 
-        font_ttl, font_xylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
         Nt = len(VT)
 
@@ -1200,15 +1197,15 @@ class plot :
 
 
     def __1d_mon_ann(self,VTm, VTy, VDm, VDy, cfignm='fig', dt_year=5, cyunit='', ctitle='',
-                        ymin=0, ymax=0, dy=0, i_y_jump=1, mnth_col='b', plt_m03=False, plt_m09=False,
-                        cfig_type='png', l_tranparent_bg=True, fig_size=FIG_SIZE_DEF):
+                     ymin=0, ymax=0, dy=0, i_y_jump=1, mnth_col='b', plt_m03=False, plt_m09=False,
+                     cfig_type='png', l_tranparent_bg=True, fig_size=FIG_SIZE_DEF):
 
         # if you specify ymin and ymax you can also specify y increment (for y grid) as dy
         #
         # plt_m03 => plot march values on top in green
         # plt_m09 => plot september values on top in green
 
-        font_ttl, font_xylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
         Nt1 = len(VTm) ; Nt2 = len(VTy)
 
@@ -1224,6 +1221,10 @@ class plot :
 
         plt.plot(VTm, VDm, mnth_col, label=r'monthly', linewidth=1)
         plt.plot(VTy, VDy, b_red, label=r'annual', linewidth=2)
+
+        # Prevents from using scientific notations in axess ticks numbering:
+        ax.get_xaxis().get_major_formatter().set_useOffset(False)
+        ax.get_yaxis().get_major_formatter().set_useOffset(False)
 
         if plt_m03: plt.plot(VTm[2:Nt1:12], VDm[2:Nt1:12], 'orange', label=r'March',     linewidth=2)
         if plt_m09: plt.plot(VTm[8:Nt1:12], VDm[8:Nt1:12], 'orange', label=r'September', linewidth=2)
@@ -1279,23 +1280,25 @@ class plot :
                    l_tranparent_bg=True, cxunit='', lmask=True):
 
         # lzonal => zonally averaged curves...
-
-
         if lzonal:
-            font_ttl, font_big_fixed, font_xylb, font_clb = __font_unity__(size='big')
+            font_ttl, font_big_fixed, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF, size='big')
         else:
-            font_ttl, font_xylb, font_clb = __font_unity__()
+            font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
         # Number of lines to plot:
         [ nb_plt, nbt ] = XD.shape
-
         if len(vt) != nbt: print 'ERROR: plot_1d_multi.barakuda_plot.py => vt and XD do not agree in shape!'; sys.exit(0)
         if len(vlabels) != nb_plt: print 'ERROR: plot_1d_multi.barakuda_plot.py => wrong number of labels...'; sys.exit(0)
-
         n0 = len(line_styles)
         if n0 > 0 and n0 != nb_plt: print 'ERROR: plot_1d_multi.barakuda_plot.py => wrong number line styles!!!'; sys.exit(0)
+        nb_col, nb_row = __nb_col_row_legend__(nb_plt) ; # nb of columns and rows for legend
 
-
+        # Do we put the legend outside of the plot?
+        l_legend_out = False ; y_leg = 0.
+        if loc_legend == 'out':
+            l_legend_out = True
+            y_leg = 0.075*nb_row ; # Figure needs to be vertically extended in that case
+            fig_size = (fig_size[0],(1.+y_leg)*fig_size[1]) ; #lulu
 
         # Masking the time-series shorter than others (masked with -999.)
         if lmask: XD = nmp.ma.masked_where(XD < -900., XD)
@@ -1314,10 +1317,7 @@ class plot :
                 plt.plot(vt[:], XD[jp,:], line_styles[jp],   label=vlabels[jp], linewidth=2)
             else:
                 plt.plot(vt[:], XD[jp,:], v_dflt_colors[jp], label=vlabels[jp], linewidth=2)
-
-
-        if loc_legend != '0':  plt.legend(loc=loc_legend, ncol=int(nb_plt/4+1), shadow=True, fancybox=True)
-
+            
         # Prevents from using scientific notations in axess ticks numbering:
         ax.get_xaxis().get_major_formatter().set_useOffset(False)
         ax.get_yaxis().get_major_formatter().set_useOffset(False)
@@ -1356,6 +1356,15 @@ class plot :
 
         plt.title(ctitle, **font_ttl)
 
+        if loc_legend != '0':
+            if l_legend_out:
+                # Shrink Y axis's height by % on the bottom
+                box = ax.get_position()
+                ax.set_position([box.x0, box.y0 + box.height*y_leg, box.width, box.height*(1.-y_leg)])                
+                plt.legend(bbox_to_anchor=(0.5, -0.05), ncol=nb_col, shadow=True, fancybox=True)
+            else:
+                plt.legend(loc=loc_legend, ncol=nb_col, shadow=True, fancybox=True)
+
         cf_fig = cfignm+'.'+cfig_type
 
         plt.savefig(cf_fig, dpi=DPI_DEF, orientation='portrait', transparent=l_tranparent_bg) ; #1d_multi
@@ -1377,7 +1386,7 @@ class plot :
                 loc_legend='lower center', line_styles='-', fig_size=FIG_SIZE_DEF,
                 l_tranparent_bg=False, cxunit='', lmask=True):
 
-        font_ttl, font_xylb, font_clb = __font_unity__()
+        font_ttl, font_xylb, font_clb = __font_unity__(fig_dpi=DPI_DEF)
 
         # Number of lines to plot:
         nbt = len(VF)
@@ -1410,7 +1419,6 @@ class plot :
             plt.axis( [y1, y2, nmp.min(VF[:])-0.2*df, nmp.max(VF[:])+0.2*df] )
         else:
             plt.axis([y1, y2, ymin,     ymax])
-
 
         print nmp.arange(y1, y2+dt_year, dt_year)
 
@@ -1712,24 +1720,24 @@ def __give_proj__(cname):
 
 
 
-def __font_unity__(size='normal'):
+def __font_unity__(fig_dpi=100., size='normal'):
 
+    rat = 100./float(fig_dpi)
 
-    rat = 1.
-    if size == 'big': rat = 1.25
+    if size == 'big': rat = 1.25*rat
 
     params = { 'font.family':'Trebuchet MS',
-               'font.size':       int(12.*rat),
-               'legend.fontsize': int(12.*rat),
-               'xtick.labelsize': int(12.*rat),
-               'ytick.labelsize': int(12.*rat),
-               'axes.labelsize':  int(12.*rat) }
+               'font.size':       int(13.*rat),
+               'legend.fontsize': int(13.*rat),
+               'xtick.labelsize': int(13.*rat),
+               'ytick.labelsize': int(13.*rat),
+               'axes.labelsize':  int(13.*rat) }
 
     mpl.rcParams.update(params)
 
-    title_fonts    = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':int(14.*rat) }
-    label_fonts    = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(13.*rat) }
-    colorbar_fonts = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(12.*rat) }
+    title_fonts    = { 'fontname':'Trebuchet MS', 'fontweight':'normal', 'fontsize':int(15.*rat) }
+    label_fonts    = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(14.*rat) }
+    colorbar_fonts = { 'fontname':'Arial'       , 'fontweight':'normal', 'fontsize':int(13.*rat) }
 
     return title_fonts, label_fonts, colorbar_fonts
 
@@ -1934,3 +1942,23 @@ def __fix_z_axis__(ax_hndl, plt_hndl, z0, zK, l_log=False, l_z_inc=True):
         ax_hndl.set_ylim(zK+(zK-z0)/50. , z0)
 
     ax_hndl.grid(color='k', linestyle='-', linewidth=0.5)
+
+
+def __nb_col_row_legend__(nn):
+    if nn <= 3:
+        nbc = 1 ; nbr = nn
+    elif nn == 4:
+        nbc = 2 ; nbr = 2
+    elif nn > 4 and nn <= 6:
+        nbc = 2 ; nbrfull = 2; nfull = nbc*nbrfull; nbr = nbrfull + nn/nfull
+    elif nn > 6 and nn <= 9:
+        nbc = 3 ; nbrfull = 2; nfull = nbc*nbrfull; nbr = nbrfull + nn/nfull
+    elif nn > 9 and nn <= 16:
+        nbc = 4 ; nbrfull = 3; nfull = nbc*nbrfull; nbr = nbrfull + nn/nfull
+    else:
+        nbc = 4 ; nbr = nn/nbc + 1
+    return nbc, nbr
+    
+        
+
+

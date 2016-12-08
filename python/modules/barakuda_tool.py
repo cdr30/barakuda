@@ -350,7 +350,7 @@ def drown(X, mask, k_ew=-1, nb_max_inc=5, nb_smooth=5):
     for jt in range(nt):
 
         if l_record:
-            print '  DROWN (barakuda_tool.py) => treating record '+str(jt+1)
+            #print '  DROWN (barakuda_tool.py) => treating record '+str(jt+1)
             Xtemp[:,:] = X[jt,:,:]
         else:
             Xtemp[:,:] = X[:,:]

@@ -4,31 +4,25 @@
 #
 #         Configuration file for
 #
-# OCEAN MONITORING for NEMO v4.0 ORCA2 on 31 levels
+# OCEAN MONITORING for NEMO v3.6 ORCA1 on 46 levels
 #
-#            HPC: triolith
+#            HPC: voima.fmi.fi 
 #
 #        L. Brodeau, 2015
 #
 #===========================================================
 
-export CONF=ORCA2 ; # horizontal global configuration
-export NBL=31     ; # number of levels
+l_clim_diag=true ; # should we try to perform climatology-related diagnostics? (clim must be built!)
 
-# File system where NEMO config and output files are stored:
-export STORE_DIR="/proj/bolinc/users/x_laubr"
+export CONF=ORCA1.L46 ; # horizontal global configuration
+export NBL=46     ; # number of levels
 
+# Root directory where NEMO output files are stored:
+export STORE_DIR="/lustre/tmp/$USER"
 
-# Is it an ec-earth run?
-export ece_run=0 ; # means that NEMO files in something like ${STORE_DIR}/<RUN>/output/nemo/<YYY>
-#                  # where YYY starts from '001' to
-export Y_INI_EC=1990 ;    # initial year if ec-earth run...
+# List of suffixed of files that have been saved by NEMO:
+export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod"
 
-# List of suffixed of files that have been saved by NEMO and that are needed for the diags:
-export NEMO_SAVED_FILES="grid_T grid_U grid_V icemod SBC"
-
-# Configuration-input files directory:
-CONF_INI_DIR=""
 
 # Directory structure in which to find NEMO output file (use <ORCA> and <RUN>):
 export NEMO_OUT_STRCT="${STORE_DIR}/<ORCA>/<ORCA>-<RUN>-S"
@@ -42,9 +36,13 @@ export NEMO_FILE_PREFIX="<ORCA>-<RUN>_<TSTAMP>_"
 # => should get rid of TSTAMP actually...
 
 # Temporary file system (scratch) on which to perform the job you can use <JOB_ID> if scracth depends on JOB ID:
-export SCRATCH="/scratch/local/<JOB_ID>"
+export SCRATCH="/lustre/tmp/$USER/tmp/<JOB_ID>"
 
-export PYTHON_HOME=${HOME}/opt/Canopy_64bit/User
+# Python installation directory where bin lib include reside
+export PYTHON_HOME=/opt/Python/2.7
+
+# NETCDF binaries such as nccopy
+export NCDF_BIN=/opt/cray/netcdf/4.3.0/bin
 
 # If variables names in NEMO files are not the default...
 export NN_SST="tos"
@@ -62,15 +60,8 @@ export NN_V_EIV="0" ; # ignore
 export NN_TAUX="tauuo"
 export NN_TAUY="tauvo"
 
-export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction and volume?
 export NN_ICEF="siconc" ; # name of ice fraction in "FILE_ICE_SUFFIX" file...
-export NN_ICET="sivolu" ; # ice thickness or rather volume...
-
-export FILE_FLX_SUFFIX="SBC" ; # in what file to find surface fluxes ?
-export NN_FWF="wfo"       ; # name of net freshwater flux (E-P-R) in "FILE_FLX_SUFFIX" file...
-export NN_EMP="emp_oce"   ; # name of E-P in "FILE_FLX_SUFFIX" file...
-export NN_P="precip"   ; # name of P in "FILE_FLX_SUFFIX" file...
-export NN_RNF="XXX"          ; # name of continental runoffs in "FILE_FLX_SUFFIX" file...
+export NN_ICET="sithic" ; # ice thickness but 'sit' is only in icemod file !!!
 
 
 export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and your NCO does not support netcdf4!
@@ -78,43 +69,44 @@ export L_CONV2NC3=false ; # Set to true if your NEMO output is in Netcdf4 and yo
 export L_RENAME=false ; # set to true if your ORCA output has old name convention (ex: votemper instead of thetao)
 
 
-export JTITLE="NEMO v4.0 ${CONF} (L${NBL}) - LIM3 / ocean-only experiment"
+export JTITLE="NEMO v3.6 ${CONF} (L${NBL}) - LIM3 / ocean-only experiment"
 
 # Land-sea mask and basins files:
-export MM_FILE="${STORE_DIR}/ORCA2/mesh_mask_v4.nc"
-export BM_FILE="${STORE_DIR}/${CONF}/basin_mask_${CONF}.nc"
+export MM_FILE="/lustre/tmp/uotilap/ecearth3/input/nemo/ORCA1L46/mesh_mask_ORCA1L46.nc"
+export BM_FILE="/lustre/tmp/uotilap/ecearth3/input/nemo/ORCA1L46/basin_mask_ORCA1L46.nc"
 
 # 3D monthly climatologies of potential temperature and salinity (can be those you used for the NEMO run):
-export F_T_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/data_1m_potential_temperature_nomask_${CONF}.nc
-export F_S_CLIM_3D_12=${STORE_DIR}/${CONF}/${CONF}-I/data_1m_salinity_nomask_${CONF}.nc
-export SST_CLIM_12=${STORE_DIR}/${CONF}/${CONF}-I/sst_data_${CONF}.nc
-export NN_T_CLIM="votemper"
-export NN_S_CLIM="vosaline"
+export CDATDIR=/stornext/field/users/${USER}
+export F_T_CLIM_3D_12=${CDATDIR}/tiede/PHC/PHC3.0.ORCA1.L46.nc
+export F_S_CLIM_3D_12=${CDATDIR}/tiede/PHC/PHC3.0.ORCA1.L46.nc
+export SST_CLIM_12=${CDATDIR}/tiede/PHC/PHC3.0.ORCA1.L46.nc
+export NN_T_CLIM="T"
+export NN_S_CLIM="S"
 export NN_SST_CLIM="sst"
 
-export ICE_CLIM_12="${STORE_DIR}/${CONF}/${CONF}-I/ice_cover_180x360-${CONF}_Hurrell_monthly_mean1980-1999.nc4"
-export NN_ICEF_CLIM="ice_cover"
+export ICE_CLIM_12=${CDATDIR}/sidads.colorado.edu/pub/DATASETS/NOAA/G02202_v2/seaice_conc_ymonmean_1994-2013.ORCA1.nc
+export NN_ICEF_CLIM="seaice_conc_monthly_cdr"
 
 
 # A text file where the vertical hydraugraphical sections of interest are defined :
-export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA2.dat"
-#export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA2_all.dat"
+#export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_${CONF}_light.dat"
+export TRANSPORT_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1.dat"
 
 # For transport by sigma-class:
-export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_${CONF}.dat"
+export DENSITY_SECTION_FILE="${BARAKUDA_ROOT}/data/dens_section_ORCA1.dat"
 
 
 # In what directory of the local machine to save the diagnostics:
-export DIAG_DIR="${STORE_DIR}/tmp/barakuda/${CONF}_v4"
+export DIAG_DIR="/lustre/tmp/${USER}/barakuda/${CONF}"
 
 
 # Files with the list of rectangular boxes to look at more closely:
-export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_${CONF}.txt"
+export FILE_DEF_BOXES="${BARAKUDA_ROOT}/data/def_boxes_convection_ORCA1.txt"
 
 
 
 # About remote HOST to install HTML pages to:
-ihttp=1 ; # do we export on a remote http server (1) or keep on the local machine (0)
+ihttp=0 ; # do we export on a remote http server (1) or keep on the local machine (0)
 RHOST=misu228.misu.su.se ; # remote host to send diagnostic page to///
 RUSER=laurent ; # username associated to remote host (for file export)
 RWWWD=/data/www/barakuda/${CONF} ; # directory of the local or remote host to send the diagnostic page to
@@ -126,16 +118,12 @@ RWWWD=/data/www/barakuda/${CONF} ; # directory of the local or remote host to se
 # Diags to be performed #
 #########################
 
-# In what format should figures be produced:                                                                 
-export FIG_FORM="png"
+
 
 
 
 # Basic 3D and surface averages:
 i_do_mean=1
-
-# FreshWater fluxes at the surface spatially averaged over the ocean, E-P-R, E-P, R, P, ...
-#i_do_fwf=1
 
 # AMOC:
 i_do_amoc=1
@@ -157,6 +145,7 @@ i_do_sigt=1
 
 # sea-ice diags
 i_do_ice=1  ; # Sea-ice diags
+export FILE_ICE_SUFFIX="icemod" ; # in what file to find ice fraction NN_ICEF? => "icemod" or "grid_T"
 
 
 i_do_bb=1   ; # Budget and other stuffs on a given rectangular box!
@@ -173,13 +162,15 @@ i_do_box_TS_z=1 ; # do sigma vert. profiles on given boxes... # 1 => no figures,
 #                 # => needs file FILE_DEF_BOXES !!!
 # => produces time-series f(t,z)
 
-#
+# 
 # Deep Mixed volume in prescribed boxes:
-i_do_dmv=0
+i_do_dmv=1
 export MLD_CRIT="1000,725,500"
 
 
-# Some nerdy stuffs about the critical depth in prescribed boxes:
+
+
+# Some nerdy stuffs about the critical depth in prescribed boxes: 
 i_do_zcrit=0
 
 
@@ -192,7 +183,7 @@ i_do_zcrit=0
 # Fresh-water transport associated to sea-ice transport
 #  => must compile cdficeflux.x but depends on more recent CDFTOOLS module...
 i_do_icet=0 ; # treat sea-ice volume transport!
-export TRANSPORT_ICE_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_${CONF}_ARCTIC.dat"
+export TRANSPORT_ICE_SECTION_FILE="${BARAKUDA_ROOT}/data/transportiz_ORCA1_ARCTIC.dat"
 
 
 
