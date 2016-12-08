@@ -1,0 +1,11 @@
+# Makefile for CDFTOOLS
+#    $Rev: 174 $
+#    $Date: 2016-09-13 18:34:21 +0100 (Tue, 13 Sep 2016) $
+# --------------------------------------------------------------
+# 
+# Location of libraries -  $NETCDF_LIB $NETCDF_INCLUDE
+
+
+F90=gfortran
+NCDF = -Wl,-rpath,/usr/local/apps/netcdf4/4.3.2/GNU/4.8.1/lib -I/usr/local/apps/netcdf4/4.3.2/GNU/4.8.1/include -L/usr/local/apps/netcdf4/4.3.2/GNU/4.8.1/lib -lnetcdff -lnetcdf_c++ -lnetcdf
+FFLAGS= -Og -ffpe-trap=zero,overflow,underflow $(NCDF) -fconvert=big-endian -floop-parallelize-all -ftree-parallelize-loops=2
